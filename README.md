@@ -1,36 +1,115 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# trade.ai
 
-## Getting Started
+Plataforma web de consulta inteligente para comercio exterior argentino.
 
-First, run the development server:
+---
+
+## Stack tecnológico
+
+| Capa | Tecnología |
+|---|---|
+| Frontend | Next.js 14 (App Router) |
+| Base de datos estructurada | Supabase (PostgreSQL) |
+| Autenticación | Supabase Auth |
+| Base de datos vectorial | Pinecone |
+| Motor de IA | Claude API (Anthropic) |
+| Pagos | MercadoPago (Checkout Pro) |
+| Deploy | Vercel |
+
+---
+
+## Requisitos previos
+
+- Node.js 18 o superior
+- npm
+- Cuenta en [Supabase](https://supabase.com)
+- Cuenta en [Pinecone](https://pinecone.io)
+- Cuenta en [Anthropic](https://console.anthropic.com)
+- Cuenta en [MercadoPago Developers](https://www.mercadopago.com.ar/developers)
+- Cuenta en [Vercel](https://vercel.com)
+
+---
+
+## Instalación y uso local
 
 ```bash
+# 1. Clonar el repositorio
+git clone https://github.com/TU_USUARIO/trade-ai.git
+cd trade-ai
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Configurar variables de entorno
+cp .env.example .env.local
+# Editá .env.local con tus claves reales (ver sección Variables de entorno)
+
+# 4. Correr en desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrí [http://localhost:3000](http://localhost:3000) en el browser.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Estructura del proyecto
 
-## Learn More
+```
+trade-ai/
+├── app/                        # App Router — páginas y layouts
+│   ├── (auth)/                 # Rutas públicas de autenticación
+│   ├── (app)/                  # Rutas protegidas (requieren sesión)
+│   └── api/                    # Route Handlers — endpoints del backend
+├── components/                 # Componentes React reutilizables
+│   ├── ui/                     # Componentes de interfaz genéricos
+│   ├── chat/                   # Componentes del flujo de consulta
+│   ├── layout/                 # Navbar, Sidebar
+│   └── planes/                 # Cards de planes y suscripciones
+├── lib/                        # Clientes y lógica de negocio
+│   ├── supabase/               # Cliente Supabase (browser + servidor)
+│   ├── pinecone/               # Cliente Pinecone y búsqueda vectorial
+│   ├── anthropic/              # Cliente Claude API
+│   ├── mercadopago/            # Cliente MercadoPago
+│   └── utils/                  # Orquestador de consulta y lógica de planes
+├── middleware.js               # Protección de rutas autenticadas
+├── .env.example                # Plantilla de variables de entorno
+└── SECURITY.md                 # Política de seguridad del proyecto
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Variables de entorno
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Copiá `.env.example` como `.env.local` y completá cada valor:
 
-## Deploy on Vercel
+| Variable | Descripción |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL pública de tu proyecto Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave anónima de Supabase (segura para el browser) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clave de servicio de Supabase (solo servidor, nunca al browser) |
+| `PINECONE_API_KEY` | API key de Pinecone |
+| `PINECONE_INDEX_NAME` | Nombre del índice vectorial en Pinecone |
+| `PINECONE_ENVIRONMENT` | Región del índice Pinecone (ej: us-east-1) |
+| `ANTHROPIC_API_KEY` | API key de Anthropic para acceder a Claude |
+| `NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY` | Public key de MercadoPago (usada en el frontend) |
+| `MERCADOPAGO_ACCESS_TOKEN` | Access token de MercadoPago (solo servidor) |
+| `NEXT_PUBLIC_SITE_URL` | URL base del sitio (localhost en desarrollo, dominio en producción) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Deploy en Vercel
+
+1. Importá el repositorio desde [vercel.com/new](https://vercel.com/new)
+2. Vercel detecta Next.js automáticamente — no requiere configuración de build
+3. En **Environment Variables**, agregá todas las variables de `.env.example` con sus valores reales
+4. Hacé click en **Deploy**
+
+Para deploys posteriores, cada `git push` a `main` dispara un deploy automático.
+
+> ⚠️ Acordate de actualizar `NEXT_PUBLIC_SITE_URL` con el dominio real de producción.
+
+---
+
+## Licencia
+
+Privado / Propietario — todos los derechos reservados.
