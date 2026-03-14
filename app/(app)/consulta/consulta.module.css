@@ -1,0 +1,120 @@
+/* app/(app)/consulta/consulta.module.css */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px); /* descuenta el header fijo */
+  background: #0a0e1a;
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* Hero — estado sin mensajes */
+.hero {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 2rem;
+  text-align: center;
+}
+
+.heroEyebrow {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #2563eb;
+  margin-bottom: 1.25rem;
+}
+
+.heroTitle {
+  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #e8edf5;
+  margin-bottom: 1rem;
+}
+
+.heroAccent {
+  background: linear-gradient(135deg, #3b82f6 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroSubtitle {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.65;
+  max-width: 520px;
+  margin: 0 auto 2.5rem;
+}
+
+.ejemplosGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ejemploChip {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #1f2d47;
+  border-radius: 10px;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  line-height: 1.4;
+}
+
+.ejemploChip:hover {
+  color: #e8edf5;
+  border-color: #2563eb;
+  background: rgba(37, 99, 235, 0.06);
+  transform: translateX(4px);
+}
+
+/* Mensajes */
+.mensajes {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Typing indicator */
+.typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1rem 1rem 1rem 3.5rem;
+}
+
+.typingDot {
+  width: 7px;
+  height: 7px;
+  background: #3b82f6;
+  border-radius: 50%;
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+
+.typingDot:nth-child(2) { animation-delay: 0.2s; }
+.typingDot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}

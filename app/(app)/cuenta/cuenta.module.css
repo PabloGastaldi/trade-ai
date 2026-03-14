@@ -1,0 +1,288 @@
+/* app/(app)/cuenta/cuenta.module.css */
+
+.page {
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.inner {
+  max-width: 620px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Page header */
+.pageHeader {
+  margin-bottom: 0.5rem;
+}
+
+.titulo {
+  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #e8edf5;
+  margin-bottom: 0.2rem;
+}
+
+.subtitulo {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+/* Cards */
+.card {
+  background: #111827;
+  border: 1px solid #1f2d47;
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+
+.cardDanger {
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.cardTitulo {
+  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e8edf5;
+  margin-bottom: 1.25rem;
+}
+
+.cardHeader .cardTitulo {
+  margin-bottom: 0;
+}
+
+/* Plan badge */
+.planBadge {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+}
+
+/* Uso */
+.usoSection {
+  margin-bottom: 1.25rem;
+}
+
+.usoHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.usoLabel {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.usoCount {
+  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e8edf5;
+}
+
+.usoLimite {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #475569;
+}
+
+.usoBarra {
+  height: 6px;
+  background: #1e293b;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.usoBarraFill {
+  height: 100%;
+  border-radius: 99px;
+  min-width: 4px;
+}
+
+.usoReset {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  color: #475569;
+}
+
+.usoAgotado {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  color: #fca5a5;
+  margin-top: 0.5rem;
+}
+
+/* Card footer — mejorar plan */
+.cardFooter {
+  padding-top: 1.25rem;
+  border-top: 1px solid #1f2d47;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btnMejorar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btnMejorar:hover {
+  background: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.btnMejorarHint {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fieldLabel {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: 0.02em;
+}
+
+.fieldInput {
+  background: #0a0e1a;
+  border: 1px solid #1f2d47;
+  border-radius: 8px;
+  padding: 0.65rem 0.9rem;
+  color: #e8edf5;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.fieldInput:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+.fieldInput::placeholder { color: #374151; }
+
+.fieldInputReadonly {
+  color: #475569;
+  cursor: default;
+}
+
+.fieldInputReadonly:focus {
+  border-color: #1f2d47;
+  box-shadow: none;
+}
+
+.fieldHint {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.73rem;
+  color: #374151;
+}
+
+.errorMsg {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  color: #fca5a5;
+}
+
+.formFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.25rem;
+}
+
+.btnGuardar {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnGuardar:hover:not(:disabled) { background: #3b82f6; }
+.btnGuardar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Danger zone */
+.dangerText {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.btnLogout {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fca5a5;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnLogout:hover {
+  background: rgba(239,68,68,0.14);
+  border-color: rgba(239,68,68,0.35);
+  color: #f87171;
+}

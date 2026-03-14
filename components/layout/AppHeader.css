@@ -1,0 +1,128 @@
+/* components/layout/AppHeader.css */
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 64px;
+  background: rgba(10, 14, 26, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #1f2d47;
+}
+
+.app-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 100%;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Logo */
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  text-decoration: none;
+  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.app-logo-trade { color: #e8edf5; }
+.app-logo-dot   { color: #3b82f6; }
+.app-logo-ai    { color: #3b82f6; }
+
+.app-logo-badge {
+  margin-left: 0.5rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+}
+
+/* Nav */
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.app-nav-link {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  text-decoration: none;
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.app-nav-link:hover {
+  color: #e8edf5;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.app-nav-link.active {
+  color: #e8edf5;
+  background: rgba(37, 99, 235, 0.12);
+}
+
+/* Right */
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.app-user-email {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  color: #475569;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-btn-logout {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: transparent;
+  border: 1px solid #1f2d47;
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.app-btn-logout:hover {
+  color: #e8edf5;
+  border-color: #3b82f6;
+  background: rgba(37, 99, 235, 0.08);
+}
+
+/* Responsive — ocultar email en pantallas chicas */
+@media (max-width: 640px) {
+  .app-user-email { display: none; }
+  .app-nav-link { padding: 0.4rem 0.6rem; }
+}

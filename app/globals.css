@@ -2,26 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --border: #1f2d47;
+  --border-light: #2a3a58;
+  --accent: #2563eb;
+  --accent-glow: rgba(37, 99, 235, 0.3);
+  --accent-light: #3b82f6;
+  --gold: #f59e0b;
+  --gold-light: #fbbf24;
+  --text: #e8edf5;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  --success: #10b981;
+  --error: #ef4444;
+  --font-display: var(--font-display), 'Nunito', sans-serif;
+  --font-body: var(--font-body), 'DM Sans', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* Títulos — Nunito 800 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), 'Nunito', sans-serif;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+/* Scrollbar global */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+
+/* Animaciones reutilizables */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
 }

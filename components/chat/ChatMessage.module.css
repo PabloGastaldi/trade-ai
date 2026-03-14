@@ -1,0 +1,118 @@
+/* components/chat/ChatMessage.module.css */
+
+.wrapper {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  align-items: flex-start;
+}
+
+.wrapperUsuario {
+  flex-direction: row-reverse;
+}
+
+/* Avatar */
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
+}
+
+.avatarSistema {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  color: white;
+}
+
+.avatarUsuario {
+  background: #1e293b;
+  border: 1px solid #2a3a58;
+  color: #94a3b8;
+}
+
+/* Contenido */
+.content {
+  flex: 1;
+  min-width: 0;
+  max-width: 88%;
+}
+
+.wrapperUsuario .content {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.02em;
+}
+
+/* Texto del mensaje */
+.texto {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.925rem;
+  line-height: 1.7;
+  color: #e8edf5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.wrapperUsuario .texto {
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  border-radius: 12px 4px 12px 12px;
+  padding: 0.7rem 1rem;
+  color: #cbd5e1;
+}
+
+.textoError {
+  color: #fca5a5;
+}
+
+/* Cursor de streaming */
+.cursor {
+  display: inline-block;
+  color: #3b82f6;
+  animation: blink 0.8s step-end infinite;
+  margin-left: 1px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Disclaimer */
+.disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  border-radius: 8px;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  color: #78716c;
+  line-height: 1.5;
+}
+
+.disclaimerIcon {
+  color: #d97706;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
