@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 64px); /* descuenta el header fijo */
-  background: #0a0e1a;
+  background: #0a0a0a;
 }
 
 .main {
@@ -27,21 +27,21 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #2563eb;
+  color: #FF6B35;
   margin-bottom: 1.25rem;
 }
 
 .heroTitle {
   font-family: var(--font-syne), 'Syne', sans-serif;
   font-size: clamp(2rem, 4vw, 2.75rem);
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.15;
   color: #e8edf5;
   margin-bottom: 1rem;
 }
 
 .heroAccent {
-  background: linear-gradient(135deg, #3b82f6 0%, #f59e0b 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #FF6B35 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -68,8 +68,8 @@
   font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
   font-size: 0.875rem;
   color: #94a3b8;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid #1f2d47;
+  background: #111111;
+  border: 1px solid #222222;
   border-radius: 10px;
   padding: 0.75rem 1.25rem;
   cursor: pointer;
@@ -80,8 +80,8 @@
 
 .ejemploChip:hover {
   color: #e8edf5;
-  border-color: #2563eb;
-  background: rgba(37, 99, 235, 0.06);
+  border-color: rgba(255, 107, 53, 0.4);
+  background: rgba(255, 107, 53, 0.05);
   transform: translateX(4px);
 }
 
@@ -106,7 +106,7 @@
 .typingDot {
   width: 7px;
   height: 7px;
-  background: #3b82f6;
+  background: #FF6B35;
   border-radius: 50%;
   animation: typingBounce 1.2s ease-in-out infinite;
 }

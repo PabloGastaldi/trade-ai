@@ -11,7 +11,7 @@ export default async function AppLayout({ children }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0e1a', color: '#e8edf5' }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0a', color: '#e8edf5' }}>
       <AppHeader user={user} />
       <main style={{ paddingTop: '64px' }}>
         {children}
