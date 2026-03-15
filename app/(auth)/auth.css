@@ -18,12 +18,12 @@
 
 .auth-logo .dot,
 .auth-logo .ai {
-  color: #3b82f6;
+  color: #FF6B35;
 }
 
 .auth-card {
-  background: #111827;
-  border: 1px solid #1f2d47;
+  background: #111111;
+  border: 1px solid #1e1e1e;
   border-radius: 16px;
   padding: 2rem;
 }
@@ -47,8 +47,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  background: #1a2235;
-  border: 1px solid #2a3a58;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
   padding: 0.7rem 1rem;
   color: #e8edf5;
@@ -61,8 +61,8 @@
 }
 
 .btn-google:hover {
-  border-color: #3b82f6;
-  background: rgba(37, 99, 235, 0.08);
+  border-color: #444444;
+  background: #222222;
 }
 
 .divider {
@@ -75,7 +75,7 @@
 .divider-line {
   flex: 1;
   height: 1px;
-  background: #1f2d47;
+  background: #1e1e1e;
 }
 
 .divider-text {
@@ -97,8 +97,8 @@
 
 .field input {
   width: 100%;
-  background: #0a0e1a;
-  border: 1px solid #1f2d47;
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
   padding: 0.65rem 0.9rem;
   color: #e8edf5;
@@ -109,8 +109,8 @@
 }
 
 .field input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
 }
 
 .field input::placeholder {
@@ -135,21 +135,21 @@
 
 .btn-primary {
   width: 100%;
-  background: #2563eb;
+  background: #FF6B35;
   border: none;
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  color: white;
+  color: #000000;
   font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
   margin-top: 0.25rem;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #3b82f6;
+  background: #FF8C5A;
 }
 
 .btn-primary:disabled {
@@ -165,7 +165,7 @@
 }
 
 .auth-footer a {
-  color: #3b82f6;
+  color: #FF6B35;
   text-decoration: none;
   font-weight: 500;
 }
@@ -176,8 +176,8 @@
 
 /* Pantalla de éxito (registro) */
 .success-card {
-  background: #111827;
-  border: 1px solid #1f2d47;
+  background: #111111;
+  border: 1px solid #1e1e1e;
   border-radius: 16px;
   padding: 2.5rem;
   max-width: 400px;
@@ -205,12 +205,12 @@
 }
 
 .success-email {
-  color: #3b82f6;
+  color: #FF6B35;
   font-weight: 500;
 }
 
 .btn-back {
-  color: #3b82f6;
+  color: #FF6B35;
   font-size: 0.85rem;
   text-decoration: none;
 }
