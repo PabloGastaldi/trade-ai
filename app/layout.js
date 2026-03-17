@@ -16,6 +16,7 @@ const outfit = Outfit({
 })
 
 export const metadata = {
+  icons: { icon: '/favicon.png' },
   title: 'trade.ai — Inteligencia para el comercio exterior',
   description:
     'Consultá aranceles, normativa y documentos de comercio exterior argentino con inteligencia artificial. Respuestas respaldadas por fuentes oficiales.',
