@@ -90,7 +90,7 @@
 }
 
 .textoError {
-  color: oklch(78% 0.15 25);
+  color: #f87171;
 }
 
 /* ─── Markdown dentro de respuestas del sistema ─── */

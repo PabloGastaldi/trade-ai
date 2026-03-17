@@ -128,12 +128,12 @@
 }
 
 .error-msg {
-  background: oklch(62% 0.22 25 / 0.08);
-  border: 1px solid oklch(62% 0.22 25 / 0.2);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 7px;
   padding: 0.65rem 0.9rem;
   font-size: 0.82rem;
-  color: oklch(78% 0.15 25);
+  color: #f87171;
   margin-bottom: 1rem;
 }
 

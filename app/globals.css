@@ -9,25 +9,25 @@
 }
 
 :root {
-  /* Fondos — negro cálido (tinte naranja sutil, nunca negro puro) */
-  --bg:        oklch(9% 0.012 40);
-  --surface:   oklch(13% 0.015 40);
-  --surface-2: oklch(17.5% 0.018 40);
+  /* Fondos — azul marino oscuro */
+  --bg:        #0a0e1b;
+  --surface:   #111827;
+  --surface-2: #1a2236;
 
   /* Bordes */
-  --border:       oklch(21% 0.015 40);
-  --border-light: oklch(28% 0.018 40);
+  --border:       #1e2d45;
+  --border-light: #2a3f5f;
 
-  /* Acento — naranja marca, exacto */
-  --accent:       #FF6B35;
-  --accent-hover: #FF8050;
-  --accent-dim:   oklch(65% 0.19 38 / 0.12);
-  --accent-dim-border: oklch(65% 0.19 38 / 0.28);
+  /* Acento — dorado/ámbar marca */
+  --accent:       #e99f1c;
+  --accent-hover: #f0b030;
+  --accent-dim:   rgba(233, 159, 28, 0.12);
+  --accent-dim-border: rgba(233, 159, 28, 0.28);
 
   /* Texto */
-  --text:       oklch(90% 0.012 75);
-  --text-dim:   oklch(70% 0.01 80);
-  --text-muted: oklch(50% 0.008 250);
+  --text:       #e7edf5;
+  --text-dim:   #b8c5d6;
+  --text-muted: #6b7f96;
 
   /* Semánticos */
   --success: oklch(70% 0.17 145);

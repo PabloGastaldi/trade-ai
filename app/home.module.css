@@ -195,7 +195,10 @@
 }
 
 .heroAccent {
-  color: var(--accent);
+  background: linear-gradient(90deg, #e99f1c 0%, #f5c842 50%, #e99f1c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .heroSubtitle {
@@ -312,7 +315,7 @@
   font-family: var(--font-display);
   font-size: 0.82rem;
   font-weight: 700;
-  color: oklch(72% 0.19 38);
+  color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 
@@ -558,7 +561,7 @@
 
 .planCardDestacado {
   border-color: var(--accent);
-  background: linear-gradient(160deg, oklch(65% 0.19 38 / 0.07) 0%, var(--surface) 50%);
+  background: linear-gradient(160deg, rgba(233, 159, 28, 0.07) 0%, var(--surface) 50%);
 }
 
 .planPopular {

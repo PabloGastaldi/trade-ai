@@ -9,20 +9,20 @@ module.exports = {
     extend: {
       colors: {
         // Fondos
-        'bg-primary':   '#0a0a0a',
-        'bg-secondary': '#111111',
-        'bg-tertiary':  '#1a1a1a',
-        // Acento naranja
-        'accent':       '#FF6B35',
-        'accent-hover': '#FF8C5A',
-        'accent-muted': 'rgba(255,107,53,0.12)',
+        'bg-primary':   '#0a0e1b',
+        'bg-secondary': '#111827',
+        'bg-tertiary':  '#1a2236',
+        // Acento dorado
+        'accent':       '#e99f1c',
+        'accent-hover': '#f0b030',
+        'accent-muted': 'rgba(233,159,28,0.12)',
         // Bordes
-        'border-base':  '#1e1e1e',
-        'border-light': '#2a2a2a',
+        'border-base':  '#1e2d45',
+        'border-light': '#2a3f5f',
         // Texto
-        'text-primary':   '#FFFFFF',
-        'text-secondary': '#9CA3AF',
-        'text-muted':     '#6B7280',
+        'text-primary':   '#e7edf5',
+        'text-secondary': '#b8c5d6',
+        'text-muted':     '#6b7f96',
         // Legados (para compatibilidad con var() en globals)
         background: "var(--bg)",
         foreground: "var(--text)",
