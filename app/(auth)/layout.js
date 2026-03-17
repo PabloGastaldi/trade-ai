@@ -24,8 +24,8 @@ export default function AuthLayout({ children }) {
       className={`${nunito.variable} ${dmSans.variable}`}
       style={{
         fontFamily: 'var(--font-body), sans-serif',
-        background: '#0a0e1a',
-        color: '#e8edf5',
+        background: 'var(--bg, #0d0d0d)',
+        color: 'var(--text, #f0f0f0)',
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',

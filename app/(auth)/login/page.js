@@ -94,6 +94,10 @@ export default function LoginPage() {
         </form>
 
         <div className="auth-footer">
+          <a href="/recuperar-password" className="link-forgot">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <div className="auth-footer">
           ¿No tenés cuenta? <a href="/registro">Registrate</a>
         </div>
       </div>
