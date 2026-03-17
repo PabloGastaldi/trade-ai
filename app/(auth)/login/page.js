@@ -18,16 +18,13 @@ export default function LoginPage() {
     setLoading(true)
 
     const supabase = createClient()
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      console.error('[login] error:', error.message, error.status, error.code)
-      setError(`Error: ${error.message}`)
+      setError('Email o contraseña incorrectos. Revisá tus datos.')
       setLoading(false)
       return
     }
-
-    console.log('[login] ok, user:', data?.user?.id)
 
     router.push('/consulta')
     router.refresh()
