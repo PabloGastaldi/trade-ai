@@ -75,7 +75,7 @@ const PLANES = [
       'Onboarding personalizado',
     ],
     cta: 'Contactanos',
-    href: 'mailto:hola@trade.ai',
+    href: 'mailto:tradeaicomex@gmail.com?subject=Consulta%20Plan%20Empresa%20%E2%80%94%20trade.ai&body=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20el%20Plan%20Empresa%20de%20trade.ai.',
   },
 ]
 

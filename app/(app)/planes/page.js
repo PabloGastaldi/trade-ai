@@ -131,7 +131,7 @@ export default function PlanesPage() {
               )}
               {plan.contacto && (
                 <a
-                  href="mailto:contacto@trade-ai.com.ar?subject=Plan Empresa — trade.ai"
+                  href="mailto:tradeaicomex@gmail.com?subject=Consulta%20Plan%20Empresa%20%E2%80%94%20trade.ai&body=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20el%20Plan%20Empresa%20de%20trade.ai."
                   className={styles.btnSecondary}
                 >
                   {plan.cta}
