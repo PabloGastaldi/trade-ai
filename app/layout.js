@@ -1,14 +1,14 @@
-import { Nunito, DM_Sans } from 'next/font/google'
+import { Space_Grotesk, Outfit } from 'next/font/google'
 import './globals.css'
 
-const nunito = Nunito({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  weight: ['400', '600', '700', '800'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-display',
   display: 'swap',
 })
 
-const dmSans = DM_Sans({
+const outfit = Outfit({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600'],
   variable: '--font-body',
@@ -34,7 +34,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={`${nunito.variable} ${dmSans.variable}`}>
+    <html lang="es" className={`${spaceGrotesk.variable} ${outfit.variable}`}>
       <body>{children}</body>
     </html>
   )

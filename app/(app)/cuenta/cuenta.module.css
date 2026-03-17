@@ -18,29 +18,30 @@
 }
 
 .titulo {
-  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 700;
-  color: #e8edf5;
+  letter-spacing: -0.025em;
+  color: var(--text);
   margin-bottom: 0.2rem;
 }
 
 .subtitulo {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  color: #475569;
+  color: var(--text-muted);
 }
 
 /* Cards */
 .card {
-  background: #111111;
-  border: 1px solid #1e1e1e;
-  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 1.5rem;
 }
 
 .cardDanger {
-  border-color: rgba(239, 68, 68, 0.15);
+  border-color: oklch(62% 0.22 25 / 0.18);
 }
 
 .cardHeader {
@@ -51,10 +52,11 @@
 }
 
 .cardTitulo {
-  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 600;
-  color: #e8edf5;
+  letter-spacing: -0.01em;
+  color: var(--text);
   margin-bottom: 1.25rem;
 }
 
@@ -64,13 +66,13 @@
 
 /* Plan badge */
 .planBadge {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.25rem 0.65rem;
-  border-radius: 6px;
+  border-radius: 5px;
 }
 
 /* Uso */
@@ -86,27 +88,28 @@
 }
 
 .usoLabel {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .usoCount {
-  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 700;
-  color: #e8edf5;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 .usoLimite {
   font-size: 0.85rem;
   font-weight: 400;
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .usoBarra {
-  height: 6px;
-  background: #1e1e1e;
+  height: 5px;
+  background: var(--border);
   border-radius: 99px;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -116,26 +119,26 @@
   height: 100%;
   border-radius: 99px;
   min-width: 4px;
-  background: #FF6B35;
+  background: var(--accent);
 }
 
 .usoReset {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .usoAgotado {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
-  color: #fca5a5;
+  color: oklch(78% 0.15 25);
   margin-top: 0.5rem;
 }
 
 /* Card footer — mejorar plan */
 .cardFooter {
   padding-top: 1.25rem;
-  border-top: 1px solid #1e1e1e;
+  border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -146,29 +149,29 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  font-weight: 700;
-  color: #000000;
-  background: #FF6B35;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--accent);
   border: none;
   border-radius: 8px;
   padding: 0.6rem 1.25rem;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s, transform 0.15s;
   white-space: nowrap;
 }
 
 .btnMejorar:hover {
-  background: #FF8C5A;
+  background: var(--accent-hover);
   transform: translateY(-1px);
 }
 
 .btnMejorarHint {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.78rem;
-  color: #475569;
+  color: var(--text-muted);
   line-height: 1.4;
 }
 
@@ -186,56 +189,56 @@
 }
 
 .fieldLabel {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-dim);
   letter-spacing: 0.02em;
 }
 
 .fieldInput {
-  background: #0a0a0a;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 7px;
   padding: 0.65rem 0.9rem;
-  color: #e8edf5;
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  color: var(--text);
+  font-family: var(--font-body);
   font-size: 0.9rem;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .fieldInput:focus {
-  border-color: #FF6B35;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
-.fieldInput::placeholder { color: #374151; }
+.fieldInput::placeholder { color: var(--border-light); }
 
 .fieldInputReadonly {
-  color: #475569;
+  color: var(--text-muted);
   cursor: default;
 }
 
 .fieldInputReadonly:focus {
-  border-color: #2a2a2a;
+  border-color: var(--border-light);
   box-shadow: none;
 }
 
 .fieldHint {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.73rem;
-  color: #374151;
+  color: var(--text-muted);
 }
 
 .errorMsg {
-  background: rgba(239,68,68,0.08);
-  border: 1px solid rgba(239,68,68,0.2);
-  border-radius: 8px;
+  background: oklch(62% 0.22 25 / 0.08);
+  border: 1px solid oklch(62% 0.22 25 / 0.2);
+  border-radius: 7px;
   padding: 0.6rem 0.9rem;
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.82rem;
-  color: #fca5a5;
+  color: oklch(78% 0.15 25);
 }
 
 .formFooter {
@@ -245,45 +248,44 @@
 }
 
 .btnGuardar {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  font-weight: 700;
-  color: #000000;
-  background: #FF6B35;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--accent);
   border: none;
   border-radius: 8px;
   padding: 0.6rem 1.5rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s;
 }
 
-.btnGuardar:hover:not(:disabled) { background: #FF8C5A; }
+.btnGuardar:hover:not(:disabled) { background: var(--accent-hover); }
 .btnGuardar:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Danger zone */
 .dangerText {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-muted);
   margin-bottom: 1rem;
   line-height: 1.5;
 }
 
 .btnLogout {
-  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 500;
-  color: #fca5a5;
-  background: rgba(239,68,68,0.08);
-  border: 1px solid rgba(239,68,68,0.2);
+  color: oklch(78% 0.15 25);
+  background: oklch(62% 0.22 25 / 0.08);
+  border: 1px solid oklch(62% 0.22 25 / 0.2);
   border-radius: 8px;
   padding: 0.6rem 1.25rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s, border-color 0.15s;
 }
 
 .btnLogout:hover {
-  background: rgba(239,68,68,0.14);
-  border-color: rgba(239,68,68,0.35);
-  color: #f87171;
+  background: oklch(62% 0.22 25 / 0.14);
+  border-color: oklch(62% 0.22 25 / 0.35);
 }

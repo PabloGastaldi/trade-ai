@@ -25,6 +25,15 @@ export default function ConsultaPage() {
   async function enviarConsulta(texto) {
     if (!texto.trim() || cargando) return
 
+    // Armar historial para el backend (últimos 10 mensajes completos)
+    const historial = mensajes
+      .filter(m => m.tipo === 'usuario' || (m.tipo === 'sistema' && m.texto && !m.streaming))
+      .slice(-10)
+      .map(m => ({
+        role: m.tipo === 'usuario' ? 'user' : 'assistant',
+        content: m.texto,
+      }))
+
     // Agregar mensaje del usuario
     const idUsuario = Date.now()
     setMensajes(prev => [...prev, { id: idUsuario, tipo: 'usuario', texto }])
@@ -38,10 +47,22 @@ export default function ConsultaPage() {
       const res = await fetch('/api/consulta', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pregunta: texto }),
+        body: JSON.stringify({ pregunta: texto, historial }),
       })
 
-      if (!res.ok) throw new Error('Error en la respuesta')
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        const errorMsg = errorData.error || 'Hubo un error al procesar tu consulta. Intentá de nuevo.'
+        setMensajes(prev =>
+          prev.map(m =>
+            m.id === idSistema
+              ? { ...m, tipo: 'limite', texto: errorMsg, streaming: false }
+              : m
+          )
+        )
+        setCargando(false)
+        return
+      }
 
       // Intentar streaming si el servidor lo soporta
       const contentType = res.headers.get('content-type') || ''
@@ -50,16 +71,32 @@ export default function ConsultaPage() {
         // Modo streaming
         const reader = res.body.getReader()
         const decoder = new TextDecoder()
-        let acumulado = ''
+        let buffer = ''
+        let textoCompleto = ''
 
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
-          acumulado += decoder.decode(value, { stream: true })
-          const texto = acumulado
-          setMensajes(prev =>
-            prev.map(m => m.id === idSistema ? { ...m, texto, streaming: true } : m)
-          )
+
+          buffer += decoder.decode(value, { stream: true })
+          const lineas = buffer.split('\n')
+          buffer = lineas.pop() // la última línea puede estar incompleta
+
+          for (const linea of lineas) {
+            if (!linea.startsWith('data: ')) continue
+            const payload = linea.slice(6).trim()
+            if (payload === '[DONE]') break
+            try {
+              const { texto: chunk, error } = JSON.parse(payload)
+              if (error) throw new Error(error)
+              if (chunk) {
+                textoCompleto += chunk
+                setMensajes(prev =>
+                  prev.map(m => m.id === idSistema ? { ...m, texto: textoCompleto, streaming: true } : m)
+                )
+              }
+            } catch { /* ignorar líneas malformadas */ }
+          }
         }
 
         // Finalizar streaming
@@ -119,18 +156,34 @@ export default function ConsultaPage() {
             </div>
           </div>
         ) : (
-          <div className={styles.mensajes}>
-            {mensajes.map(msg => (
-              <ChatMessage key={msg.id} mensaje={msg} />
-            ))}
-            {cargando && mensajes[mensajes.length - 1]?.streaming === false && (
-              <div className={styles.typing}>
-                <div className={styles.typingDot} />
-                <div className={styles.typingDot} />
-                <div className={styles.typingDot} />
+          <div className={styles.chatFrame}>
+            <div className={styles.chatInner}>
+              <div className={styles.mensajes}>
+                {mensajes.map((msg, idx) => (
+                  <ChatMessage
+                    key={msg.id}
+                    mensaje={msg}
+                    onReintentar={msg.tipo === 'error' ? () => {
+                      // Buscar el mensaje del usuario anterior al error
+                      const prevUsuario = [...mensajes].slice(0, idx).reverse().find(m => m.tipo === 'usuario')
+                      if (prevUsuario) {
+                        // Eliminar el error y reenviar
+                        setMensajes(prev => prev.filter(m => m.id !== msg.id))
+                        enviarConsulta(prevUsuario.texto)
+                      }
+                    } : undefined}
+                  />
+                ))}
+                {cargando && mensajes[mensajes.length - 1]?.streaming === false && (
+                  <div className={styles.typing}>
+                    <div className={styles.typingDot} />
+                    <div className={styles.typingDot} />
+                    <div className={styles.typingDot} />
+                  </div>
+                )}
+                <div ref={bottomRef} />
               </div>
-            )}
-            <div ref={bottomRef} />
+            </div>
           </div>
         )}
       </div>
