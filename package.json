@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:eval": "node scripts/test-runner.js",
-    "test:eval:dry": "node scripts/test-runner.js --dry-run"
+    "test:eval:dry": "node scripts/test-runner.js --dry-run",
+    "pre-deploy": "node scripts/pre-deploy-check.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

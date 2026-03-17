@@ -2,11 +2,14 @@ import crypto from 'crypto'
 import { createClient } from '@supabase/supabase-js'
 import { getPaymentClient, PLANES } from '@/lib/mercadopago/client'
 
-// Supabase con service role para poder escribir sin auth de usuario
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
+// Supabase con service role — se instancia dentro del handler para que
+// las env vars estén disponibles en runtime (no en build time de Next.js)
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  )
+}
 
 // Validar firma HMAC de MercadoPago
 function validarFirma(request) {
@@ -113,7 +116,7 @@ export async function POST(request) {
         return Response.json({ error: 'Plan desconocido' }, { status: 400 })
       }
 
-      const { error: updateError } = await supabase
+      const { error: updateError } = await getSupabase()
         .from('users_profile')
         .update({
           plan_type: plan,
@@ -132,7 +135,7 @@ export async function POST(request) {
 
     // Pago rechazado o cancelado → revertir a free
     if (pago.status === 'rejected' || pago.status === 'cancelled' || pago.status === 'refunded') {
-      const { error: updateError } = await supabase
+      const { error: updateError } = await getSupabase()
         .from('users_profile')
         .update({
           plan_type: 'free',
