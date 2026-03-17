@@ -16,9 +16,9 @@ export default function AppHeader({ user }) {
   }
 
   const navItems = [
-    { label: 'Consulta', href: '/consulta' },
-    { label: 'Historial', href: '/historial' },
-    { label: 'Mi cuenta', href: '/cuenta' },
+    { label: 'Consulta',  labelMobile: 'Consulta',  href: '/consulta' },
+    { label: 'Historial', labelMobile: 'Historial', href: '/historial' },
+    { label: 'Mi cuenta', labelMobile: 'Cuenta',    href: '/cuenta' },
   ]
 
   return (
@@ -40,7 +40,8 @@ export default function AppHeader({ user }) {
               href={item.href}
               className={`app-nav-link ${pathname === item.href ? 'active' : ''}`}
             >
-              {item.label}
+              <span className="app-nav-label-full">{item.label}</span>
+              <span className="app-nav-label-mobile">{item.labelMobile}</span>
             </a>
           ))}
         </nav>

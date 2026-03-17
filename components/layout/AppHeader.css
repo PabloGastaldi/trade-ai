@@ -119,6 +119,10 @@
   border-color: var(--text-muted);
 }
 
+/* Labels responsive */
+.app-nav-label-mobile { display: none; }
+.app-nav-label-full   { display: inline; }
+
 /* Responsive */
 @media (max-width: 640px) {
   .app-user-email { display: none; }
@@ -127,4 +131,6 @@
   .app-nav-link { padding: 0.35rem 0.5rem; font-size: 0.78rem; }
   .app-btn-logout { font-size: 0.74rem; padding: 0.32rem 0.6rem; }
   .app-logo-badge { display: none; }
+  .app-nav-label-full   { display: none; }
+  .app-nav-label-mobile { display: inline; }
 }
