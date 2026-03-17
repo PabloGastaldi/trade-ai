@@ -179,7 +179,89 @@
   font-size: 0.9rem;
   color: var(--text-dim);
   line-height: 1.7;
-  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Markdown dentro de respuestas del historial — igual que ChatMessage */
+.itemRespuestaTexto h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 1.2rem 0 0.4rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.itemRespuestaTexto h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 1rem 0 0.3rem;
+}
+
+.itemRespuestaTexto p {
+  margin: 0.5rem 0;
+}
+
+.itemRespuestaTexto strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.itemRespuestaTexto ul,
+.itemRespuestaTexto ol {
+  margin: 0.4rem 0;
+  padding-left: 1.3rem;
+}
+
+.itemRespuestaTexto li {
+  margin-bottom: 0.25rem;
+}
+
+.itemRespuestaTexto hr {
+  border: none;
+  border-top: 1px solid var(--border-light);
+  margin: 1rem 0;
+}
+
+.itemRespuestaTexto table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: 0.875rem;
+}
+
+.itemRespuestaTexto thead {
+  background: var(--surface);
+}
+
+.itemRespuestaTexto th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.itemRespuestaTexto td {
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-dim);
+}
+
+.itemRespuestaTexto tbody tr:hover {
+  background: var(--surface);
+}
+
+.itemRespuestaTexto code {
+  background: var(--surface);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: var(--accent);
 }
 
 .disclaimer {

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import styles from './historial.module.css'
 
 function formatFecha(iso) {
@@ -139,7 +141,11 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
               {expandido === c.id && (
                 <div className={styles.itemRespuesta}>
                   <div className={styles.itemRespuestaLabel}>Respuesta de trade.ai</div>
-                  <div className={styles.itemRespuestaTexto}>{c.response_text}</div>
+                  <div className={styles.itemRespuestaTexto}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {c.response_text}
+                    </ReactMarkdown>
+                  </div>
                   <div className={styles.disclaimer}>
                     <span className={styles.disclaimerIcon}>⚠</span>
                     La información es orientativa y está respaldada por documentos oficiales públicos.

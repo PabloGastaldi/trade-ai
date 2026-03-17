@@ -6,9 +6,9 @@ import { createClient } from '@/lib/supabase/client'
 import styles from './cuenta.module.css'
 
 const PLANES = {
-  free:     { label: 'Gratuito', limite: 15,       color: '#64748b', bg: 'rgba(100,116,139,0.12)', border: 'rgba(100,116,139,0.25)' },
-  pro:      { label: 'Pro',      limite: 200,      color: '#3b82f6', bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.3)'   },
-  empresa:  { label: 'Empresa',  limite: Infinity, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.3)'   },
+  free:     { label: 'Gratuito', limite: 15,       color: '#a3a3a3', bg: 'rgba(163,163,163,0.1)',  border: 'rgba(163,163,163,0.2)'  },
+  pro:      { label: 'Pro',      limite: 200,      color: '#FF6B35', bg: 'rgba(255,107,53,0.12)',  border: 'rgba(255,107,53,0.35)'  },
+  empresa:  { label: 'Empresa',  limite: Infinity, color: '#FF6B35', bg: 'rgba(255,107,53,0.18)',  border: 'rgba(255,107,53,0.45)'  },
 }
 
 function PlanBadge({ tipo }) {
@@ -32,7 +32,7 @@ function BarraUso({ usadas, limite }) {
     )
   }
   const pct = Math.min((usadas / limite) * 100, 100)
-  const color = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#3b82f6'
+  const color = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#FF6B35'
   return (
     <div className={styles.usoBarra}>
       <div
