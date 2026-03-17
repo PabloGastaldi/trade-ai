@@ -14,9 +14,25 @@ function formatFecha(iso) {
   })
 }
 
+function stripMarkdown(texto) {
+  if (!texto) return ''
+  return texto
+    .replace(/#{1,6}\s+/g, '')          // ## títulos
+    .replace(/\*\*(.+?)\*\*/g, '$1')    // **negrita**
+    .replace(/\*(.+?)\*/g, '$1')        // *itálica*
+    .replace(/`(.+?)`/g, '$1')          // `código`
+    .replace(/^\s*[-*+]\s+/gm, '')      // - listas
+    .replace(/^\s*\d+\.\s+/gm, '')      // 1. listas numeradas
+    .replace(/\|.+\|/g, '')             // | tablas |
+    .replace(/[-]{3,}/g, '')            // --- separadores
+    .replace(/\n+/g, ' ')              // saltos de línea → espacio
+    .trim()
+}
+
 function truncar(texto, max = 120) {
   if (!texto) return ''
-  return texto.length > max ? texto.slice(0, max).trimEnd() + '…' : texto
+  const limpio = stripMarkdown(texto)
+  return limpio.length > max ? limpio.slice(0, max).trimEnd() + '…' : limpio
 }
 
 export default function HistorialClient({ consultasIniciales, totalInicial, porPagina }) {
