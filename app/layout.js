@@ -1,4 +1,5 @@
 import { Space_Grotesk, Outfit } from 'next/font/google'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -36,7 +37,10 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${spaceGrotesk.variable} ${outfit.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <SpeedInsights />
+      </body>
     </html>
   )
 }
