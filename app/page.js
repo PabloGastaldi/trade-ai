@@ -48,7 +48,7 @@ const PLANES = [
   {
     id: 'pro',
     nombre: 'Pro',
-    precio: '$12.000',
+    precio: '$15.000',
     periodo: 'por mes',
     destacado: true,
     features: [
