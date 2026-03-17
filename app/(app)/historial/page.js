@@ -10,6 +10,7 @@ export default async function HistorialPage() {
   const { data: consultas, count, error } = await supabase
     .from('queries_log')
     .select('id, query_text, response_text, created_at', { count: 'exact' })
+    .eq('deleted', false)
     .order('created_at', { ascending: false })
     .range(0, POR_PAGINA - 1)
 

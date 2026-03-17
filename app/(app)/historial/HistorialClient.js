@@ -43,6 +43,7 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
   const [buscandoDebounce, setBuscandoDebounce] = useState('')
   const [expandido, setExpandido] = useState(null)
   const [cargando, setCargando] = useState(false)
+  const [borrando, setBorrando] = useState(null) // id de la consulta que se está borrando
 
   const totalPaginas = Math.ceil(total / porPagina)
 
@@ -60,6 +61,7 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
     let query = supabase
       .from('queries_log')
       .select('id, query_text, response_text, created_at', { count: 'exact' })
+      .eq('deleted', false)
       .order('created_at', { ascending: false })
       .range(pagina * porPagina, (pagina + 1) * porPagina - 1)
 
@@ -91,6 +93,23 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
 
   function toggleExpandido(id) {
     setExpandido(prev => prev === id ? null : id)
+  }
+
+  async function handleBorrar(e, id) {
+    e.stopPropagation() // no colapsar/expandir el item
+    if (!confirm('¿Borrar esta consulta del historial?')) return
+
+    setBorrando(id)
+    try {
+      const res = await fetch(`/api/historial/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setConsultas(prev => prev.filter(c => c.id !== id))
+        setTotal(prev => prev - 1)
+        if (expandido === id) setExpandido(null)
+      }
+    } finally {
+      setBorrando(null)
+    }
   }
 
   return (
@@ -135,13 +154,23 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
                 <div className={styles.itemMeta}>
                   <span className={styles.itemFecha}>{formatFecha(c.created_at)}</span>
                 </div>
-                <svg
-                  className={`${styles.chevron} ${expandido === c.id ? styles.chevronOpen : ''}`}
-                  width="14" height="14" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                >
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
+                <div className={styles.itemActions}>
+                  <button
+                    className={styles.btnBorrar}
+                    onClick={(e) => handleBorrar(e, c.id)}
+                    disabled={borrando === c.id}
+                    title="Eliminar consulta"
+                  >
+                    {borrando === c.id ? '…' : '✕'}
+                  </button>
+                  <svg
+                    className={`${styles.chevron} ${expandido === c.id ? styles.chevronOpen : ''}`}
+                    width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  >
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
               </div>
 
               <div className={styles.itemPregunta}>

@@ -116,12 +116,17 @@ export async function POST(request) {
         return Response.json({ error: 'Plan desconocido' }, { status: 400 })
       }
 
+      // Reset date desde hoy + 1 mes (el ciclo arranca desde el día del pago)
+      const proximoReset = new Date()
+      proximoReset.setMonth(proximoReset.getMonth() + 1)
+
       const { error: updateError } = await getSupabase()
         .from('users_profile')
         .update({
           plan_type: plan,
           mp_subscription_id: String(pago.id),
-          queries_this_month: 0, // resetear al cambiar de plan
+          queries_this_month: 0,
+          queries_reset_date: proximoReset.toISOString(),
         })
         .eq('id', user_id)
 

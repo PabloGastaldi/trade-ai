@@ -169,9 +169,10 @@ export async function POST(request) {
     const fechaReset = perfil?.queries_reset_date ? new Date(perfil.queries_reset_date) : null
 
     let consultasEsteMes = perfil?.queries_this_month ?? 0
+    let seReinicio = false
 
     if (!fechaReset) {
-      // Usuario nuevo — inicializar fecha de reset a 1 mes desde ahora
+      // Usuario nuevo — inicializar fecha de reset a 1 mes desde hoy
       const proximoReset = new Date(ahora)
       proximoReset.setMonth(proximoReset.getMonth() + 1)
 
@@ -181,6 +182,7 @@ export async function POST(request) {
         .eq('id', userId)
 
       consultasEsteMes = 0
+      seReinicio = true
     } else if (ahora >= fechaReset) {
       // Pasó el mes — resetear y avanzar fecha al próximo ciclo
       const proximoReset = new Date(fechaReset)
@@ -192,6 +194,7 @@ export async function POST(request) {
         .eq('id', userId)
 
       consultasEsteMes = 0
+      seReinicio = true
     }
 
     const limite = LIMITES_PLAN[planUsuario] ?? LIMITES_PLAN.free
@@ -329,10 +332,12 @@ export async function POST(request) {
       }
 
       // ── 10. Incrementar contador de consultas ────
+      // Si el mes se reinició durante este request, la base ya tiene 0 → incrementar desde 0
       try {
+        const baseContador = seReinicio ? 0 : (perfilUsuario?.queries_this_month ?? 0)
         await supabase
           .from('users_profile')
-          .update({ queries_this_month: (perfilUsuario?.queries_this_month ?? 0) + 1 })
+          .update({ queries_this_month: baseContador + 1 })
           .eq('id', userId)
       } catch (dbErr) {
         console.error('[consulta] Error incrementando queries_this_month:', dbErr)
