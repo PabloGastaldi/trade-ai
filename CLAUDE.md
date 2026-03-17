@@ -10,9 +10,10 @@ a mercados, documentación aduanera y normativa vigente.
 - Frontend: Next.js 14 (App Router) desplegado en Vercel
 - Backend: API Routes de Next.js (Node.js)
 - Base de datos: Supabase (PostgreSQL cloud) — proyecto: dinjztjipjazwzbgjiix
-- Extensión: pgvector para búsqueda semántica (pendiente de habilitar en Supabase)
+- RAG: Pinecone (índice trade-ai-docs, modelo integrado llama-text-embed-v2)
 - IA: Claude API (Haiku 4.5 para producción, Sonnet para desarrollo)
-- Pagos: MercadoPago (implementación futura)
+- Markdown: react-markdown + remark-gfm (renderizado de respuestas del chat)
+- Pagos: MercadoPago Checkout Pro (SDK `mercadopago`, webhook con HMAC)
 - Idioma de la app: Español (Argentina)
 
 ## Datasets disponibles
@@ -65,17 +66,21 @@ Tablas por crear:
 ## Estado actual del desarrollo
 - ✅ Base de datos migrada a Supabase con 4 tablas
 - ✅ NCM cargado en Supabase (10,432 posiciones, formato XXXX.XX.XX)
-- ✅ Frontend del chat funcionando (tema oscuro, hero, chips de ejemplo)
-- ✅ Endpoint /api/consulta creado (conectividad probada)
-- ✅ Claude Code + Skills configurados
-- ⬜ Crear tablas preferencias_arancelarias y acuerdos_generales en Supabase
-- ⬜ Importar acuerdos_estructurados.xlsx a Supabase
-- ⬜ Resolver mapeo NALADISA (0402101000) → ncm_code (0402.10.10)
-- ⬜ Actualizar lib/ncm-lookup.js para usar tabla `ncm` y columnas reales
-- ⬜ Conectar Claude API al endpoint de consulta
-- ⬜ Búsqueda semántica con pgvector
-- ⬜ Auth de usuarios (Supabase Auth — ya tiene users_profile)
-- ⬜ Pagos (MercadoPago)
+- ✅ Preferencias arancelarias importadas (52,510 filas)
+- ✅ Acuerdos generales creados (MERCOSUR + ACE-35)
+- ✅ Frontend del chat funcionando (tema oscuro, hero, chips, Markdown)
+- ✅ Endpoint /api/consulta con Claude Haiku 4.5 + historial
+- ✅ RAG con Pinecone (104 archivos ingestados, búsqueda semántica)
+- ✅ Auth de usuarios (Supabase Auth)
+- ✅ Pagos (MercadoPago Checkout Pro — /planes, webhook, checkout)
+- ✅ Auditoría de seguridad completa (2026-03-17) — ver Security.md
+- ✅ Rate limiting en dos capas (middleware IP + route handler userId)
+- ✅ Headers de seguridad (CSP, X-Frame-Options, etc.) en next.config.mjs
+- ✅ Suite de pruebas de calidad del agente (tests/test-queries.json + scripts/test-runner.js)
+- ⬜ Deploy a producción (Vercel)
+- ⬜ Configurar webhook MP en producción (MP_WEBHOOK_SECRET obligatorio)
+- ⬜ Verificar RLS policies en Supabase dashboard
+- ⬜ OCR de 12 PDFs escaneados pendientes
 
 ## Convenciones de código
 - Usar español para nombres de variables de dominio (ej: derechoImportacion)
@@ -88,16 +93,40 @@ Tablas por crear:
 ## Estructura del proyecto
 ```
 trade-ai/
-├── app/                    # Next.js App Router
-│   ├── page.js            # Landing / Chat interface
+├── app/
+│   ├── page.js                    # Landing page
+│   ├── (app)/
+│   │   ├── consulta/page.js       # Chat con la IA
+│   │   ├── planes/page.js         # Página de planes y precios
+│   │   ├── cuenta/page.js         # Mi cuenta
+│   │   └── historial/page.js      # Historial de consultas
+│   ├── (auth)/                    # Login / registro
 │   ├── api/
-│   │   └── consulta/      # Endpoint principal de consultas
+│   │   ├── consulta/route.js      # Endpoint principal (Claude + RAG)
+│   │   ├── checkout/route.js      # Crear preferencia MercadoPago
+│   │   └── webhooks/mercadopago/  # Webhook handler MP (HMAC + anti-replay)
 │   └── layout.js
-├── lib/                    # Utilidades compartidas
-├── data/                   # Scripts de ingesta de datos
-├── public/                 # Assets estáticos
-├── CLAUDE.md              # Este archivo
-└── .skills/               # Skills del agente
+├── components/
+│   ├── chat/                      # ChatMessage, ChatInput
+│   └── layout/                    # AppHeader
+├── lib/
+│   ├── mercadopago/client.js      # Cliente MP + PLANES (precios)
+│   ├── pinecone/                  # Búsqueda semántica
+│   ├── rate-limit.js              # RateLimiter reutilizable + getClientIp()
+│   ├── supabase/                  # Clientes Supabase
+│   └── ncm-lookup.js             # Consulta NCM + preferencias
+├── middleware.js                  # Rate limiting IP + sesión Supabase
+├── next.config.mjs                # Headers de seguridad (CSP, X-Frame, etc.)
+├── scripts/
+│   ├── ingest.js                  # Ingesta PDFs/TXTs a Pinecone
+│   └── test-runner.js             # Runner de evaluación de calidad del agente
+├── tests/
+│   ├── test-queries.json          # 30 consultas de evaluación por categoría
+│   ├── unit/                      # Tests unitarios (sanitize, schemas)
+│   └── integration/               # Tests de integración (api)
+├── Security.md                    # Auditoría de seguridad y decisiones
+├── CLAUDE.md                      # Este archivo
+└── .skills/                       # Skills del agente
 ```
 
 ## Reglas estrictas (NUNCA violar)
@@ -107,6 +136,8 @@ trade-ai/
 4. Cada respuesta al usuario de trade.ai DEBE incluir el disclaimer legal
 5. Las consultas de la app siempre responden en español argentino
 6. Usar Git commit después de cada cambio funcional importante
+7. NUNCA deshabilitar el rate limiting o la validación HMAC del webhook
+8. NUNCA agregar console.log con emails, user_ids u otros datos de usuario
 
 ## Disclaimer obligatorio de la app
 "Esta información es orientativa y está respaldada por fuentes oficiales.

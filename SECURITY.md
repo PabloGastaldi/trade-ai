@@ -1,137 +1,165 @@
-# Política de Seguridad — trade.ai
+# trade.ai — Seguridad
 
-Documento de referencia interna. Revisarlo antes de cada deploy.
-
----
-
-## 1. Manejo de API Keys y Secrets
-
-**Regla fundamental:** ninguna clave secreta sale del servidor.
-
-- Todas las API keys viven en `.env.local` (excluido de Git por `.gitignore`)
-- `.env.example` existe como plantilla sin valores — es el único archivo de entorno que va a Git
-- En Vercel, las variables se cargan desde el panel de Environment Variables — nunca en código
-- Si una clave se expone accidentalmente, rotarla de inmediato en el servicio correspondiente
+Auditoría realizada: 2026-03-17
+Próxima revisión recomendada: antes del deploy a producción y cada 6 meses.
 
 ---
 
-## 2. Variables públicas vs. secretas
+## Estado del checklist pre-lanzamiento
 
-### Públicas — prefijo `NEXT_PUBLIC_`
-Visibles en el browser del usuario. Solo van aquí valores que son seguros de exponer.
-
-| Variable | Por qué es seguro exponerla |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Es una URL, no una clave. Las RLS de Supabase protegen los datos |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Diseñada para el browser — las RLS limitan su acceso |
-| `NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY` | Requerida por el SDK de MP en el frontend |
-| `NEXT_PUBLIC_SITE_URL` | URL del sitio, no es un secret |
-
-### Secretas — sin prefijo `NEXT_PUBLIC_`
-Solo disponibles en el servidor (Route Handlers, Server Components, middleware).
-**Nunca importarlas en componentes cliente (`'use client'`).**
-
-| Variable | Por qué es secreta |
-|---|---|
-| `SUPABASE_SERVICE_ROLE_KEY` | Saltea las RLS — acceso total a la base de datos |
-| `ANTHROPIC_API_KEY` | Clave de facturación de Claude API |
-| `PINECONE_API_KEY` | Acceso a la base de datos vectorial |
-| `MERCADOPAGO_ACCESS_TOKEN` | Permite crear y gestionar cobros reales |
+| # | Control | Estado | Notas |
+|---|---------|--------|-------|
+| 1 | API keys en variables de entorno | ✅ OK | Verificado — cero hardcoded |
+| 2 | .env.local en .gitignore | ✅ OK | `.env*.local` en línea 29 |
+| 3 | RLS en todas las tablas Supabase | ⚠️ EJECUTAR SQL | Script listo: `scripts/rls-setup.sql` — ejecutar en Supabase SQL Editor |
+| 4 | service_role solo server-side | ✅ OK | Nunca en Client Components |
+| 5 | Rate limiting | ✅ OK | Dos capas — ver sección Rate Limiting |
+| 6 | Input validation en endpoints | ✅ OK | sanitizarPregunta() + validación de body |
+| 7 | Guardrails anti-injection en agente | ✅ OK | System prompt con instrucciones explícitas |
+| 8 | Disclaimer automático | ✅ OK | La UI lo agrega, Claude no lo genera |
+| 9 | Headers de seguridad (CSP, etc.) | ✅ OK | Configurados en next.config.mjs |
+| 10 | No console.log con datos sensibles | ✅ OK | Emails/user_ids removidos de logs |
+| 11 | Webhook MP valida autenticidad | ✅ OK | HMAC + timestamp anti-replay + timingSafeEqual |
+| 12 | HTTPS | ✅ OK | Vercel lo maneja automáticamente |
+| 13 | CORS | ✅ OK | Next.js API Routes same-origin por defecto |
+| 14 | Passwords hasheados | ✅ OK | Supabase Auth lo maneja |
+| 15 | Sesiones expiran | ✅ OK | Middleware refresca sesión en cada request |
 
 ---
 
-## 3. Row Level Security (RLS) en Supabase
+## Rate Limiting — Arquitectura de dos capas
 
-Todas las tablas tienen RLS activado por defecto. Política base:
+### Capa 1: Middleware por IP (`middleware.js`)
+Bloquea floods y bots antes de llegar a la lógica de negocio.
 
-- **usuarios**: cada usuario solo puede leer y escribir sus propios datos (`auth.uid() = user_id`)
-- **consultas**: cada usuario solo accede a su propio historial
-- **planes**: lectura pública, escritura solo desde servidor con `service_role`
-- **webhooks de pago**: procesados exclusivamente desde el servidor con `service_role`
+| Ruta | Límite | Ventana | Razón |
+|------|--------|---------|-------|
+| `/api/auth/*` | 10 req | 1 min | Anti brute-force de login |
+| `/api/checkout` | 10 req | 1 min | Anti spam de creación de pagos |
+| `/api/consulta` | 30 req | 1 min | Capa gruesa por IP |
+| `/api/webhooks/*` | 60 req | 1 min | MP puede enviar ráfagas legítimas |
+| `/api/*` (default) | 100 req | 1 min | Protección general |
 
-> Nunca deshabilitar RLS en tablas que contengan datos de usuarios.
+Responde `HTTP 429` con headers estándar:
+- `Retry-After: N` — segundos hasta que se libera la ventana
+- `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+
+### Capa 2: Route handler por userId (`/api/consulta`)
+Evita que un usuario acapare el cupo aunque comparta IP con otros.
+- Límite: 10 consultas / minuto por cuenta autenticada
+- Implementado con `RateLimiter` de `lib/rate-limit.js`
+
+### Utilidad compartida (`lib/rate-limit.js`)
+- Clase `RateLimiter` con ventana fija y limpieza automática de entradas expiradas
+- Función `getClientIp()` lee `x-forwarded-for` (compatible con Vercel/proxies)
+- **Limitación conocida:** en memoria — no persiste entre instancias serverless.
+  Para escalar: migrar a Upstash Redis (cambio de ~10 líneas en `RateLimiter.check()`).
 
 ---
 
-## 4. Rutas públicas vs. protegidas
+## Webhook MercadoPago (`/api/webhooks/mercadopago`)
 
-El archivo `middleware.js` intercepta todas las peticiones y controla el acceso.
+Tres niveles de protección implementados:
 
-### Rutas públicas (sin sesión requerida)
+1. **Firma HMAC-SHA256** — verifica que el webhook viene de MP usando `MP_WEBHOOK_SECRET`
+2. **Anti-replay por timestamp** — rechaza webhooks con timestamp > 5 minutos de antigüedad
+3. **Comparación timing-safe** — usa `crypto.timingSafeEqual()` para prevenir timing attacks
+
+**Importante en producción:**
+- `MP_WEBHOOK_SECRET` es **obligatorio** en `NODE_ENV=production`. Sin él, el webhook rechaza todo.
+- Configurar en Vercel: Settings → Environment Variables → `MP_WEBHOOK_SECRET`
+
+---
+
+## Headers de seguridad (`next.config.mjs`)
+
+Aplicados a todas las rutas:
+
+| Header | Valor | Protege contra |
+|--------|-------|----------------|
+| `X-Frame-Options` | `DENY` | Clickjacking |
+| `X-Content-Type-Options` | `nosniff` | MIME sniffing |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Fuga de URLs |
+| `Permissions-Policy` | camera/mic/geo deshabilitados | Abuso de permisos |
+| `Content-Security-Policy` | Ver next.config.mjs | XSS |
+
+**Nota CSP:** usa `'unsafe-inline'` en `script-src` porque Next.js App Router lo requiere.
+Para una CSP más estricta, migrar a nonce-based CSP (requiere cambios en middleware).
+
+---
+
+## Supabase — Modelo de seguridad
+
+| Cliente | Archivo | Key usada | Contexto |
+|---------|---------|-----------|---------|
+| Browser | `lib/supabase/client.js` | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Client Components |
+| Server | `lib/supabase/server.js` | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Route Handlers, Server Components |
+| Middleware | `lib/supabase/middleware.js` | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | middleware.js |
+| Service role | `lib/ncm-lookup.js`, `lib/preferencias-lookup.js`, webhook | `SUPABASE_SERVICE_ROLE_KEY` | Solo server, bypass RLS justificado |
+
+**SQL listo en `scripts/rls-setup.sql` — ejecutar en Supabase SQL Editor.**
+
+| Tabla | Anon (sin login) | Autenticado | service_role (API) |
+|-------|-----------------|-------------|-------------------|
+| `ncm` | ❌ | ❌ | Todo ✅ |
+| `preferencias_arancelarias` | ❌ | ❌ | Todo ✅ |
+| `acuerdos_generales` | ❌ | ❌ | Todo ✅ |
+| `documents_registry` | ❌ | ❌ | Todo ✅ |
+| `users_profile` | ❌ | SELECT/UPDATE propia fila | Todo ✅ |
+| `queries_log` | ❌ | SELECT/INSERT propias filas | Todo ✅ |
+
+Las tablas de datos (ncm, preferencias, acuerdos, documents) no tienen policies — RLS habilitado sin policies deniega todo excepto service_role, que bypasea RLS siempre. El acceso es exclusivamente a través de la API de trade.ai.
+
+El script también crea el trigger `on_auth_user_created` que auto-genera el perfil en `users_profile` cuando se registra un usuario nuevo en `auth.users`.
+
+---
+
+## Sanitización de input (`lib/utils/sanitize.js`)
+
+`sanitizarPregunta()` aplica en orden:
+1. Elimina tags HTML completos (`<script>...</script>`)
+2. Elimina `<` y `>` sueltos
+3. Elimina comentarios SQL `--` (hasta fin de línea)
+4. Elimina comentarios SQL `/* ... */`
+5. Elimina `;` (separador SQL)
+6. Reemplaza null bytes y caracteres de control ASCII por espacio
+7. Normaliza espacios múltiples a uno
+8. Trim
+
+Nota: Supabase usa queries parametrizadas en todos los casos — la sanitización es defensa en profundidad, especialmente para el input que va al LLM.
+
+---
+
+## Suite de evaluación del agente
+
+Archivos para evaluar la calidad y seguridad de las respuestas del agente:
+
+- `tests/test-queries.json` — 30 consultas organizadas en 6 categorías:
+  - Aranceles y NCM (8), Documentación aduanera (5), Incoterms (5),
+    Acuerdos comerciales (4), Normativa BCRA (3), Prompt injection (5)
+- `scripts/test-runner.js` — runner que llama a la API y evalúa respuestas:
+  - Detecta leaks de identidad del modelo (Claude, Anthropic)
+  - Detecta leaks del system prompt
+  - Detecta leaks de infraestructura (Supabase, Pinecone, API keys)
+  - Verifica criterios esperados por consulta
+  - Genera reporte CSV + JSON
+
+```bash
+# Correr evaluación completa
+TEST_AUTH_TOKEN="eyJ..." node scripts/test-runner.js
+
+# Solo tests de seguridad
+TEST_AUTH_TOKEN="eyJ..." node scripts/test-runner.js --category seguridad
 ```
-/                   → Landing page
-/login              → Página de login
-/registro           → Página de registro
-/api/auth/callback  → Callback OAuth de Supabase
-/api/pagos/webhook  → Webhook de MercadoPago (validado por firma)
-```
 
-### Rutas protegidas (requieren sesión activa)
-```
-/consulta           → Chat de consulta
-/historial          → Historial del usuario
-/cuenta             → Configuración de cuenta
-/api/consulta       → Endpoint de IA
-/api/pagos/crear-preferencia → Endpoint de pagos
-```
-
-Si un usuario no autenticado intenta acceder a una ruta protegida, el middleware lo redirige a `/login`.
+Exit code 2 si hay fallos de seguridad (prioridad crítica).
 
 ---
 
-## 5. Autenticación — Supabase Auth
+## Pendientes para producción
 
-- Métodos habilitados: email/contraseña y Google OAuth
-- Las sesiones se manejan con cookies HTTP-only (via `@supabase/ssr`)
-- El cliente del browser (`lib/supabase/client.js`) usa `createBrowserClient`
-- El cliente del servidor (`lib/supabase/server.js`) usa `createServerClient` con cookies de Next.js
-- Los tokens se renuevan automáticamente — no se almacenan en localStorage
-
----
-
-## 6. Validación del Webhook de MercadoPago
-
-El endpoint `/api/pagos/webhook` es público pero valida cada notificación antes de procesarla:
-
-1. Verificar que el header `x-signature` coincide con el `MERCADOPAGO_ACCESS_TOKEN`
-2. Consultar la API de MercadoPago para confirmar el estado real del pago
-3. Nunca actualizar el plan de un usuario basándose solo en el payload del webhook sin verificar
-4. Registrar todos los eventos recibidos para auditoría
-
----
-
-## 7. Headers de seguridad
-
-Configurados en `next.config.mjs`:
-
-```js
-Content-Security-Policy        // Restringe recursos externos permitidos
-X-Frame-Options: DENY          // Previene clickjacking
-X-Content-Type-Options: nosniff
-Referrer-Policy: strict-origin-when-cross-origin
-Permissions-Policy             // Deshabilita APIs del browser no usadas
-```
-
----
-
-## 8. Checklist de seguridad — antes de cada deploy
-
-- [ ] `.env.local` NO está en Git (`git status` no lo muestra)
-- [ ] Todas las variables de producción están cargadas en Vercel
-- [ ] `NEXT_PUBLIC_SITE_URL` apunta al dominio de producción
-- [ ] RLS activado en todas las tablas de Supabase
-- [ ] No hay `console.log()` con datos sensibles en el código
-- [ ] Los endpoints de API validan que el usuario tiene sesión activa
-- [ ] El webhook de MercadoPago verifica la firma antes de procesar
-- [ ] No hay claves hardcodeadas en ningún archivo del repositorio
-- [ ] `npm audit` sin vulnerabilidades críticas o altas sin resolver
-
----
-
-## 9. Reporte de vulnerabilidades
-
-Para reportar una vulnerabilidad de seguridad en este proyecto, contactar a:
-
-**Email:** gastaldipablo1@gmail.com
-
-No reportar vulnerabilidades en issues públicos de GitHub.
+- [ ] Ejecutar `scripts/rls-setup.sql` en Supabase SQL Editor (RLS + trigger)
+- [ ] Configurar `MP_WEBHOOK_SECRET` en Vercel environment variables
+- [ ] Cambiar `LIMITES_PLAN.free` de 100 (dev) a 15 en producción (`app/api/consulta/route.js:13`)
+- [ ] Evaluar Upstash Redis para rate limiting distribuido si hay múltiples instancias
+- [ ] Correr `npm run test:eval` después del deploy para validar respuestas en producción
