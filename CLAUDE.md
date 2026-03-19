@@ -11,9 +11,10 @@ a mercados, documentación aduanera y normativa vigente.
 - Backend: API Routes de Next.js (Node.js)
 - Base de datos: Supabase (PostgreSQL cloud) — proyecto: dinjztjipjazwzbgjiix
 - RAG: Pinecone (índice trade-ai-docs, modelo integrado llama-text-embed-v2)
-- IA: Claude API (Haiku 4.5 para clasificación ~$0.0006/consulta, Sonnet 4.5 para respuestas)
+- IA: Claude API (Haiku 4.5 para TODO — clasificación y respuestas)
   - Token budget dinámico: simple=800, media=2000, compleja=3000 (techos, no objetivos)
-  - Sonnet recibe el presupuesto en el mensaje y responde al scope de la pregunta, no al contexto
+  - Haiku recibe el presupuesto en el mensaje y responde al scope de la pregunta, no al contexto
+  - Guía operativa (exportación/importación) se inyecta solo en consultas operativas (no NCM simples)
 - Markdown: react-markdown + remark-gfm (renderizado de respuestas del chat)
 - Pagos: MercadoPago Checkout Pro (SDK `mercadopago`, webhook con HMAC)
 - Idioma de la app: Español (Argentina)
@@ -89,7 +90,9 @@ Tablas existentes:
 - ✅ Rate limiting en dos capas (middleware IP + route handler userId)
 - ✅ Headers de seguridad (CSP, X-Frame-Options, etc.) en next.config.mjs
 - ✅ Suite de pruebas de calidad del agente (tests/test-queries.json + scripts/test-runner.js)
-- ✅ Arquitectura híbrida Haiku (clasificador) + Sonnet (respuesta) con token budget dinámico
+- ✅ Arquitectura Haiku para todo (clasificador + respuesta) con token budget dinámico
+- ✅ System prompt externalizado a lib/prompts/system-prompt.js
+- ✅ Guías operativas en lib/prompts/guia-exportacion.js y guia-importacion.js (inyección condicional)
 - ✅ Barreras no arancelarias UNCTAD TRAINS (199K filas en ntm_measures, integradas en el agente)
 - ⬜ Deploy a producción (Vercel)
 - ⬜ Configurar webhook MP en producción (MP_WEBHOOK_SECRET obligatorio)
