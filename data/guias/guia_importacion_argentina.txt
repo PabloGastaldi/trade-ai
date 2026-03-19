@@ -1,0 +1,228 @@
+
+GUIA OPERATIVA DE IMPORTACION ARGENTINA
+
+
+
+1. PASO A PASO DE UNA IMPORTACION A CONSUMO
+1.1 Concepto de importación para consumo
+La destinacion definitiva de importacion, denominada importacion para consumo, es aquella por la cual la mercaderia se incorpora al circuito economico del territorio aduanero sin reconocer trabas a su libre circulacion interna. Constituye el hecho gravado por los derechos de importacion (art. 635 del CA) y hace aplicables las prohibiciones de caracter economico (art. 613 del CA).
+El sistema de control aduanero se funda en el Principio de la Declaracion Previa, que en materia de importacion reviste dos fases: (1) la del responsable del medio de transporte al arribar al puerto, aeropuerto o lugar de introduccion, y (2) la del propietario de la mercaderia importada, quien debe comprometer una declaracion para obtener una destinacion autorizada.
+
+1.2 Condicion previa: inscripción del importador
+Tanto las personas fisicas como las personas juridicas interesadas en efectuar importaciones deben, en primer lugar, inscribirse en el Registro de Exportadores e Importadores de la Direccion General de Aduanas (DGA). Esta inscripcion otorga la habilitacion para el acceso al Sistema Informatico Malvina (SIM). Sin esta inscripcion, no es posible oficializar ninguna destinacion de importacion.
+
+1.3 Secuencia operativa paso a paso
+
+1[HISTORICO - ELIMINADO DESDE 26/02/2025] Sistemas de informacion anticipada (SIMI / SIRA / SEDI)
+ATENCION: A partir del 26/02/2025, este paso ya NO existe. La RGC 5651/2025 (ARCA + Secretaria de Industria y Comercio, B.O. 25/02/2025) elimino el SEDI y toda la cadena de sistemas de informacion anticipada. El importador puede pasar directamente al Paso 2 (arribo del medio de transporte) sin tramitar ningun sistema previo. CONTEXTO HISTORICO: Hasta esa fecha, existio una sucesion de sistemas obligatorios: DJAI (2012-2015) -> SIMI (2015-2022) -> SIRA (2022-2023) -> SEDI (2023-2025). Todos funcionaban como mecanismos de declaracion anticipada que el SIM (Malvina) exigia validar antes de permitir la oficializacion de la destinacion. Ver Seccion 2 de este documento para la descripcion completa.
+2Arribo del medio de transporte y presentacion ante aduana
+La empresa de transporte presenta ante el Servicio Aduanero el Manifiesto de Carga (declaracion sumaria). Este documento contiene un detalle generico de las mercancias del cargamento. El responsable del medio de transporte (capitan del buque, comandante de aeronave, conductor del camion) es responsable de la mercaderia transportada hasta el momento en que se efectua la descarga y recepcion por parte del Depositario o Importador. El ATA ingresa los datos en el Modulo Manifiesto del SIM. El manifiesto pasa por los estados: En curso -> Registrado -> Presentado ante aduana.
+3Descarga e ingreso a deposito provisorio de importacion
+Una vez autorizada la descarga por el Servicio Aduanero, la mercaderia es retirada del medio de transporte en lugares habilitados y en horarios establecidos. La mercaderia descargada, desde que fuere recibida en el deposito hasta que se le asigne una destinacion aduanera, queda sometida al Regimen de Deposito Provisorio de Importacion. El depositario asienta la recepcion cotejando el manifiesto con las referencias de los bultos (marcas, numeros, estado exterior). Durante el deposito provisorio solo pueden efectuarse actos de reconocimiento, traslado o conservacion. Alternativamente, si el importador lo solicita (o la mercaderia lo requiere), puede tramitarse el Despacho Directo a Plaza: sin someterla al deposito provisorio, la mercaderia se despacha directamente desde el medio de transporte.
+4Plazo para destinar: obligacion del importador
+El importador debe solicitar una destinacion de importacion dentro del plazo de 15 dias contado desde la fecha del arribo del medio transportador. Si no lo hace, se aplica automaticamente una multa equivalente al 1% del valor en aduana de la mercaderia. Si el importador ignora el contenido de la mercaderia, puede declarar esa circunstancia dentro de los primeros 10 dias del arribo; a partir de ahi tiene hasta 25 dias totales para tomar contenido y dar destinacion. La no presentacion del formulario de Declaracion de Valor en Aduana dentro de los plazos genera tambien una multa automatica del 1%.
+5Confeccion de la Declaracion Aduanera por el Despachante de Aduana
+El Despachante de Aduana, actuando como mandatario del importador, ingresa en el SIM (Modulo Declaracion Detallada) todos los datos de la destinacion de importacion. La declaracion debe incluir toda circunstancia necesaria para la correcta clasificacion arancelaria y valoracion de la mercaderia. La declaracion es inalterable una vez registrada, salvo excepciones expresas del CA. El despachante puede consultar en el SIM la informacion del ATA y del depositario.
+Documentos base para la confeccion de la declaracion:
+• Conocimiento de Embarque (B/L), Guia Aerea (AWB) o Carta de Porte, que habilite al importador como consignatario
+• Factura Comercial
+• Lista de Empaque (cuando proceda)
+• Certificado de Origen (cuando la mercancia venga negociada en algun acuerdo comercial ALADI/MERCOSUR)
+• Declaracion de Valor en Aduana (Formulario OM 1993/1-A)
+• Autorizaciones/intervenciones de organismos terceros (ANMAT, SENASA, RENAR, ARN, INV, INAL, etc., segun el producto)
+
+6Oficializacion de la destinacion: pago de tributos y registro en el SIM
+El despachante procede a la oficializacion en el SIM, previo pago y/o constitucion de garantia de los importes de los derechos de importacion y demas tributos que correspondiere. El SIM otorga un numero de despacho definitivo, afecta los fondos de la subcuenta Malvina, cancela el documento de transporte y asigna automaticamente el canal de selectividad. Los pagos se efectuan mediante deposito en las Cuentas Recaudacion del Banco de la Nacion Argentina en la sucursal de cada aduana (presencialmente o por redes electronicas autorizadas). El SIM genera una subcuenta Malvina identificada con los CUIT del importador y del despachante.
+7Presentacion ante aduana y asignacion de canal de selectividad
+El Servicio Aduanero controla la presencia fisica y completitud de la documentacion. Verifica que los documentos esten conformados y firmados por el documentante. El Sistema Malvina asigna automaticamente el canal de selectividad. Existen 3 canales:• CANAL VERDE: Se autoriza el libramiento de forma inmediata, sin control fisico de la mercaderia. Solo un pequeno control sobre la documentacion para constatar que esta completa. Refleja el principio del 'Despacho en Confianza'.
+• CANAL NARANJA: Control documental estricto sin verificacion fisica. Se aplica cuando el regimen de importacion exige documentacion adicional o cuando la mercaderia esta bajo cupos. Si surgen discrepancias que justifiquen verificacion fisica, se procede al canal rojo o morado.
+• CANAL ROJO: Control documental + verificacion fisica como condiciones previas al libramiento. El verificador controla la mercaderia contra lo declarado.
+
+8Extraccion de muestras (si el canal lo requiere)
+Cuando el control requiere muestras, estas son un trozo, porcion, unidad o modelo representativo que permite determinar naturaleza, especie, caracteristicas y propiedades del total. Durante todo el procedimiento de extraccion, identificacion y acondicionamiento debe estar presente el interesado (importador, despachante de aduana o su apoderado, o peritos de parte). El principio basico del muestreo es que la muestra debe ser realmente representativa del conjunto.
+9Verificacion de la mercaderia (canal rojo)
+El verificador aduanero efectua el control fisico de la mercaderia comparando lo encontrado con lo declarado. El interesado pierde el derecho a reclamar contra el resultado de la verificacion si no se presenta. Si hay diferencias en clasificacion o valor, el servicio aduanero puede: aceptar la declaracion, solicitar rectificacion o formular una denuncia por declaracion inexacta (art. 954 del CA). El importador puede comprometer una declaracion supeditada a un antecedente en tramite (garantizando la diferencia) sin incurrir en infraccion aduanera.
+10LIBRAMIENTO: autorizacion de retiro
+Realizada la verificacion y abonados los tributos, el Servicio Aduanero autoriza el retiro de la mercaderia y su salida de la Zona Primaria Aduanera. Es el acto administrativo que pone fin al proceso de despacho de importacion. La destinacion se considera consumada con el libramiento (a diferencia de la exportacion, donde se consuma con la salida fisica). Una vez librada la mercaderia, el importador puede retirarla y destinarla al mercado interno sin restricciones aduaneras.
+1.4 Regimen simplificado de importacion
+Para operaciones de bajo monto existen condiciones especiales: El valor FOB de cada operacion no debe superar u$s 3.000, permitiendose apenas 4 operaciones mensuales por importador. La mercaderia debe ser nueva, sin uso ni reacondicionamiento. La importacion no puede estar prohibida ni sujeta a cupos ni a intervencion de otros organismos. No debe estar amparada por regimenes promocionales. La alicuota aplicable es una tarifa unificada del 50% del valor de la mercaderia.
+
+1.5 Organismos intervinientes por tipo de producto
+
+OrganismoSiglaTipo de mercaderia que controlaAdministracion Nacional de Medicamentos, Alimentos y Tecnologia MedicaANMATDrogas, medicamentos, productos quimicos, alimentos acondicionados, cosmeticos, materiales en contacto con alimentos, productos de higieneServicio Nacional de Sanidad y Calidad AgroalimentariaSENASAProductos agroalimentarios de origen animal y vegetal. Inspeccion, certificacion y registro.Registro Nacional de ArmasRENARArmas, municiones y materiales de guerra o uso civil. Reg. por Ley 20.429 y Dec. 395/75.Autoridad Regulatoria NuclearARNProductos con material radioactivo en cualquier forma. Res. Gral. AFIP 231/98.Direccion General de Fabricaciones MilitaresDGFMExplosivos o sustancias que puedan provocar liberacion subita de energia mediante transformaciones quimicas.Instituto Nacional de VitiviniculturaINVVinos, mostos, bebidas alcoholicas, alcoholes etilic o metilico, etc. Establecimientos de destilacion y fraccionamiento.Direccion Nacional de Comercio InteriorDNCIInstrumentos de medicion. Exige graduacion en unidades del Sistema Metrico Legal Argentino (SIMELA).
+
+
+2. SISTEMAS DE CONTROL PREVIO A LA IMPORTACION: SIRA Y SEDI
+2.1 ESTADO ACTUAL: no existe ningun sistema de declaracion previa obligatoria
+VIGENTE DESDE EL 26/02/2025: La Resolucion General Conjunta 5651/2025 (ARCA + Secretaria de Industria y Comercio, B.O. 25/02/2025) elimino el SEDI y abrog0 la normativa del SIRA. A partir del dia siguiente a su publicacion, NO existe ningun sistema de informacion anticipada obligatoria para importar en Argentina. Las declaraciones SEDI registradas quedaron sin efecto a partir de esa fecha. El importador puede oficializar directamente la destinacion de importacion en el SIM (Malvina) sin requerir ningun numero identificador previo de sistemas de monitoreo.
+2.2 Cronologia completa: de la DJAI al fin del SEDI
+La siguiente tabla reconstruye la evolucion historica completa de los sistemas de control previo a la importacion en Argentina:
+
+Desde 26/02/2025SIN SISTEMA DE DECLARACION PREVIARGC 5651/2025 (ARCA + Secretaria de Industria y Comercio, B.O. 25/02/2025)Se abroga la RGC 5429/23 y se derogan los arts. 1 a 9, 13 y 14 de la RGC 5466/23 (el SEDI). Las declaraciones SEDI quedan sin efecto. No existe mas requisito de informacion anticipada para importar.
+2.3 Por que se elimino el SEDI: fundamentos de la RGC 5651/2025
+La resolucion expone los siguientes fundamentos para la eliminacion del sistema:
+• El Acuerdo sobre Procedimientos para el Tramite de Licencias de Importacion de la OMC establece que dichos sistemas no deben utilizarse para restringir el comercio.
+• El Acuerdo sobre Obstaculos Tecnicos al Comercio (OTC) de la OMC establece que los reglamentos tecnicos y los procedimientos de evaluacion de la conformidad no deben crear obstaculos innecesarios al comercio internacional.
+• El cumplimiento de normas tecnicas no debe ser condicion necesaria para efectuar una declaracion de importacion; ese cumplimiento debe garantizarse al momento del uso y/o comercializacion de la mercaderia, mediante los controles de la Secretaria de Industria y Comercio.
+• Habiendose tornado innecesario recabar informacion anticipada para fines estadisticos, resulta prioritario implementar politicas de facilitacion para normalizar el comercio exterior.
+• El objetivo es garantizar que los intercambios comerciales sean sencillos, transparentes, eficientes y previsibles, ajenos a toda discrecionalidad.
+• 
+
+2.4 Que queda vigente de la RGC 5466/2023 (SEDI)
+La RGC 5651/2025 no deroga la totalidad de la RGC 5466/2023. Solo se derogan los articulos 1 a 9, 13 y 14. Por lo tanto, continuan vigentes los articulos 10, 11 y 12, que regulan el 'Padron de Deuda Comercial por Importaciones con Proveedores del Exterior' (vinculado a los BOPREAL). Esta parte de la norma no fue afectada.
+
+
+
+3. CANALES DE SELECTIVIDAD ADUANERA: QUE IMPLICA CADA UNO
+COBERTURA: COMPLETA. El manual desarrolla los canales en el Capitulo III (pags. 161-162) tanto para importacion como para exportacion. Se reproduce el contenido completo.
+3.1 Principio general: el Despacho en Confianza
+El sistema de la previa declaracion posibilita el denominado 'Despacho en Confianza', mediante el cual el servicio aduanero autoriza el libramiento a plaza de la mercaderia sin proceder a la verificacion de la misma o verificando solo una parte de ella. Esto permite agilizar los tramites aduaneros con los sensibles beneficios economicos que ello implica. La asignacion del canal es automatica: la realiza el Sistema Informatico Malvina sin intervencion discrecional en el momento de la presentacion de la destinacion.
+
+3.2 Canal Verde
+CANAL VERDE — Libramiento inmediato sin verificacion fisica
+Se efectua la presentacion del Despacho de Importacion, se realiza un pequeno control sobre la documentacion a efectos de constatar que ha sido integrada y esta completa, y se autoriza el libramiento de forma inmediata, sin control fisico de la mercaderia.
+• Implica: el estado de la destinacion cambia de 'Oficializado' a 'Autorizacion a Retiro' de forma directa y automatica.
+• Sin revision documental profunda ni verificacion fisica.
+• Es el canal mas rapido. Refleja el maximo nivel de confianza del sistema aduanero en el declarante.
+• El manual lo describe como 'el mas claro reflejo de la aplicacion del principio del Despacho en Confianza en que se asienta el andamiaje de control aduanero'.
+
+3.3 Canal Naranja
+CANAL NARANJA — Control documental sin verificacion fisica
+Implica la realizacion de estrictas tareas de control sobre los documentos presentados, sin verificacion fisica de la mercaderia.
+• Se aplica cuando el regimen de importacion exige la incorporacion de documentacion adicional (ej: certificados de organismos que no estaban listos al momento de la presentacion).
+• Se aplica cuando la mercaderia se encuentra sometida al regimen de cupos.
+• El estado de la destinacion queda en 'Presentado' hasta que el verificador documental resuelva.
+• Si surgen discrepancias que justifiquen una verificacion fisica o comprobacion de valor, se procede a su control bajo el canal rojo o morado segun corresponda.
+• Sin verificacion fisica de la mercaderia en este canal (solo documentos).
+
+3.4 Canal Rojo
+CANAL ROJO — Control documental + verificacion fisica obligatoria
+Cuando fuere asignado este canal, el Despacho de Importacion incluira el control de los documentos y la verificacion fisica como condiciones previas para el libramiento de la mercaderia.
+• El estado de la destinacion queda en 'Presentado' hasta que el verificador ingrese el 'Resultado de la Verificacion'.
+• El interesado (importador o despachante) debe estar presente en el acto de verificacion. Si no concurre, pierde el derecho a reclamar contra el resultado de la verificacion.
+• El verificador puede extraer muestras. Durante la extraccion, identificacion y acondicionamiento de muestras debe estar presente el interesado o su apoderado.
+• Si el verificador detecta diferencias, puede solicitar informacion complementaria o iniciar un sumario de infraccion (art. 954 del CA por declaracion inexacta).
+• La verificacion fisica es una condicion previa ineludible para el libramiento en este canal.
+
+3.5 Comparativa de los tres canales
+
+AspectoCANAL VERDECANAL NARANJACANAL ROJOControl documentalMinimo (completitud)Estricto y detalladoEstricto y detalladoVerificacion fisicaNONO (salvo discrepancias)SI (obligatoria)Estado inicial en SIMAutorizacion a RetiroPresentadoPresentadoPresencia del interesadoNo requeridaRecomendableObligatoria para no perder derecho a reclamoMuestrasNo se extraenPosible si hay discrepanciasPueden extraerseRapidez relativaMaximaMediaMinimaBase legal principalPrincipio Despacho en ConfianzaArt. CA - Control documentalArt. CA - Verificacion fisica
+
+
+4. COSTOS TOTALES DE IMPORTACION
+COBERTURA: COMPLETA para la estructura tributaria. El manual (pags. 148, 162-163, 396-401) describe todos los tributos con sus alicuotas. INSUFICIENTE para honorarios de terceros (despachante, deposito, flete interno).
+4.1 Listado completo de tributos en la importacion a consumo
+El manual establece que, en terminos generales, al momento de la importacion a consumo habitualmente se abonan los siguientes tributos:
+
+TributoAlicuota / TasaBase de CalculoObservaciones del manual1. Derechos de Importacion (DI)Variable (0% a 35% en el AEC del MERCOSUR)Valor CIF (Valor en Aduana)Se aplica la alicuota correspondiente al Arancel Externo Comun (AEC). Puede haber preferencias arancelarias si hay acuerdo comercial con el pais de origen y se presenta Certificado de Origen.2. Tasa de Estadistica0,5% (ejemplo del manual)Valor CIFEl manual da un ejemplo con alicuota de 0,5% s/ CIF. Tributo creado por el CA. La alicuota vigente puede consultarse en Tarifar.3. IVA (Impuesto al Valor Agregado)General: 21% / Reducida: 10,5%Valor en Aduana + DI + Tasa de EstadisticaAlicuota general 21%. Alicuota reducida del 10,5% para animales vivos bovinos, carnes y despojos bovinos no elaborados, frutas, legumbres y hortalizas frescas.4. IVA Adicional (percepcion)20% cuando IVA general = 21% / 10% cuando IVA general = 10,5%Misma base que IVA generalPercepcion adicional que la DGA cobra del importador al momento de la importacion definitiva para consumo. No aplica a bienes de uso ni consumo particular ni animales bovinos.5. Anticipo Impuesto a las Ganancias6% (bienes para comercializacion) / 11% (uso personal del importador)Base IVADelegado por la DGI a la DGA para su recaudacion en el momento de la importacion. Si el FOB unitario < 95% del valor criterio de DGA, la alicuota del IVA Adicional y Ganancias puede ser mayor.6. Impuestos InternosVariable segun producto130% de (Valor CIF + DI + tributos excepto IVA)Grava: bebidas alcoholicas y no alcoholicas, cigarros, cigarrillos, hornos microondas, aparatos de sonido/grabacion/video, vehiculos diesel. Tasa efectiva = 100 x (tasa nominal) / (100 - tasa nominal).7. Derechos AntidumpingVariable (porcentaje similar al margen de dumping)Valor en AduanaSe aplica cuando se comprueba practica de dumping. El importador lo abona; no sanciona al exportador. Puede acumularse con los demas tributos.8. Tasa de Comprobacion de DestinoVariableSegun normativa especificaPrevista en art. 770 del CA. Aplica en regimenes especiales donde se debe verificar el destino de la mercaderia.9. Ingresos Brutos (percepcion provincial)Variable segun provinciaValor en AduanaLa DGA recauda como agente de percepcion del impuesto provincial sobre los ingresos brutos. Vigente desde el 2/1/2004 para importaciones definitivas a consumo (Res. Gral. AFIP 1609/03).10. Impuesto sobre transferencia de combustibles liquidosSegun Ley especificaSegun producto especificoSe aplica solo para productos combustibles especificos. Mencionado en el listado del manual sin desarrollar alicuotas.11. Registro SIM (tarifa fija)u$s 10 por registroPor operacionCada registro de una operacion en el Sistema Informatico Malvina tiene un costo fijo de u$s 10 que paga el operador junto con los demas impuestos del despacho.
+[FUENTE INSUFICIENTE PARA]: Honorarios del despachante de aduana (consultar arancel del Centro de Despachantes de Aduana - www.cda.org.ar), costos de almacenamiento en deposito fiscal por dia, costos de verificacion fisica por el Servicio Aduanero, costos de flete interno (puerto/aeropuerto a domicilio del importador), gastos bancarios (apertura de Carta de Credito, transferencia internacional), costos de seguros de carga international, y costos de certificaciones de organismos (SENASA, ANMAT, etc.).
+
+
+5. COMO CALCULAR EL COSTO DE IMPORTACION: FORMULA REAL
+5.1 El ejemplo de liquidacion tributaria del manual 
+El manual utiliza como ejemplo una luneta astronomica importada por via aerea por el Regimen General, para su posterior comercializacion. NCM: 9005.80.00. Los valores son:
+
+ItemConceptoFormula / AlicuotaValor en u$sa)Valor FOB de la mercaderiaPrecio de venta en origen (sin flete ni seguro)3.000,00b)Flete y Seguro InternacionalesCostos de transporte y seguro hasta el puerto/aeropuerto argentino250,00c)Valor en Aduana (CIF)a + b3.250,00d)Derecho de Importacion (DI)14% s/ CIF (c)455,00e)Tasa de Estadistica (TE)0,5% s/ CIF (c)16,25f)Base para IVA(c) + (d) + (e) = CIF + DI + TE3.721,25g)IVA General21% s/ (f)781,46h)IVA Adicional (percepcion)20% s/ (f)744,25i)Anticipo Ganancias6% s/ (f) para bienes de comercializacion223,28 (aprox.)
+Nota del manual: Para el item (i) Ganancias, el manual indica 'Alicuota 6% (I)' sin detallar el calculo final exacto en el ejemplo. Se calcula aplicando 6% sobre la base f = 3.721,25 = aprox. u$s 223,28.
+5.2 Formula general sistematizada
+A partir del ejemplo del manual y los tributos descriptos, la formula completa de calculo del costo tributario de una importacion a consumo es:
+
+PASO 1: Valor en Aduana (CIF) = FOB + Flete Internacional + Seguro Internacional
+Esta es la base imponible para la mayoria de los tributos aduaneros en Argentina.
+PASO 2: Derecho de Importacion (DI) = CIF x alicuota DI (segun NCM, 0% a 35%)
+La alicuota surge de la posicion NCM del producto. Puede ser 0% si hay preferencia arancelaria con el pais de origen y se presenta Certificado de Origen.
+PASO 3: Tasa de Estadistica (TE) = CIF x alicuota TE (ej: 0,5%)
+El manual usa 0,5% como ejemplo. La alicuota vigente puede variar y consultarse en Tarifar o AFIP.
+PASO 4: Base IVA = CIF + DI + TE
+Esta base es la misma para el IVA General y el IVA Adicional.
+PASO 5: IVA General = Base IVA x 21% (o 10,5% para productos con alicuota reducida)
+Alicuota general 21%. Reducida 10,5% para bovinos, carnes, frutas y hortalizas frescas.
+PASO 6: IVA Adicional = Base IVA x 20% (si IVA general = 21%) o 10% (si IVA general = 10,5%)
+No aplica para bienes de uso, consumo particular del importador, ni animales bovinos.
+PASO 7: Anticipo Ganancias = Base IVA x 6% (bienes para comercializar) o 11% (uso personal)
+Percepcion a cuenta del impuesto a las ganancias. Delegado a la DGA por la DGI.
+PASO 8: Impuestos Internos (si aplica) = Base especifica x Tasa efectiva
+Tasa efectiva = 100 x (tasa nominal) / (100 - tasa nominal). Solo para productos especificos: bebidas, tabaco, electronica, autos diesel, etc.
+TOTAL TRIBUTOS = DI + TE + IVA General + IVA Adicional + Ganancias + Imp. Internos (si aplica) + Ingresos Brutos (si aplica) + Antidumping (si aplica)
+A este total se suman los gastos operativos (honorarios del despachante, deposito, flete interno, seguro de carga, etc.) para obtener el costo total landed.
+
+
+5.3 Resumen del ejemplo completo del manual 
+
+FOB: u$s 3.000 + Flete+Seguro: u$s 250 = CIF: u$s 3.250 DI (14%): u$s 455 | TE (0,5%): u$s 16,25 Base IVA: u$s 3.721,25 IVA 21%: u$s 781,46 | IVA Adicional 20%: u$s 744,25 Ganancias 6%: u$s ~223 TOTAL TRIBUTOS SOBRE FOB 3.000: aprox. u$s 2.220 (aprox. 74% del FOB)
+Ejemplo del Manual de Aduanas, pag. 163 (NCM 9005.80.00, DI 14%, via aerea, para comercializacion)
+
+
+6. VALORACION EN ADUANA: QUE ES EL VALOR CIF Y COMO SE CALCULA
+COBERTURA: COMPLETA Y EXTENSA. El Capitulo VIII del manual (pags. 335-360+) desarrolla en profundidad la valoracion aduanera segun el Acuerdo de la OMC.
+6.1 Marco normativo: el Acuerdo de la OMC
+Argentina aplica las normas de valoracion de la OMC, basadas en el Articulo VII del GATT. La adhesion se produjo a partir de 1988 mediante la Ley 23.311, reglamentada por Decreto 1026/87. Esta normativa fue ratificada en el marco de la OMC mediante la Ley 24.425. El Acuerdo posee una estructura de metodos jerarquicos y subsidiarios.
+
+6.2 Concepto de Valor en Aduana (VA)
+El Valor en Aduana (VA) es la base imponible sobre la cual se calculan los derechos ad valorem de importacion. Segun el Acuerdo de la OMC, el metodo principal para determinarlo es el Valor de Transaccion (VT). El esquema general del manual es:
+
+VA = P + AI - AD
+Donde: P = Precio; AI = Ajustes a Incluir (Art. 8); AD = Ajustes a Deducir. Este esquema es la base matematica de la valoracion.
+6.3 El metodo principal: Valor de Transaccion (VT)
+El Valor de Transaccion es el precio realmente pagado o por pagar por las mercancias cuando estas se venden para su exportacion al pais de importacion, ajustado de conformidad con lo dispuesto en el articulo 8 del Acuerdo:
+
+VT = PP + Ajustes del Articulo 8
+PP = Precio realmente Pagado o Por Pagar. Incluye pagos en dinero fisico y otros medios (cartas de credito). Incluye pagos directos al vendedor e indirectos (a terceros para satisfacer obligaciones del vendedor). NO incluye pagos por conceptos ajenos a la compraventa.
+6.4 Condiciones para que el VA = VT
+El VA es el VT siempre que se cumplan las 4 condiciones siguientes:
+• Que no existan restricciones a la cesion o utilizacion de las mercancias por el comprador (excepciones: restricciones impuestas por la ley del pais importador; que limiten la zona geografica de reventa; que no afecten sustancialmente al valor).
+• Que la venta o el precio no dependan de ninguna condicion o contraprestacion cuyo valor no pueda determinarse con relacion a las mercancias a valorar.
+• Que no revierta ni indirectamente al vendedor parte alguna del producto de la reventa o cesion ulteriores, a menos que pueda efectuarse el ajuste del Art. 8.
+• Que no exista una vinculacion entre el comprador y el vendedor o, si existe, que el VT sea aceptable a efectos aduaneros.
+
+Cuando existe vinculacion entre comprador y vendedor
+El manual desarrolla extensamente los casos de vinculacion (art. 15, parr. 4 y 5 del Acuerdo; art. 9 del Decreto PEN 1026/87). Existe vinculacion cuando:
+? Una de ellas ocupa cargos de responsabilidad o direccion en una empresa de la otra
+? Estan legalmente reconocidas como asociadas en negocios
+? Estan en relacion de empleador y empleado
+? Una persona tiene directa o indirectamente la propiedad o control del 5% o mas de las acciones con derecho a voto de ambas
+? Una controla directa o indirectamente a la otra
+? Ambas son controladas por una tercera
+? Juntas controlan a una tercera persona
+? Son de la misma familia (esposo/esposa; padres/hijos; hermanos; abuelos/nietos; tio/sobrino; suegros/yerno-nuera; cunados)
+
+6.5 Los Ajustes del Articulo 8
+Ajustes Obligatorios (deben aplicarlos todos los paises miembros)
+Para determinar el VT, al PP unicamente podra incrementarse por:
+• Comisiones (excepto comisiones de compra) y corretajes a cargo del comprador.
+• Costo de envases y embalajes (que a efectos aduaneros se consideran como formando un todo con las mercancias importadas) y gastos de embalaje (mano de obra y materiales).
+• Prestaciones del comprador al vendedor: materiales, piezas y elementos incorporados; herramientas, matrices, moldes utilizados para la produccion; materiales consumidos; ingenieria, disenos y planos realizados fuera del pais de importacion y necesarios para la produccion.
+• Canones y derechos de licencia relacionados con las mercancias que el comprador este obligado a pagar como condicion de venta.
+• Reversiones: parte del producto de la reventa, cesion o utilizacion posterior que revierta al vendedor.
+
+Ajustes Facultativos (Argentina los aplica integramente: genera VA en condicion CIF)
+El articulo 8.2 del Acuerdo deja librada a cada pais su aplicacion. Argentina, por el Articulo 5 del Decreto PEN 1026/87, aplica la totalidad de estos ajustes, conformando un Valor en Aduana en condicion CIF. Los ajustes facultativos que Argentina incluye son:
+• Los gastos de transporte de las mercancias importadas hasta el puerto o lugar de importacion (FLETE INTERNACIONAL).
+• Los gastos de carga, descarga y manipulacion ocasionados por el transporte de las mercancias importadas hasta el puerto o lugar de importacion.
+• El costo del seguro (SEGURO INTERNACIONAL).
+
+6.6 El Valor CIF y por que Argentina lo usa
+CONCLUSION CLAVE DEL MANUAL: Argentina aplica la totalidad de los ajustes facultativos del Art. 8.2 del Acuerdo de la OMC, conformando un Valor en Aduana en condicion CIF (Cost, Insurance and Freight). Esto significa que el flete y el seguro internacionales SIEMPRE forman parte de la base imponible de los derechos de importacion en Argentina. Base legal: Articulo 5 del Decreto PEN 1026/87.
+Valor en Aduana CIF = Precio FOB (PP) + Ajustes Art. 8.1 (comisiones, envases, etc.) + Flete Internacional + Gastos de Carga/Descarga + Seguro Internacional
+En el caso mas simple (sin ajustes del Art. 8.1): Valor en Aduana CIF = Precio FOB + Flete + Seguro
+Definicion de lugar de importacion segun el manual
+El manual define 'lugar de importacion' (Art. 5 del Decreto PEN 1026/87) como:
+• Para mercancias conducidas por via acuatica: el primer puerto donde la carga del medio transportador sea sometida a formalidades aduaneras.
+• Para mercancias conducidas por via terrestre o aerea: la primera oficina aduanera mas proxima a la frontera donde se puedan descargar materialmente las mercancias objeto de valoracion.
+
+6.7 Metodos alternativos de valoracion (cuando no puede determinarse el VT)
+El manual describe que cuando no puede determinarse el VT, el VA debera obtenerse por los demas metodos en estricto orden de precedencia:
+
+#MetodoDescripcion del manual1Valor de Transaccion (VT) - Metodo principalPrecio realmente pagado o por pagar + ajustes del Art. 8. VA = VT.2VT de mercancias identicas (VTmi)VA = VT de mercancias identicas (iguales en todo: caracteristicas fisicas, calidad y prestigio comercial). Si hay mas de un VT de mercancias identicas, se usa el mas bajo.3VT de mercancias similares (VTms)VA = VT de mercancias similares (que aunque no sean iguales, tienen caracteristicas y composicion semejantes y son comercialmente intercambiables). Si hay mas de un VT, se usa el mas bajo.4 (o 5*)Metodo DeductivoVA = precio al que se vende la mercaderia en el mercado interno del pais importador, menos comisiones/ganancias habituales, menos gastos de transporte/seguro internos, menos derechos e impuestos pagados en el pais importador. *El orden 4 y 5 puede invertirse a solicitud del importador.5 (o 4*)Metodo ReconstructivoVA basado en el costo de produccion: materiales + fabricacion + utilidades y gastos generales habituales + gastos de transporte hasta el pais importador.6Metodo del ultimo recursoAplicacion flexibilizada de los metodos anteriores. Valores prohibidos: precio de venta en el pais exportador; dos alternativas de eleccion; precio en mercado diferente al de importacion; valores minimos; valores arbitrarios o ficticios.
+6.8 El Formulario de Declaracion de Valor en Aduana
+La declaracion aduanera incluye el Formulario OM 1993/1-A (Res. Gral. 2.010 y complementaria) que releva:
+• Anverso: informacion general de la operacion comercial; informacion sobre clasificacion arancelaria; informacion sobre las condiciones para la determinacion del VT (restricciones, vinculaciones, canones, reversiones); datos adicionales sobre la mercaderia; compromiso del declarante (declaracion jurada).
+• Reverso: calculo del VT, agrupado en: A) Base de Calculo (precio neto y pagos indirectos); B) Adiciones - Importes No Incluidos en A (ajustes del Art. 8); C) Deducciones - Importes Incluidos en A (intereses de financiacion, gastos post-importacion, derechos e impuestos a pagar en el pais importador).
+• La presentacion del formulario puede omitirse cuando no hay ajustes, la venta se pacto en una unica condicion, y ninguna de las 17 preguntas de control tiene respuesta afirmativa (sin descuentos no indicados, sin vinculacion, sin canones, sin condicionamientos especiales, etc.).
+
+
+RESUMEN DE COBERTURA DEL ARCHIVO
+
+Seccion solicitadaCoberturaObservacion1. Paso a paso importacion a consumoCOMPLETACap. III del manual, pags. 131-171. Todos los pasos, plazos, multas y organismos intervinientes documentados.2. Sistemas de control previo (SIMI/SIRA/SEDI)COMPLETA (con fuente mixta)SIMI: Manual de Aduanas (2018). SIRA/SEDI/eliminacion: RGC 5651/2025 (B.O. 25/02/2025). Cronologia completa documentada. Situacion vigente: no existe ningun sistema de declaracion previa desde el 26/02/2025.3. Canales de selectividad (verde, naranja, rojo)COMPLETACap. III pags. 161-162. Los tres canales estan descriptos con su logica, estados en SIM y consecuencias.4. Costos totales de importacionCOMPLETA para tributos / INSUFICIENTE para honorariosTodos los tributos con alicuotas documentados. Honorarios de terceros (despachante, deposito, flete interno) no estan en el manual.5. Formula de calculo del costo de importacionCOMPLETAEl manual provee un ejemplo numerico completo (pag. 163) con todos los pasos. Se sistematiza la formula general.6. Valoracion en aduana: CIF y como se calculaCOMPLETA Y EXTENSACap. VIII (pags. 335-360+). Acuerdo OMC, VT, ajustes Art. 8, metodos alternativos, formulario de valor. Justificacion del CIF en Argentina explicita (Decreto 1026/87).
+
+Documento generado en base exclusiva al Manual de Aduanas - Juarez et al. (2018) | trade.ai

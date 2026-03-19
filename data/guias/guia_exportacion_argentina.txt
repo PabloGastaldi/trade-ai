@@ -1,0 +1,267 @@
+
+GUIA OPERATIVA DE EXPORTACION ARGENTINA
+Basada en: Manual de Aduanas - Juarez et al. (2018)
+Fuente exclusiva: manual-de-aduanas-2021.txt
+
+
+
+1. PASO A PASO OPERATIVO DE UNA EXPORTACION
+1.1 Condicion previa: inscripcion del exportador
+Antes de poder operar, el exportador (persona fisica o juridica) debe inscribirse en el Registro de Exportadores e Importadores de la Direccion General de Aduanas (DGA). Este registro habilita el acceso al Sistema Informático Malvina (SIM). Sin esta inscripcion, no es posible oficializar ninguna destinacion de exportacion.
+
+1.2 Secuencia operativa paso a paso
+
+1Negociacion comercial y preparacion de la operacion
+El exportador cierra la venta con el comprador del exterior. Se define el precio (generalmente en USD), el Incoterm aplicable, el medio de pago (carta de credito, transferencia, etc.), el medio de transporte y el puerto/aeropuerto/paso fronterizo de salida. Se emite la Factura Pro-forma si el comprador la requiere.
+2Emision de la Factura tipo E y Packing List
+El exportador emite la Factura Comercial tipo 'E' (formato establecido por AFIP), que debe contener descripcion, valor de la mercaderia, medio y forma de pago. Si existe Carta de Credito, debe redactarse en los mismos terminos. Salvo coincidencia idiomatica con el pais comprador, se redacta en ingles y los montos se expresan en la moneda pactada (generalmente USD). La AFIP exige CAI (Codigo de Autorizacion de Impresion) valido para poder acceder luego al cobro de reintegros. Ademas se emite el Packing List especificando contenido, peso bruto y neto de la mercaderia.
+3Obtención de certificados de organismos intervinientes
+Según el tipo de producto, se obtienen los certificados requeridos por otros organismos: SENASA (fitosanitario/sanitario), INAL, ANMAT, INPI, etc. El Certificado Sanitario o Fitosanitario es extendido y firmado por el profesional del organismo oficial que corresponda y certifica que la mercadería esta libre de germenes o virus. El Certificado de Origen se gestiona ante el organismo autorizado segun el acuerdo comercial aplicable (ej: ALADI, MERCOSUR), y acredita ante el pais de destino el origen argentino de la mercaderia.
+4Contratación del Despachante de Aduana
+El exportador designa un Despachante de Aduana habilitado, quien actuara como mandatario ante el servicio aduanero. Para ello el exportador le otorga una Carta Poder en papel membretado firmada por él. El despachante es quien firma la declaración principal (Permiso de Embarque) y es responsable de la presentacion ante la aduana.
+5Oficialización de la Destinación de Exportacion en el SIM
+El Despachante ingresa al Sistema Informático Malvina (SIM) todos los datos de la operacion y oficializa la Destinacion de Exportacion. El documento central es el Permiso de Embarque (Formulario OM-1993-A SIM, emitido por el sistema Malvina). En caso de pago de derechos de exportacion, se afectan fondos depositados en subcuenta Malvina o se constituye garantia (efectivo, aval bancario o poliza de seguro de caucion). La declaracion es inalterable una vez registrada, salvo excepciones expresamente previstas en el Codigo Aduanero. El plazo de validez del Permiso de Embarque es de 31 dias corridos desde su registro (45 dias si hay transito terrestre con camion o ferrocarril).
+6Ingreso de la mercaderia al deposito de exportacion
+La mercaderia se ingresa a la Zona Primaria Aduanera y al deposito de exportacion habilitado. El depositario deja constancia en el SIM del ingreso de bultos, indicando cantidad y estado de los mismos en el reverso del OM-1993 SIM. Este ingreso debe realizarse en forma PREVIA a la Presentacion de la Declaracion Detallada. El deposito debe estar habilitado por el Servicio Aduanero, con condiciones de seguridad especificas (paredes, alambrados, cerraduras). La mercaderia en deposito provisorio de exportacion debe ser despachada dentro de 1 mes o cae en rezago (venta en subasta publica).
+7Presentacion ante aduana y asignacion de canal de selectividad
+El Servicio Aduanero efectua la presentacion de la Destinacion de Exportacion y el Sistema Malvina asigna automaticamente el canal de selectividad. Existen 3 canales posibles:• CANAL VERDE: Libramiento inmediato. El sistema cambia el estado de Oficializado a 'Autorizacion a Retiro' sin control fisico de la mercaderia. Es la aplicacion del 'Despacho en Confianza'.
+• CANAL NARANJA: Control documental estricto sin verificacion fisica. El estado queda en 'Presentado'. Se aplica cuando la operacion exige documentacion adicional o cuando hay mercancias bajo cupos.
+• CANAL ROJO: Control documental + verificacion fisica obligatoria como condicion previa al libramiento. El estado queda en 'Presentado' hasta que el verificador ingrese el 'Resultado de la Verificacion'.
+
+IMPORTANTE: El exportador o su Despachante deben estar presentes en el acto de verificación. Si no concurren, pierden el derecho a reclamar contra el resultado de la verificacion establecido por el servicio aduanero (art. del CA aplicable).
+8Verificacion de mercaderia (si canal rojo/naranja)
+El verificador aduanero controla fisicamente la mercaderia contra lo declarado. Si la mercaderia es extremadamente delicada, fragil o peligrosa, el Servicio Aduanero puede exigir que el interesado ponga a disposicion personal especializado. El Servicio Aduanero puede exigir informacion complementaria sobre caracteristicas tecnicas, dando un plazo no inferior a 2 dias, bajo apercibimiento de declarar la caducidad de la solicitud.
+9Pre-cumplido, cumplido de embarque y transito
+Realizada la presentacion y verificacion, se carga el Pre-cumplido (constancia de unidades, consolidacion y precintado, previa al embarque o inicio del transito). Si hay transito de exportacion (mercaderia que se registra en una Aduana y sale por otra distinta), el ATA presenta el MIC/DTA. La Aduana de Registro verifica y coloca precintos numerados. La Aduana de Salida verifica la inviolabilidad de los precintos antes de autorizar el paso al exterior. El depositario registra el Egreso de Transito de Exportacion. El ATA o Despachante validan con la transaccion 'Control salida de transitos de Exportacion'.
+10Libramiento
+Es el acto administrativo por el cual el Servicio Aduanero autoriza la salida de la mercaderia con destino al exterior. El libramiento no implica necesariamente la salida fisica inmediata del territorio aduanero.
+11Embarque y cumplido definitivo
+La mercaderia es cargada a bordo del medio de transporte. El ATA presenta la Relacion de Carga (Formulario OM-1967) ante la Aduana. Los plazos para la presentacion de la relacion de carga son: Buques: dentro de los 15 dias del zarpado. Camiones: de inmediato una vez precintado el vehiculo. Ferrocarriles: dentro de los 2 dias de la salida de la Aduana. Aeronaves: de inmediato una vez efectuado el despegue.
+12Pago de los Derechos de Exportacion
+Los derechos de exportacion se pagan sobre el Valor FOB de la mercaderia, deducidos los insumos importados temporalmente. Segun los Decretos 583/02 y 835/02: Para exportadores que exporten hasta u$s 20.000.000 anuales: plazo de espera de 120 dias desde el libramiento o la fecha de ingreso de divisas (el menor de ambos), o 15 dias si las divisas se liquidaron anticipadamente. Para exportadores que exporten mas de u$s 20.000.000 anuales: 15 dias del libramiento. Si se paga fuera de plazo, se abonan intereses moratorios. Las garantias pueden ser: dinero efectivo, aval bancario o poliza de seguro de caucion.
+13Cobro de Reintegros a la Exportacion
+El Sistema Malvina verifica automaticamente: que el exportador este habilitado en el Registro, que posea CBU habilitada, que se haya registrado el Cumplido de Embarque 'conforme' o presentada la Declaracion Post-Embarque, que esten abonados los Derechos de Exportacion, y que no haya inhabilitaciones tributarias o previsionales. Una vez conformados todos estos requisitos, el area Contable de la Aduana transfiere y acredita los fondos en la cuenta bancaria designada por el exportador.
+
+
+2. TIEMPOS REALES DE CADA ETAPA
+2.1 Plazos legales formales contenidos en el manual
+
+Etapa / ConceptoPlazo legalBase normativaValidez del Permiso de Embarque (exportacion acuatica/aerea)31 dias corridos desde el registroDecreto 1001/82Validez del Permiso de Embarque (transito terrestre)45 dias corridos desde el registroDecreto 1001/82Deposito provisorio de exportacion (max sin destinacion)1 mes; prorroga por unica vez por plazo igualArt. 398 CA + Decreto 1001/82 Art. 44Pago de derechos: exportadores hasta u$s 20M/anio120 dias desde libramiento (o fecha de ingreso de divisas, el menor); 15 dias si hubo liquidacion anticipadaDecretos 583/02 y 835/02Pago de derechos: exportadores mas de u$s 20M/anio15 dias del libramientoDecretos 583/02 y 835/02Informacion complementaria tecnica exigible por AduanaNo inferior a 2 dias habilesCA - Tramite de exportacion para consumoPlazo trasbordo intermedio (antes de medio de transporte definitivo)15 dias desde finalizacion descarga; prorroga max 45 diasArt. 391 CARelacion de carga - Buques (plazo de presentacion)15 dias del zarpadoDecreto 1001/82 Art. 45Relacion de carga - CamionesDe inmediato una vez precintadoDecreto 1001/82 Art. 45Relacion de carga - Ferrocarriles2 dias de la salida de la Aduana de cargaDecreto 1001/82 Art. 45Relacion de carga - AeronavesDe inmediato una vez efectuado el despegueDecreto 1001/82 Art. 45Exportacion temporaria - mercaderia con transformacion2 anios (ampliable con acto resolutivo de Secretaria de Industria)Art. CA - Exportacion TemporariaExportacion temporaria - bienes de capital3 aniosArt. CA - Exportacion TemporariaExportacion temporaria - otras categorias (ferias, muestras, etc.)1 anioArt. CA - Exportacion TemporariaExportacion en consignacion (plazo en exterior)360 dias desde oficializacion; 60 dias adicionales para reingresoDecreto 975/98 y Resolucion MP 814/16Declaracion Post-embarque (Art. 346 CA)Posterior al embarque y hasta carga definitiva a bordo (acuatica/aerea) o hasta ultimo control fronterizo (terrestre)Art. 346 CA - Diferencias de cantidadSolicitud de prorroga deposito provisorioCon 5 dias de anticipacion al vencimientoArt. 398 CAIncomparecencia del interesado a citacionMinimo 2 dias desde la notificacionArt. CA - Tramite de exportacionConversion de exportacion temporaria en definitiva (solicitud)Con 5 dias habiles de anticipacion al vencimientoArt. CA - Exportacion Temporaria
+
+
+3. COSTOS ASOCIADOS A CADA ETAPA
+[FUENTE PARCIALMENTE INSUFICIENTE] El manual no es un manual de costos operativos. No contiene honorarios actualizados de despachantes, costos portuarios vigentes, ni tarifas de certificados. Lo que SI contiene son: (a) la estructura conceptual de componentes del valor FOB y del valor imponible, (b) el costo del registro SIM, (c) un dato de referencia del Banco Mundial sobre el costo total de exportar desde Argentina, y (d) la estructura de los derechos de exportacion. Se reproduce todo lo disponible en el archivo.
+3.1 Dato global de referencia (Banco Mundial - Doing Business)
+Segun el estudio 'Doing Business' del Banco Mundial citado en el manual (pag. 38): El costo de exportar un contenedor desde Argentina es de u$s 1.910 dolares. Esto incluye tramites y documentacion, transporte interno y costo de frontera o puerto. El manual senala expresamente: 'Argentina es cara para exportar'. Para referencia comparativa: Australia u$s 1.538 - Nueva Zelanda u$s 694.
+3.2 Costo fijo del registro en el SIM
+Cada registro de una operacion en el Sistema Informático Malvina (SIM) tiene un costo de u$s 10,00 (diez dolares estadounidenses), que debe ser pagado por el operador junto con los impuestos correspondientes al despacho de la mercaderia.
+
+3.3 Componentes del valor imponible (lo que entra en la base de calculo de derechos)
+El valor imponible para la liquidacion de derechos de exportacion debe incluir todos los gastos ocasionados hasta el punto de salida (puerto para exportacion acuatica, aeropuerto para aerea, o lugar del medio de transporte para terrestre). El manual los enumera expresamente:
+• Gastos de transporte y de seguro hasta el puerto, aeropuerto o lugar previstos
+• Comisiones
+• Corretajes
+• Gastos para la obtencion, dentro del territorio aduanero, de los documentos relacionados con la exportacion
+• Tributos exigibles dentro del territorio aduanero (con exclusion de los que fueran eximidos o reembolsados con motivo de la exportacion, y de los propios derechos de exportacion)
+• Costo de los embalajes (excepto si siguen regimen aduanero propio)
+• Gastos de embalaje (mano de obra, materiales y otros gastos)
+• Gastos de carga, excluidos los de estiba en la medida en que no estuvieren comprendidos en aquellos
+
+3.4 Derechos de Exportacion (Retenciones)
+El Derecho de Exportacion (conocido popularmente como 'retenciones') grava la exportacion para consumo (art. 724 del CA). Sus caracteristicas principales segun el manual:
+• Es un derecho ad valorem: se calcula aplicando un porcentual sobre el valor imponible de la mercaderia o, en su caso, sobre Precios Oficiales FOB (PO).
+• El momento imponible es la fecha de registro de la destinacion de exportacion para consumo (regimen general).
+• Para mercaderias con Precio Oficial (PO) - principalmente agropecuarias - ese PO es la unica base de tributacion, sin descontar insumos importados temporales, comisiones, ni el propio derecho de exportacion.
+• Los Precios Oficiales son determinados por la Direccion Nacional de Mercados Agroalimentarios del Ministerio de Agroindustria.
+• Ley 21.453 (Ley de Granos / DJVE): para ciertas mercancias, el exportador puede registrar el contrato de venta (DJVE) y fijar el momento imponible a la fecha del cierre de la venta, con plazos de cumplimiento de 45 a 365 dias segun opciones de pago.
+
+3.5 Tasa de Estadistica y otras tasas
+El Codigo Aduanero prevee la Tasa de Estadistica (art. 768) y la Tasa de Comprobacion de Destino (art. 770) como tributos adicionales. El manual los menciona pero no detalla las alicuotas vigentes (remite a la plataforma web Tarifar para su actualizacion).
+
+3.6 Reintegros y estimulos a la exportacion
+Los reintegros son devoluciones al exportador de tributos internos contenidos en la mercaderia exportada. El manual menciona que los porcentajes son variables por posicion arancelaria NCM. En los ejercicios practicos del manual aparecen ejemplos de tasas: 8% y 7.5% para posiciones especificas de la NCM (balanzas). La base de calculo del reintegro (BRi) es el valor FOB. Los reintegros son incompatibles con la exportacion de mercaderias con insumos importados temporalmente en su porcion proporcional.
+• El sistema Malvina verifica y acredita los reintegros automaticamente una vez cumplidas las condiciones.
+• No corresponden reintegros sobre mercaderia faltante en deposito provisorio de exportacion.
+
+3.7 Garantias para pago diferido de derechos
+Cuando el exportador no paga los derechos al momento del libramiento y opta por el plazo de espera, debe constituir una garantia. Las formas aceptadas son:
+• Dinero en efectivo (deposito en subcuenta Malvina)
+• Aval bancario
+• Poliza de seguro de caucion
+
+[FUENTE INSUFICIENTE PARA]: Honorarios del Despachante de Aduana (deben consultarse en el arancel del Centro de Despachantes de Aduana - www.cda.org.ar), costos portuarios y de terminal (TRP, Exolgan, etc.), costos de certificados SENASA/ANMAT actualizados, costos de almacenamiento en deposito fiscal por dia, y seguro internacional de carga.
+
+
+4. DIFERENCIA ENTRE EXPORTACION MARITIMA, AEREA Y TERRESTRE
+4.1 Documentos de transporte segun via
+Los contratos de transporte se formalizan en documentos cuyo formato varia segun el modo de transporte. El manual identifica los siguientes:
+
+Via de transporteDocumento oficialCaracteristicas segun el manualMaritima o FluvialConocimiento de Embarque (Bill of Lading - B/L)Instrumento probatorio del contrato de transporte, prueba de carga, titulo de credito transmisible por endoso o cesion. Acredita la titularidad de la disponibilidad juridica de la mercaderia.AereaGuia Aerea (Air Waybill - AWB)Mismo valor probatorio que el B/L. Para cobro de reintegros: el manual cita expresamente la Guia Aerea como documento probatorio de embarque.Terrestre (camion)Conocimiento Rodaviario (CRT) + MIC/DTAEl ATIT (Acuerdo de Transporte Internacional Terrestre) exige el Manifiesto Internacional de Carga / Declaracion de Transito Aduanero (MIC/DTA) ante la Aduana de Partida. Las empresas de transporte internacional necesitan Permiso Originario o Complementario de la Secretaria de Transporte.FerroviarioCarta de PorteIgual valor probatorio. Mencionado como modalidad terrestre ferroviaria.
+4.2 Diferencias en la gestion del desistimiento
+El manual establece diferencias importantes segun la via cuando el exportador quiere desistir de la destinacion de exportacion (art. 346 CA):
+• Via acuatica o aerea: NO se puede desistir una vez que el medio de transporte hubiere partido con destino inmediato al exterior (es decir, que no tocara otro puerto o aeropuerto en el territorio aduanero).
+• Via terrestre: NO se puede desistir una vez que el ultimo control de la aduana de frontera hubiere autorizado la salida del medio de transporte.
+
+4.3 Diferencias en la rectificacion post-libramiento
+La posibilidad de rectificar la declaracion despues del libramiento y antes del embarque definitivo tambien difiere segun la via:
+• Via acuatica o aerea: Se puede rectificar hasta la carga definitiva a bordo del medio de transporte que parta con destino inmediato al exterior.
+• Via terrestre: Se puede rectificar hasta que el ultimo control de la aduana de frontera haya autorizado la salida del medio de transporte.
+
+4.4 Diferencias en la presentacion de la relacion de carga
+El ATA debe presentar la Relacion de Carga (Formulario OM-1967) ante la aduana en los siguientes plazos segun la via (Decreto 1001/82, Art. 45):
+• Buques: dentro de los 15 dias del zarpado.
+• Camiones u otros automotores similares: de inmediato, una vez precintado el vehiculo y expedita la via para su posterior salida.
+• Ferrocarriles: dentro de los 2 dias de la salida de la Aduana en cuya jurisdiccion se hubiera tomado la carga.
+• Aeronaves: de inmediato, una vez efectuado el despegue.
+
+4.5 Diferencias en la valoracion del valor imponible
+El valor imponible para calcular los derechos de exportacion incluye 'todos los gastos ocasionados hasta el punto de salida': Para exportacion acuatica: hasta el puerto en el cual se cargare en el buque. Para exportacion aerea: hasta el aeropuerto en el que se cargare. Para exportacion terrestre: hasta el lugar del transporte automotor o ferrocarril para la mercaderia que se exportare. El manual ilustra esto con un ejemplo: una empresa tucumana que exporta por barco desde Buenos Aires debe incluir en el valor FOB todos los gastos hasta ese puerto.
+
+4.6 Transito de exportacion (caracteristica de la via terrestre)
+Cuando se declara en el Permiso de Embarque un codigo de Aduana de Destino/Salida distinto al de la Aduana de Registro, se esta declarando un 'Transito de Exportacion'. Esto es especialmente relevante en la via terrestre, donde la mercaderia documentada en una aduana del interior del pais (ej: Cordoba) debe transitar hasta la aduana de salida fronteriza. El documento de transito es el MIC/DTA. La Aduana de Registro verifica y coloca precintos numerados; la Aduana de Salida verifica la inviolabilidad de los precintos antes de autorizar el paso al exterior.
+
+[FUENTE INSUFICIENTE PARA]: Comparacion de tiempos reales entre modalidades, diferencias en costos de flete por modalidad, rangos de peso/volumen optimos por via, comparacion de seguros por modalidad, y diferencias en el tratamiento de mercancias peligrosas o refrigeradas segun via.
+
+
+5. CUANDO USAR CADA TIPO DE TRANSPORTE Y POR QUE
+[FUENTE INSUFICIENTE] El Manual de Aduanas de Juarez et al. es un texto de derecho aduanero argentino, NO un manual de logistica internacional. No contiene criterios de seleccion del modo de transporte para el exportador (relacion costo/tiempo, tipo de mercaderia, urgencia, peso/volumen, destino, perecibilidad, etc.). Esta seccion es el unico punto de las 7 secciones solicitadas que el archivo no puede cubrir en absoluto. Para responder esta pregunta de forma util se requieren: manuales de Incoterms, guias de camaras exportadoras (CERA, CAME, Fundacion Export.Ar), textos de logistica internacional, o consultas a transitarios.
+Lo unico que el archivo aporta sobre cuando usar cada via (de forma indirecta) son las diferencias legales y documentales descriptas en la Seccion 4, que tienen implicancias operativas:
+• La via terrestre requiere tramites adicionales (MIC/DTA, Permiso Originario/Complementario para la empresa transportista) y el plazo del Permiso de Embarque se extiende a 45 dias corridos, lo que sugiere que los tramites son mas complejos o lentos.
+• La via aerea tiene la Guia Aerea (AWB) como documento de embarque, y el cumplido debe registrarse de forma inmediata al despegue, lo que sugiere rapidez operativa pero menor tiempo disponible para rectificaciones.
+• La via maritima tiene el plazo mas largo para la relacion de carga (15 dias del zarpado), lo que refleja la mayor duracion de los viajes maritimos.
+
+
+
+6. DOCUMENTOS NECESARIOS EN CADA ETAPA Y QUIEN LOS GENERA
+
+6.1 Mapa de documentos por etapa
+
+EtapaDocumentoQuien lo generaObservaciones del manualPre-exportacionFactura Pro-formaExportadorSi el comprador la requiere antes de la venta definitiva.Pre-exportacionCarta Poder / Poder NotarialExportadorOtorgado al Despachante de Aduana. Se acepta Carta Poder en papel membretado firmada por el exportador.ComercialFactura Comercial tipo 'E'Exportador (con CAI de AFIP)Requisito indispensable para cobrar reintegros. En ingles salvo coincidencia idiomatica. Montos en moneda pactada (generalmente USD). Debe coincidir con los terminos de la Carta de Credito si la hubiere.ComercialPacking List (Lista de Empaque)ExportadorEspecifica contenido, peso bruto y neto de la mercaderia y condiciones de exportacion. Detalla contenido de bultos/contenedor.CertificacionesCertificado Sanitario o FitosanitarioProfesional del organismo oficial (SENASA para animales/vegetales; INAL/ANMAT para alimentos/medicamentos)Certifica que la mercaderia esta libre de germenes, virus, etc. El organismo competente varia segun el tipo de producto.CertificacionesCertificado de OrigenOrganismo autorizado segun el acuerdo comercial aplicableLas formalidades de emision estan supeditadas a las normas del acuerdo vigente entre exportador e importador. Determina si el producto es considerado 'argentino' segun las reglas de origen del acuerdo.Despacho aduaneroPermiso de Embarque (OM-1993-A SIM)Despachante de Aduana (via SIM/Malvina)Documento principal de la destinacion de exportacion. Contiene datos del exportador, despachante, ATA, informacion de la operacion comercial, valores para base imponible y liquidacion de derechos/reintegros. Es emitido por el Sistema Malvina.Despacho aduaneroSobre Contenedor (OM-2133 SIM)Despachante de Aduana (via SIM)Parte del juego de documentos de la destinacion de exportacion.Despacho aduaneroDeclaracion de los Elementos Relativos al Valor (OM-1993/2 SIM)Despachante de Aduana (via SIM)Parte del juego de documentos de la destinacion de exportacion. Contiene los elementos para la valoracion aduanera.TransporteDocumento de Transporte (B/L, AWB, CRT o Carta de Porte segun via)Empresa transportista / ATAPrueba el contrato de transporte y otorga a su poseedor el derecho a disponer de las mercancias. Es instrumento probatorio, prueba de carga y titulo de credito. Transmisible por endoso. Requisito para cobrar reintegros.TransporteManifiesto de Carga / Relacion de Carga (OM-1967)ATA (Agente de Transporte Aduanero)Contiene detalle de mercancias que transporta el medio. El Manifiesto SIM es la declaracion de mercancias que descarga en ese puerto/aeropuerto/paso. La Relacion de Carga es presentada por el ATA al momento del zarpe/despegue/salida.Transporte terrestreMIC/DTA (Manifiesto Internacional de Carga / Declaracion de Transito Aduanero)ATA / Empresa transportistaExigido por el ATIT para transporte internacional de cargas por carretera. Documento unico para la salida temporaria de la unidad de transporte y para el transito de la mercaderia.DepositoRegistro de recepcion en deposito provisorioDepositario habilitadoConstancia de ingreso de bultos con descripcion, marcas, numeros, estado y condiciones externas. Se asienta en SIM y en reverso del OM-1993.Post-embarque (si aplica)Declaracion Post-EmbarqueExportador o su representanteCuando efectivamente se embarco menor cantidad que la declarada (Art. 346 CA). Evita la infraccion por inexactitud. Debe presentarse luego de finalizado el embarque.Post-embarque (si aplica)Nota de debito / Nota de creditoExportadorSolo en exportaciones con precios revisables (EC08): nota de debito si el precio final supera al declarado, nota de credito si es inferior. Plazo: 60 dias desde oficializado el permiso de embarque (ES02).
+6.2 Caracteristicas especiales de los documentos principales
+Factura Comercial tipo E - Requisitos AFIP
+El manual (pag. 196) establece que la AFIP ha fijado una serie de requisitos y formalidades para la conformacion de la Factura tipo 'E'. Su cumplimiento es indispensable para acceder al cobro de los reintegros a la exportacion. El manual especifica que debe contener:
+• Descripcion de la mercaderia
+• Valor de la mercaderia
+• Medio y forma de pago
+• Si existe Carta de Credito: mismos terminos de aquella
+• Numero de CAI (Codigo de Autorizacion de Impresion) valido
+• Idioma: ingles, salvo coincidencia idiomatica con el pais del comprador
+• Montos: en la moneda pactada en el instrumento de pago (generalmente USD)
+
+Permiso de Embarque (OM-1993-A SIM) - Contenido
+El manual (pag. 196-197) describe que el Permiso de Embarque contiene:
+• Datos del exportador
+• Datos del despachante
+• Datos del agente de transporte
+• Informacion referida a la operacion comercial
+• Valores para determinar la base imponible de derechos y reintegros
+• Liquidacion de derechos y reintegros
+• Banco por el cual se ingresan las divisas
+
+Juego completo de la Destinacion de Exportacion
+El manual enumera los documentos que componen el juego de la Destinacion de Exportacion (pag. 196-197):
+• Sobre Contenedor OM-2133 SIM (Color Verde)
+• Permiso de Embarque (Form. OM-1993-A SIM)
+• Declaracion de los Elementos Relativos al Valor (Formulario OM-1993/2 SIM)
+• Intervenciones de otros organismos (si correspondiere)
+• Lista de empaque
+• Detalle de las Importaciones Temporales a cancelar (si correspondiere)
+
+
+
+7. FLUJO DE LA OPERACION EN EL SIM (SISTEMA INFORMATICO MALVINA)
+COBERTURA DEL ARCHIVO: COMPLETA. El SIM tiene su propio capitulo en el manual (Capitulo III, punto 10, paginas 167-171 y desarrollo en el Capitulo IV). Se reproduce todo el contenido disponible.7.1 Origen e historia del sistema
+A mediados de la decada del 90, la entonces Administracion Nacional de Aduanas instalo el Sistema Informático Maria (SIM), adoptando una herramienta informatica que favorece tanto a la Aduana (mejor informacion, analisis de riesgo y control) como a los usuarios (reduccion de errores formales y de tiempo en tramites, pago de obligaciones por debito automatico desde la propia terminal). El sistema fue denominado luego Sistema Informático Malvina, y es la denominacion actual. En alguna referencia historica del manual se lo llama aun 'Sistema Informático Maria', que es la denominacion popular previa.
+
+7.2 Caracteristicas del sistema
+El SIM es un sistema de doble registracion:
+• DOCUMENTAL: sustento juridico. El personal aduanero y todos los sujetos intervinientes asientan por escrito y firman todas las operaciones en el documento unico que emite el sistema.
+• INFORMATICA: constan en el sistema todos los pasos realizados para la emision de ese documento unico.
+
+7.3 Usuarios del SIM
+El manual identifica expresamente 5 tipos de usuarios del Sistema Informático Malvina:
+• Agente de Transporte Aduanero (ATA) autorizado
+• Agente Desconsolidador (puede ser el ATA)
+• Depositario (Terminal, Deposito de Almacenamiento)
+• Despachante de Aduana
+• Servicio Aduanero
+
+7.4 Modulos del SIM
+El SIM tiene 5 modulos desarrollados para registrar las operaciones de importacion y exportacion:
+
+Modulo 1: Manifiesto o Declaracion Sumaria
+El ATA ingresa en su terminal los datos de las mercancias, conformando la declaracion sumaria. Esta es generica por documento de transporte: cantidad, peso bruto, datos del transportista y del agente. El manifiesto atraviesa los siguientes estados:
+• EN CURSO: puede modificarse, suprimirse un documento de transporte o imprimirse como 'provisorio'.
+• REGISTRADO / PRESENTADO: una vez impreso definitivamente y presentado ante el servicio aduanero para las operaciones relacionadas (descarga, desconsolidacion, transitos, etc.).
+• ANULADO: si el ATA solicita anulacion (solo posible si no fue destinado).
+• CANCELADO: una vez que todas las mercancias egresaron del deposito.
+
+Modulo 2: Declaracion Detallada
+Una vez registrado el manifiesto de carga por el ATA, el Despachante de Aduana puede iniciar el ingreso de datos en este modulo, generando el Documento Unico Aduanero (para importacion: el despacho de importacion; para exportacion: el Permiso de Embarque). El despachante puede consultar informacion del ATA y del depositario. La secuencia en este modulo es:
+• Ingreso de datos y generacion del documento
+• Oficializacion: el sistema otorga un numero de despacho definitivo, afecta los fondos correspondientes, cancela el documento de transporte y asigna el canal de selectividad
+• Impresion y presentacion ante el servicio aduanero
+• Control y sellado por el agente aduanero: actualiza la base, la declaracion pasa a estado 'presentada' o 'registrada'
+
+Modulo 3: Arancel Integrado
+Abarca la clasificacion de las diversas mercancias importadas y exportadas y todo el tratamiento arancelario-aduanero aplicable. Para cada posicion arancelaria indica: derechos, estadistica, IVA, Ganancias, y restricciones (proteccion industrial, prohibiciones economicas y no economicas, etc.). Aplica los siguientes clasificadores para cada destinacion registrada:
+• Posicion del Nomenclador Comun del Mercosur (NCM) con tabla de derechos (intrazona y extrazona / AEC)
+• Posicion Sistema Informático Malvina (tres digitos)
+• Digito de control (una letra)
+Incluye una funcion denominada 'ventaja', que contempla mediante una declaracion complementaria un tratamiento aduanero mas beneficioso que el general (exencion a prohibicion o imposicion fiscal).
+
+Modulo 4: Recaudacion
+Administra en forma automatica todo lo relacionado con percepciones y pagos por impuestos y tasas derivados de las operaciones aduaneras. Sus funciones principales:
+• Ingreso de fondos al sistema por parte de importadores y exportadores
+• Afectacion de dichos importes a las obligaciones
+• Transferencia de fondos de la DGA a los organismos correspondientes
+• Sistema de garantias aduaneras: permite realizar operaciones sin previo pago, constituyendo garantia en efectivo o valores
+El flujo de fondos es: Los importadores/exportadores depositan en Cuentas Recaudacion a Afectar en pesos y/o dolares en la sucursal del Banco de la Nacion Argentina de cada aduana (presencialmente o por redes electronicas autorizadas). El Banco de la Nacion Argentina envia un mensaje de acreditacion al computador de la aduana, el sistema genera una subcuenta Malvina identificada con los CUIT del importador y del despachante. Una vez acreditado el deposito, el usuario desde su terminal afecta los fondos al pago de declaraciones aduaneras, liquidaciones complementarias o garantias. El sistema Malvina controla la existencia de fondos en la subcuenta, acepta la oficializacion y registra.
+
+Modulo 5: Control y seguimiento de operaciones
+Prevee un menu de consultas e impresion de las transacciones del sistema. No se desarrolla en detalle en el manual.
+
+7.5 Flujo completo de exportacion en el SIM - paso a paso informatico
+
+SIM-1ATA registra el Manifiesto de Carga (Declaracion Sumaria)
+El Agente de Transporte Aduanero ingresa en su terminal los datos del medio de transporte y de la carga. El manifiesto pasa por los estados: En curso -> Registrado -> Presentado.
+SIM-2Despachante ingresa la Declaracion Detallada y oficializa
+El Despachante de Aduana ingresa todos los datos de la destinacion de exportacion en el Modulo Declaracion Detallada. El sistema genera el Permiso de Embarque (OM-1993-A SIM). Al oficializar, el sistema: otorga un numero de despacho definitivo, afecta los fondos de la subcuenta Malvina (o registra la garantia), cancela el documento de transporte correspondiente.
+SIM-3Depositario registra el ingreso de bultos
+El depositario habilitado ingresa en el SIM la constancia de recepcion de la mercaderia, indicando cantidad y estado de los bultos. Este paso es PREVIO a la Presentacion de la Declaracion Detallada.
+SIM-4Servicio Aduanero efectua la Presentacion -> SIM asigna canal
+El agente aduanero ingresa el numero de identificacion del despacho. El Sistema Malvina procede automaticamente a la asignacion del canal de selectividad. El estado cambia a:• CANAL VERDE: Estado cambia de 'Oficializado' a 'Autorizacion a Retiro'. Libramiento inmediato.
+• CANAL NARANJA: Estado cambia de 'Oficializado' a 'Presentado'. Requiere control documental.
+• CANAL ROJO: Estado cambia de 'Oficializado' a 'Presentado'. Requiere control documental + verificacion fisica.
+
+SIM-5Ingreso del Resultado de la Verificacion (canal rojo/naranja)
+El verificador aduanero efectua el control y luego ingresa en el SIM el 'Resultado de la Verificacion'. Solo con este paso el sistema permite avanzar al estado siguiente.
+SIM-6Carga del Pre-cumplido
+Se consigna en el SIM las constancias de unidades de mercancias, consolidacion y/o precintado. IMPORTANTE: Previo a la carga del Pre-cumplido, se deben visualizar en el sistema los datos de los formularios MIC/DTA y/o TIF/DTA (si hay transito de exportacion). El estado de la destinacion pasa a 'Pre-cumplido'.
+SIM-7Egreso de Transito de Exportacion (si aplica)
+El depositario realiza en el SIM el 'Egreso de Transito de Exportacion'. El estado de la destinacion avanza al siguiente.
+SIM-8Validacion por el ATA o Despachante
+El ATA o el Despachante utilizan la transaccion 'Control salida de transitos de Exportacion' en el SIM para validar los registros ingresados, verificando los datos ingresados por el Servicio Aduanero.
+SIM-9LIBRAMIENTO
+Estado final de la destinacion de exportacion. El Servicio Aduanero autoriza en el sistema la salida de la mercaderia con destino al exterior. La destinacion queda en estado 'Liberado'.
+SIM-10Verificacion automatica y acreditacion de Reintegros (post-embarque)
+Una vez registrado el Cumplido de Embarque 'conforme', el Sistema Malvina verifica automaticamente: habilitacion del exportador en el Registro, CBU habilitada, cumplido de embarque 'conforme' o Declaracion Post-Embarque presentada, Derechos de Exportacion abonados, y ausencia de inhabilitaciones tributarias/previsionales. Cumplidos todos los requisitos, el sistema transfiere automaticamente los fondos de reintegros a la cuenta bancaria designada por el exportador.
+7.6 Estados de una destinacion de exportacion en el SIM
+
+Estado en el SIMQue significaOFICIALIZADOEl Despachante registro la destinacion. Se afectaron fondos o se registro la garantia.AUTORIZACION A RETIROCanal Verde asignado. Libramiento inmediato sin verificacion fisica.PRESENTADOCanal Rojo o Naranja asignado. El verificador debe ingresar resultado.PRE-CUMPLIDOSe cargaron las constancias de consolidacion/precintado, previas al embarque.LIBERADO / LIBRAMIENTOAutorizacion definitiva del Servicio Aduanero para la salida de la mercaderia.CUMPLIDOSe consignaron las cantidades efectivamente embarcadas o egresadas por la Aduana de salida.
+7.7 Costo del registro en el SIM
+Cada registro en el SIM es tarifado con un importe de u$s 10,00 (diez dolares estadounidenses) que debe ser pagado por el operador junto con los impuestos correspondientes al despacho de la mercaderia.
+7.8 Red de aduanas con identificacion SIM
+El manual incluye un listado completo de las aduanas argentinas con su codigo identificador SIM (pag. 171). Algunas de las principales:
+• Buenos Aires (29), Rosario (52), Cordoba (17), Ezeiza (73), San Lorenzo (57)
+• Posadas (46), Gualeguaychu (26), Paso de los Libres (45), Pocitos (45), Santo Tome (84)
+• Bahia Blanca (03), Mar del Plata (37), Mendoza (38), Salta (53), San Juan (55)
+• Barranqueras (10), Formosa (24), Iguazu (29), Bernardo de Irigoyen (82)
+• Rio Gallegos (48), Ushuaia (87), Caleta Olivia (87), Puerto Deseado (19)
+
+
+RESUMEN DE COBERTURA DEL ARCHIVO
+
+Seccion solicitadaCoberturaObservacion1. Paso a paso operativo de una exportacionCOMPLETACap. IV del manual, pags. 178-199. Todo el proceso legal-operativo documentado.2. Tiempos reales de cada etapaINSUFICIENTESolo contiene plazos legales maximos/minimos. No hay datos de tiempos reales operativos de campo.3. Costos asociados a cada etapaPARCIALContiene: costo SIM (u$s 10), dato Banco Mundial global, estructura del valor imponible, derechos de exportacion y reintegros. No contiene: honorarios de despachantes, costos portuarios, certificados.4. Diferencia maritima / aerea / terrestrePARCIALCubre diferencias documentales, legales y de valoracion. No hay comparativa operativa ni criterios de decision logistica.5. Cuando usar cada tipo de transporteNO DISPONIBLEEl manual es de derecho aduanero, no de logistica. Esta seccion requiere fuentes externas.6. Documentos necesarios y quien los generaCOMPLETATabla completa con todos los documentos, generadores y caracteristicas.7. Flujo en el SIMCOMPLETACap. III punto 10 y Cap. IV. Modulos, estados, usuarios y flujo paso a paso documentados.
+
+Documento generado en base exclusiva al Manual de Aduanas - Juarez et al. (2018) | trade.ai

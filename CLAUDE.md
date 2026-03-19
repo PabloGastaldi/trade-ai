@@ -11,7 +11,9 @@ a mercados, documentación aduanera y normativa vigente.
 - Backend: API Routes de Next.js (Node.js)
 - Base de datos: Supabase (PostgreSQL cloud) — proyecto: dinjztjipjazwzbgjiix
 - RAG: Pinecone (índice trade-ai-docs, modelo integrado llama-text-embed-v2)
-- IA: Claude API (Haiku 4.5 para producción, Sonnet para desarrollo)
+- IA: Claude API (Haiku 4.5 para clasificación ~$0.0006/consulta, Sonnet 4.5 para respuestas)
+  - Token budget dinámico: simple=800, media=2000, compleja=3000 (techos, no objetivos)
+  - Sonnet recibe el presupuesto en el mensaje y responde al scope de la pregunta, no al contexto
 - Markdown: react-markdown + remark-gfm (renderizado de respuestas del chat)
 - Pagos: MercadoPago Checkout Pro (SDK `mercadopago`, webhook con HMAC)
 - Idioma de la app: Español (Argentina)
@@ -48,20 +50,30 @@ a mercados, documentación aduanera y normativa vigente.
   - SGP: Unión Europea, USA, Japón
   - MERCOSUR completo (Brasil, Uruguay, Paraguay son TLC total)
 
+### 3. Barreras no arancelarias — UNCTAD TRAINS (cargada en Supabase)
+- Tabla: `ntm_measures`
+- 199,165 filas del dataset UNCTAD TRAINS filtrado para Argentina
+- Archivo fuente: C:\Users\Pablo\trade-ai-data\ntm_argentina_filtrado.csv
+- Script de carga: `scripts/load-ntm.js`
+- Columnas clave: year, reporter (ISO3), partner (ISO3), hs_code (6 dígitos),
+  ntm_all, ntm_non_h, ntm_h, ntm_full_coverage, ntm_partial_coverage, ntm_code
+- Tabla auxiliar `country_codes`: mapeo ISO3 → nombre en español
+- Categorías NTM: A=SPS, B=TBT, C=Inspección, E=Licencias/cuotas, P=Exportación
+
 ## Estructura de la base de datos
 Base de datos: Supabase cloud (proyecto dinjztjipjazwzbgjiix)
 Acceso: NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY desde .env.local
 
 Tablas existentes:
 - `ncm`: 10,432 filas (posiciones arancelarias argentinas)
+- `preferencias_arancelarias`: 52,510 filas (acuerdos comerciales por NCM)
+- `acuerdos_generales`: TLC de cobertura total (MERCOSUR + ACE-35)
+- `ntm_measures`: 199,165 filas (barreras no arancelarias UNCTAD TRAINS)
+- `country_codes`: códigos ISO3 y nombres de países en español
 - `users_profile`: perfil de usuarios (id, full_name, company_name, plan_type,
   queries_this_month, queries_reset_date, mp_subscription_id)
-- `queries_log`: historial de consultas (vacía por ahora)
-- `documents_registry`: documentos normativos para RAG (vacía por ahora)
-
-Tablas por crear:
-- `preferencias_arancelarias`: preferencias del Excel de acuerdos comerciales
-- `acuerdos_generales`: TLC de cobertura total (ACE-35, MERCOSUR)
+- `queries_log`: historial de consultas
+- `documents_registry`: documentos normativos para RAG
 
 ## Estado actual del desarrollo
 - ✅ Base de datos migrada a Supabase con 4 tablas
@@ -77,6 +89,8 @@ Tablas por crear:
 - ✅ Rate limiting en dos capas (middleware IP + route handler userId)
 - ✅ Headers de seguridad (CSP, X-Frame-Options, etc.) en next.config.mjs
 - ✅ Suite de pruebas de calidad del agente (tests/test-queries.json + scripts/test-runner.js)
+- ✅ Arquitectura híbrida Haiku (clasificador) + Sonnet (respuesta) con token budget dinámico
+- ✅ Barreras no arancelarias UNCTAD TRAINS (199K filas en ntm_measures, integradas en el agente)
 - ⬜ Deploy a producción (Vercel)
 - ⬜ Configurar webhook MP en producción (MP_WEBHOOK_SECRET obligatorio)
 - ⬜ Verificar RLS policies en Supabase dashboard
@@ -114,11 +128,14 @@ trade-ai/
 │   ├── pinecone/                  # Búsqueda semántica
 │   ├── rate-limit.js              # RateLimiter reutilizable + getClientIp()
 │   ├── supabase/                  # Clientes Supabase
-│   └── ncm-lookup.js             # Consulta NCM + preferencias
+│   ├── ncm-lookup.js             # Consulta NCM + preferencias arancelarias
+│   ├── ntm-lookup.js             # Barreras no arancelarias (UNCTAD TRAINS)
+│   └── preferencias-lookup.js    # Acuerdos comerciales y TLC
 ├── middleware.js                  # Rate limiting IP + sesión Supabase
 ├── next.config.mjs                # Headers de seguridad (CSP, X-Frame, etc.)
 ├── scripts/
 │   ├── ingest.js                  # Ingesta PDFs/TXTs a Pinecone
+│   ├── load-ntm.js               # Carga dataset NTM a Supabase (199K filas)
 │   └── test-runner.js             # Runner de evaluación de calidad del agente
 ├── tests/
 │   ├── test-queries.json          # 30 consultas de evaluación por categoría
