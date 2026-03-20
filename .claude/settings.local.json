@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/Pablo -type f -name *.py)",
+      "Bash(xargs grep:*)",
+      "Bash(npm install:*)",
+      "Bash(node data/scripts/importar-acuerdos.js)",
+      "Bash(SKEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpbmp6dGppcGphend6YmdqaWl4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzM2NjI4OSwiZXhwIjoyMDg4OTQyMjg5fQ.e7k6CTypuRXXBM_JflVBaksWRFPXLGjWmAWc8B_niEI\" BASE=\"https://dinjztjipjazwzbgjiix.supabase.co/rest/v1\" __NEW_LINE_f6337b7a861fbb4d__ echo \"=== Total filas en preferencias_arancelarias ===\" curl -s \"$BASE/preferencias_arancelarias?select=id&limit=1\" -H \"apikey: $SKEY\" -H \"Authorization: Bearer $SKEY\" -H \"Prefer: count=exact\" -I)",
+      "Read(//c/Users/Pablo/trade-ai/**)",
+      "Bash(python3 -c \":*)",
+      "Bash(node scripts/ingest.js \"C:\\\\Users\\\\Pablo\\\\trade-ai-data\")",
+      "Bash(node -e \"const p = require\\(''''pdf-parse''''\\); console.log\\(typeof p, Object.keys\\(p || {}\\).slice\\(0,5\\)\\)\")",
+      "Bash(node -e \"const {Pinecone} = require\\(''@pinecone-database/pinecone''\\); const pc = new Pinecone\\({apiKey:''test''}\\); const idx = pc.index\\(''test''\\); console.log\\(Object.getOwnPropertyNames\\(Object.getPrototypeOf\\(idx\\)\\).filter\\(m => m.includes\\(''psert''\\) || m.includes\\(''record''\\)\\)\\)\")",
+      "Bash(npm test:*)",
+      "Bash(\"c:\\\\Users\\\\Pablo\\\\trade-ai\\\\Security.md\")",
+      "Bash(npm run:*)"
+    ]
+  }
+}

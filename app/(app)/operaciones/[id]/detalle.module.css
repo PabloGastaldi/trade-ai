@@ -1,0 +1,810 @@
+/* app/(app)/operaciones/[id]/detalle.module.css */
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 5rem;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────────── */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+}
+
+.breadcrumbLink {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.breadcrumbLink:hover { opacity: 0.75; }
+
+.breadcrumbSep { color: var(--text-muted); }
+
+.breadcrumbActual {
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+/* ── Header operación ────────────────────────────────────────────────────── */
+
+.opHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.opHeaderLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.opTitulo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.opNombre {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin: 0;
+}
+
+.opEstadoWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.opPais {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Badges tipo */
+.tipoBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.badgeExpo {
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.badgeImpo {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--accent-dim-border);
+}
+
+/* Badge estado */
+.estadoBadge {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+}
+
+.estadoExpo {
+  background: rgba(34, 197, 94, 0.08);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.18);
+}
+
+.estadoImpo {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--accent-dim-border);
+}
+
+/* Acciones del header */
+.opAcciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btnAccion {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.btnAccion:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent-dim-border);
+  background: var(--accent-dim);
+}
+
+.btnAccion:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Progreso global ─────────────────────────────────────────────────────── */
+
+.progresoGlobal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.875rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.progresoTexto {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.progresoNum {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.progresoSep { color: var(--text-muted); }
+.progresoDesc { color: var(--text-dim); }
+.progresoPct {
+  margin-left: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.progresoBarraWrap {
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progresoBarraFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ── Tabs mobile ─────────────────────────────────────────────────────────── */
+
+.tabsMobile {
+  display: none;
+  gap: 0.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.tabMobile {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  text-align: center;
+}
+
+.tabMobile:hover { color: var(--text-dim); }
+
+.tabMobileActivo {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* ── Layout dos columnas ─────────────────────────────────────────────────── */
+
+.layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+  margin-bottom: 2rem;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+
+.colIzq,
+.colDer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.cardTitulo {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.875rem;
+}
+
+.cardTituloRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.875rem;
+}
+
+.cardTituloRow .cardTitulo { margin-bottom: 0; }
+
+/* ── Datos (dl/dd) ───────────────────────────────────────────────────────── */
+
+.datosGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1rem;
+  margin: 0;
+}
+
+.datosGrid dt {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  align-self: center;
+  white-space: nowrap;
+}
+
+.datosGrid dd {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text-dim);
+  margin: 0;
+  align-self: center;
+}
+
+.ncmValor {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+
+.valorDestacado {
+  font-weight: 700;
+  color: var(--text) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.incoterm {
+  display: inline-block;
+  background: var(--surface-2);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+.sinDatos {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Cambiar estado ──────────────────────────────────────────────────────── */
+
+.cambiarEstadoWrap {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cambiarEstadoWrap .select { flex: 1; }
+
+/* ── Notas ───────────────────────────────────────────────────────────────── */
+
+.notasTexto {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.notasAcciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.metaDatos {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+  padding-left: 0.25rem;
+}
+
+/* ── Checklist documentos ────────────────────────────────────────────────── */
+
+.docsGrupo {
+  margin-bottom: 0.75rem;
+}
+
+.docsGrupo:last-child { margin-bottom: 0; }
+
+.docsGrupoHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.catCritico {
+  background: rgba(239, 68, 68, 0.07);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.catImportante {
+  background: rgba(251, 191, 36, 0.07);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.15);
+}
+
+.catOpcional {
+  background: rgba(74, 222, 128, 0.07);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.15);
+}
+
+.docsGrupoCount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.docItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0.6rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.12s;
+}
+
+.docItem:hover { background: var(--surface-2); }
+
+.docItemCriticoPendiente {
+  border-left: 2px solid rgba(239, 68, 68, 0.4);
+  padding-left: 0.6rem;
+}
+
+.docItemMain {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.docCheckbox {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--border-light);
+  background: var(--bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.docCheckboxMarcado {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.docInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.docNombre {
+  font-family: var(--font-body);
+  font-size: 0.845rem;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+
+.docNombreCompleto {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.docFechaCompleto {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: #4ade80;
+}
+
+.docVencimiento {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: #fbbf24;
+}
+
+.docNotaBtn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background 0.15s;
+  opacity: 0;
+}
+
+.docItem:hover .docNotaBtn { opacity: 1; }
+
+.docNotaBtn:hover {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.docNotaTexto {
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 0.2rem 0 0 2.5rem;
+  margin: 0;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.docNotaEdit {
+  padding: 0.35rem 0 0 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.docNotaInput {
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 0.45rem 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.docNotaInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.docNotaAcciones {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.docNotaBtnCancel {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.25rem 0.6rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.docNotaBtnCancel:hover { border-color: var(--border-light); }
+
+.docNotaBtnGuardar {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-dim-border);
+  border-radius: 5px;
+  padding: 0.25rem 0.6rem;
+  color: var(--accent);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.docNotaBtnGuardar:hover { background: rgba(233, 159, 28, 0.2); }
+
+/* ── Timeline ────────────────────────────────────────────────────────────── */
+
+.timelineSection {
+  margin-top: 0.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--border);
+}
+
+.timelineItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.6rem 0 0.6rem 0.875rem;
+  position: relative;
+  margin-left: -0.875rem;
+}
+
+.timelineDot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-light);
+  border: 2px solid var(--surface);
+  margin-top: 0.25rem;
+}
+
+.timelineContenido {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.timelineFecha {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.timelineEvento {
+  font-family: var(--font-body);
+  font-size: 0.845rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.timelineEvento strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.timelineNota {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Botones ─────────────────────────────────────────────────────────────── */
+
+.btnPrimario {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btnPrimario:hover:not(:disabled) { background: var(--accent-hover); }
+.btnPrimario:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnSecundario {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.55rem 1.1rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btnSecundario:hover:not(:disabled) {
+  border-color: var(--border-light);
+  color: var(--text-dim);
+}
+
+.btnSecundario:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btnEditar {
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 500;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.2rem 0.55rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btnEditar:hover { border-color: var(--border-light); color: var(--accent); }
+
+/* ── Formulario ──────────────────────────────────────────────────────────── */
+
+.select {
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 0.55rem 0.875rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  cursor: pointer;
+}
+
+.select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.textarea {
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  resize: vertical;
+}
+
+.textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.textarea::placeholder { color: var(--text-muted); }
+
+/* ── Print ───────────────────────────────────────────────────────────────── */
+
+.printOnly {
+  display: none;
+}
+
+@media print {
+  .page > *:not(.printOnly) {
+    display: none !important;
+  }
+  .printOnly {
+    display: block;
+    font-family: sans-serif;
+    color: #000;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .printOnly h1 { font-size: 18px; margin-bottom: 8px; }
+  .printOnly h2 { font-size: 14px; margin-top: 16px; margin-bottom: 6px; }
+  .printOnly hr { border: none; border-top: 1px solid #ccc; margin: 12px 0; }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .tabsMobile {
+    display: flex;
+  }
+
+  .hideMobile {
+    display: none;
+  }
+
+  .timelineSection {
+    display: block !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page { padding: 1.25rem 1rem 4rem; }
+  .opNombre { font-size: 1.2rem; }
+  .opAcciones { gap: 0.35rem; }
+  .btnAccion span { display: none; }
+  .btnAccion { padding: 0.45rem 0.55rem; }
+  .cambiarEstadoWrap { flex-direction: column; }
+  .cambiarEstadoWrap .btnPrimario { width: 100%; }
+}

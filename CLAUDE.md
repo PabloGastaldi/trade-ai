@@ -1,10 +1,20 @@
 # trade.ai — Contexto del Proyecto
 
 ## Qué es trade.ai
-Plataforma web de consulta inteligente para comercio exterior argentino.
-Permite a PYMEs, despachantes de aduana, exportadores e importadores
-hacer consultas en lenguaje natural sobre aranceles, requisitos de acceso
-a mercados, documentación aduanera y normativa vigente.
+ERP de comercio exterior argentino con IA integrada.
+Combina un asistente conversacional (Claude Haiku) con herramientas
+operativas para gestionar el ciclo completo de importación y exportación.
+
+**Dos capas de valor:**
+1. **IA consultiva** — Consultas en lenguaje natural sobre aranceles, NCM,
+   acuerdos comerciales, barreras no arancelarias, documentación aduanera
+   y normativa vigente.
+2. **ERP operativo** — Herramientas de gestión: catálogo de productos,
+   calculadora de costos (impo/expo, comparación de regímenes), comparador
+   por país, gestor de operaciones con checklist inteligente.
+
+**Usuarios objetivo:** PYMEs exportadoras/importadoras, despachantes de aduana,
+agentes de comercio exterior, consultores de comex.
 
 ## Stack tecnológico
 - Frontend: Next.js 14 (App Router) desplegado en Vercel
@@ -70,34 +80,55 @@ Tablas existentes:
 - `preferencias_arancelarias`: 52,510 filas (acuerdos comerciales por NCM)
 - `acuerdos_generales`: TLC de cobertura total (MERCOSUR + ACE-35)
 - `ntm_measures`: 199,165 filas (barreras no arancelarias UNCTAD TRAINS)
-- `country_codes`: códigos ISO3 y nombres de países en español
+- `country_codes`: códigos ISO3 y nombres de países (name_es + name_en)
+- `destination_tariffs`: 122,220 filas — aranceles que cobran otros países
+  a productos argentinos (fuente WITS/ITC, HS 6 dígitos, AVE%)
 - `users_profile`: perfil de usuarios (id, full_name, company_name, plan_type,
-  queries_this_month, queries_reset_date, mp_subscription_id)
+  queries_this_month, calcs_this_month, queries_reset_date, mp_subscription_id)
 - `queries_log`: historial de consultas
 - `documents_registry`: documentos normativos para RAG
+- `user_products`: catálogo de productos del usuario (ncm_code, precio, incoterm,
+  is_active, hs_code_6 generado automáticamente)
 
 ## Estado actual del desarrollo
-- ✅ Base de datos migrada a Supabase con 4 tablas
-- ✅ NCM cargado en Supabase (10,432 posiciones, formato XXXX.XX.XX)
-- ✅ Preferencias arancelarias importadas (52,510 filas)
-- ✅ Acuerdos generales creados (MERCOSUR + ACE-35)
-- ✅ Frontend del chat funcionando (tema oscuro, hero, chips, Markdown)
+
+### Módulo IA consultiva
 - ✅ Endpoint /api/consulta con Claude Haiku 4.5 + historial
 - ✅ RAG con Pinecone (104 archivos ingestados, búsqueda semántica)
-- ✅ Auth de usuarios (Supabase Auth)
-- ✅ Pagos (MercadoPago Checkout Pro — /planes, webhook, checkout)
-- ✅ Auditoría de seguridad completa (2026-03-17) — ver Security.md
-- ✅ Rate limiting en dos capas (middleware IP + route handler userId)
-- ✅ Headers de seguridad (CSP, X-Frame-Options, etc.) en next.config.mjs
-- ✅ Suite de pruebas de calidad del agente (tests/test-queries.json + scripts/test-runner.js)
 - ✅ Arquitectura Haiku para todo (clasificador + respuesta) con token budget dinámico
 - ✅ System prompt externalizado a lib/prompts/system-prompt.js
-- ✅ Guías operativas en lib/prompts/guia-exportacion.js y guia-importacion.js (inyección condicional)
-- ✅ Barreras no arancelarias UNCTAD TRAINS (199K filas en ntm_measures, integradas en el agente)
+- ✅ Guías operativas (guia-exportacion.js, guia-importacion.js — inyección condicional)
+- ✅ Barreras no arancelarias UNCTAD TRAINS (199K filas, integradas en el agente)
+- ✅ Frontend del chat (tema oscuro, hero, chips, Markdown)
+
+### Módulo ERP — Catálogo de productos
+- ✅ Tabla `user_products` con RLS y trigger para hs_code_6
+- ✅ Página /catalogo — CRUD completo con búsqueda inteligente de NCM
+- ✅ API route /api/catalogo con límites por plan (free: 2, pro: 30, empresa: ilimitado)
+
+### Módulo ERP — Calculadora de costos
+- ✅ lib/calculadora/calc-importacion.js — régimen general + courier/PEF/UPU
+- ✅ lib/calculadora/calc-exportacion.js — conversión incoterms + derechos de expo
+- ✅ Tabla `destination_tariffs` (122K filas, aranceles por destino WITS/ITC)
+- ✅ Script scripts/load-tariffs.js para cargar destination_tariffs
+- ✅ API routes /api/calculadora/importacion y /api/calculadora/exportacion
+- ✅ Página /calculadora — UI con tabs impo/expo, 4 cards de regímenes, desglose
+- ✅ Límites por plan (free: 5 cálculos/mes, pro/empresa: ilimitado) via lib/calc-limit.js
+- ✅ Columna calcs_this_month en users_profile
+
+### Infraestructura y seguridad
+- ✅ Auth (Supabase Auth), Pagos (MercadoPago Checkout Pro)
+- ✅ Rate limiting dos capas, headers de seguridad, auditoría 2026-03-17
+- ✅ Suite de pruebas (Vitest, 52 tests unit + integration)
+
+### Roadmap ERP pendiente
+- ⬜ Fase C: Comparador por país (usa calculadora para múltiples destinos)
+- ⬜ Fase D: Gestor de operaciones + checklist inteligente
 - ⬜ Deploy a producción (Vercel)
 - ⬜ Configurar webhook MP en producción (MP_WEBHOOK_SECRET obligatorio)
 - ⬜ Verificar RLS policies en Supabase dashboard
 - ⬜ OCR de 12 PDFs escaneados pendientes
+- ⬜ Agregar /catalogo y /calculadora al AppHeader
 
 ## Convenciones de código
 - Usar español para nombres de variables de dominio (ej: derechoImportacion)
@@ -111,42 +142,60 @@ Tablas existentes:
 ```
 trade-ai/
 ├── app/
-│   ├── page.js                    # Landing page
+│   ├── page.js                         # Landing page
 │   ├── (app)/
-│   │   ├── consulta/page.js       # Chat con la IA
-│   │   ├── planes/page.js         # Página de planes y precios
-│   │   ├── cuenta/page.js         # Mi cuenta
-│   │   └── historial/page.js      # Historial de consultas
-│   ├── (auth)/                    # Login / registro
+│   │   ├── consulta/page.js            # Chat con la IA
+│   │   ├── catalogo/                   # ERP: catálogo de productos
+│   │   │   ├── page.js                 # SSR — carga productos + países
+│   │   │   ├── CatalogoClient.js       # UI interactiva + modal formulario
+│   │   │   └── catalogo.module.css
+│   │   ├── calculadora/                # ERP: calculadora de costos
+│   │   │   ├── page.js                 # SSR — carga productos + países
+│   │   │   ├── CalculadoraClient.js    # UI tabs impo/expo + cards regímenes
+│   │   │   └── calculadora.module.css
+│   │   ├── planes/page.js              # Página de planes y precios
+│   │   ├── cuenta/page.js              # Mi cuenta
+│   │   └── historial/page.js           # Historial de consultas
+│   ├── (auth)/                         # Login / registro
 │   ├── api/
-│   │   ├── consulta/route.js      # Endpoint principal (Claude + RAG)
-│   │   ├── checkout/route.js      # Crear preferencia MercadoPago
-│   │   └── webhooks/mercadopago/  # Webhook handler MP (HMAC + anti-replay)
+│   │   ├── consulta/route.js           # Endpoint IA (Claude + RAG)
+│   │   ├── catalogo/route.js           # CRUD catálogo con límite de plan
+│   │   ├── calculadora/
+│   │   │   ├── importacion/route.js    # Cálculo 4 regímenes en paralelo
+│   │   │   └── exportacion/route.js    # Cálculo conversión incoterms
+│   │   ├── checkout/route.js           # Crear preferencia MercadoPago
+│   │   └── webhooks/mercadopago/       # Webhook handler MP (HMAC + anti-replay)
 │   └── layout.js
 ├── components/
-│   ├── chat/                      # ChatMessage, ChatInput
-│   └── layout/                    # AppHeader
+│   ├── chat/                           # ChatMessage, ChatInput
+│   └── layout/                         # AppHeader
 ├── lib/
-│   ├── mercadopago/client.js      # Cliente MP + PLANES (precios)
-│   ├── pinecone/                  # Búsqueda semántica
-│   ├── rate-limit.js              # RateLimiter reutilizable + getClientIp()
-│   ├── supabase/                  # Clientes Supabase
-│   ├── ncm-lookup.js             # Consulta NCM + preferencias arancelarias
-│   ├── ntm-lookup.js             # Barreras no arancelarias (UNCTAD TRAINS)
-│   └── preferencias-lookup.js    # Acuerdos comerciales y TLC
-├── middleware.js                  # Rate limiting IP + sesión Supabase
-├── next.config.mjs                # Headers de seguridad (CSP, X-Frame, etc.)
+│   ├── calculadora/
+│   │   ├── calc-importacion.js         # Lógica pura: régimen general + courier/PEF/UPU
+│   │   └── calc-exportacion.js         # Lógica pura: incoterms + derechos expo
+│   ├── calc-limit.js                   # Límites mensuales de cálculos por plan
+│   ├── mercadopago/client.js           # Cliente MP + PLANES (precios + límites)
+│   ├── pinecone/                       # Búsqueda semántica RAG
+│   ├── rate-limit.js                   # RateLimiter reutilizable + getClientIp()
+│   ├── supabase/                       # Clientes Supabase (browser/server/middleware)
+│   ├── ncm-lookup.js                   # Consulta NCM + preferencias arancelarias
+│   ├── ntm-lookup.js                   # Barreras no arancelarias (UNCTAD TRAINS)
+│   ├── preferencias-lookup.js          # Acuerdos comerciales y TLC
+│   └── prompts/                        # System prompt + guías operativas
+├── middleware.js                       # Rate limiting IP + sesión Supabase
+├── next.config.mjs                     # Headers de seguridad (CSP, X-Frame, etc.)
 ├── scripts/
-│   ├── ingest.js                  # Ingesta PDFs/TXTs a Pinecone
-│   ├── load-ntm.js               # Carga dataset NTM a Supabase (199K filas)
-│   └── test-runner.js             # Runner de evaluación de calidad del agente
+│   ├── ingest.js                       # Ingesta PDFs/TXTs a Pinecone
+│   ├── load-ntm.js                     # Carga NTM a Supabase (199K filas)
+│   ├── load-tariffs.js                 # Carga destination_tariffs (122K filas)
+│   └── test-runner.js                  # Runner de evaluación del agente
 ├── tests/
-│   ├── test-queries.json          # 30 consultas de evaluación por categoría
-│   ├── unit/                      # Tests unitarios (sanitize, schemas)
-│   └── integration/               # Tests de integración (api)
-├── Security.md                    # Auditoría de seguridad y decisiones
-├── CLAUDE.md                      # Este archivo
-└── .skills/                       # Skills del agente
+│   ├── test-queries.json               # 30 consultas de evaluación
+│   ├── unit/                           # Tests unitarios
+│   └── integration/                    # Tests de integración
+├── Security.md                         # Auditoría de seguridad y decisiones
+├── CLAUDE.md                           # Este archivo
+└── .skills/                            # Skills del agente
 ```
 
 ## Reglas estrictas (NUNCA violar)

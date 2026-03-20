@@ -16,9 +16,11 @@ export default function AppHeader({ user }) {
   }
 
   const navItems = [
-    { label: 'Consulta',  labelMobile: 'Consulta',  href: '/consulta' },
-    { label: 'Historial', labelMobile: 'Historial', href: '/historial' },
-    { label: 'Mi cuenta', labelMobile: 'Cuenta',    href: '/cuenta' },
+    { label: 'Consulta',    labelMobile: 'IA',    href: '/consulta' },
+    { label: 'Catálogo',    labelMobile: 'Cat.',  href: '/catalogo' },
+    { label: 'Calculadora', labelMobile: 'Calc.', href: '/calculadora' },
+    { label: 'Operaciones', labelMobile: 'Ops.',  href: '/operaciones' },
+    { label: 'Mi cuenta',   labelMobile: 'Cuenta',href: '/cuenta' },
   ]
 
   return (

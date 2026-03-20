@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import AppHeader from '@/components/layout/AppHeader'
+import Sidebar from '@/components/layout/Sidebar'
+import MobileNav from '@/components/layout/MobileNav'
+import './app-layout.css'
 
 export default async function AppLayout({ children }) {
   const supabase = await createClient()
@@ -11,11 +13,12 @@ export default async function AppLayout({ children }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
-      <AppHeader user={user} />
-      <main style={{ paddingTop: '60px' }}>
+    <div className="app-shell">
+      <Sidebar />
+      <main className="app-main">
         {children}
       </main>
+      <MobileNav />
     </div>
   )
 }

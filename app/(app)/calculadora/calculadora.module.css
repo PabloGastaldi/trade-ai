@@ -1,0 +1,743 @@
+/* app/(app)/calculadora/calculadora.module.css */
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.titulo {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.subtitulo {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.3rem;
+  width: fit-content;
+  margin-bottom: 2rem;
+}
+
+.tab {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tab:hover { color: var(--text-dim); }
+
+.tabActivo {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Layout dos columnas ─────────────────────────────────────────────────── */
+
+.layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* ── Formulario ──────────────────────────────────────────────────────────── */
+
+.formPanel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: sticky;
+  top: 80px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.campoFila {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.req { color: var(--accent); margin-left: 0.15rem; }
+.opcional { font-size: 0.72rem; font-weight: 400; color: var(--text-muted); margin-left: 0.35rem; }
+
+.input,
+.select {
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 0.6rem 0.875rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input:focus,
+.select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.input::placeholder { color: var(--text-muted); }
+.select { cursor: pointer; }
+.inputError { border-color: var(--error) !important; }
+
+.errorMsg {
+  font-size: 0.76rem;
+  color: var(--error);
+}
+
+.errorGeneral {
+  font-size: 0.82rem;
+  color: var(--error);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 7px;
+  padding: 0.6rem 0.875rem;
+}
+
+/* Seguro checkbox */
+.seguroHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.checkbox { accent-color: var(--accent); cursor: pointer; }
+
+/* Gastos expandibles */
+.gastosSection {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gastosToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.7rem 0.875rem;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.gastosToggle:hover { color: var(--text-dim); background: var(--surface-2); }
+
+.gastosGrid {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+/* NCM autocomplete */
+.ncmWrap { position: relative; }
+
+.ncmCargando {
+  position: absolute;
+  right: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.ncmDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.ncmOpcion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.65rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.ncmOpcion:last-child { border-bottom: none; }
+.ncmOpcion:hover { background: var(--surface); }
+
+.ncmCodigo {
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.ncmDesc {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ncmSeleccionado {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 0.25rem 0;
+  line-height: 1.4;
+}
+
+/* Botón calcular */
+.btnCalcular {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.btnCalcular:hover:not(:disabled) { background: var(--accent-hover); }
+.btnCalcular:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Spinner */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--bg);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Panel resultados ────────────────────────────────────────────────────── */
+
+.resultadosPanel {
+  min-height: 300px;
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.placeholderIcono { font-size: 2.5rem; }
+
+.loadingDots {
+  display: flex;
+  gap: 6px;
+}
+
+.loadingDots span {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.loadingDots span:nth-child(2) { animation-delay: 0.2s; }
+.loadingDots span:nth-child(3) { animation-delay: 0.4s; }
+
+/* ── Cards de regímenes ──────────────────────────────────────────────────── */
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.25s ease;
+}
+
+.regimenCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.regimenCard:hover { border-color: var(--border-light); background: var(--surface-2); }
+
+.regimenCardMejor {
+  border-color: rgba(34, 197, 94, 0.5) !important;
+  background: rgba(34, 197, 94, 0.04) !important;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2);
+}
+
+.regimenCardSeleccionado {
+  border-color: var(--accent-dim-border) !important;
+  background: var(--accent-dim) !important;
+}
+
+.regimenCardDisponible {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mejorBadge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 0 11px 0 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #4ade80;
+  padding: 0.2rem 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+.regimenNombre {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+.regimenDesc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.regimenNoDisp {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+.regimenTotal {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.regimenLineas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+  margin-top: auto;
+}
+
+.regimenLinea {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.regimenFooter {
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.effectiveRate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.effectiveRateVal {
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.ahorro {
+  font-size: 0.7rem;
+  color: #4ade80;
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
+
+/* ── Desglose completo ───────────────────────────────────────────────────── */
+
+.desglose {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  animation: fadeUp 0.2s ease;
+}
+
+.desgloseToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 1rem 1.25rem;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.desgloseToggle:hover { background: var(--surface-2); }
+
+.desgloseCuerpo {
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.desgloseTbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.desgloseTbl td {
+  padding: 0.35rem 0;
+  color: var(--text-dim);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.desgloseTbl td:first-child { width: 60%; }
+
+.tdAlicuota {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.tdMonto {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--text) !important;
+}
+
+.tdRest .tdMonto { color: #f87171 !important; }
+
+.desgloseSeccion td {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-top: 0.75rem !important;
+}
+
+.desgloseSubtotal td {
+  font-weight: 600;
+  color: var(--text) !important;
+  border-top: 1px solid var(--border-light);
+  padding-top: 0.5rem !important;
+}
+
+.desgloseTotalFinal td {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text) !important;
+  border-top: 2px solid var(--border-light);
+  padding-top: 0.6rem !important;
+}
+
+.desgloseMargen td {
+  font-weight: 600;
+  padding-top: 0.35rem !important;
+}
+
+.positivo { color: #4ade80 !important; }
+.negativo { color: #f87171 !important; }
+
+.desgloseNota {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  padding: 0.4rem 0.6rem;
+  background: var(--surface-2);
+  border-radius: 6px;
+  line-height: 1.5;
+}
+
+/* ── Resultados exportación ──────────────────────────────────────────────── */
+
+.expoResultados {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: fadeUp 0.25s ease;
+}
+
+.expoPrecioCard {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+}
+
+.expoPrecioLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.4rem;
+}
+
+.expoPrecioValor {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+}
+
+.expoNoDato {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.expoPrecioSub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.expoDesglose,
+.expoIncoterms {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.expoDesgloseTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.875rem;
+}
+
+/* Tabla conversión incoterms */
+.incotermsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.incotermItem {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.incotermItemNull {
+  opacity: 0.45;
+}
+
+.incotermLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+
+.incotermValor {
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+/* Arancel destino */
+.arancelDestino {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.875rem 1.25rem;
+  font-size: 0.82rem;
+}
+
+.adLabel { color: var(--text-dim); font-weight: 500; }
+
+.adValor { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.adFuente { font-weight: 400; color: var(--text-muted); font-size: 0.75rem; }
+
+/* Notas */
+.notasBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.nota {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  padding: 0.4rem 0.6rem;
+  background: var(--surface);
+  border-radius: 6px;
+  border-left: 2px solid var(--border-light);
+  line-height: 1.5;
+}
+
+/* Chevron */
+.chevron { transition: transform 0.2s; color: var(--text-muted); }
+.chevronOpen { transform: rotate(180deg); }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .formPanel {
+    position: static;
+  }
+
+  .cardsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .page { padding: 1.5rem 1rem 3rem; }
+
+  .tabs { width: 100%; }
+  .tab { flex: 1; text-align: center; }
+
+  .cardsGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .regimenTotal { font-size: 0.95rem; }
+
+  .expoPrecioValor { font-size: 1.5rem; }
+
+  .campoFila { flex-direction: column; }
+
+  .incotermsGrid { grid-template-columns: repeat(3, 1fr); }
+}

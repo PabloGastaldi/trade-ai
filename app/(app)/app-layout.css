@@ -1,0 +1,26 @@
+/* app/(app)/app-layout.css */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: 250px;
+  transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar colapsado por botón o por media query */
+[data-sidebar="collapsed"] .app-main {
+  margin-left: 60px;
+}
+
+/* Mobile: sin sidebar */
+@media (max-width: 767px) {
+  .app-main {
+    margin-left: 0 !important;
+    padding-bottom: 60px;
+  }
+}

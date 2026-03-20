@@ -64,41 +64,49 @@ created_at          timestamptz
 ### `documents_registry` (ACTIVA — vacía por ahora)
 Para RAG: documentos normativos oficiales.
 
-## Tablas por crear
-
-### `preferencias_arancelarias` (PENDIENTE)
-```sql
-CREATE TABLE preferencias_arancelarias (
-    id SERIAL PRIMARY KEY,
-    ncm_code VARCHAR(10),        -- formato XXXX.XX.XX (igual que tabla ncm)
-    ncm_naladisa VARCHAR(10),    -- NALADISA original sin puntos (ej: 0402101000)
-    acuerdo_id VARCHAR(20),      -- ACE-6, ACE-13, ACE-35, ACE-58, ACE-59, MERCOSUR-India
-    pais VARCHAR(50),            -- México, Paraguay, Chile, Perú, Colombia, Ecuador, Venezuela, India
-    tipo VARCHAR(15),            -- 'exportacion' o 'importacion'
-    tiene_preferencia BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(ncm_naladisa, acuerdo_id, pais, tipo)
-);
-
-CREATE INDEX idx_pref_ncm_code ON preferencias_arancelarias(ncm_code);
-CREATE INDEX idx_pref_acuerdo ON preferencias_arancelarias(acuerdo_id);
-CREATE INDEX idx_pref_pais ON preferencias_arancelarias(pais);
-CREATE INDEX idx_pref_ncm_acuerdo ON preferencias_arancelarias(ncm_code, acuerdo_id);
+### `destination_tariffs` (ACTIVA — 122,220 filas)
+Aranceles que cobran otros países a productos argentinos. Fuente: WITS/ITC.
+Script de carga: `scripts/load-tariffs.js` (lee hoja "Data" del Excel).
 ```
-
-### `acuerdos_generales` (PENDIENTE)
-```sql
-CREATE TABLE acuerdos_generales (
-    id SERIAL PRIMARY KEY,
-    acuerdo_id VARCHAR(20),
-    pais VARCHAR(50),
-    tipo VARCHAR(15),            -- 'exportacion', 'importacion', 'ambos'
-    cobertura VARCHAR(20),       -- 'total', 'parcial'
-    notas TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
--- Datos a insertar: ACE-35 Chile (total), MERCOSUR Brasil/Uruguay/Paraguay (total)
+id                  serial PK
+reporting_country   text NOT NULL    -- país que cobra (ej: "China")
+partner_country     text NOT NULL    -- siempre "Argentina"
+year                smallint NOT NULL
+hs_code             varchar(6) NOT NULL   -- código HS 6 dígitos
+product_description text
+num_tariff_lines    smallint
+ave_rate            decimal          -- Ad Valorem Equivalent (ej: 6.0 = 6%)
+created_at          timestamp default now()
 ```
+RLS: lectura pública (data pública WITS), escritura solo service_role.
+
+### `user_products` (ACTIVA)
+Catálogo de productos de cada usuario. RLS: usuario solo ve/edita los suyos.
+```
+id                  uuid PK default gen_random_uuid()
+user_id             uuid FK → auth.users ON DELETE CASCADE
+name                text NOT NULL
+ncm_code            varchar(12) NOT NULL
+description         text
+unit_price          decimal NOT NULL
+currency            varchar(3) default 'USD'
+incoterm            varchar(3) NOT NULL
+weight_kg           decimal
+hs_code_6           varchar(6) GENERATED ALWAYS AS (replace(left(ncm_code,7),'.','')) STORED
+default_origin      varchar(3)       -- ISO3
+default_destination varchar(3)       -- ISO3
+operation_type      varchar(10) NOT NULL  CHECK ('exportacion'|'importacion')
+is_active           boolean default true
+created_at / updated_at  timestamptz
+```
+Trigger `trg_user_products_updated_at` actualiza `updated_at` en cada UPDATE.
+
+### `users_profile` — columnas nuevas (2026-03-19)
+```
+calcs_this_month    integer NOT NULL DEFAULT 0
+```
+Comparte `queries_reset_date` para el ciclo mensual.
+Límites: free=5 cálculos/mes, pro=ilimitado, empresa=ilimitado.
 
 ## Reglas estrictas
 1. NUNCA hacer DELETE sin WHERE y sin confirmación del usuario
