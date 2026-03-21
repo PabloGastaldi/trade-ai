@@ -12,9 +12,9 @@ import {
   useDroppable,
   useDraggable,
 } from '@dnd-kit/core'
-import styles from './operaciones.module.css'
-
-// ── Constantes ────────────────────────────────────────────────────────────────
+import PageLayout from '@/components/ui/PageLayout'
+import Badge from '@/components/ui/Badge'
+import Button from '@/components/ui/Button'
 
 const ESTADOS_EXPO = [
   { key: 'expo_preparacion',    label: 'Preparación' },
@@ -23,7 +23,7 @@ const ESTADOS_EXPO = [
   { key: 'expo_oficializado',   label: 'Oficializado' },
   { key: 'expo_verificacion',   label: 'Verificación' },
   { key: 'expo_embarcado',      label: 'Embarcado' },
-  { key: 'expo_cobro_pendiente','label': 'Cobro pendiente' },
+  { key: 'expo_cobro_pendiente',label: 'Cobro pendiente' },
   { key: 'expo_cerrada',        label: 'Cerrada' },
 ]
 
@@ -31,18 +31,39 @@ const ESTADOS_IMPO = [
   { key: 'impo_orden_compra',    label: 'Orden de compra' },
   { key: 'impo_en_transito',     label: 'En tránsito' },
   { key: 'impo_arribada',        label: 'Arribada' },
-  { key: 'impo_despacho_proceso','label': 'Despacho en proceso' },
-  { key: 'impo_oficializado',    label: 'Oficializado' },
-  { key: 'impo_verificacion',    label: 'Verificación' },
-  { key: 'impo_librada',         label: 'Librada' },
-  { key: 'impo_pago_pendiente',  label: 'Pago pendiente' },
-  { key: 'impo_cerrada',         label: 'Cerrada' },
+  { key: 'impo_despacho_proceso',label: 'Despacho en proceso' },
+  { key: 'impo_oficializado',   label: 'Oficializado' },
+  { key: 'impo_verificacion',   label: 'Verificación' },
+  { key: 'impo_librada',        label: 'Librada' },
+  { key: 'impo_pago_pendiente', label: 'Pago pendiente' },
+  { key: 'impo_cerrada',        label: 'Cerrada' },
 ]
 
 const TODOS_ESTADOS = [...ESTADOS_EXPO, ...ESTADOS_IMPO]
-
 const INCOTERMS = ['EXW','FCA','FAS','FOB','CFR','CIF','CPT','CIP','DAP','DPU','DDP']
-const MODOS_TRANSPORTE = ['maritimo','aereo','terrestre']
+const MODOS = ['maritimo','aereo','terrestre']
+
+const LABEL_TIPO = { exportacion: 'EXPORTACIÓN', importacion: 'IMPORTACIÓN' }
+
+const BADGE_ESTADO = {
+  expo_preparacion:     { variant: 'neutral',  label: 'En preparación' },
+  expo_documentacion:   { variant: 'accent',    label: 'Documentación' },
+  expo_docs_completos:   { variant: 'accent',    label: 'Docs completos' },
+  expo_oficializado:     { variant: 'primary',   label: 'Oficializado' },
+  expo_verificacion:     { variant: 'accent',    label: 'Verificación' },
+  expo_embarcado:        { variant: 'success',   label: 'Embarcado' },
+  expo_cobro_pendiente: { variant: 'accent',    label: 'Cobro pendiente' },
+  expo_cerrada:         { variant: 'neutral',   label: 'Cerrada' },
+  impo_orden_compra:     { variant: 'neutral',  label: 'Orden de compra' },
+  impo_en_transito:      { variant: 'accent',   label: 'En tránsito' },
+  impo_arribada:         { variant: 'accent',   label: 'Arribada' },
+  impo_despacho_proceso: { variant: 'accent',   label: 'Despacho' },
+  impo_oficializado:     { variant: 'primary',  label: 'Oficializado' },
+  impo_verificacion:     { variant: 'accent',   label: 'Verificación' },
+  impo_librada:          { variant: 'success',  label: 'Librada' },
+  impo_pago_pendiente:   { variant: 'accent',  label: 'Pago pendiente' },
+  impo_cerrada:          { variant: 'neutral',  label: 'Cerrada' },
+}
 
 const FORM_VACIO = {
   operation_type: 'exportacion',
@@ -57,914 +78,39 @@ const FORM_VACIO = {
   estimated_ship_date: '',
   transport_mode: '',
   customs_broker: '',
-  port_exit: '',
-  port_entry: '',
   notes: '',
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function labelEstado(status) {
-  return TODOS_ESTADOS.find(e => e.key === status)?.label ?? status
+function usd(n) {
+  if (n == null) return '—'
+  return `${Number(n).toLocaleString('es-AR', { minimumFractionDigits: 0 })}`
 }
 
-function labelTipo(tipo) {
-  return tipo === 'exportacion' ? 'Exportación' : 'Importación'
-}
-
-function formatValor(op) {
-  if (!op.total_value) return '—'
-  return `${op.currency ?? 'USD'} ${Number(op.total_value).toLocaleString('es-AR', { minimumFractionDigits: 0 })}`
-}
-
-function formatFecha(fecha) {
+function fmtFecha(fecha) {
   if (!fecha) return '—'
   const [y, m, d] = fecha.split('-')
   return `${d}/${m}/${y}`
 }
 
-/** Alerta: días desde creación para operaciones con SIM */
-function alertaPermiso(op) {
-  if (!op.sim_number || !op.created_at) return null
-  const dias = Math.floor((Date.now() - new Date(op.created_at)) / 86400000)
-  if (dias >= 26) return `Permiso vence en ${30 - dias} días`
-  return null
+function fmtFechaFull(fecha) {
+  if (!fecha) return '—'
+  const d = new Date(fecha)
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`
 }
 
-function alertaDocs(op) {
-  if (op.docs_total === 0) return null
-  const pendientes = op.docs_total - op.docs_completos
-  if (pendientes === 0) return { tipo: 'ok', msg: 'Documentación completa' }
-  return { tipo: 'warn', msg: `${pendientes} doc${pendientes !== 1 ? 's' : ''} pendiente${pendientes !== 1 ? 's' : ''}` }
-}
-
-// ── Componente principal ──────────────────────────────────────────────────────
-
-export default function OperacionesClient({ operacionesIniciales, productos, paises }) {
-  const router = useRouter()
-  const [operaciones, setOperaciones] = useState(operacionesIniciales)
-  const [vista, setVista] = useState('lista')       // 'lista' | 'kanban'
-  const [filtroTipo, setFiltroTipo] = useState('todos')
-  const [filtroEstado, setFiltroEstado] = useState('todos')
-  const [filtroPais, setFiltroPais] = useState('')
-  const [ordenarPor, setOrdenarPor] = useState('fecha')
-  const [modalAbierto, setModalAbierto] = useState(false)
-  const [guardando, setGuardando] = useState(false)
-  const [erroresForm, setErroresForm] = useState({})
-  const [form, setForm] = useState(FORM_VACIO)
-  const [activeDragId, setActiveDragId] = useState(null)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
-  )
-
-  // ── Filtrado y ordenamiento ──────────────────────────────────────────────
-
-  const opsFiltradas = operaciones
-    .filter(op => {
-      if (filtroTipo !== 'todos' && op.operation_type !== filtroTipo) return false
-      if (filtroEstado !== 'todos' && op.status !== filtroEstado) return false
-      if (filtroPais && op.counterpart_country !== filtroPais) return false
-      return true
-    })
-    .sort((a, b) => {
-      if (ordenarPor === 'fecha') return new Date(b.created_at) - new Date(a.created_at)
-      if (ordenarPor === 'valor') return (b.total_value ?? 0) - (a.total_value ?? 0)
-      if (ordenarPor === 'estado') return a.status.localeCompare(b.status)
-      return 0
-    })
-
-  // ── Modal nueva operación ────────────────────────────────────────────────
-
-  function abrirModal() {
-    setForm(FORM_VACIO)
-    setErroresForm({})
-    setModalAbierto(true)
-  }
-
-  function cerrarModal() {
-    setModalAbierto(false)
-    setErroresForm({})
-  }
-
-  function setField(campo, valor) {
-    setForm(prev => ({ ...prev, [campo]: valor }))
-    if (erroresForm[campo]) setErroresForm(prev => ({ ...prev, [campo]: null }))
-  }
-
-  function autocompletarProducto(productoId) {
-    const prod = productos.find(p => p.id === productoId)
-    if (!prod) {
-      setField('product_id', '')
-      return
-    }
-    setForm(prev => ({
-      ...prev,
-      product_id: prod.id,
-      ncm_code: prod.ncm_code ?? '',
-      operation_type: prod.operation_type ?? prev.operation_type,
-      incoterm: prod.incoterm ?? prev.incoterm,
-      currency: prod.currency ?? prev.currency,
-      total_value: prod.unit_price ? String(prod.unit_price) : prev.total_value,
-      counterpart_country: (prod.operation_type === 'exportacion'
-        ? prod.default_destination
-        : prod.default_origin) ?? prev.counterpart_country,
-    }))
-  }
-
-  function validar() {
-    const errs = {}
-    if (!form.operation_type) errs.operation_type = 'Requerido'
-    if (!form.ncm_code.trim()) errs.ncm_code = 'El NCM es obligatorio'
-    if (!form.counterpart_country) errs.counterpart_country = 'El país es obligatorio'
-    if (!form.incoterm) errs.incoterm = 'El incoterm es obligatorio'
-    return errs
-  }
-
-  async function handleGuardar(e) {
-    e.preventDefault()
-    const errs = validar()
-    if (Object.keys(errs).length > 0) { setErroresForm(errs); return }
-
-    setGuardando(true)
-    try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-
-      const payload = {
-        user_id: user.id,
-        operation_type: form.operation_type,
-        status: form.operation_type === 'exportacion' ? 'expo_preparacion' : 'impo_orden_compra',
-        product_id: form.product_id || null,
-        ncm_code: form.ncm_code.trim() || null,
-        product_description: form.product_description.trim() || null,
-        counterpart_name: form.counterpart_name.trim() || null,
-        counterpart_country: form.counterpart_country || null,
-        incoterm: form.incoterm || null,
-        currency: form.currency,
-        total_value: form.total_value ? Number(form.total_value) : null,
-        estimated_ship_date: form.estimated_ship_date || null,
-        transport_mode: form.transport_mode || null,
-        customs_broker: form.customs_broker.trim() || null,
-        port_exit: form.port_exit.trim() || null,
-        port_entry: form.port_entry.trim() || null,
-        notes: form.notes.trim() || null,
-      }
-
-      const { data, error } = await supabase
-        .from('operations')
-        .insert(payload)
-        .select()
-        .single()
-
-      if (error) throw error
-
-      setOperaciones(prev => [{ ...data, docs_total: 0, docs_completos: 0 }, ...prev])
-      cerrarModal()
-      // Navegar al detalle para ver el checklist generado
-      router.push(`/operaciones/${data.id}`)
-    } catch (err) {
-      setErroresForm({ _general: err.message })
-    } finally {
-      setGuardando(false)
-    }
-  }
-
-  // ── Drag & drop (Kanban) ─────────────────────────────────────────────────
-
-  async function handleDragEnd({ active, over }) {
-    setActiveDragId(null)
-    if (!over || active.id === over.id) return
-
-    const op = operaciones.find(o => o.id === active.id)
-    if (!op) return
-
-    // over.id es el key del estado (columna destino)
-    const nuevoStatus = over.id
-    if (op.status === nuevoStatus) return
-
-    // Validar que el status sea del mismo tipo de operación
-    const esCompatible =
-      (op.operation_type === 'exportacion' && nuevoStatus.startsWith('expo_')) ||
-      (op.operation_type === 'importacion' && nuevoStatus.startsWith('impo_'))
-    if (!esCompatible) return
-
-    // Actualizar optimistamente
-    setOperaciones(prev =>
-      prev.map(o => o.id === op.id ? { ...o, status: nuevoStatus } : o)
-    )
-
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('operations')
-      .update({ status: nuevoStatus })
-      .eq('id', op.id)
-
-    if (error) {
-      // Revertir si falla
-      setOperaciones(prev =>
-        prev.map(o => o.id === op.id ? { ...o, status: op.status } : o)
-      )
-    }
-  }
-
-  const activeDragOp = activeDragId ? operaciones.find(o => o.id === activeDragId) : null
-
-  // ── Países únicos para el filtro ──────────────────────────────────────────
-
-  const paisesEnUso = paises.filter(p =>
-    operaciones.some(o => o.counterpart_country === p.iso3)
-  )
-
+function DocsProgress({ total, completos }) {
+  if (total === 0) return <span className="font-mono text-xs text-on-surface-variant/30">—</span>
+  const pct = Math.round((completos / total) * 100)
+  const color = pct >= 80 ? 'bg-emerald-500' : pct >= 40 ? 'bg-primary' : 'bg-red-500'
   return (
-    <div className={styles.page}>
-      {/* ── Header ── */}
-      <div className={styles.header}>
-        <div>
-          <h1 className={styles.titulo}>Operaciones</h1>
-          <p className={styles.subtitulo}>
-            {operaciones.length > 0
-              ? `${operaciones.length} operación${operaciones.length !== 1 ? 'es' : ''}`
-              : 'No tenés operaciones registradas'}
-          </p>
-        </div>
-        <div className={styles.headerAcciones}>
-          {/* Toggle vista */}
-          <div className={styles.vistaToggle}>
-            <button
-              className={`${styles.vistaBtn} ${vista === 'lista' ? styles.vistaBtnActivo : ''}`}
-              onClick={() => setVista('lista')}
-              title="Vista lista"
-            >
-              <IconLista />
-              <span>Lista</span>
-            </button>
-            <button
-              className={`${styles.vistaBtn} ${vista === 'kanban' ? styles.vistaBtnActivo : ''}`}
-              onClick={() => setVista('kanban')}
-              title="Vista Kanban"
-            >
-              <IconKanban />
-              <span>Kanban</span>
-            </button>
-          </div>
-          <button className={styles.btnPrimario} onClick={abrirModal}>
-            + Nueva operación
-          </button>
-        </div>
+    <div className="flex items-center gap-2">
+      <div className="w-10 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+        <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
       </div>
-
-      {/* ── Filtros ── */}
-      {operaciones.length > 0 && (
-        <div className={styles.filtros}>
-          <div className={styles.filtroTabs}>
-            {['todos', 'exportacion', 'importacion'].map(t => (
-              <button
-                key={t}
-                className={`${styles.filtroTab} ${filtroTipo === t ? styles.filtroTabActivo : ''}`}
-                onClick={() => setFiltroTipo(t)}
-              >
-                {t === 'todos' ? 'Todos' : labelTipo(t)}
-              </button>
-            ))}
-          </div>
-
-          <select
-            className={styles.filtroSelect}
-            value={filtroEstado}
-            onChange={e => setFiltroEstado(e.target.value)}
-          >
-            <option value="todos">Todos los estados</option>
-            <optgroup label="Exportación">
-              {ESTADOS_EXPO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
-            </optgroup>
-            <optgroup label="Importación">
-              {ESTADOS_IMPO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
-            </optgroup>
-          </select>
-
-          {paisesEnUso.length > 0 && (
-            <select
-              className={styles.filtroSelect}
-              value={filtroPais}
-              onChange={e => setFiltroPais(e.target.value)}
-            >
-              <option value="">Todos los países</option>
-              {paisesEnUso.map(p => <option key={p.iso3} value={p.iso3}>{p.name_es}</option>)}
-            </select>
-          )}
-
-          {vista === 'lista' && (
-            <select
-              className={styles.filtroSelect}
-              value={ordenarPor}
-              onChange={e => setOrdenarPor(e.target.value)}
-            >
-              <option value="fecha">Ordenar: Fecha</option>
-              <option value="valor">Ordenar: Valor</option>
-              <option value="estado">Ordenar: Estado</option>
-            </select>
-          )}
-        </div>
-      )}
-
-      {/* ── Contenido principal ── */}
-      {operaciones.length === 0 ? (
-        <EstadoVacio onNueva={abrirModal} />
-      ) : opsFiltradas.length === 0 ? (
-        <div className={styles.sinResultados}>
-          No hay operaciones que coincidan con los filtros aplicados.
-        </div>
-      ) : vista === 'lista' ? (
-        <VistaLista
-          operaciones={opsFiltradas}
-          paises={paises}
-          onClickFila={op => router.push(`/operaciones/${op.id}`)}
-        />
-      ) : (
-        <DndContext
-          sensors={sensors}
-          onDragStart={({ active }) => setActiveDragId(active.id)}
-          onDragEnd={handleDragEnd}
-          onDragCancel={() => setActiveDragId(null)}
-        >
-          <VistaKanban
-            operaciones={opsFiltradas}
-            filtroTipo={filtroTipo}
-            paises={paises}
-            onClickCard={op => router.push(`/operaciones/${op.id}`)}
-          />
-          <DragOverlay>
-            {activeDragOp && (
-              <KanbanCard
-                op={activeDragOp}
-                paises={paises}
-                overlay
-              />
-            )}
-          </DragOverlay>
-        </DndContext>
-      )}
-
-      {/* ── Modal nueva operación ── */}
-      {modalAbierto && (
-        <ModalNuevaOperacion
-          form={form}
-          setField={setField}
-          errores={erroresForm}
-          productos={productos}
-          paises={paises}
-          guardando={guardando}
-          onGuardar={handleGuardar}
-          onCerrar={cerrarModal}
-          onProductoChange={autocompletarProducto}
-        />
-      )}
+      <span className="font-mono text-xs text-on-surface-variant">{completos}/{total}</span>
     </div>
   )
 }
-
-// ── Vista Lista ───────────────────────────────────────────────────────────────
-
-function VistaLista({ operaciones, paises, onClickFila }) {
-  return (
-    <div className={styles.tabla}>
-      <div className={styles.tablaHeader}>
-        <span>Estado</span>
-        <span>Tipo</span>
-        <span>Producto / NCM</span>
-        <span>Contraparte / País</span>
-        <span>Valor</span>
-        <span>Fecha est.</span>
-        <span>Docs</span>
-      </div>
-      {operaciones.map(op => {
-        const alerta = alertaPermiso(op)
-        const docsAlerta = alertaDocs(op)
-        const pais = paises.find(p => p.iso3 === op.counterpart_country)
-        const pct = op.docs_total > 0 ? Math.round((op.docs_completos / op.docs_total) * 100) : 0
-
-        return (
-          <div
-            key={op.id}
-            className={styles.tablaFila}
-            onClick={() => onClickFila(op)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => e.key === 'Enter' && onClickFila(op)}
-          >
-            {/* Estado */}
-            <div className={styles.colEstado}>
-              <span className={`${styles.estadoBadge} ${op.operation_type === 'exportacion' ? styles.estadoBadgeExpo : styles.estadoBadgeImpo}`}>
-                {labelEstado(op.status)}
-              </span>
-              {alerta && <span className={styles.alertaRoja} title={alerta}>⚠</span>}
-            </div>
-
-            {/* Tipo */}
-            <span className={`${styles.tipoBadge} ${op.operation_type === 'exportacion' ? styles.badgeExpo : styles.badgeImpo}`}>
-              {op.operation_type === 'exportacion' ? 'Expo' : 'Impo'}
-            </span>
-
-            {/* Producto */}
-            <div className={styles.colProducto}>
-              <span className={styles.productoNombre}>
-                {op.product_description ?? op.ncm_code ?? '—'}
-              </span>
-              {op.ncm_code && <span className={styles.ncmLabel}>{op.ncm_code}</span>}
-            </div>
-
-            {/* Contraparte */}
-            <div className={styles.colContraparte}>
-              {op.counterpart_name && (
-                <span className={styles.contraparteNombre}>{op.counterpart_name}</span>
-              )}
-              <span className={styles.contrapartePais}>{pais?.name_es ?? op.counterpart_country ?? '—'}</span>
-            </div>
-
-            {/* Valor */}
-            <span className={styles.colValor}>{formatValor(op)}</span>
-
-            {/* Fecha estimada */}
-            <span className={styles.colFecha}>{formatFecha(op.estimated_ship_date)}</span>
-
-            {/* Docs */}
-            <div className={styles.colDocs}>
-              {op.docs_total > 0 ? (
-                <>
-                  <div className={styles.docsBarra}>
-                    <div
-                      className={styles.docsBarraFill}
-                      style={{
-                        width: `${pct}%`,
-                        background: pct === 100 ? 'rgba(74,222,128,0.7)' : 'var(--accent)',
-                      }}
-                    />
-                  </div>
-                  <span className={`${styles.docsLabel} ${docsAlerta?.tipo === 'ok' ? styles.docsOk : styles.docsWarn}`}>
-                    {op.docs_completos}/{op.docs_total}
-                  </span>
-                </>
-              ) : (
-                <span className={styles.docsMuted}>—</span>
-              )}
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-// ── Vista Kanban ──────────────────────────────────────────────────────────────
-
-function VistaKanban({ operaciones, filtroTipo, paises, onClickCard }) {
-  // Si hay filtro de tipo, mostrar solo esos estados
-  const estadosVisibles = filtroTipo === 'importacion'
-    ? ESTADOS_IMPO
-    : filtroTipo === 'exportacion'
-    ? ESTADOS_EXPO
-    : [...ESTADOS_EXPO, ...ESTADOS_IMPO]
-
-  // Solo mostrar columnas que tengan ops o sean del tipo filtrado
-  const columnasConOps = estadosVisibles.filter(est =>
-    operaciones.some(op => op.status === est.key) ||
-    filtroTipo !== 'todos'
-  )
-
-  const columnas = filtroTipo !== 'todos' ? estadosVisibles : columnasConOps
-
-  return (
-    <div className={styles.kanban}>
-      {columnas.map(estado => {
-        const opsColumna = operaciones.filter(op => op.status === estado.key)
-        return (
-          <KanbanColumna
-            key={estado.key}
-            estado={estado}
-            operaciones={opsColumna}
-            paises={paises}
-            onClickCard={onClickCard}
-          />
-        )
-      })}
-    </div>
-  )
-}
-
-function KanbanColumna({ estado, operaciones, paises, onClickCard }) {
-  const { setNodeRef, isOver } = useDroppable({ id: estado.key })
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`${styles.kanbanCol} ${isOver ? styles.kanbanColOver : ''}`}
-    >
-      <div className={styles.kanbanColHeader}>
-        <span className={styles.kanbanColLabel}>{estado.label}</span>
-        <span className={styles.kanbanColCount}>{operaciones.length}</span>
-      </div>
-      <div className={styles.kanbanColBody}>
-        {operaciones.map(op => (
-          <KanbanCard
-            key={op.id}
-            op={op}
-            paises={paises}
-            onClickCard={onClickCard}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function KanbanCard({ op, paises, onClickCard, overlay }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: op.id })
-  const pais = paises.find(p => p.iso3 === op.counterpart_country)
-  const docsAlerta = alertaDocs(op)
-  const alertaP = alertaPermiso(op)
-
-  return (
-    <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      className={`${styles.kanbanCard} ${isDragging ? styles.kanbanCardDragging : ''} ${overlay ? styles.kanbanCardOverlay : ''}`}
-      onClick={e => {
-        // No navegar si fue un drag
-        if (!overlay && onClickCard) onClickCard(op)
-      }}
-    >
-      {/* Tipo badge */}
-      <span className={`${styles.tipoBadgeSmall} ${op.operation_type === 'exportacion' ? styles.badgeExpo : styles.badgeImpo}`}>
-        {op.operation_type === 'exportacion' ? 'Expo' : 'Impo'}
-      </span>
-
-      {/* Nombre / NCM */}
-      <p className={styles.cardNombre}>
-        {op.product_description ?? op.ncm_code ?? 'Sin descripción'}
-      </p>
-
-      {/* País */}
-      {pais && <p className={styles.cardPais}>{pais.name_es}</p>}
-
-      {/* Valor */}
-      <p className={styles.cardValor}>{formatValor(op)}</p>
-
-      {/* Alertas */}
-      <div className={styles.cardAlertas}>
-        {alertaP && (
-          <span className={styles.alertaRojaBadge}>🔴 {alertaP}</span>
-        )}
-        {docsAlerta && (
-          <span className={docsAlerta.tipo === 'ok' ? styles.alertaVerdeBadge : styles.alertaAmarillaBadge}>
-            {docsAlerta.tipo === 'ok' ? '🟢' : '🟡'} {docsAlerta.msg}
-          </span>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ── Modal nueva operación ─────────────────────────────────────────────────────
-
-function ModalNuevaOperacion({
-  form, setField, errores, productos, paises,
-  guardando, onGuardar, onCerrar, onProductoChange,
-}) {
-  const [expandirOpcionales, setExpandirOpcionales] = useState(false)
-  const [ncmSugerencias, setNcmSugerencias] = useState([])
-  const [buscandoNcm, setBuscandoNcm] = useState(false)
-  const [ncmDropVisible, setNcmDropVisible] = useState(false)
-  const ncmRef = useRef(null)
-  const ncmDebounce = useRef(null)
-
-  // Cerrar dropdown NCM al click fuera
-  useEffect(() => {
-    function handler(e) {
-      if (ncmRef.current && !ncmRef.current.contains(e.target)) {
-        setNcmDropVisible(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  function handleNcmInput(valor) {
-    setField('ncm_code', valor)
-    clearTimeout(ncmDebounce.current)
-    if (valor.trim().length < 2) { setNcmSugerencias([]); setNcmDropVisible(false); return }
-    ncmDebounce.current = setTimeout(async () => {
-      setBuscandoNcm(true)
-      const supabase = createClient()
-      const esNum = /^\d/.test(valor.trim())
-      let q = supabase.from('ncm').select('ncm_code, description').limit(5)
-      q = esNum ? q.ilike('ncm_code', `${valor.trim()}%`) : q.ilike('description', `%${valor.trim()}%`)
-      const { data } = await q
-      setNcmSugerencias(data ?? [])
-      setNcmDropVisible((data ?? []).length > 0)
-      setBuscandoNcm(false)
-    }, 300)
-  }
-
-  function seleccionarNcm(item) {
-    setField('ncm_code', item.ncm_code)
-    setField('product_description', item.description)
-    setNcmSugerencias([])
-    setNcmDropVisible(false)
-  }
-
-  return (
-    <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onCerrar()}>
-      <div className={styles.modal} role="dialog" aria-modal="true">
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitulo}>Nueva operación</h2>
-          <button className={styles.modalCerrar} onClick={onCerrar} aria-label="Cerrar">
-            <IconCerrar />
-          </button>
-        </div>
-
-        <form className={styles.modalForm} onSubmit={onGuardar} noValidate>
-
-          {/* Tipo de operación */}
-          <div className={styles.campo}>
-            <label className={styles.label}>Tipo de operación <span className={styles.req}>*</span></label>
-            <div className={styles.radioGroup}>
-              {['exportacion', 'importacion'].map(t => (
-                <label key={t} className={`${styles.radioLabel} ${form.operation_type === t ? styles.radioLabelActivo : ''}`}>
-                  <input
-                    type="radio"
-                    name="operation_type"
-                    value={t}
-                    checked={form.operation_type === t}
-                    onChange={() => setField('operation_type', t)}
-                    className={styles.radioInput}
-                  />
-                  {labelTipo(t)}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Producto del catálogo (si tiene) */}
-          {productos.length > 0 && (
-            <div className={styles.campo}>
-              <label className={styles.label}>
-                Producto del catálogo <span className={styles.opcional}>autocompleta campos</span>
-              </label>
-              <select
-                className={styles.select}
-                value={form.product_id}
-                onChange={e => onProductoChange(e.target.value)}
-              >
-                <option value="">Sin producto / ingresar manualmente</option>
-                {productos
-                  .filter(p => p.operation_type === form.operation_type)
-                  .map(p => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} — {p.ncm_code}
-                    </option>
-                  ))}
-              </select>
-            </div>
-          )}
-
-          {/* NCM */}
-          <div className={styles.campo}>
-            <label className={styles.label}>Posición NCM <span className={styles.req}>*</span></label>
-            <div className={styles.ncmWrap} ref={ncmRef}>
-              <input
-                className={`${styles.input} ${errores.ncm_code ? styles.inputError : ''}`}
-                type="text"
-                placeholder="Código (ej: 1905) o descripción..."
-                value={form.ncm_code}
-                onChange={e => handleNcmInput(e.target.value)}
-                onFocus={() => ncmSugerencias.length > 0 && setNcmDropVisible(true)}
-                autoComplete="off"
-              />
-              {buscandoNcm && <span className={styles.ncmCargando}>buscando…</span>}
-              {ncmDropVisible && (
-                <div className={styles.ncmDropdown}>
-                  {ncmSugerencias.map(s => (
-                    <button
-                      key={s.ncm_code}
-                      type="button"
-                      className={styles.ncmOpcion}
-                      onClick={() => seleccionarNcm(s)}
-                    >
-                      <span className={styles.ncmCodigo}>{s.ncm_code}</span>
-                      <span className={styles.ncmDesc}>{s.description}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            {errores.ncm_code && <span className={styles.errorMsg}>{errores.ncm_code}</span>}
-          </div>
-
-          {/* Descripción del producto */}
-          <div className={styles.campo}>
-            <label className={styles.label}>Descripción del producto <span className={styles.opcional}>opcional</span></label>
-            <input
-              className={styles.input}
-              type="text"
-              placeholder="Ej: Galletas de chocolate con leche"
-              value={form.product_description}
-              onChange={e => setField('product_description', e.target.value)}
-            />
-          </div>
-
-          {/* País + Incoterm */}
-          <div className={styles.campoFila}>
-            <div className={styles.campo} style={{ flex: 2 }}>
-              <label className={styles.label}>
-                {form.operation_type === 'exportacion' ? 'País de destino' : 'País de origen'}
-                <span className={styles.req}> *</span>
-              </label>
-              <select
-                className={`${styles.select} ${errores.counterpart_country ? styles.inputError : ''}`}
-                value={form.counterpart_country}
-                onChange={e => setField('counterpart_country', e.target.value)}
-              >
-                <option value="">Seleccioná país…</option>
-                {paises.map(p => <option key={p.iso3} value={p.iso3}>{p.name_es}</option>)}
-              </select>
-              {errores.counterpart_country && <span className={styles.errorMsg}>{errores.counterpart_country}</span>}
-            </div>
-            <div className={styles.campo} style={{ flex: 1 }}>
-              <label className={styles.label}>Incoterm <span className={styles.req}>*</span></label>
-              <select
-                className={`${styles.select} ${errores.incoterm ? styles.inputError : ''}`}
-                value={form.incoterm}
-                onChange={e => setField('incoterm', e.target.value)}
-              >
-                {INCOTERMS.map(i => <option key={i} value={i}>{i}</option>)}
-              </select>
-              {errores.incoterm && <span className={styles.errorMsg}>{errores.incoterm}</span>}
-            </div>
-          </div>
-
-          {/* Valor + Moneda */}
-          <div className={styles.campoFila}>
-            <div className={styles.campo} style={{ flex: 2 }}>
-              <label className={styles.label}>Valor total <span className={styles.opcional}>opcional</span></label>
-              <input
-                className={styles.input}
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={form.total_value}
-                onChange={e => setField('total_value', e.target.value)}
-              />
-            </div>
-            <div className={styles.campo} style={{ flex: 1 }}>
-              <label className={styles.label}>Moneda</label>
-              <select className={styles.select} value={form.currency} onChange={e => setField('currency', e.target.value)}>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="ARS">ARS</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Contraparte */}
-          <div className={styles.campo}>
-            <label className={styles.label}>
-              {form.operation_type === 'exportacion' ? 'Nombre del importador' : 'Nombre del exportador'}
-              <span className={styles.opcional}> opcional</span>
-            </label>
-            <input
-              className={styles.input}
-              type="text"
-              placeholder="Empresa o persona contraparte"
-              value={form.counterpart_name}
-              onChange={e => setField('counterpart_name', e.target.value)}
-            />
-          </div>
-
-          {/* Campos opcionales (collapsable) */}
-          <button
-            type="button"
-            className={styles.expandirBtn}
-            onClick={() => setExpandirOpcionales(v => !v)}
-          >
-            {expandirOpcionales ? '▲' : '▼'} Campos adicionales (fecha, transporte, despachante...)
-          </button>
-
-          {expandirOpcionales && (
-            <>
-              <div className={styles.campoFila}>
-                <div className={styles.campo} style={{ flex: 1 }}>
-                  <label className={styles.label}>Fecha estimada embarque</label>
-                  <input
-                    className={styles.input}
-                    type="date"
-                    value={form.estimated_ship_date}
-                    onChange={e => setField('estimated_ship_date', e.target.value)}
-                  />
-                </div>
-                <div className={styles.campo} style={{ flex: 1 }}>
-                  <label className={styles.label}>Modo de transporte</label>
-                  <select
-                    className={styles.select}
-                    value={form.transport_mode}
-                    onChange={e => setField('transport_mode', e.target.value)}
-                  >
-                    <option value="">Seleccioná…</option>
-                    {MODOS_TRANSPORTE.map(m => (
-                      <option key={m} value={m}>
-                        {m.charAt(0).toUpperCase() + m.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.campo}>
-                <label className={styles.label}>Despachante de aduana</label>
-                <input
-                  className={styles.input}
-                  type="text"
-                  placeholder="Nombre del despachante"
-                  value={form.customs_broker}
-                  onChange={e => setField('customs_broker', e.target.value)}
-                />
-              </div>
-
-              <div className={styles.campoFila}>
-                <div className={styles.campo} style={{ flex: 1 }}>
-                  <label className={styles.label}>Puerto / aeropuerto salida</label>
-                  <input
-                    className={styles.input}
-                    type="text"
-                    placeholder="Ej: Buenos Aires"
-                    value={form.port_exit}
-                    onChange={e => setField('port_exit', e.target.value)}
-                  />
-                </div>
-                <div className={styles.campo} style={{ flex: 1 }}>
-                  <label className={styles.label}>Puerto / aeropuerto entrada</label>
-                  <input
-                    className={styles.input}
-                    type="text"
-                    placeholder="Ej: Rotterdam"
-                    value={form.port_entry}
-                    onChange={e => setField('port_entry', e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.campo}>
-                <label className={styles.label}>Notas</label>
-                <textarea
-                  className={styles.textarea}
-                  rows={3}
-                  placeholder="Observaciones adicionales..."
-                  value={form.notes}
-                  onChange={e => setField('notes', e.target.value)}
-                />
-              </div>
-            </>
-          )}
-
-          {errores._general && (
-            <p className={styles.errorGeneral}>{errores._general}</p>
-          )}
-
-          <div className={styles.modalAcciones}>
-            <button type="button" className={styles.btnSecundario} onClick={onCerrar} disabled={guardando}>
-              Cancelar
-            </button>
-            <button type="submit" className={styles.btnPrimario} disabled={guardando}>
-              {guardando ? 'Creando…' : 'Crear operación'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
-
-// ── Estado vacío ──────────────────────────────────────────────────────────────
-
-function EstadoVacio({ onNueva }) {
-  return (
-    <div className={styles.vacio}>
-      <div className={styles.vacioIcono}>📋</div>
-      <div className={styles.vacioTitulo}>No tenés operaciones registradas</div>
-      <div className={styles.vacioDesc}>
-        Registrá tu primera operación de exportación o importación para gestionar
-        el checklist de documentos y el seguimiento de estados.
-      </div>
-      <button className={styles.btnPrimario} onClick={onNueva} style={{ marginTop: '1.5rem' }}>
-        + Crear primera operación
-      </button>
-    </div>
-  )
-}
-
-// ── Íconos ────────────────────────────────────────────────────────────────────
 
 function IconLista() {
   return (
@@ -990,5 +136,648 @@ function IconCerrar() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
     </svg>
+  )
+}
+
+function IconBarco() {
+  return (
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.6 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+      <path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.9.94 5.34 2.81 7.76"/>
+      <path d="M19 13V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6"/>
+      <path d="M12 10v4"/>
+      <path d="M12 2v3"/>
+    </svg>
+  )
+}
+
+export default function OperacionesClient({ operacionesIniciales, productos, paises }) {
+  const router = useRouter()
+  const [operaciones, setOperaciones] = useState(operacionesIniciales)
+  const [vista, setVista] = useState('lista')
+  const [filtroTipo, setFiltroTipo] = useState('todos')
+  const [filtroEstado, setFiltroEstado] = useState('todos')
+  const [busqueda, setBusqueda] = useState('')
+  const [modalAbierto, setModalAbierto] = useState(false)
+  const [guardando, setGuardando] = useState(false)
+  const [erroresForm, setErroresForm] = useState({})
+  const [form, setForm] = useState(FORM_VACIO)
+  const [activeDragId, setActiveDragId] = useState(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  )
+
+  const opsActivas = operaciones.filter(op => op.status !== 'expo_cerrada' && op.status !== 'impo_cerrada')
+
+  const opsFiltradas = operaciones
+    .filter(op => {
+      if (filtroTipo !== 'todos' && op.operation_type !== filtroTipo) return false
+      if (filtroEstado !== 'todos' && op.status !== filtroEstado) return false
+      if (busqueda.trim()) {
+        const q = busqueda.toLowerCase()
+        if (
+          !(op.product_description?.toLowerCase().includes(q)) &&
+          !(op.ncm_code?.toLowerCase().includes(q)) &&
+          !(op.counterpart_name?.toLowerCase().includes(q)) &&
+          !(op.counterpart_country?.toLowerCase().includes(q))
+        ) return false
+      }
+      return true
+    })
+
+  function abrirModal() { setForm(FORM_VACIO); setErroresForm({}); setModalAbierto(true) }
+  function cerrarModal() { setModalAbierto(false); setErroresForm({}) }
+  function setField(c, v) { setForm(prev => ({ ...prev, [c]: v })); setErroresForm(prev => ({ ...prev, [c]: null })) }
+
+  function autocompletarProducto(productoId) {
+    const prod = productos.find(p => p.id === productoId)
+    if (!prod) { setField('product_id', ''); return }
+    setForm(prev => ({
+      ...prev, product_id: prod.id,
+      ncm_code: prod.ncm_code ?? prev.ncm_code,
+      operation_type: prod.operation_type ?? prev.operation_type,
+      incoterm: prod.incoterm ?? prev.incoterm,
+      currency: prod.currency ?? prev.currency,
+      total_value: prod.unit_price ? String(prod.unit_price) : prev.total_value,
+      counterpart_country: (prod.operation_type === 'exportacion'
+        ? prod.default_destination
+        : prod.default_origin) ?? prev.counterpart_country,
+    }))
+  }
+
+  function validar() {
+    const e = {}
+    if (!form.ncm_code.trim()) e.ncm_code = 'El NCM es obligatorio'
+    if (!form.counterpart_country) e.counterpart_country = 'El país es obligatorio'
+    if (!form.incoterm) e.incoterm = 'Requerido'
+    return e
+  }
+
+  async function handleGuardar(e) {
+    e.preventDefault()
+    const errs = validar()
+    if (Object.keys(errs).length > 0) { setErroresForm(errs); return }
+    setGuardando(true)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      const payload = {
+        user_id: user.id,
+        operation_type: form.operation_type,
+        status: form.operation_type === 'exportacion' ? 'expo_preparacion' : 'impo_orden_compra',
+        product_id: form.product_id || null,
+        ncm_code: form.ncm_code.trim() || null,
+        product_description: form.product_description.trim() || null,
+        counterpart_name: form.counterpart_name.trim() || null,
+        counterpart_country: form.counterpart_country || null,
+        incoterm: form.incoterm || null,
+        currency: form.currency,
+        total_value: form.total_value ? Number(form.total_value) : null,
+        estimated_ship_date: form.estimated_ship_date || null,
+        transport_mode: form.transport_mode || null,
+        customs_broker: form.customs_broker.trim() || null,
+        notes: form.notes.trim() || null,
+      }
+      const { data, error } = await supabase.from('operations').insert(payload).select().single()
+      if (error) throw error
+      setOperaciones(prev => [{ ...data, docs_total: 0, docs_completos: 0 }, ...prev])
+      cerrarModal()
+      router.push(`/operaciones/${data.id}`)
+    } catch (err) {
+      setErroresForm({ _general: err.message })
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  async function handleDragEnd({ active, over }) {
+    setActiveDragId(null)
+    if (!over || active.id === over.id) return
+    const op = operaciones.find(o => o.id === active.id)
+    if (!op) return
+    const nuevoStatus = over.id
+    if (op.status === nuevoStatus) return
+    const compatible =
+      (op.operation_type === 'exportacion' && nuevoStatus.startsWith('expo_')) ||
+      (op.operation_type === 'importacion' && nuevoStatus.startsWith('impo_'))
+    if (!compatible) return
+    setOperaciones(prev => prev.map(o => o.id === op.id ? { ...o, status: nuevoStatus } : o))
+    const supabase = createClient()
+    const { error } = await supabase.from('operations').update({ status: nuevoStatus }).eq('id', op.id)
+    if (error) setOperaciones(prev => prev.map(o => o.id === op.id ? { ...o, status: op.status } : o))
+  }
+
+  const activeDragOp = activeDragId ? operaciones.find(o => o.id === activeDragId) : null
+
+  return (
+    <PageLayout title="OPERACIONES" subtitle="Gestioná tus exportaciones e importaciones">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex bg-white/[0.02] rounded-xl p-1">
+            {[['todos','Todas'],['exportacion','Exportación'],['importacion','Importación']].map(([v, l]) => (
+              <button
+                key={v}
+                onClick={() => setFiltroTipo(v)}
+                className={`px-4 py-1.5 rounded-lg font-body text-xs transition-all ${
+                  filtroTipo === v
+                    ? 'bg-white/[0.06] text-on-surface'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+
+          <select
+            className="bg-surface-highest rounded-xl px-4 py-2 text-sm font-body text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer"
+            value={filtroEstado}
+            onChange={e => setFiltroEstado(e.target.value)}
+          >
+            <option value="todos">Todos los estados</option>
+            <optgroup label="Exportación">
+              {ESTADOS_EXPO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
+            </optgroup>
+            <optgroup label="Importación">
+              {ESTADOS_IMPO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
+            </optgroup>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 bg-white/[0.02] rounded-xl p-1">
+            <button
+              onClick={() => setVista('lista')}
+              className={`p-2 rounded-lg transition-colors ${vista === 'lista' ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'}`}
+              title="Vista lista"
+            >
+              <IconLista />
+            </button>
+            <button
+              onClick={() => setVista('kanban')}
+              className={`p-2 rounded-lg transition-colors ${vista === 'kanban' ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'}`}
+              title="Vista Kanban"
+            >
+              <IconKanban />
+            </button>
+          </div>
+
+          <input
+            className="w-60 bg-surface-highest rounded-xl px-4 py-2 text-sm font-body text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none"
+            placeholder="Buscar operación..."
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+          />
+
+          <button
+            onClick={abrirModal}
+            className="bg-primary-intense text-on-primary px-5 py-2.5 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(0,224,255,0.15)] transition-all"
+          >
+            + Nueva operación
+          </button>
+        </div>
+      </div>
+
+      {operaciones.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="text-on-surface-variant/20 mb-4"><IconBarco /></div>
+          <p className="font-body text-lg text-on-surface-variant">No tenés operaciones activas</p>
+          <p className="font-body text-sm text-on-surface-variant/60 mt-2">Creá tu primera operación para empezar a gestionar</p>
+          <button onClick={abrirModal} className="mt-6 bg-primary-intense text-on-primary px-6 py-3 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(0,224,255,0.15)] transition-all">
+            + Nueva operación
+          </button>
+        </div>
+      ) : opsFiltradas.length === 0 ? (
+        <div className="text-center py-16">
+          <p className="font-body text-sm text-on-surface-variant">No hay operaciones que coincidan con los filtros.</p>
+        </div>
+      ) : vista === 'lista' ? (
+        <VistaLista operaciones={opsFiltradas} paises={paises} onRowClick={op => router.push(`/operaciones/${op.id}`)} />
+      ) : (
+        <DndContext sensors={sensors} onDragStart={({ active }) => setActiveDragId(active.id)} onDragEnd={handleDragEnd} onDragCancel={() => setActiveDragId(null)}>
+          <VistaKanban operaciones={opsFiltradas} filtroTipo={filtroTipo} paises={paises} onCardClick={op => router.push(`/operaciones/${op.id}`)} />
+          <DragOverlay>
+            {activeDragOp && <KanbanCard op={activeDragOp} paises={paises} overlay />}
+          </DragOverlay>
+        </DndContext>
+      )}
+
+      {modalAbierto && (
+        <ModalNuevaOperacion
+          form={form} setField={setField} errores={erroresForm}
+          productos={productos} paises={paises}
+          guardando={guardando} onGuardar={handleGuardar}
+          onCerrar={cerrarModal} onProductoChange={autocompletarProducto}
+        />
+      )}
+    </PageLayout>
+  )
+}
+
+function VistaLista({ operaciones, paises, onRowClick }) {
+  return (
+    <div className="rounded-xl border border-white/[0.04] overflow-hidden">
+      <table className="w-full">
+        <thead>
+          <tr className="bg-surface-high">
+            {['ESTADO','TIPO','PRODUCTO','DESTINO/ORIGEN','VALOR','DOCS','FECHA'].map(h => (
+              <th key={h} className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-medium">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {operaciones.map((op, i) => {
+            const pais = paises.find(p => p.iso3 === op.counterpart_country)
+            const badge = BADGE_ESTADO[op.status] ?? { variant: 'neutral', label: op.status }
+            return (
+              <tr
+                key={op.id}
+                className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors cursor-pointer"
+                onClick={() => onRowClick(op)}
+              >
+                <td className="px-4 py-3"><Badge variant={badge.variant}>{badge.label}</Badge></td>
+                <td className="px-4 py-3">
+                  <Badge variant={op.operation_type === 'exportacion' ? 'primary' : 'accent'}>
+                    {op.operation_type === 'exportacion' ? 'EXPO' : 'IMPO'}
+                  </Badge>
+                </td>
+                <td className="px-4 py-3">
+                  <p className="font-body text-sm text-on-surface">{op.product_description ?? '—'}</p>
+                  {op.ncm_code && <p className="font-mono text-xs text-primary mt-0.5">{op.ncm_code}</p>}
+                </td>
+                <td className="px-4 py-3">
+                  <p className="font-body text-sm text-on-surface">{pais?.name_es ?? op.counterpart_country ?? '—'}</p>
+                </td>
+                <td className="px-4 py-3">
+                  <span className="font-mono text-sm text-on-surface">
+                    {op.currency ?? 'USD'} {usd(op.total_value)}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <DocsProgress total={op.docs_total} completos={op.docs_completos} />
+                </td>
+                <td className="px-4 py-3">
+                  <span className="font-body text-xs text-on-surface-variant">{fmtFecha(op.estimated_ship_date)}</span>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function VistaKanban({ operaciones, filtroTipo, paises, onCardClick }) {
+  const estadosVisibles = filtroTipo === 'importacion'
+    ? ESTADOS_IMPO
+    : filtroTipo === 'exportacion'
+    ? ESTADOS_EXPO
+    : [...ESTADOS_EXPO, ...ESTADOS_IMPO]
+
+  const columnas = filtroTipo === 'todos'
+    ? estadosVisibles.filter(est => operaciones.some(op => op.status === est.key))
+    : estadosVisibles
+
+  return (
+    <div className="flex gap-4 overflow-x-auto pb-4">
+      {columnas.map(estado => (
+        <KanbanColumna
+          key={estado.key}
+          estado={estado}
+          operaciones={operaciones.filter(op => op.status === estado.key)}
+          paises={paises}
+          onCardClick={onCardClick}
+        />
+      ))}
+    </div>
+  )
+}
+
+function KanbanColumna({ estado, operaciones, paises, onCardClick }) {
+  const { setNodeRef, isOver } = useDroppable({ id: estado.key })
+  return (
+    <div
+      ref={setNodeRef}
+      className={`min-w-[280px] bg-white/[0.01] rounded-2xl p-3 flex-shrink-0 transition-all ${isOver ? 'bg-white/[0.03]' : ''}`}
+    >
+      <div className="flex items-center justify-between mb-3 px-1">
+        <span className="font-display text-xs tracking-widest text-on-surface-variant uppercase">{estado.label}</span>
+        <span className="font-mono text-[10px] text-on-surface-variant/50">{operaciones.length}</span>
+      </div>
+      <div className="space-y-3">
+        {operaciones.map(op => (
+          <KanbanCard key={op.id} op={op} paises={paises} onClickCard={onCardClick} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function KanbanCard({ op, paises, onClickCard, overlay }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: op.id })
+  const pais = paises.find(p => p.iso3 === op.counterpart_country)
+  const badge = BADGE_ESTADO[op.status] ?? { variant: 'neutral', label: op.status }
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={`bg-white/[0.03] rounded-xl p-4 border border-white/[0.04] transition-all ${
+        isDragging ? 'opacity-50' : ''
+      } ${overlay ? 'shadow-2xl rotate-2 border-primary/30' : 'hover:border-white/[0.08] cursor-pointer'}`}
+      onClick={e => { if (!overlay && onClickCard) onClickCard(op) }}
+    >
+      <div className="flex items-start justify-between mb-2">
+        <Badge variant={op.operation_type === 'exportacion' ? 'primary' : 'accent'} className="text-[10px]">
+          {op.operation_type === 'exportacion' ? 'EXPO' : 'IMPO'}
+        </Badge>
+        <Badge variant={badge.variant} className="text-[10px]">{badge.label}</Badge>
+      </div>
+      <p className="font-body text-sm text-on-surface font-medium mt-2 leading-snug">
+        {op.product_description ?? op.ncm_code ?? 'Sin descripción'}
+      </p>
+      {op.ncm_code && <p className="font-mono text-xs text-primary mt-1">{op.ncm_code}</p>}
+      <div className="flex items-center justify-between mt-3">
+        <span className="font-body text-xs text-on-surface-variant">{pais?.name_es ?? op.counterpart_country ?? '—'}</span>
+        <span className="font-mono text-sm text-on-surface">{op.currency ?? 'USD'} {usd(op.total_value)}</span>
+      </div>
+      <div className="mt-3">
+        <DocsProgress total={op.docs_total} completos={op.docs_completos} />
+      </div>
+    </div>
+  )
+}
+
+function ModalNuevaOperacion({ form, setField, errores, productos, paises, guardando, onGuardar, onCerrar, onProductoChange }) {
+  const [expandir, setExpandir] = useState(false)
+  const [ncmSugerencias, setNcmSugerencias] = useState([])
+  const [ncmVisible, setNcmVisible] = useState(false)
+  const [buscandoNcm, setBuscandoNcm] = useState(false)
+  const ncmRef = useRef(null)
+  const debounceRef = useRef(null)
+
+  useEffect(() => {
+    function handler(e) {
+      if (ncmRef.current && !ncmRef.current.contains(e.target)) setNcmVisible(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  function handleNcmInput(val) {
+    setField('ncm_code', val)
+    clearTimeout(debounceRef.current)
+    if (val.trim().length < 2) { setNcmSugerencias([]); setNcmVisible(false); return }
+    debounceRef.current = setTimeout(async () => {
+      setBuscandoNcm(true)
+      const supabase = createClient()
+      const esNum = /^\d/.test(val.trim())
+      const q = esNum
+        ? supabase.from('ncm').select('ncm_code, description').ilike('ncm_code', `${val.trim()}%`).limit(5)
+        : supabase.from('ncm').select('ncm_code, description').ilike('description', `%${val.trim()}%`).limit(5)
+      const { data } = await q
+      setNcmSugerencias(data ?? [])
+      setNcmVisible((data ?? []).length > 0)
+      setBuscandoNcm(false)
+    }, 300)
+  }
+
+  function seleccionarNcm(item) {
+    setField('ncm_code', item.ncm_code)
+    setField('product_description', item.description)
+    setNcmSugerencias([])
+    setNcmVisible(false)
+  }
+
+  const productosFiltrados = productos.filter(p => !form.operation_type || p.operation_type === form.operation_type)
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && onCerrar()}>
+      <div className="bg-surface-low rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b border-white/[0.04] sticky top-0 bg-surface-low z-10">
+          <h2 className="font-display text-xl tracking-wider text-on-surface uppercase">NUEVA OPERACIÓN</h2>
+          <button onClick={onCerrar} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer">
+            <IconCerrar />
+          </button>
+        </div>
+
+        <form onSubmit={onGuardar} noValidate className="p-6 space-y-5">
+          <div>
+            <label className="block font-body text-xs text-on-surface-variant mb-2">Tipo de operación <span className="text-red-400">*</span></label>
+            <div className="flex bg-white/[0.02] rounded-xl p-1">
+              {['exportacion','importacion'].map(t => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setField('operation_type', t)}
+                  className={`flex-1 py-2 rounded-lg font-body text-sm font-medium transition-all ${
+                    form.operation_type === t
+                      ? 'bg-white/[0.06] text-on-surface'
+                      : 'text-on-surface-variant hover:text-on-surface'
+                  }`}
+                >
+                  {LABEL_TIPO[t]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {productosFiltrados.length > 0 && (
+            <div>
+              <label className="block font-body text-xs text-on-surface-variant mb-1.5">Producto del catálogo <span className="text-on-surface-variant/40">(autocompleta campos)</span></label>
+              <select
+                className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer"
+                defaultValue=""
+                onChange={e => onProductoChange(e.target.value)}
+              >
+                <option value="">Seleccionar…</option>
+                {productosFiltrados.map(p => (
+                  <option key={p.id} value={p.id}>{p.name} — {p.ncm_code}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div>
+            <label className="block font-body text-xs text-on-surface-variant mb-1.5">NCM <span className="text-red-400">*</span></label>
+            <div ref={ncmRef} className="relative">
+              <input
+                className={`w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border ${errores.ncm_code ? 'border-red-500/50' : 'border-transparent focus:border-primary/30'} outline-none`}
+                placeholder="Código o descripción…"
+                value={form.ncm_code}
+                onChange={e => handleNcmInput(e.target.value)}
+                onFocus={() => ncmSugerencias.length > 0 && setNcmVisible(true)}
+                autoComplete="off"
+              />
+              {buscandoNcm && <p className="mt-1 font-body text-[10px] text-on-surface-variant/50">Buscando…</p>}
+              {ncmVisible && (
+                <div className="absolute top-full left-0 right-0 z-50 bg-surface-low rounded-xl border border-white/[0.06] shadow-xl mt-1 overflow-hidden">
+                  {ncmSugerencias.map(s => (
+                    <button
+                      key={s.ncm_code}
+                      type="button"
+                      className="w-full text-left px-4 py-3 hover:bg-white/[0.04] transition-colors border-b border-white/[0.03] last:border-0"
+                      onClick={() => seleccionarNcm(s)}
+                    >
+                      <span className="font-mono text-xs text-primary block">{s.ncm_code}</span>
+                      <span className="font-body text-[11px] text-on-surface-variant line-clamp-1">{s.description}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {errores.ncm_code && <p className="mt-1 font-body text-[10px] text-red-400">{errores.ncm_code}</p>}
+          </div>
+
+          <div>
+            <label className="block font-body text-xs text-on-surface-variant mb-1.5">Descripción del producto</label>
+            <input
+              className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none"
+              placeholder="Ej: Galletas de chocolate con leche"
+              value={form.product_description}
+              onChange={e => setField('product_description', e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-body text-xs text-on-surface-variant mb-1.5">
+                {form.operation_type === 'exportacion' ? 'País de destino' : 'País de origen'} <span className="text-red-400">*</span>
+              </label>
+              <select
+                className={`w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border ${errores.counterpart_country ? 'border-red-500/50' : 'border-transparent focus:border-primary/30'} outline-none cursor-pointer`}
+                value={form.counterpart_country}
+                onChange={e => setField('counterpart_country', e.target.value)}
+              >
+                <option value="">Seleccionar…</option>
+                {paises.map(p => <option key={p.iso3} value={p.iso3}>{p.name_es}</option>)}
+              </select>
+              {errores.counterpart_country && <p className="mt-1 font-body text-[10px] text-red-400">{errores.counterpart_country}</p>}
+            </div>
+            <div>
+              <label className="block font-body text-xs text-on-surface-variant mb-1.5">Incoterm <span className="text-red-400">*</span></label>
+              <select
+                className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer"
+                value={form.incoterm}
+                onChange={e => setField('incoterm', e.target.value)}
+              >
+                {INCOTERMS.map(i => <option key={i} value={i}>{i}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-body text-xs text-on-surface-variant mb-1.5">
+              {form.operation_type === 'exportacion' ? 'Importador' : 'Exportador'}
+            </label>
+            <input
+              className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none"
+              placeholder="Nombre de la empresa"
+              value={form.counterpart_name}
+              onChange={e => setField('counterpart_name', e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-body text-xs text-on-surface-variant mb-1.5">Valor total (USD)</label>
+              <input
+                className="w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none"
+                type="number" min="0" step="0.01" placeholder="0.00"
+                value={form.total_value}
+                onChange={e => setField('total_value', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block font-body text-xs text-on-surface-variant mb-1.5">Moneda</label>
+              <select className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer" value={form.currency} onChange={e => setField('currency', e.target.value)}>
+                <option value="USD">USD</option><option value="EUR">EUR</option><option value="ARS">ARS</option>
+              </select>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="w-full flex items-center justify-between px-4 py-3 bg-white/[0.02] rounded-xl border border-white/[0.04] hover:bg-white/[0.04] transition-colors cursor-pointer"
+            onClick={() => setExpandir(v => !v)}
+          >
+            <span className="font-body text-sm text-on-surface-variant">
+              {expandir ? '▲' : '▼'} Campos adicionales
+            </span>
+          </button>
+
+          {expandir && (
+            <div className="space-y-4 pt-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-body text-xs text-on-surface-variant mb-1.5">Fecha estimada de embarque</label>
+                  <input
+                    type="date"
+                    className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent focus:border-primary/30 outline-none"
+                    value={form.estimated_ship_date}
+                    onChange={e => setField('estimated_ship_date', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block font-body text-xs text-on-surface-variant mb-1.5">Medio de transporte</label>
+                  <select
+                    className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer"
+                    value={form.transport_mode}
+                    onChange={e => setField('transport_mode', e.target.value)}
+                  >
+                    <option value="">Seleccionar…</option>
+                    {MODOS.map(m => <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block font-body text-xs text-on-surface-variant mb-1.5">Despachante</label>
+                <input
+                  className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none"
+                  placeholder="Nombre del despachante"
+                  value={form.customs_broker}
+                  onChange={e => setField('customs_broker', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block font-body text-xs text-on-surface-variant mb-1.5">Notas</label>
+                <textarea
+                  rows={3}
+                  className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none resize-none"
+                  placeholder="Observaciones adicionales…"
+                  value={form.notes}
+                  onChange={e => setField('notes', e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
+          {errores._general && (
+            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">{errores._general}</div>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onCerrar}
+              disabled={guardando}
+              className="flex-1 py-3 rounded-xl bg-white/[0.05] text-on-surface font-body font-semibold text-sm hover:bg-white/[0.08] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={guardando}
+              className="flex-1 py-3 rounded-xl bg-primary-intense text-on-primary font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(0,224,255,0.15)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {guardando ? 'Creando…' : 'Crear operación'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   )
 }

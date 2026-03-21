@@ -1,18 +1,24 @@
-import { Space_Grotesk, Outfit } from 'next/font/google'
+import { Bebas_Neue, Inter, Space_Grotesk } from 'next/font/google'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 
-const spaceGrotesk = Space_Grotesk({
+const bebasNeue = Bebas_Neue({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400'],
   variable: '--font-display',
   display: 'swap',
 })
 
-const outfit = Outfit({
+const inter = Inter({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600'],
   variable: '--font-body',
+  display: 'swap',
+})
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-mono',
   display: 'swap',
 })
 
@@ -36,7 +42,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={`${spaceGrotesk.variable} ${outfit.variable}`}>
+    <html lang="es" className={`${bebasNeue.variable} ${inter.variable} ${spaceGrotesk.variable}`}>
       <body>
         {children}
         <SpeedInsights />

@@ -3,70 +3,52 @@
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import {
+  MessageSquare, BookOpen, Calculator, Globe,
+  Package, Ship, Clock, User, Star,
+} from 'lucide-react'
 import './Sidebar.css'
 
 const NAV_SECTIONS = [
   {
     items: [
-      { label: 'Chat IA',     icon: '💬', href: '/consulta' },
-      { label: 'Nomenclador', icon: '📦', href: '/nomenclador', soon: true },
+      { label: 'Chat IA',     Icon: MessageSquare, href: '/consulta' },
+      { label: 'Nomenclador', Icon: BookOpen,      href: '/nomenclador', soon: true },
     ],
   },
   {
     label: 'Herramientas',
     items: [
-      { label: 'Calculadora', icon: '🧮', href: '/calculadora' },
-      { label: 'Comparador',  icon: '🌎', href: '/comparador' },
+      { label: 'Calculadora', Icon: Calculator, href: '/calculadora' },
+      { label: 'Comparador',  Icon: Globe,       href: '/comparador' },
     ],
   },
   {
     label: 'Mi negocio',
     items: [
-      { label: 'Catálogo',    icon: '📋', href: '/catalogo' },
-      { label: 'Operaciones', icon: '🚢', href: '/operaciones' },
-      { label: 'Historial',   icon: '📄', href: '/historial' },
+      { label: 'Catálogo',    Icon: Package, href: '/catalogo' },
+      { label: 'Operaciones', Icon: Ship,    href: '/operaciones' },
+      { label: 'Historial',   Icon: Clock,   href: '/historial' },
     ],
   },
   {
     label: 'Cuenta',
     items: [
-      { label: 'Mi cuenta', icon: '👤', href: '/cuenta' },
-      { label: 'Planes',    icon: '⭐', href: '/planes', isPlan: true },
+      { label: 'Mi cuenta', Icon: User,  href: '/cuenta' },
+      { label: 'Planes',    Icon: Star,  href: '/planes', isPlan: true },
     ],
   },
 ]
 
 export default function Sidebar() {
-  const router = useRouter()
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
-  const [email, setEmail] = useState('')
-  const [planType, setPlanType] = useState('free')
 
   useEffect(() => {
-    // Colapsar en tablet por defecto
     const mq = window.matchMedia('(max-width: 1024px) and (min-width: 768px)')
     if (mq.matches) setCollapsed(true)
     const handler = (e) => setCollapsed(e.matches)
     mq.addEventListener('change', handler)
-
-    // Cargar datos del usuario
-    async function loadUser() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      setEmail(user.email ?? '')
-
-      const { data: profile } = await supabase
-        .from('users_profile')
-        .select('plan_type')
-        .eq('id', user.id)
-        .single()
-      if (profile?.plan_type) setPlanType(profile.plan_type)
-    }
-    loadUser()
-
     return () => mq.removeEventListener('change', handler)
   }, [])
 
@@ -84,8 +66,6 @@ export default function Sidebar() {
     router.refresh()
   }
 
-  const planLabel = { free: 'Free', pro: 'Pro', empresa: 'Empresa' }[planType] ?? 'Free'
-
   return (
     <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}>
       {/* Logo */}
@@ -102,7 +82,9 @@ export default function Sidebar() {
           title={collapsed ? 'Expandir menú' : 'Colapsar menú'}
           aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
         >
-          <span className="sidebar-collapse-icon">{collapsed ? '›' : '‹'}</span>
+          <svg className="sidebar-collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <polyline points={collapsed ? '9 18 15 12 9 6' : '15 18 9 12 15 6'} />
+          </svg>
         </button>
       </div>
 
@@ -115,6 +97,7 @@ export default function Sidebar() {
             )}
             {section.items.map((item) => {
               const isActive = pathname === item.href
+              const Icon = item.Icon
               return (
                 <Link
                   key={item.href}
@@ -122,15 +105,12 @@ export default function Sidebar() {
                   className={`sidebar-link ${isActive ? 'sidebar-link--active' : ''} ${item.soon ? 'sidebar-link--soon' : ''}`}
                   title={collapsed ? item.label : undefined}
                 >
-                  <span className="sidebar-link-icon">{item.icon}</span>
+                  <span className="sidebar-link-icon">
+                    <Icon size={16} strokeWidth={1.5} className={isActive ? 'text-primary' : 'text-on-surface-variant'} />
+                  </span>
                   {!collapsed && (
                     <span className="sidebar-link-label">
                       {item.label}
-                      {item.isPlan && (
-                        <span className={`sidebar-plan-badge sidebar-plan-badge--${planType}`}>
-                          {planLabel}
-                        </span>
-                      )}
                       {item.soon && (
                         <span className="sidebar-soon-badge">Pronto</span>
                       )}
@@ -145,15 +125,16 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="sidebar-footer">
-        {!collapsed && email && (
-          <span className="sidebar-user-email">{email}</span>
-        )}
         <button
           className="sidebar-logout-btn"
           onClick={handleLogout}
           title={collapsed ? 'Cerrar sesión' : undefined}
         >
-          <span className="sidebar-logout-icon">→</span>
+          <svg className="sidebar-logout-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
           {!collapsed && <span>Cerrar sesión</span>}
         </button>
       </div>

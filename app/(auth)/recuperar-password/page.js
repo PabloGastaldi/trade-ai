@@ -1,8 +1,35 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import '../auth.css'
+
+function LeftBrandingCard({ title }) {
+  return (
+    <div className="hidden md:flex w-[500px] h-[600px] rounded-3xl bg-surface-low flex-col justify-between p-10 relative overflow-hidden shrink-0">
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,224,255,0.12) 0%, rgba(0,224,255,0.03) 40%, transparent 70%)',
+        }} />
+      </div>
+      <div className="relative z-10">
+        <Link href="/" className="font-display text-sm tracking-[0.15em] text-on-surface no-underline">
+          TRADE<span className="text-primary">.</span><span className="text-primary">AI</span>
+        </Link>
+      </div>
+      <div className="relative z-10">
+        <h2 className="font-display text-6xl tracking-wider leading-tight text-on-surface">
+          {title}
+        </h2>
+      </div>
+      <div className="relative z-10">
+        <p className="font-mono text-xs text-on-surface-variant/40">
+          © {new Date().getFullYear()} trade.ai
+        </p>
+      </div>
+    </div>
+  )
+}
 
 export default function RecuperarPasswordPage() {
   const [email, setEmail] = useState('')
@@ -16,52 +43,79 @@ export default function RecuperarPasswordPage() {
     setLoading(true)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${location.origin}/auth/callback?next=/reset-password`,
+    const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
     })
 
-    // Siempre mostrar éxito para no revelar si el email existe
+    if (authError) {
+      setError('No se pudo enviar el email. Verificá que el email sea correcto.')
+      setLoading(false)
+      return
+    }
+
     setEnviado(true)
     setLoading(false)
-    if (error) console.error('[recuperar-password]', error.message)
   }
+
+  const brandingTitle = 'RECUPERÁ TU ACCESO.'
 
   if (enviado) {
     return (
-      <div className="auth-wrapper">
-        <div className="auth-logo">
-          trade<span className="dot">.</span><span className="ai">ai</span>
-        </div>
-        <div className="success-card">
-          <div className="success-icon">📬</div>
-          <h1 className="success-title">Revisá tu email</h1>
-          <p className="success-text">
-            Si existe una cuenta con ese email, te enviamos un link para
-            restablecer tu contraseña. Revisá también la carpeta de spam.
+      <div className="flex min-h-screen items-center justify-center gap-12 px-8 bg-surface">
+        <LeftBrandingCard title={brandingTitle} />
+        <div className="w-[400px] shrink-0">
+          <div className="md:hidden mb-8">
+            <Link href="/" className="font-display text-2xl tracking-[0.15em] text-on-surface no-underline">TRADE<span className="text-primary">.</span><span className="text-primary">AI</span></Link>
+          </div>
+          <div className="mb-6">
+            <svg className="w-14 h-14 mx-auto text-primary" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+            </svg>
+          </div>
+          <h1 className="font-display text-4xl tracking-wider text-on-surface mb-3">REVISÁ TU EMAIL</h1>
+          <p className="font-body text-base text-on-surface-variant leading-relaxed mb-8">
+            Si existe una cuenta con ese email, te enviamos un link para restablecer tu contraseña. Revisá también la carpeta de spam.
           </p>
-          <a href="/login" className="btn-back">← Volver al login</a>
+          <Link href="/login" className="font-body text-sm text-primary hover:underline transition-colors no-underline">
+            ← Volver al login
+          </Link>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-logo">
-        trade<span className="dot">.</span><span className="ai">ai</span>
-      </div>
+    <div className="flex min-h-screen items-center justify-center gap-12 px-8 bg-surface">
+      <LeftBrandingCard title={brandingTitle} />
 
-      <div className="auth-card">
-        <h1 className="auth-title">Recuperar contraseña</h1>
-        <p className="auth-subtitle">
+      <div className="w-[400px] shrink-0">
+        <div className="md:hidden mb-8">
+          <Link href="/" className="font-display text-2xl tracking-[0.15em] text-on-surface no-underline">TRADE<span className="text-primary">.</span><span className="text-primary">AI</span></Link>
+        </div>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+            </svg>
+          </div>
+          <h1 className="font-display text-4xl tracking-wider text-on-surface">
+            RECUPERAR
+          </h1>
+        </div>
+
+        <p className="font-body text-base text-on-surface-variant mb-8">
           Ingresá tu email y te enviamos un link para crear una nueva contraseña
         </p>
 
-        <form onSubmit={handleSubmit}>
-          {error && <div className="error-msg">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {error && (
+            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+              {error}
+            </div>
+          )}
 
-          <div className="field">
-            <label>Email</label>
+          <div>
+            <label className="block font-body text-sm text-on-surface-variant mb-1.5">Email</label>
             <input
               type="email"
               placeholder="tu@email.com"
@@ -69,16 +123,26 @@ export default function RecuperarPasswordPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
+              className="w-full py-3 px-4 rounded-xl bg-surface-highest border-0 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
             />
           </div>
 
-          <button className="btn-primary" type="submit" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 rounded-xl bg-[#e8e8e8] text-[#0c0e12] font-body font-semibold text-sm hover:bg-[#f0f0f0] hover:shadow-[0_0_20px_rgba(255,255,255,0.08)] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+          >
             {loading ? 'Enviando...' : 'Enviar link de recuperación'}
           </button>
         </form>
 
-        <div className="auth-footer">
-          <a href="/login" className="btn-back">← Volver al login</a>
+        <div className="mt-6 text-center">
+          <Link
+            href="/login"
+            className="font-body text-sm text-on-surface-variant hover:text-on-surface transition-colors no-underline"
+          >
+            ← Volver al login
+          </Link>
         </div>
       </div>
     </div>

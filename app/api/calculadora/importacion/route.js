@@ -1,20 +1,17 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { calcularImportacion } from '@/lib/calculadora/calc-importacion'
 import { verificarLimiteCalc, registrarCalc } from '@/lib/calc-limit'
 
-// POST /api/calculadora/importacion
-// Ejecuta el cálculo server-side (tiene acceso a SUPABASE_SERVICE_ROLE_KEY)
-// y devuelve los resultados para los 4 regímenes en paralelo.
-
 export async function POST(request) {
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const supabaseUser = await createClient()
+  const { data: { user }, error: authError } = await supabaseUser.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
   }
 
-  const { permitido, motivo, limitAlcanzado } = await verificarLimiteCalc(supabase, user.id)
+  const { permitido, motivo, limitAlcanzado } = await verificarLimiteCalc(supabaseUser, user.id)
   if (!permitido) {
     return NextResponse.json({ error: motivo, limitAlcanzado }, { status: 403 })
   }
@@ -40,35 +37,24 @@ export async function POST(request) {
     return NextResponse.json({ error: 'valor_fob debe ser mayor a 0' }, { status: 400 })
   }
 
-  const regimenes = ['general', 'courier', 'pef', 'correo_upu']
-
-  // Calcular los 4 regímenes en paralelo
-  const resultados = await Promise.allSettled(
-    regimenes.map(regimen =>
-      calcularImportacion({
-        ncm_code,
-        valor_fob,
-        flete_internacional,
-        seguro_internacional,
-        pais_origen,
-        regimen,
-        condicion_iva,
-      })
-    )
+  const serviceClient = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    { auth: { persistSession: false, autoRefreshToken: false } }
   )
 
-  const respuesta = {}
-  for (let i = 0; i < regimenes.length; i++) {
-    const r = resultados[i]
-    respuesta[regimenes[i]] = r.status === 'fulfilled'
-      ? { ok: true, data: r.value }
-      : { ok: false, error: r.reason?.message ?? 'Error de cálculo' }
+  try {
+    const resultado = await calcularImportacion(serviceClient, {
+      ncm_code,
+      valor_fob,
+      flete_internacional,
+      seguro_internacional,
+      pais_origen_iso3: pais_origen,
+      condicion_iva,
+    })
+    await registrarCalc(supabaseUser, user.id)
+    return NextResponse.json({ ok: true, data: resultado })
+  } catch (err) {
+    return NextResponse.json({ ok: false, error: err.message ?? 'Error de cálculo' }, { status: 400 })
   }
-
-  // Registrar uso solo si al menos el régimen general calculó bien
-  if (respuesta.general?.ok) {
-    await registrarCalc(supabase, user.id)
-  }
-
-  return NextResponse.json(respuesta)
 }

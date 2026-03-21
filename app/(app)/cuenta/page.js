@@ -8,7 +8,7 @@ export default async function CuentaPage() {
 
   const { data: perfil } = await supabase
     .from('users_profile')
-    .select('full_name, company_name, plan_type, queries_this_month, queries_reset_date')
+    .select('full_name, company_name, plan_type, queries_this_month, queries_reset_date, calcs_this_month')
     .eq('id', user.id)
     .single()
 
@@ -21,6 +21,7 @@ export default async function CuentaPage() {
         plan_type: 'free',
         queries_this_month: 0,
         queries_reset_date: null,
+        calcs_this_month: 0,
       }}
     />
   )

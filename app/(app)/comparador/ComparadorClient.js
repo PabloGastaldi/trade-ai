@@ -1,65 +1,55 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import s from './comparador.module.css'
-
-// ── Listas de países ───────────────────────────────────────────────────────────
-
-// Países disponibles para comparación (reporters NTM + destinos principales Argentina)
-// Para exportación: destinos donde Argentina exporta
-// Para importación: orígenes que exportan a Argentina
+import PageLayout from '@/components/ui/PageLayout'
+import Card from '@/components/ui/Card'
+import Badge from '@/components/ui/Badge'
+import Button from '@/components/ui/Button'
 
 const PAISES_EXPO = [
-  // MERCOSUR
-  { iso3: 'BRA', name: 'Brasil',         region: 'mercosur' },
-  { iso3: 'URY', name: 'Uruguay',        region: 'mercosur' },
-  { iso3: 'PRY', name: 'Paraguay',       region: 'mercosur' },
-  // Latam
-  { iso3: 'CHL', name: 'Chile',          region: 'latam' },
-  { iso3: 'PER', name: 'Perú',           region: 'latam' },
-  { iso3: 'COL', name: 'Colombia',       region: 'latam' },
-  { iso3: 'ECU', name: 'Ecuador',        region: 'latam' },
-  { iso3: 'MEX', name: 'México',         region: 'latam' },
-  { iso3: 'BOL', name: 'Bolivia',        region: 'latam' },
-  { iso3: 'VEN', name: 'Venezuela',      region: 'latam' },
-  { iso3: 'CRI', name: 'Costa Rica',     region: 'latam' },
-  { iso3: 'PAN', name: 'Panamá',         region: 'latam' },
-  { iso3: 'GTM', name: 'Guatemala',      region: 'latam' },
-  // Europa
-  { iso3: 'DEU', name: 'Alemania',       region: 'europa' },
-  { iso3: 'ESP', name: 'España',         region: 'europa' },
-  { iso3: 'ITA', name: 'Italia',         region: 'europa' },
-  { iso3: 'FRA', name: 'Francia',        region: 'europa' },
-  { iso3: 'NLD', name: 'Países Bajos',   region: 'europa' },
-  { iso3: 'GBR', name: 'Gran Bretaña',   region: 'europa' },
-  { iso3: 'POL', name: 'Polonia',        region: 'europa' },
-  // Asia / Oceanía
-  { iso3: 'CHN', name: 'China',          region: 'asia' },
-  { iso3: 'JPN', name: 'Japón',          region: 'asia' },
-  { iso3: 'KOR', name: 'Corea del Sur',  region: 'asia' },
-  { iso3: 'IND', name: 'India',          region: 'asia' },
-  { iso3: 'IDN', name: 'Indonesia',      region: 'asia' },
-  { iso3: 'THA', name: 'Tailandia',      region: 'asia' },
+  { iso3: 'BRA', name: 'Brasil',          region: 'mercosur' },
+  { iso3: 'URY', name: 'Uruguay',         region: 'mercosur' },
+  { iso3: 'PRY', name: 'Paraguay',        region: 'mercosur' },
+  { iso3: 'CHL', name: 'Chile',           region: 'latam' },
+  { iso3: 'PER', name: 'Perú',            region: 'latam' },
+  { iso3: 'COL', name: 'Colombia',        region: 'latam' },
+  { iso3: 'ECU', name: 'Ecuador',         region: 'latam' },
+  { iso3: 'MEX', name: 'México',          region: 'latam' },
+  { iso3: 'BOL', name: 'Bolivia',         region: 'latam' },
+  { iso3: 'VEN', name: 'Venezuela',       region: 'latam' },
+  { iso3: 'CRI', name: 'Costa Rica',      region: 'latam' },
+  { iso3: 'PAN', name: 'Panamá',          region: 'latam' },
+  { iso3: 'GTM', name: 'Guatemala',       region: 'latam' },
+  { iso3: 'DEU', name: 'Alemania',        region: 'europa' },
+  { iso3: 'ESP', name: 'España',          region: 'europa' },
+  { iso3: 'ITA', name: 'Italia',          region: 'europa' },
+  { iso3: 'FRA', name: 'Francia',         region: 'europa' },
+  { iso3: 'NLD', name: 'Países Bajos',    region: 'europa' },
+  { iso3: 'GBR', name: 'Gran Bretaña',    region: 'europa' },
+  { iso3: 'POL', name: 'Polonia',         region: 'europa' },
+  { iso3: 'CHN', name: 'China',           region: 'asia' },
+  { iso3: 'JPN', name: 'Japón',           region: 'asia' },
+  { iso3: 'KOR', name: 'Corea del Sur',   region: 'asia' },
+  { iso3: 'IND', name: 'India',           region: 'asia' },
+  { iso3: 'IDN', name: 'Indonesia',       region: 'asia' },
+  { iso3: 'THA', name: 'Tailandia',       region: 'asia' },
   { iso3: 'VNM', name: 'Vietnam',        region: 'asia' },
-  { iso3: 'AUS', name: 'Australia',      region: 'asia' },
-  // Otros
-  { iso3: 'USA', name: 'Estados Unidos', region: 'otros' },
-  { iso3: 'CAN', name: 'Canadá',         region: 'otros' },
-  { iso3: 'ZAF', name: 'Sudáfrica',      region: 'otros' },
-  { iso3: 'EGY', name: 'Egipto',         region: 'otros' },
-  { iso3: 'ISR', name: 'Israel',         region: 'otros' },
-  { iso3: 'MAR', name: 'Marruecos',      region: 'otros' },
-  { iso3: 'NGA', name: 'Nigeria',        region: 'otros' },
+  { iso3: 'AUS', name: 'Australia',       region: 'asia' },
+  { iso3: 'USA', name: 'Estados Unidos',  region: 'otros' },
+  { iso3: 'CAN', name: 'Canadá',          region: 'otros' },
+  { iso3: 'ZAF', name: 'Sudáfrica',       region: 'otros' },
+  { iso3: 'EGY', name: 'Egipto',          region: 'otros' },
+  { iso3: 'ISR', name: 'Israel',          region: 'otros' },
+  { iso3: 'MAR', name: 'Marruecos',       region: 'otros' },
+  { iso3: 'NGA', name: 'Nigeria',         region: 'otros' },
   { iso3: 'SAU', name: 'Arabia Saudita', region: 'otros' },
   { iso3: 'ARE', name: 'Emiratos Árabes', region: 'otros' },
-  { iso3: 'RUS', name: 'Rusia',          region: 'otros' },
-  { iso3: 'TUR', name: 'Turquía',        region: 'otros' },
+  { iso3: 'RUS', name: 'Rusia',           region: 'otros' },
+  { iso3: 'TUR', name: 'Turquía',         region: 'otros' },
 ]
 
-// Importación: misma lista que exportación.
-// Los países con acuerdo (BRA, URY, PRY, CHL, PER, COL, ECU, MEX, IND, VEN)
-// muestran costo con preferencia arancelaria. Los demás aplican AEC (igual para todos).
 const PAISES_IMPO = PAISES_EXPO
+const PAISES = PAISES_EXPO
 
 const REGIONES = [
   { key: 'todos',    label: 'Todos' },
@@ -70,9 +60,6 @@ const REGIONES = [
   { key: 'otros',    label: 'Otros' },
 ]
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-// ISO3 → ISO2 para flagcdn.com (entrega imágenes SVG de banderas)
 const ISO3_TO_ISO2 = {
   BRA:'br', URY:'uy', PRY:'py', CHL:'cl', PER:'pe', COL:'co', ECU:'ec',
   MEX:'mx', BOL:'bo', VEN:'ve', CRI:'cr', PAN:'pa', GTM:'gt', DEU:'de',
@@ -82,16 +69,22 @@ const ISO3_TO_ISO2 = {
   SAU:'sa', ARE:'ae', RUS:'ru', TUR:'tr',
 }
 
-function FlagImg({ iso3 }) {
+const FLAG_URL = 'https://flagcdn.com/w40'
+
+function FlagImg({ iso3, size = 28 }) {
   const iso2 = ISO3_TO_ISO2[iso3]
-  if (!iso2) return <span style={{ fontSize: '1.4rem' }}>🌐</span>
+  if (!iso2) {
+    return (
+      <span className="inline-block w-7 h-5 bg-white/[0.06] rounded" />
+    )
+  }
   return (
     <img
-      src={`https://flagcdn.com/w40/${iso2}.png`}
-      width={28}
-      height={20}
+      src={`${FLAG_URL}/${iso2}.png`}
+      width={size}
+      height={Math.round(size * 0.7)}
       alt={iso3}
-      style={{ borderRadius: 2, objectFit: 'cover' }}
+      className="rounded object-cover inline-block"
     />
   )
 }
@@ -101,220 +94,232 @@ function fmtUSD(n) {
   return n.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 }
 
-// ── Componente Modal de desglose ───────────────────────────────────────────────
-
 function ModalDesglose({ resultado, tipo, onClose }) {
   if (!resultado) return null
   const { data, pais_iso3 } = resultado
-  const pais = tipo === 'exportacion'
-    ? PAISES_EXPO.find(p => p.iso3 === pais_iso3)
-    : PAISES_IMPO.find(p => p.iso3 === pais_iso3)
+  const pais = PAISES.find(p => p.iso3 === pais_iso3)
 
   return (
-    <div className={s.modalOverlay} onClick={onClose}>
-      <div className={s.modal} onClick={e => e.stopPropagation()}>
-        <div className={s.modalHeader}>
-          <div className={s.modalTitulo}>
-            <FlagImg iso3={pais_iso3} /> {pais?.name ?? pais_iso3}
-            <span className={s.modalBadge}>{tipo === 'exportacion' ? 'Exportación' : 'Importación'}</span>
+    <>
+      <div
+        className="fixed inset-0 bg-black/50 z-40"
+        onClick={onClose}
+      />
+      <div className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg bg-surface-low border border-white/[0.06] rounded-2xl z-50 overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between p-6 border-b border-white/[0.04] shrink-0">
+          <div className="flex items-center gap-3">
+            <FlagImg iso3={pais_iso3} size={32} />
+            <div>
+              <p className="font-display text-lg tracking-wider text-on-surface">{pais?.name ?? pais_iso3}</p>
+              <Badge variant="neutral" className="mt-1">
+                {tipo === 'exportacion' ? 'EXPORTACIÓN' : 'IMPORTACIÓN'}
+              </Badge>
+            </div>
           </div>
-          <button className={s.modalClose} onClick={onClose}>✕</button>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer text-on-surface-variant/60 hover:text-on-surface"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
 
-        <div className={s.modalCuerpo}>
-          {tipo === 'exportacion' ? (
-            <DesgloseExpo data={data} />
-          ) : (
-            <DesgloseImpo data={data} />
-          )}
+        <div className="p-6 overflow-y-auto flex-1">
+          {tipo === 'exportacion' ? <DesgloseExpo data={data} /> : <DesgloseImpo data={data} />}
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
 function DesgloseExpo({ data }) {
-  const ci = data.conversion_incoterms ?? {}
+  const ci = data?.conversion_incoterms ?? {}
   return (
-    <>
-      <div className={s.desglosePrecioRow}>
-        <div className={s.desglosePrecioItem}>
-          <span className={s.dpLabel}>EXW</span>
-          <span className={s.dpValor}>{ci.EXW != null ? `USD ${fmtUSD(ci.EXW)}` : '—'}</span>
-        </div>
-        <div className={s.desglosePrecioItem}>
-          <span className={s.dpLabel}>FOB</span>
-          <span className={s.dpValor}>{ci.FOB != null ? `USD ${fmtUSD(ci.FOB)}` : '—'}</span>
-        </div>
-        <div className={s.desglosePrecioItem}>
-          <span className={s.dpLabel}>CIF</span>
-          <span className={s.dpValor}>{ci.CIF != null ? `USD ${fmtUSD(ci.CIF)}` : '—'}</span>
-        </div>
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-3">
+        {['EXW','FOB','CIF'].map(inc => (
+          <div key={inc} className="bg-white/[0.02] rounded-xl p-3 text-center">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">{inc}</p>
+            <p className="font-mono text-base text-on-surface mt-1">
+              {ci[inc] != null ? `USD ${fmtUSD(ci[inc])}` : '—'}
+            </p>
+          </div>
+        ))}
       </div>
 
-      {data.costos_exportacion && (
-        <table className={s.desgloseTbl}>
-          <tbody>
-            <tr className={s.desgloseSeccion}>
-              <td colSpan={2}>Costos de exportación</td>
-            </tr>
-            {data.costos_exportacion.derecho_exportacion?.monto > 0 && (
-              <tr>
-                <td>Derechos de exportación ({(data.costos_exportacion.derecho_exportacion.alicuota * 100).toFixed(0)}%)</td>
-                <td className={s.tdMonto}>USD {fmtUSD(data.costos_exportacion.derecho_exportacion.monto)}</td>
-              </tr>
-            )}
-            {data.costos_exportacion.registro_sim > 0 && (
-              <tr>
-                <td>Registro SIM/ROE</td>
-                <td className={s.tdMonto}>USD {fmtUSD(data.costos_exportacion.registro_sim)}</td>
-              </tr>
-            )}
-            <tr className={s.desgloseSubtotal}>
-              <td>Costo neto exportación</td>
-              <td className={s.tdMonto}>USD {fmtUSD(data.costo_neto_exportacion)}</td>
-            </tr>
-            <tr className={s.desgloseTotalFinal}>
-              <td>Ingreso neto (precio − costos)</td>
-              <td className={`${s.tdMonto} ${data.margen_neto >= 0 ? s.positivo : s.negativo}`}>
-                USD {fmtUSD(data.margen_neto)}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      )}
-
-      {data.arancel_destino && (
-        <div className={s.arancelDestino}>
-          <span>Arancel destino (HS {data.arancel_destino.hs_code})</span>
-          <span className={s.adValor}>
-            {data.arancel_destino.ave_rate != null
-              ? `${data.arancel_destino.ave_rate}% AVE`
-              : 'Sin datos'
-            }
-            <span className={s.adFuente}> — WITS {data.arancel_destino.year}</span>
-          </span>
+      {data?.costos_exportacion && (
+        <div className="space-y-1.5">
+          <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant/50 mb-2">Costos de exportación</p>
+          {data.costos_exportacion.derecho_exportacion?.monto > 0 && (
+            <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
+              <span className="font-body text-xs text-on-surface-variant">
+                Derechos ({(data.costos_exportacion.derecho_exportacion.alicuota * 100).toFixed(0)}%)
+              </span>
+              <span className="font-mono text-xs text-on-surface">USD {fmtUSD(data.costos_exportacion.derecho_exportacion.monto)}</span>
+            </div>
+          )}
+          <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
+            <span className="font-body text-xs text-on-surface-variant">Costo neto</span>
+            <span className="font-mono text-xs text-on-surface">USD {fmtUSD(data.costo_neto_exportacion)}</span>
+          </div>
+          <div className="flex justify-between py-1.5 px-3 bg-primary/5 border border-primary/10 rounded-lg">
+            <span className="font-body text-xs text-on-surface">Ingreso neto</span>
+            <span className={`font-mono text-xs ${data.margen_neto >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              USD {fmtUSD(data.margen_neto)}
+            </span>
+          </div>
         </div>
       )}
 
-      {data.notas?.length > 0 && (
-        <div className={s.notasBox}>
-          {data.notas.slice(0, 4).map((n, i) => (
-            <div key={i} className={s.nota}>{n}</div>
-          ))}
+      {data?.arancel_destino && (
+        <div className="bg-white/[0.02] rounded-xl p-4">
+          <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant/50 mb-2">Arancel destino</p>
+          <div className="flex justify-between items-center">
+            <span className="font-body text-xs text-on-surface-variant">
+              HS {data.arancel_destino.hs_code}
+            </span>
+            <span className="font-mono text-sm text-on-surface">
+              {data.arancel_destino.ave_rate != null ? `${data.arancel_destino.ave_rate}% AVE` : 'Sin datos'}
+            </span>
+          </div>
+          <p className="font-mono text-[10px] text-on-surface-variant/30 mt-1">Fuente: WITS {data.arancel_destino.year}</p>
         </div>
       )}
-    </>
+    </div>
   )
 }
 
 function DesgloseImpo({ data }) {
-  const d = data.desglose ?? {}
+  const d = data?.desglose ?? {}
   return (
-    <>
-      <div className={s.desglosePrecioRow}>
-        <div className={s.desglosePrecioItem}>
-          <span className={s.dpLabel}>FOB</span>
-          <span className={s.dpValor}>USD {fmtUSD(data.valor_fob)}</span>
-        </div>
-        <div className={s.desglosePrecioItem}>
-          <span className={s.dpLabel}>CIF</span>
-          <span className={s.dpValor}>USD {fmtUSD(data.valor_cif)}</span>
-        </div>
-        <div className={s.desglosePrecioItem}>
-          <span className={s.dpLabel}>Total tributos</span>
-          <span className={s.dpValor}>USD {fmtUSD(data.total_tributos)}</span>
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: 'FOB', val: data?.valor_fob },
+          { label: 'CIF', val: data?.valor_cif },
+          { label: 'Tributos', val: data?.total_tributos },
+        ].map(item => (
+          <div key={item.label} className="bg-white/[0.02] rounded-xl p-3 text-center">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">{item.label}</p>
+            <p className="font-mono text-base text-on-surface mt-1">
+              {item.val != null ? `USD ${fmtUSD(item.val)}` : '—'}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-1">
+        <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant/50 mb-2">Tributos aplicados</p>
+        {d.derecho_importacion && (
+          <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
+            <span className="font-body text-xs text-on-surface-variant">
+              Derecho ({(d.derecho_importacion.alicuota * 100).toFixed(0)}%)
+            </span>
+            <span className="font-mono text-xs text-on-surface">USD {fmtUSD(d.derecho_importacion.monto)}</span>
+          </div>
+        )}
+        {d.tasa_estadistica && (
+          <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
+            <span className="font-body text-xs text-on-surface-variant">Tasa estadística (3%)</span>
+            <span className="font-mono text-xs text-on-surface">USD {fmtUSD(d.tasa_estadistica.monto)}</span>
+          </div>
+        )}
+        {d.iva && (
+          <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
+            <span className="font-body text-xs text-on-surface-variant">
+              IVA ({(d.iva.alicuota * 100).toFixed(0)}%)
+            </span>
+            <span className="font-mono text-xs text-on-surface">USD {fmtUSD(d.iva.monto)}</span>
+          </div>
+        )}
+        {d.iva_adicional?.monto > 0 && (
+          <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
+            <span className="font-body text-xs text-on-surface-variant">
+              IVA adicional ({(d.iva_adicional.alicuota * 100).toFixed(0)}%)
+            </span>
+            <span className="font-mono text-xs text-on-surface">USD {fmtUSD(d.iva_adicional.monto)}</span>
+          </div>
+        )}
+        <div className="flex justify-between py-1.5 px-3 bg-primary/5 border border-primary/10 rounded-lg font-semibold">
+          <span className="font-body text-xs text-on-surface">Costo total en Argentina</span>
+          <span className="font-mono text-xs text-on-surface">USD {fmtUSD(data?.costo_total_usd)}</span>
         </div>
       </div>
 
-      <table className={s.desgloseTbl}>
-        <tbody>
-          <tr className={s.desgloseSeccion}>
-            <td colSpan={3}>Tributos aplicados</td>
-          </tr>
-          {d.derecho_importacion && (
-            <tr>
-              <td>Derecho de importación ({(d.derecho_importacion.alicuota * 100).toFixed(0)}%)</td>
-              <td className={s.tdAlicuota}></td>
-              <td className={s.tdMonto}>USD {fmtUSD(d.derecho_importacion.monto)}</td>
-            </tr>
-          )}
-          {d.tasa_estadistica && (
-            <tr>
-              <td>Tasa estadística (3%)</td>
-              <td className={s.tdAlicuota}></td>
-              <td className={s.tdMonto}>USD {fmtUSD(d.tasa_estadistica.monto)}</td>
-            </tr>
-          )}
-          {d.iva && (
-            <tr>
-              <td>IVA importación ({(d.iva.alicuota * 100).toFixed(0)}%)</td>
-              <td className={s.tdAlicuota}></td>
-              <td className={s.tdMonto}>USD {fmtUSD(d.iva.monto)}</td>
-            </tr>
-          )}
-          {d.iva_adicional?.monto > 0 && (
-            <tr>
-              <td>IVA adicional ({(d.iva_adicional.alicuota * 100).toFixed(0)}%)</td>
-              <td className={s.tdAlicuota}></td>
-              <td className={s.tdMonto}>USD {fmtUSD(d.iva_adicional.monto)}</td>
-            </tr>
-          )}
-          {d.percepcion_ganancias?.monto > 0 && (
-            <tr>
-              <td>Percepción ganancias ({(d.percepcion_ganancias.alicuota * 100).toFixed(0)}%)</td>
-              <td className={s.tdAlicuota}></td>
-              <td className={s.tdMonto}>USD {fmtUSD(d.percepcion_ganancias.monto)}</td>
-            </tr>
-          )}
-          {d.ingresos_brutos?.monto > 0 && (
-            <tr>
-              <td>Ingresos brutos (2.5%)</td>
-              <td className={s.tdAlicuota}></td>
-              <td className={s.tdMonto}>USD {fmtUSD(d.ingresos_brutos.monto)}</td>
-            </tr>
-          )}
-          <tr className={s.desgloseSubtotal}>
-            <td colSpan={2}>Total tributos</td>
-            <td className={s.tdMonto}>USD {fmtUSD(data.total_tributos)}</td>
-          </tr>
-          <tr className={s.desgloseTotalFinal}>
-            <td colSpan={2}>Costo total puesto en Argentina</td>
-            <td className={s.tdMonto}>USD {fmtUSD(data.costo_total_usd)}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {data.preferencia_aplicada && (
-        <div className={s.arancelDestino}>
-          <span>Preferencia aplicada</span>
-          <span className={s.adValor}>{data.preferencia_aplicada.acuerdo}</span>
+      {data?.preferencia_aplicada && (
+        <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-4">
+          <p className="font-display text-[10px] tracking-widest uppercase text-emerald-400/60 mb-1">Preferencia aplicada</p>
+          <p className="font-body text-sm text-emerald-400">{data.preferencia_aplicada.acuerdo}</p>
         </div>
       )}
-
-      {data.notas?.length > 0 && (
-        <div className={s.notasBox}>
-          {data.notas.slice(0, 4).map((n, i) => (
-            <div key={i} className={s.nota}>{n}</div>
-          ))}
-        </div>
-      )}
-    </>
+    </div>
   )
 }
 
-// ── Componente principal ───────────────────────────────────────────────────────
+function PaisCard({ resultado, tipo, onClick }) {
+  const { ok, metrica, esMejor, esPeor, data } = resultado
+  const pais = PAISES.find(p => p.iso3 === resultado.pais_iso3) ?? { name: resultado.pais_iso3 }
+  const tieneDatos = ok && metrica !== null
+
+  return (
+    <button
+      onClick={tieneDatos ? onClick : undefined}
+      disabled={!tieneDatos}
+      title={ok && !tieneDatos ? 'Sin datos de arancel' : undefined}
+      className={`relative text-center p-4 rounded-xl transition-all cursor-pointer w-full ${
+        esMejor
+          ? 'border border-emerald-500/30 bg-emerald-500/[0.02]'
+          : esPeor
+          ? 'border border-red-500/20'
+          : 'border border-white/[0.04] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.08]'
+      } ${!tieneDatos ? 'opacity-30 cursor-default' : ''}`}
+    >
+      {esMejor && (
+        <span className="absolute top-2 right-2 font-mono text-[9px] tracking-widest text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+          MEJOR
+        </span>
+      )}
+      {esPeor && (
+        <span className="absolute top-2 right-2 font-mono text-[9px] tracking-widest text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">
+          MÁS CARO
+        </span>
+      )}
+
+      <div className="flex justify-center mb-2">
+        <FlagImg iso3={resultado.pais_iso3} size={32} />
+      </div>
+      <p className="font-body text-[10px] text-on-surface-variant mt-1 leading-tight">
+        {pais.name}
+      </p>
+
+      {tieneDatos ? (
+        <p className="font-mono text-base text-on-surface font-bold mt-2">
+          {tipo === 'exportacion' ? `${metrica}%` : `USD ${fmtUSD(metrica)}`}
+        </p>
+      ) : ok ? (
+        <p className="font-mono text-[10px] text-on-surface-variant/40 mt-2">Sin datos</p>
+      ) : (
+        <p className="font-mono text-[10px] text-red-400/60 mt-2">Error</p>
+      )}
+
+      {ok && data?.preferencia_aplicada && (
+        <p className="font-mono text-[9px] text-emerald-400/60 mt-1">{data.preferencia_aplicada.acuerdo}</p>
+      )}
+    </button>
+  )
+}
 
 export default function ComparadorClient({ productos }) {
   const [tipo, setTipo] = useState('exportacion')
   const [region, setRegion] = useState('todos')
-  const [orden, setOrden] = useState('menor')
   const [cargando, setCargando] = useState(false)
   const [resultados, setResultados] = useState(null)
   const [error, setError] = useState(null)
   const [modalData, setModalData] = useState(null)
 
-  // Campos del formulario
   const [productoId, setProductoId] = useState('')
   const [ncmManual, setNcmManual] = useState('')
   const [precioManual, setPrecioManual] = useState('')
@@ -323,13 +328,36 @@ export default function ComparadorClient({ productos }) {
   const paisesLista = tipo === 'exportacion' ? PAISES_EXPO : PAISES_IMPO
   const paisesRegion = region === 'todos' ? paisesLista : paisesLista.filter(p => p.region === region)
 
-  // Producto seleccionado
   const productoSel = productos.find(p => p.id === productoId) ?? null
-
   const ncmCode = productoSel ? productoSel.ncm_code : ncmManual.trim()
-  const precioNum = productoSel
-    ? productoSel.unit_price
-    : parseFloat(precioManual)
+  const precioNum = productoSel ? productoSel.unit_price : parseFloat(precioManual)
+
+  const resultadosProcesados = useMemo(() => {
+    if (!resultados) return null
+
+    const conValor = resultados.map(r => {
+      if (!r.ok) return { ...r, metrica: null }
+      if (tipo === 'exportacion') {
+        const ae = r.data?.arancel_destino
+        return { ...r, metrica: ae?.ave_rate != null ? ae.ave_rate : null }
+      } else {
+        return { ...r, metrica: r.data?.costo_total_usd ?? null }
+      }
+    })
+
+    const soloConMetrica = conValor.filter(r => r.metrica !== null)
+    if (soloConMetrica.length === 0) return conValor
+
+    const valMin = Math.min(...soloConMetrica.map(r => r.metrica))
+    const valMax = Math.max(...soloConMetrica.map(r => r.metrica))
+    const hayVariacion = valMin !== valMax
+
+    return conValor.map(r => ({
+      ...r,
+      esMejor: hayVariacion && r.metrica !== null && r.metrica === valMin,
+      esPeor:  hayVariacion && r.metrica !== null && r.metrica === valMax,
+    }))
+  }, [resultados, tipo])
 
   async function handleCalcular() {
     setError(null)
@@ -368,131 +396,59 @@ export default function ComparadorClient({ productos }) {
         return
       }
       setResultados(json.resultados)
-    } catch (e) {
+    } catch {
       setError('Error de red — intentá de nuevo')
     } finally {
       setCargando(false)
     }
   }
 
-  // Procesar resultados: calcular métrica principal + ordenar
-  const resultadosProcesados = useMemo(() => {
-    if (!resultados) return null
-
-    const conValor = resultados.map(r => {
-      if (!r.ok) return { ...r, metrica: null, metricaTipo: null }
-
-      if (tipo === 'exportacion') {
-        // Para exportación la métrica es el arancel % que cobra el país destino.
-        // El FOB es igual para todos — no sirve para comparar.
-        const ae = r.data.arancel_destino
-        const metrica = (ae && ae.ave_rate !== null) ? ae.ave_rate : null
-        return { ...r, metrica, metricaTipo: 'arancel_pct' }
-      } else {
-        // Para importación la métrica es el costo total en Argentina.
-        // Varía según preferencias arancelarias del país origen.
-        return { ...r, metrica: r.data.costo_total_usd ?? null, metricaTipo: 'costo_usd' }
-      }
-    })
-
-    const soloConMetrica = conValor.filter(r => r.metrica !== null)
-    if (soloConMetrica.length === 0) return conValor
-
-    const valMin = Math.min(...soloConMetrica.map(r => r.metrica))
-    const valMax = Math.max(...soloConMetrica.map(r => r.metrica))
-
-    // Solo marcar mejor/peor si hay variación real
-    const hayVariacion = valMin !== valMax
-
-    // Para expo: mejor = menor arancel. Para impo: mejor = menor costo.
-    const tagged = conValor.map(r => ({
-      ...r,
-      esMejor: hayVariacion && r.metrica !== null && r.metrica === valMin,
-      esPeor:  hayVariacion && r.metrica !== null && r.metrica === valMax,
-    }))
-
-    const sorted = [...tagged].sort((a, b) => {
-      // Países sin datos van al final
-      if (a.metrica === null && b.metrica === null) return 0
-      if (a.metrica === null) return 1
-      if (b.metrica === null) return -1
-      return orden === 'menor' ? a.metrica - b.metrica : b.metrica - a.metrica
-    })
-
-    return sorted
-  }, [resultados, orden, tipo])
+  const conteoOk = resultadosProcesados?.filter(r => r.metrica !== null).length ?? 0
+  const conteoSin = resultadosProcesados?.filter(r => r.ok && r.metrica === null).length ?? 0
 
   return (
-    <div className={s.page}>
-      {/* ── Header ─────────────────────────────────────────────────── */}
-      <div className={s.pageHeader}>
-        <h1 className={s.titulo}>Comparador por país</h1>
-        <p className={s.subtitulo}>
-          Compará el costo de {tipo === 'exportacion' ? 'exportar a' : 'importar desde'} múltiples países de un vistazo
-        </p>
-      </div>
+    <PageLayout title="COMPARADOR" subtitle="Compará costos entre destinos">
+      <div className="max-w-6xl">
+        {/* Selector de producto */}
+        <Card className="mb-6">
+          <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant mb-4">
+            SELECCIONÁ UN PRODUCTO
+          </p>
 
-      {/* ── Tabs tipo ──────────────────────────────────────────────── */}
-      <div className={s.tabs}>
-        <button
-          className={`${s.tab} ${tipo === 'exportacion' ? s.tabActivo : ''}`}
-          onClick={() => { setTipo('exportacion'); setResultados(null) }}
-        >
-          Exportar a
-        </button>
-        <button
-          className={`${s.tab} ${tipo === 'importacion' ? s.tabActivo : ''}`}
-          onClick={() => { setTipo('importacion'); setResultados(null) }}
-        >
-          Importar desde
-        </button>
-      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block font-body text-xs text-on-surface-variant mb-1.5">
+                Del catálogo
+              </label>
+              <select
+                className="w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface border border-transparent outline-none focus:border-primary/30 transition-all cursor-pointer"
+                value={productoId}
+                onChange={e => setProductoId(e.target.value)}
+              >
+                <option value="">— Seleccionar producto —</option>
+                {productos.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({p.ncm_code})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-      {/* ── Layout ─────────────────────────────────────────────────── */}
-      <div className={s.layout}>
-
-        {/* ── Formulario ───────────────────────────────────────────── */}
-        <div className={s.formPanel}>
-          <div className={s.campo}>
-            <label className={s.label}>
-              Producto{' '}
-              <span className={s.opcional}>(del catálogo)</span>
-            </label>
-            <select
-              className={s.select}
-              value={productoId}
-              onChange={e => setProductoId(e.target.value)}
-            >
-              <option value="">— Seleccioná un producto —</option>
-              {productos.map(p => (
-                <option key={p.id} value={p.id}>
-                  {p.name} ({p.ncm_code})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {!productoSel && (
-            <>
-              <div className={s.separadorOr}>o ingresá manualmente</div>
-              <div className={s.campoFila}>
-                <div className={s.campo} style={{ flex: 1 }}>
-                  <label className={s.label}>
-                    NCM <span className={s.req}>*</span>
-                  </label>
+            {!productoSel && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-body text-xs text-on-surface-variant mb-1.5">NCM</label>
                   <input
-                    className={s.input}
-                    placeholder="ej: 0101.21.00"
+                    className="w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none transition-all"
+                    placeholder="ej: 0902.40.00"
                     value={ncmManual}
                     onChange={e => setNcmManual(e.target.value)}
                   />
                 </div>
-                <div className={s.campo} style={{ flex: 1 }}>
-                  <label className={s.label}>
-                    Precio (USD) <span className={s.req}>*</span>
-                  </label>
+                <div>
+                  <label className="block font-body text-xs text-on-surface-variant mb-1.5">Precio (USD)</label>
                   <input
-                    className={s.input}
+                    className="w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none transition-all"
                     type="number"
                     min="0"
                     step="0.01"
@@ -502,22 +458,49 @@ export default function ComparadorClient({ productos }) {
                   />
                 </div>
               </div>
-            </>
-          )}
+            )}
+          </div>
 
           {productoSel && (
-            <div className={s.productoSel}>
-              <span className={s.productoSelNcm}>{productoSel.ncm_code}</span>
-              {' — '}
+            <div className="bg-white/[0.03] rounded-xl px-4 py-3 font-mono text-sm text-on-surface-variant flex items-center gap-3">
+              <span className="text-primary">{productoSel.ncm_code}</span>
+              <span className="text-on-surface-variant/30">|</span>
+              <span>{productoSel.name}</span>
+              <span className="text-on-surface-variant/30">|</span>
               <span>USD {fmtUSD(productoSel.unit_price)} {productoSel.incoterm}</span>
             </div>
           )}
 
-          {tipo === 'exportacion' && (
-            <div className={s.campo}>
-              <label className={s.label}>Incoterm base</label>
+          <div className="h-px bg-white/[0.04] my-4" />
+
+          {/* Tabs + Incoterm */}
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex bg-white/[0.04] rounded-xl p-1 gap-1">
+              <button
+                className={`px-4 py-2 rounded-lg font-body text-sm transition-all cursor-pointer ${
+                  tipo === 'exportacion'
+                    ? 'bg-primary-intense text-on-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+                onClick={() => { setTipo('exportacion'); setResultados(null) }}
+              >
+                Exportación
+              </button>
+              <button
+                className={`px-4 py-2 rounded-lg font-body text-sm transition-all cursor-pointer ${
+                  tipo === 'importacion'
+                    ? 'bg-primary-intense text-on-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+                onClick={() => { setTipo('importacion'); setResultados(null) }}
+              >
+                Importación
+              </button>
+            </div>
+
+            {tipo === 'exportacion' && (
               <select
-                className={s.select}
+                className="bg-surface-highest rounded-xl px-4 py-2.5 font-mono text-sm text-on-surface border border-transparent focus:border-primary/30 outline-none transition-all cursor-pointer"
                 value={incoterm}
                 onChange={e => setIncoterm(e.target.value)}
               >
@@ -525,125 +508,102 @@ export default function ComparadorClient({ productos }) {
                   <option key={i} value={i}>{i}</option>
                 ))}
               </select>
-            </div>
-          )}
+            )}
 
-          {/* Filtro región integrado al formulario */}
-          <div className={s.campo}>
-            <label className={s.label}>Región a comparar</label>
-            <div className={s.regionPills}>
+            {/* Filtro región */}
+            <div className="flex flex-wrap gap-1.5 ml-auto">
               {REGIONES.map(r => (
                 <button
                   key={r.key}
-                  className={`${s.regionPill} ${region === r.key ? s.regionPillActivo : ''}`}
                   onClick={() => setRegion(r.key)}
+                  className={`px-3 py-1.5 rounded-lg font-body text-xs transition-all cursor-pointer ${
+                    region === r.key
+                      ? 'bg-white/[0.08] text-on-surface'
+                      : 'text-on-surface-variant/60 hover:text-on-surface'
+                  }`}
                 >
                   {r.label}
                 </button>
               ))}
             </div>
-            <div className={s.regionCount}>
-              {paisesRegion.length} países seleccionados
-            </div>
           </div>
 
-          {error && <div className={s.errorGeneral}>{error}</div>}
+          <p className="font-mono text-[10px] text-on-surface-variant/40 mt-3">
+            {paisesRegion.length} países — {tipo === 'exportacion' ? 'arancel que cobra el destino (%)' : 'costo total en Argentina (USD)'}
+          </p>
 
-          <button
-            className={s.btnCalcular}
+          {error && (
+            <div className="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+              <p className="font-body text-xs text-red-400">{error}</p>
+            </div>
+          )}
+
+          <Button
+            className="mt-4"
+            loading={cargando}
             onClick={handleCalcular}
-            disabled={cargando}
           >
             {cargando ? (
-              <>
-                <span className={s.spinner} />
-                Calculando {paisesRegion.length} países...
-              </>
+              <>Calculando {paisesRegion.length} países…</>
             ) : (
-              `Comparar ${paisesRegion.length} países`
+              <>COMPARAR {paisesRegion.length} PAÍSES</>
             )}
-          </button>
-        </div>
+          </Button>
+        </Card>
 
-        {/* ── Resultados ───────────────────────────────────────────── */}
-        <div className={s.resultadosPanel}>
-          {!resultadosProcesados && !cargando && (
-            <div className={s.placeholder}>
-              <div className={s.placeholderIcono}>🌍</div>
-              <div>Configurá tu producto y hacé clic en <strong>Comparar</strong></div>
-              <div className={s.placeholderSub}>
-                Verás el costo para cada país de un vistazo
-              </div>
+        {/* Resultados */}
+        {!resultadosProcesados && !cargando && (
+          <div className="text-center py-16">
+            <div className="mx-auto w-16 h-16 mb-4 text-on-surface-variant/[0.1]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
             </div>
-          )}
+            <p className="font-display text-xl tracking-wider text-on-surface-variant/30 uppercase">
+              Seleccioná un producto y comparalo
+            </p>
+          </div>
+        )}
 
-          {cargando && (
-            <div className={s.placeholder}>
-              <div className={s.loadingDots}>
-                <span /><span /><span />
+        {resultadosProcesados && (
+          <>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-3 font-body text-xs text-on-surface-variant">
+                {conteoOk > 0 && (
+                  <span className="text-emerald-400">{conteoOk} con datos</span>
+                )}
+                {conteoSin > 0 && (
+                  <span className="text-on-surface-variant/40">{conteoSin} sin datos de arancel</span>
+                )}
               </div>
-              <div>Calculando en paralelo...</div>
+              <a href="/planes" className="ml-auto font-body text-xs text-on-surface-variant/30 hover:text-primary transition-colors">
+                Free: 2 comparaciones/mes
+              </a>
             </div>
-          )}
 
-          {resultadosProcesados && (
-            <>
-              {/* Barra de controles */}
-              <div className={s.barraResultados}>
-                <div className={s.resumenConteo}>
-                  <span className={s.resumenOk}>
-                    {resultadosProcesados.filter(r => r.metrica !== null).length} con datos
-                  </span>
-                  {resultadosProcesados.filter(r => r.ok && r.metrica === null).length > 0 && (
-                    <span className={s.resumenErr}>
-                      {resultadosProcesados.filter(r => r.ok && r.metrica === null).length} sin datos de arancel
-                    </span>
-                  )}
-                  {tipo === 'exportacion' && (
-                    <span className={s.resumenTip}>ordenado por arancel destino (%)</span>
-                  )}
-                </div>
-                <div className={s.ordenWrap}>
-                  <label className={s.ordenLabel}>Ordenar:</label>
-                  <select
-                    className={s.ordenSelect}
-                    value={orden}
-                    onChange={e => setOrden(e.target.value)}
-                  >
-                    <option value="menor">Menor → Mayor</option>
-                    <option value="mayor">Mayor → Menor</option>
-                  </select>
-                </div>
-              </div>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3">
+              {resultadosProcesados.map(r => (
+                <PaisCard
+                  key={r.pais_iso3}
+                  resultado={r}
+                  tipo={tipo}
+                  onClick={() => setModalData(r)}
+                />
+              ))}
+            </div>
 
-              {/* Grid de cards */}
-              <div className={s.cardsGrid}>
-                {resultadosProcesados.map(r => {
-                  const paisesList = tipo === 'exportacion' ? PAISES_EXPO : PAISES_IMPO
-                  const pais = paisesList.find(p => p.iso3 === r.pais_iso3) ?? { name: r.pais_iso3 }
-                  return (
-                    <PaisCard
-                      key={r.pais_iso3}
-                      resultado={r}
-                      pais={pais}
-                      tipo={tipo}
-                      onClick={(r.ok && r.metrica !== null) ? () => setModalData(r) : null}
-                    />
-                  )
-                })}
-              </div>
-
-              <div className={s.disclaimer}>
-                Esta información es orientativa y está respaldada por fuentes oficiales.
-                Para operaciones concretas, consultá con un despachante de aduana matriculado
-                o un profesional de comercio exterior.
-              </div>
-            </>
-          )}
-        </div>
+            <p className="font-mono text-[10px] text-on-surface-variant/20 text-center mt-6 leading-relaxed">
+              Datos de aranceles: ARCA (importación Argentina) · WITS 2024 (aranceles en destino).
+              Esta información es orientativa y está respaldada por fuentes oficiales.
+              Para operaciones concretas, consultá con un despachante de aduana matriculado
+              o un profesional de comercio exterior.
+            </p>
+          </>
+        )}
       </div>
 
-      {/* ── Modal desglose ─────────────────────────────────────────── */}
       {modalData && (
         <ModalDesglose
           resultado={modalData}
@@ -651,61 +611,6 @@ export default function ComparadorClient({ productos }) {
           onClose={() => setModalData(null)}
         />
       )}
-    </div>
-  )
-}
-
-// ── Card de país ──────────────────────────────────────────────────────────────
-
-function PaisCard({ resultado, pais, tipo, onClick }) {
-  const { ok, metrica, metricaTipo, esMejor, esPeor, data } = resultado
-
-  const tieneDatos = ok && metrica !== null
-
-  let cardClass = s.paisCard
-  if (esMejor) cardClass += ` ${s.paisCardMejor}`
-  else if (esPeor) cardClass += ` ${s.paisCardPeor}`
-  if (!tieneDatos) cardClass += ` ${s.paisCardSinDatos}`
-
-  // Línea secundaria según tipo
-  let linea2 = null
-  if (ok && data) {
-    if (tipo === 'exportacion') {
-      // Precio FOB como referencia (es fijo para todos, lo dejamos como contexto)
-      linea2 = data.precio_fob != null ? `FOB: USD ${fmtUSD(data.precio_fob)}` : null
-    } else {
-      const pref = data.preferencia_aplicada
-      linea2 = pref ? pref.acuerdo : null
-    }
-  }
-
-  return (
-    <button
-      className={cardClass}
-      onClick={tieneDatos ? onClick : undefined}
-      disabled={!tieneDatos}
-      title={ok && !tieneDatos ? 'Sin datos de arancel para este destino' : undefined}
-    >
-      {esMejor && <div className={s.mejorBadge}>{tipo === 'exportacion' ? 'MENOS ARANCEL' : 'MEJOR'}</div>}
-      {esPeor  && <div className={s.peorBadge}>{tipo === 'exportacion' ? 'MÁS ARANCEL' : 'MÁS CARO'}</div>}
-
-      <div className={s.cardFlag}><FlagImg iso3={pais.iso3} /></div>
-      <div className={s.cardPais}>{pais.name}</div>
-
-      {tieneDatos ? (
-        <>
-          {metricaTipo === 'arancel_pct' ? (
-            <div className={s.cardValor}>{metrica}%</div>
-          ) : (
-            <div className={s.cardValor}>USD {fmtUSD(metrica)}</div>
-          )}
-          {linea2 && <div className={s.cardSub}>{linea2}</div>}
-        </>
-      ) : ok ? (
-        <div className={s.cardSinDatos}>Sin datos de arancel</div>
-      ) : (
-        <div className={s.cardSinDatos}>Error</div>
-      )}
-    </button>
+    </PageLayout>
   )
 }

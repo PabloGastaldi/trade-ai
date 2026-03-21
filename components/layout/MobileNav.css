@@ -1,5 +1,47 @@
 /* components/layout/MobileNav.css */
 
+/* ── Mobile header ─────────────────────────────── */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: #0d1117;
+  border-bottom: 1px solid var(--border);
+  z-index: 199;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+.mobile-header-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.mobile-header-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.mobile-header-menu:hover {
+  color: var(--text);
+  border-color: var(--border-light);
+}
+
 /* ── Bottom bar ───────────────────────────────── */
 .mobile-nav {
   display: none; /* visible solo en mobile */
@@ -51,7 +93,7 @@
   transform: translateX(-50%);
   width: 20px;
   height: 2px;
-  background: var(--accent);
+  background: #81e9ff;
   border-radius: 1px;
 }
 
@@ -113,8 +155,8 @@
 }
 
 .sidebar-logo-trade { color: var(--text); }
-.sidebar-logo-dot   { color: var(--accent); }
-.sidebar-logo-ai    { color: var(--accent); }
+.sidebar-logo-dot   { color: #81e9ff; }
+.sidebar-logo-ai    { color: #81e9ff; }
 
 .mobile-drawer-user {
   display: flex;
@@ -147,12 +189,12 @@
   border: 1px solid var(--border-light);
 }
 .mobile-drawer-plan--pro {
-  color: #0a0e1b;
-  background: var(--accent);
+  color: #81e9ff;
+  background: rgba(129, 233, 255, 0.1);
 }
 .mobile-drawer-plan--empresa {
-  color: #0a0e1b;
-  background: var(--accent-hover);
+  color: #81e9ff;
+  background: rgba(129, 233, 255, 0.15);
 }
 
 .mobile-drawer-items {
@@ -184,7 +226,7 @@
 }
 
 .mobile-drawer-item--active {
-  color: var(--accent);
+  color: #81e9ff;
 }
 
 .mobile-drawer-item--soon {
@@ -246,5 +288,8 @@
 @media (max-width: 767px) {
   .mobile-nav {
     display: grid;
+  }
+  .mobile-header {
+    display: flex;
   }
 }

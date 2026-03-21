@@ -2,8 +2,35 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import '../auth.css'
+
+function LeftBrandingCard() {
+  return (
+    <div className="hidden md:flex w-[500px] h-[600px] rounded-3xl bg-surface-low flex-col justify-between p-10 relative overflow-hidden shrink-0">
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,224,255,0.12) 0%, rgba(0,224,255,0.03) 40%, transparent 70%)',
+        }} />
+      </div>
+      <div className="relative z-10">
+        <Link href="/" className="font-display text-sm tracking-[0.15em] text-on-surface no-underline">
+          TRADE<span className="text-primary">.</span><span className="text-primary">AI</span>
+        </Link>
+      </div>
+      <div className="relative z-10">
+        <h2 className="font-display text-6xl tracking-wider leading-tight text-on-surface">
+          ESTABLECÉ TU NUEVA CONTRASEÑA.
+        </h2>
+      </div>
+      <div className="relative z-10">
+        <p className="font-mono text-xs text-on-surface-variant/40">
+          © {new Date().getFullYear()} trade.ai
+        </p>
+      </div>
+    </div>
+  )
+}
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -40,20 +67,29 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-logo">
-        trade<span className="dot">.</span><span className="ai">ai</span>
-      </div>
+    <div className="flex min-h-screen items-center justify-center gap-12 px-8 bg-surface">
+      <LeftBrandingCard />
 
-      <div className="auth-card">
-        <h1 className="auth-title">Nueva contraseña</h1>
-        <p className="auth-subtitle">Elegí una contraseña nueva para tu cuenta</p>
+      <div className="w-[400px] shrink-0">
+        <div className="md:hidden mb-8">
+          <Link href="/" className="font-display text-2xl tracking-[0.15em] text-on-surface no-underline">TRADE<span className="text-primary">.</span><span className="text-primary">AI</span></Link>
+        </div>
+        <h1 className="font-display text-4xl tracking-wider text-on-surface mb-2">
+          NUEVA CONTRASEÑA
+        </h1>
+        <p className="font-body text-base text-on-surface-variant mb-8">
+          Elegí una contraseña nueva para tu cuenta
+        </p>
 
-        <form onSubmit={handleSubmit}>
-          {error && <div className="error-msg">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {error && (
+            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+              {error}
+            </div>
+          )}
 
-          <div className="field">
-            <label>Nueva contraseña</label>
+          <div>
+            <label className="block font-body text-sm text-on-surface-variant mb-1.5">Nueva contraseña</label>
             <input
               type="password"
               placeholder="••••••••"
@@ -61,12 +97,13 @@ export default function ResetPasswordPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="new-password"
+              className="w-full py-3 px-4 rounded-xl bg-surface-highest border-0 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
             />
-            <div className="field-hint">Mínimo 6 caracteres</div>
+            <p className="font-mono text-[11px] text-on-surface-variant/50 mt-1.5">Mínimo 6 caracteres</p>
           </div>
 
-          <div className="field">
-            <label>Confirmá la contraseña</label>
+          <div>
+            <label className="block font-body text-sm text-on-surface-variant mb-1.5">Confirmá la contraseña</label>
             <input
               type="password"
               placeholder="••••••••"
@@ -74,10 +111,15 @@ export default function ResetPasswordPage() {
               onChange={(e) => setConfirmar(e.target.value)}
               required
               autoComplete="new-password"
+              className="w-full py-3 px-4 rounded-xl bg-surface-highest border-0 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
             />
           </div>
 
-          <button className="btn-primary" type="submit" disabled={loading}>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 rounded-xl bg-[#e8e8e8] text-[#0c0e12] font-body font-semibold text-sm hover:bg-[#f0f0f0] hover:shadow-[0_0_20px_rgba(255,255,255,0.08)] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+          >
             {loading ? 'Guardando...' : 'Guardar nueva contraseña'}
           </button>
         </form>

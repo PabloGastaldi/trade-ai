@@ -9,34 +9,17 @@
 }
 
 :root {
-  /* Fondos — azul marino oscuro */
-  --bg:        #0a0e1b;
-  --surface:   #111827;
-  --surface-2: #1a2236;
-
-  /* Bordes */
-  --border:       #1e2d45;
-  --border-light: #2a3f5f;
-
-  /* Acento — dorado/ámbar marca */
-  --accent:       #e99f1c;
-  --accent-hover: #f0b030;
-  --accent-dim:   rgba(233, 159, 28, 0.12);
-  --accent-dim-border: rgba(233, 159, 28, 0.28);
-
-  /* Texto */
-  --text:       #e7edf5;
-  --text-dim:   #b8c5d6;
-  --text-muted: #6b7f96;
-
-  /* Semánticos */
-  --success: oklch(70% 0.17 145);
-  --error:   oklch(62% 0.22 25);
-  --warn:    oklch(76% 0.16 60);
-
-  /* Tipografías */
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body:    'Outfit', sans-serif;
+  --surface:           #0c0e12;
+  --surface-low:        #111318;
+  --surface-container: #171a1f;
+  --surface-high:      #1d2025;
+  --surface-highest:   #23262c;
+  --primary:            #81e9ff;
+  --primary-intense:    #00e0ff;
+  --on-surface:         #f6f6fc;
+  --on-surface-variant: #aaabb0;
+  --on-primary:         #00363f;
+  --accent:             #81e9ff;
 }
 
 html {
@@ -44,9 +27,9 @@ html {
 }
 
 body {
-  font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text);
+  font-family: var(--font-body), 'Inter', sans-serif;
+  background: var(--surface);
+  color: var(--on-surface);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 400;
@@ -54,21 +37,18 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
+  font-family: var(--font-display), 'Bebas Neue', sans-serif;
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.02em;
 }
 
-/* Números tabulares en datos */
 .tabular { font-variant-numeric: tabular-nums; }
 
-/* Scrollbar global */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: #23262c; border-radius: 2px; }
 
-/* Animaciones reutilizables */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }

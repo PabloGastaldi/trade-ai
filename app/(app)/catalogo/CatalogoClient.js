@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import styles from './catalogo.module.css'
+import Card from '@/components/ui/Card'
+import Badge from '@/components/ui/Badge'
+import PageLayout from '@/components/ui/PageLayout'
 
 const INCOTERMS = ['EXW', 'FCA', 'FAS', 'FOB', 'CFR', 'CIF', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP']
 
@@ -20,29 +22,17 @@ const FORM_VACIO = {
   description: '',
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function badgeTipo(tipo) {
-  return tipo === 'exportacion' ? styles.badgeExpo : styles.badgeImpo
-}
-
-function labelTipo(tipo) {
-  return tipo === 'exportacion' ? 'Exportación' : 'Importación'
-}
-
-// ── Componente principal ──────────────────────────────────────────────────────
-
 export default function CatalogoClient({ productosIniciales, paises }) {
   const [productos, setProductos] = useState(productosIniciales)
   const [busqueda, setBusqueda] = useState('')
-  const [filtroTipo, setFiltroTipo] = useState('todos') // 'todos' | 'exportacion' | 'importacion'
+  const [filtroTipo, setFiltroTipo] = useState('todos')
   const [modalAbierto, setModalAbierto] = useState(false)
-  const [productoEditando, setProductoEditando] = useState(null) // null = nuevo
+  const [modalEliminar, setModalEliminar] = useState(null)
+  const [productoEditando, setProductoEditando] = useState(null)
   const [guardando, setGuardando] = useState(false)
   const [erroresForm, setErroresForm] = useState({})
   const [form, setForm] = useState(FORM_VACIO)
 
-  // Filtrado local
   const productosFiltrados = productos.filter(p => {
     const matchBusqueda = !busqueda.trim()
       || p.name.toLowerCase().includes(busqueda.toLowerCase())
@@ -84,7 +74,6 @@ export default function CatalogoClient({ productosIniciales, paises }) {
   }
 
   async function handleEliminar(id) {
-    if (!confirm('¿Eliminar este producto del catálogo?')) return
     const supabase = createClient()
     const { error } = await supabase
       .from('user_products')
@@ -93,14 +82,13 @@ export default function CatalogoClient({ productosIniciales, paises }) {
     if (!error) {
       setProductos(prev => prev.filter(p => p.id !== id))
     }
+    setModalEliminar(null)
   }
 
   async function handleGuardar(datosValidos) {
     setGuardando(true)
-
     try {
       if (productoEditando) {
-        // Edición: directo desde cliente — RLS garantiza que solo edita el propio registro
         const supabase = createClient()
         const { data, error } = await supabase
           .from('user_products')
@@ -111,7 +99,6 @@ export default function CatalogoClient({ productosIniciales, paises }) {
         if (error) throw error
         setProductos(prev => prev.map(p => p.id === productoEditando.id ? data : p))
       } else {
-        // Inserción: pasa por el API route para validar límite del plan
         const res = await fetch('/api/catalogo', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -129,105 +116,156 @@ export default function CatalogoClient({ productosIniciales, paises }) {
     }
   }
 
+  const filtros = [
+    { key: 'todos', label: 'Todos' },
+    { key: 'exportacion', label: 'Exportación' },
+    { key: 'importacion', label: 'Importación' },
+  ]
+
   return (
-    <div className={styles.page}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div>
-          <h1 className={styles.titulo}>Catálogo de productos</h1>
-          <p className={styles.subtitulo}>
-            {productos.length > 0
-              ? `${productos.length} producto${productos.length !== 1 ? 's' : ''} guardados`
-              : 'Aún no tenés productos cargados'}
-          </p>
+    <PageLayout title="CATÁLOGO" subtitle="Tus productos para exportación e importación">
+      {/* Barra de acciones */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
+        {/* Buscador */}
+        <div className="relative flex-1 max-w-80">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar por nombre o NCM..."
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+            className="w-full bg-surface-highest rounded-xl pl-10 pr-4 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
+          />
+          {busqueda && (
+            <button onClick={() => setBusqueda('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-on-surface-variant/40 hover:text-on-surface-variant">
+              ✕
+            </button>
+          )}
         </div>
-        <button className={styles.btnPrimario} onClick={abrirNuevo}>
+
+        {/* Filtros tipo */}
+        <div className="flex items-center gap-1 bg-surface-low rounded-full p-1">
+          {filtros.map(f => (
+            <button
+              key={f.key}
+              onClick={() => setFiltroTipo(f.key)}
+              className={`px-4 py-1.5 rounded-full text-sm font-body transition-all duration-150 ${
+                filtroTipo === f.key
+                  ? 'bg-primary/10 text-primary border border-primary/20'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Botón agregar */}
+        <button
+          onClick={abrirNuevo}
+          className="flex-shrink-0 bg-primary-intense text-on-primary px-5 py-2.5 rounded-xl font-body font-semibold text-sm hover:bg-primary transition-all duration-150 whitespace-nowrap"
+        >
           + Agregar producto
         </button>
       </div>
 
-      {/* Controles de filtro */}
-      {productos.length > 0 && (
-        <div className={styles.controles}>
-          <div className={styles.searchWrap}>
-            <svg className={styles.searchIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input
-              className={styles.searchInput}
-              type="text"
-              placeholder="Buscar por nombre o NCM..."
-              value={busqueda}
-              onChange={e => setBusqueda(e.target.value)}
-            />
-            {busqueda && (
-              <button className={styles.searchClear} onClick={() => setBusqueda('')} aria-label="Limpiar">✕</button>
-            )}
-          </div>
-
-          <div className={styles.filtroTabs}>
-            {['todos', 'exportacion', 'importacion'].map(t => (
-              <button
-                key={t}
-                className={`${styles.filtroTab} ${filtroTipo === t ? styles.filtroTabActivo : ''}`}
-                onClick={() => setFiltroTipo(t)}
-              >
-                {t === 'todos' ? 'Todos' : t === 'exportacion' ? 'Exportación' : 'Importación'}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Lista de productos */}
-      {productosFiltrados.length === 0 ? (
-        <EstadoVacio busqueda={busqueda} hayProductos={productos.length > 0} onAgregar={abrirNuevo} />
-      ) : (
-        <div className={styles.tabla}>
-          <div className={styles.tablaHeader}>
-            <span>Producto</span>
-            <span>NCM</span>
-            <span>Precio</span>
-            <span>Incoterm</span>
-            <span>Tipo</span>
-            <span></span>
-          </div>
+      {/* Grid de productos */}
+      {productosFiltrados.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {productosFiltrados.map(p => (
-            <div key={p.id} className={styles.tablaFila}>
-              <div className={styles.colNombre}>
-                <span className={styles.nombreProducto}>{p.name}</span>
-                {p.description && (
-                  <span className={styles.descProducto}>{p.description}</span>
+            <Card key={p.id} className="group hover:border-white/[0.08] transition-all duration-200">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <Badge variant={p.operation_type === 'exportacion' ? 'primary' : 'accent'}>
+                  {p.operation_type === 'exportacion' ? 'EXPORTACIÓN' : 'IMPORTACIÓN'}
+                </Badge>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => abrirEditar(p)}
+                    className="p-1.5 rounded-lg hover:bg-white/[0.06] text-on-surface-variant/50 hover:text-on-surface transition-all"
+                    title="Editar"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setModalEliminar(p)}
+                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-on-surface-variant/50 hover:text-red-400 transition-all"
+                    title="Eliminar"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Producto info */}
+              <div className="mt-3">
+                <h3 className="font-body text-base font-semibold text-on-surface leading-tight">{p.name}</h3>
+                <p className="font-mono text-sm text-primary mt-1">{p.ncm_code}</p>
+                {p.product_description_ncm && (
+                  <p className="font-body text-xs text-on-surface-variant mt-0.5 line-clamp-1">
+                    {p.product_description_ncm}
+                  </p>
                 )}
               </div>
-              <span className={styles.colNcm}>{p.ncm_code}</span>
-              <span className={styles.colPrecio}>
-                {p.currency} {Number(p.unit_price).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
-              </span>
-              <span className={styles.colIncoterm}>{p.incoterm}</span>
-              <span className={`${styles.badge} ${badgeTipo(p.operation_type)}`}>
-                {labelTipo(p.operation_type)}
-              </span>
-              <div className={styles.colAcciones}>
-                <button className={styles.btnEditar} onClick={() => abrirEditar(p)} title="Editar">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                </button>
-                <button className={styles.btnEliminar} onClick={() => handleEliminar(p.id)} title="Eliminar">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                    <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-                  </svg>
-                </button>
+
+              {/* Datos clave */}
+              <div className="mt-4 pt-4 border-t border-white/[0.04] grid grid-cols-2 gap-4">
+                <div>
+                  <p className="font-body text-[11px] text-on-surface-variant/50 uppercase mb-1">Precio</p>
+                  <p className="font-mono text-sm text-on-surface">
+                    {p.currency} {Number(p.unit_price).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-body text-[11px] text-on-surface-variant/50 uppercase mb-1">Incoterm</p>
+                  <p className="font-mono text-sm text-primary font-semibold">{p.incoterm}</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="font-body text-[11px] text-on-surface-variant/50 uppercase mb-1">
+                    {p.operation_type === 'exportacion' ? 'Destino' : 'Origen'}
+                  </p>
+                  <p className="font-body text-xs text-on-surface-variant">
+                    {p.operation_type === 'exportacion'
+                      ? (p.default_destination || '—')
+                      : (p.default_origin || '—')}
+                  </p>
+                </div>
               </div>
-            </div>
+            </Card>
           ))}
+        </div>
+      ) : (
+        /* Estado vacío */
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <svg className="w-16 h-16 text-on-surface-variant/20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+          </svg>
+          <p className="font-body text-lg text-on-surface-variant mb-2">
+            {busqueda ? 'Sin resultados' : 'No tenés productos cargados'}
+          </p>
+          <p className="font-body text-sm text-on-surface-variant/60 max-w-xs">
+            {busqueda
+              ? `No encontramos productos con "${busqueda}"`
+              : 'Agregá tu primer producto para usar la calculadora y el comparador'}
+          </p>
+          {!busqueda && (
+            <button
+              onClick={abrirNuevo}
+              className="mt-6 bg-primary-intense text-on-primary px-5 py-2.5 rounded-xl font-body font-semibold text-sm hover:bg-primary transition-all duration-150"
+            >
+              + Agregar producto
+            </button>
+          )}
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal agregar/editar */}
       {modalAbierto && (
         <ModalProducto
           form={form}
@@ -241,11 +279,37 @@ export default function CatalogoClient({ productosIniciales, paises }) {
           onCerrar={cerrarModal}
         />
       )}
-    </div>
+
+      {/* Modal confirmar eliminación */}
+      {modalEliminar && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-surface-low rounded-2xl p-8 w-full max-w-sm border border-white/[0.06] shadow-2xl">
+            <h3 className="font-display text-xl tracking-wider text-on-surface mb-2">
+              ¿ELIMINAR PRODUCTO?
+            </h3>
+            <p className="font-body text-sm text-on-surface-variant mb-6">
+              "<span className="text-on-surface">{modalEliminar.name}</span>" será eliminado del catálogo. Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setModalEliminar(null)}
+                className="px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] font-body text-sm text-on-surface-variant hover:bg-white/[0.06] transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handleEliminar(modalEliminar.id)}
+                className="px-5 py-2.5 rounded-xl bg-red-500/20 text-red-400 font-body text-sm font-semibold hover:bg-red-500/30 transition-all"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </PageLayout>
   )
 }
-
-// ── Modal con formulario ──────────────────────────────────────────────────────
 
 function ModalProducto({ form, setForm, errores, setErrores, paises, editando, guardando, onGuardar, onCerrar }) {
   const [ncmSugerencias, setNcmSugerencias] = useState([])
@@ -254,7 +318,6 @@ function ModalProducto({ form, setForm, errores, setErrores, paises, editando, g
   const ncmDebounceRef = useRef(null)
   const ncmRef = useRef(null)
 
-  // Cerrar dropdown NCM al hacer click fuera
   useEffect(() => {
     function handleClick(e) {
       if (ncmRef.current && !ncmRef.current.contains(e.target)) {
@@ -270,7 +333,6 @@ function ModalProducto({ form, setForm, errores, setErrores, paises, editando, g
     if (errores[campo]) setErrores(prev => ({ ...prev, [campo]: null }))
   }
 
-  // Búsqueda NCM con debounce
   function handleNcmInput(valor) {
     set('ncm_code', valor)
     set('ncm_descripcion_oficial', '')
@@ -319,7 +381,6 @@ function ModalProducto({ form, setForm, errores, setErrores, paises, editando, g
     if (!form.ncm_descripcion_oficial) errs.ncm_code = 'Seleccioná un NCM de la lista'
     if (!form.unit_price || Number(form.unit_price) <= 0) errs.unit_price = 'El precio debe ser mayor a 0'
     if (!form.incoterm) errs.incoterm = 'El incoterm es obligatorio'
-    if (!form.operation_type) errs.operation_type = 'El tipo es obligatorio'
     return errs
   }
 
@@ -347,109 +408,125 @@ function ModalProducto({ form, setForm, errores, setErrores, paises, editando, g
     onGuardar(datos)
   }
 
+  const paisesSorted = [...paises].sort((a, b) => a.name_es.localeCompare(b.name_es))
+
   return (
-    <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onCerrar()}>
-      <div className={styles.modal} role="dialog" aria-modal="true">
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitulo}>
-            {editando ? 'Editar producto' : 'Agregar producto'}
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-surface-low rounded-2xl w-full max-w-lg border border-white/[0.06] shadow-2xl max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 pb-0">
+          <h2 className="font-display text-xl tracking-wider text-on-surface">
+            {editando ? 'EDITAR PRODUCTO' : 'AGREGAR PRODUCTO'}
           </h2>
-          <button className={styles.modalCerrar} onClick={onCerrar} aria-label="Cerrar">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-on-surface-variant hover:text-on-surface transition-all">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <form className={styles.modalForm} onSubmit={handleSubmit} noValidate>
+        {/* Form */}
+        <form onSubmit={handleSubmit} noValidate className="p-6 flex flex-col gap-5">
+          {errores._general && (
+            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+              {errores._general}
+            </div>
+          )}
+
+          {/* Tipo */}
+          <div>
+            <label className="block font-body text-sm font-medium text-on-surface-variant mb-2">Tipo de operación <span className="text-primary">*</span></label>
+            <div className="flex gap-2">
+              {['exportacion', 'importacion'].map(t => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => set('operation_type', t)}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-body transition-all border ${
+                    form.operation_type === t
+                      ? 'bg-primary/10 text-primary border-primary/20'
+                      : 'bg-white/[0.03] text-on-surface-variant border-white/[0.06] hover:border-white/[0.1]'
+                  }`}
+                >
+                  {t === 'exportacion' ? 'Exportación' : 'Importación'}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Nombre */}
-          <div className={styles.campo}>
-            <label className={styles.label}>Nombre del producto <span className={styles.req}>*</span></label>
+          <div>
+            <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">Nombre del producto <span className="text-primary">*</span></label>
             <input
-              className={`${styles.input} ${errores.name ? styles.inputError : ''}`}
               type="text"
               placeholder="Ej: Galletas de chocolate"
               value={form.name}
               onChange={e => set('name', e.target.value)}
+              className={`w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30 ${errores.name ? 'ring-1 ring-red-500/50' : ''}`}
             />
-            {errores.name && <span className={styles.errorMsg}>{errores.name}</span>}
+            {errores.name && <p className="font-body text-xs text-red-400 mt-1">{errores.name}</p>}
           </div>
 
-          {/* Tipo de operación */}
-          <div className={styles.campo}>
-            <label className={styles.label}>Tipo de operación <span className={styles.req}>*</span></label>
-            <div className={styles.radioGroup}>
-              {['exportacion', 'importacion'].map(t => (
-                <label key={t} className={`${styles.radioLabel} ${form.operation_type === t ? styles.radioLabelActivo : ''}`}>
-                  <input
-                    type="radio"
-                    name="operation_type"
-                    value={t}
-                    checked={form.operation_type === t}
-                    onChange={() => set('operation_type', t)}
-                    className={styles.radioInput}
-                  />
-                  {t === 'exportacion' ? 'Exportación' : 'Importación'}
-                </label>
-              ))}
-            </div>
-            {errores.operation_type && <span className={styles.errorMsg}>{errores.operation_type}</span>}
-          </div>
-
-          {/* NCM con búsqueda */}
-          <div className={styles.campo}>
-            <label className={styles.label}>Posición NCM <span className={styles.req}>*</span></label>
-            <div className={styles.ncmWrap} ref={ncmRef}>
+          {/* NCM */}
+          <div ref={ncmRef}>
+            <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">Posición NCM <span className="text-primary">*</span></label>
+            <div className="relative">
               <input
-                className={`${styles.input} ${errores.ncm_code ? styles.inputError : ''}`}
                 type="text"
                 placeholder="Escribí código (ej: 1905) o descripción..."
                 value={form.ncm_code}
                 onChange={e => handleNcmInput(e.target.value)}
                 onFocus={() => ncmSugerencias.length > 0 && setNcmDropdownVisible(true)}
                 autoComplete="off"
+                className={`w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30 ${errores.ncm_code ? 'ring-1 ring-red-500/50' : ''}`}
               />
-              {buscandoNcm && <span className={styles.ncmCargando}>buscando…</span>}
+              {buscandoNcm && (
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-body text-xs text-on-surface-variant/50">buscando…</span>
+              )}
               {ncmDropdownVisible && (
-                <div className={styles.ncmDropdown}>
+                <div className="absolute top-full mt-1 w-full bg-surface-high rounded-xl border border-white/[0.06] shadow-xl z-10 max-h-48 overflow-y-auto">
                   {ncmSugerencias.map(s => (
                     <button
                       key={s.ncm_code}
                       type="button"
-                      className={styles.ncmOpcion}
                       onClick={() => seleccionarNcm(s)}
+                      className="w-full text-left px-4 py-2.5 hover:bg-white/[0.04] border-b border-white/[0.04] last:border-b-0 transition-colors"
                     >
-                      <span className={styles.ncmCodigo}>{s.ncm_code}</span>
-                      <span className={styles.ncmDesc}>{s.description}</span>
+                      <span className="font-mono text-primary text-sm">{s.ncm_code}</span>
+                      <span className="block font-body text-xs text-on-surface-variant mt-0.5 truncate">{s.description}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
             {form.ncm_descripcion_oficial && !ncmDropdownVisible && (
-              <p className={styles.ncmSeleccionado}>{form.ncm_descripcion_oficial}</p>
+              <p className="font-body text-xs text-on-surface-variant/60 mt-1.5 italic">{form.ncm_descripcion_oficial}</p>
             )}
-            {errores.ncm_code && <span className={styles.errorMsg}>{errores.ncm_code}</span>}
+            {errores.ncm_code && <p className="font-body text-xs text-red-400 mt-1">{errores.ncm_code}</p>}
           </div>
 
           {/* Precio + moneda */}
-          <div className={styles.campoFila}>
-            <div className={styles.campo} style={{ flex: 2 }}>
-              <label className={styles.label}>Precio unitario <span className={styles.req}>*</span></label>
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">Precio unitario <span className="text-primary">*</span></label>
               <input
-                className={`${styles.input} ${errores.unit_price ? styles.inputError : ''}`}
                 type="number"
                 min="0"
                 step="0.01"
                 placeholder="0.00"
                 value={form.unit_price}
                 onChange={e => set('unit_price', e.target.value)}
+                className={`w-full bg-surface-highest rounded-xl px-4 py-3 text-sm font-mono text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30 ${errores.unit_price ? 'ring-1 ring-red-500/50' : ''}`}
               />
-              {errores.unit_price && <span className={styles.errorMsg}>{errores.unit_price}</span>}
+              {errores.unit_price && <p className="font-body text-xs text-red-400 mt-1">{errores.unit_price}</p>}
             </div>
-            <div className={styles.campo} style={{ flex: 1 }}>
-              <label className={styles.label}>Moneda</label>
-              <select className={styles.select} value={form.currency} onChange={e => set('currency', e.target.value)}>
+            <div className="w-24">
+              <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">Moneda</label>
+              <select
+                value={form.currency}
+                onChange={e => set('currency', e.target.value)}
+                className="w-full bg-surface-highest rounded-xl px-4 py-3 text-sm font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 cursor-pointer"
+              >
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
                 <option value="ARS">ARS</option>
@@ -458,102 +535,86 @@ function ModalProducto({ form, setForm, errores, setErrores, paises, editando, g
           </div>
 
           {/* Incoterm */}
-          <div className={styles.campo}>
-            <label className={styles.label}>Incoterm <span className={styles.req}>*</span></label>
+          <div>
+            <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">Incoterm <span className="text-primary">*</span></label>
             <select
-              className={`${styles.select} ${errores.incoterm ? styles.inputError : ''}`}
               value={form.incoterm}
               onChange={e => set('incoterm', e.target.value)}
+              className={`w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 cursor-pointer ${errores.incoterm ? 'ring-1 ring-red-500/50' : ''}`}
             >
               <option value="">Seleccioná incoterm…</option>
               {INCOTERMS.map(i => <option key={i} value={i}>{i}</option>)}
             </select>
-            {errores.incoterm && <span className={styles.errorMsg}>{errores.incoterm}</span>}
+            {errores.incoterm && <p className="font-body text-xs text-red-400 mt-1">{errores.incoterm}</p>}
+          </div>
+
+          {/* País */}
+          <div>
+            <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">
+              {form.operation_type === 'importacion' ? 'País de origen' : 'País de destino'} <span className="text-on-surface-variant/50 font-normal">opcional</span>
+            </label>
+            <select
+              value={form.operation_type === 'importacion' ? form.default_origin : form.default_destination}
+              onChange={e => set(form.operation_type === 'importacion' ? 'default_origin' : 'default_destination', e.target.value)}
+              className="w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 cursor-pointer"
+            >
+              <option value="">Seleccioná país…</option>
+              {paisesSorted.map(p => (
+                <option key={p.iso3} value={p.iso3}>{p.name_es}</option>
+              ))}
+            </select>
           </div>
 
           {/* Peso */}
-          <div className={styles.campo}>
-            <label className={styles.label}>Peso por unidad (kg) <span className={styles.opcional}>opcional</span></label>
+          <div>
+            <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">
+              Peso por unidad (kg) <span className="text-on-surface-variant/50 font-normal">opcional</span>
+            </label>
             <input
-              className={styles.input}
               type="number"
               min="0"
               step="0.001"
               placeholder="Ej: 0.5"
               value={form.weight_kg}
               onChange={e => set('weight_kg', e.target.value)}
+              className="w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
             />
           </div>
 
-          {/* País según tipo */}
-          {form.operation_type === 'importacion' ? (
-            <div className={styles.campo}>
-              <label className={styles.label}>País de origen <span className={styles.opcional}>opcional</span></label>
-              <select className={styles.select} value={form.default_origin} onChange={e => set('default_origin', e.target.value)}>
-                <option value="">Seleccioná país…</option>
-                {paises.map(p => <option key={p.iso3} value={p.iso3}>{p.name_es}</option>)}
-              </select>
-            </div>
-          ) : (
-            <div className={styles.campo}>
-              <label className={styles.label}>País de destino <span className={styles.opcional}>opcional</span></label>
-              <select className={styles.select} value={form.default_destination} onChange={e => set('default_destination', e.target.value)}>
-                <option value="">Seleccioná país…</option>
-                {paises.map(p => <option key={p.iso3} value={p.iso3}>{p.name_es}</option>)}
-              </select>
-            </div>
-          )}
-
-          {/* Descripción libre */}
-          <div className={styles.campo}>
-            <label className={styles.label}>Notas adicionales <span className={styles.opcional}>opcional</span></label>
+          {/* Notas */}
+          <div>
+            <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">
+              Notas adicionales <span className="text-on-surface-variant/50 font-normal">opcional</span>
+            </label>
             <textarea
-              className={styles.textarea}
               placeholder="Descripción libre, variedad, especificaciones..."
-              rows={3}
+              rows={2}
               value={form.description}
               onChange={e => set('description', e.target.value)}
+              className="w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none"
             />
           </div>
 
-          {errores._general && (
-            <p className={styles.errorGeneral}>{errores._general}</p>
-          )}
-
           {/* Acciones */}
-          <div className={styles.modalAcciones}>
-            <button type="button" className={styles.btnSecundario} onClick={onCerrar} disabled={guardando}>
+          <div className="flex justify-end gap-3 pt-2 border-t border-white/[0.04]">
+            <button
+              type="button"
+              onClick={onCerrar}
+              disabled={guardando}
+              className="px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] font-body text-sm text-on-surface-variant hover:bg-white/[0.06] transition-all disabled:opacity-40"
+            >
               Cancelar
             </button>
-            <button type="submit" className={styles.btnPrimario} disabled={guardando}>
+            <button
+              type="submit"
+              disabled={guardando}
+              className="px-5 py-2.5 rounded-xl bg-primary-intense text-on-primary font-body font-semibold text-sm hover:bg-primary transition-all disabled:opacity-40"
+            >
               {guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Agregar producto'}
             </button>
           </div>
         </form>
       </div>
-    </div>
-  )
-}
-
-// ── Estado vacío ──────────────────────────────────────────────────────────────
-
-function EstadoVacio({ busqueda, hayProductos, onAgregar }) {
-  return (
-    <div className={styles.vacio}>
-      <div className={styles.vacioIcono}>{busqueda ? '🔍' : '📦'}</div>
-      <div className={styles.vacioTitulo}>
-        {busqueda ? 'Sin resultados' : 'Tu catálogo está vacío'}
-      </div>
-      <div className={styles.vacioDesc}>
-        {busqueda
-          ? `No encontramos productos con "${busqueda}"`
-          : 'Agregá tus productos para calcular costos y comparar destinos rápidamente'}
-      </div>
-      {!busqueda && !hayProductos && (
-        <button className={styles.btnPrimario} onClick={onAgregar} style={{ marginTop: '1.5rem' }}>
-          + Agregar primer producto
-        </button>
-      )}
     </div>
   )
 }

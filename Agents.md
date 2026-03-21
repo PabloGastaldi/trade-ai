@@ -28,6 +28,22 @@ agentes de comercio exterior, consultores de comex.
 - Markdown: react-markdown + remark-gfm (renderizado de respuestas del chat)
 - Pagos: MercadoPago Checkout Pro (SDK `mercadopago`, webhook con HMAC)
 - Idioma de la app: Español (Argentina)
+- CSS: Tailwind CSS (migrado desde styled-jsx) + design tokens en CSS variables
+
+## Design tokens (Tailwind + CSS variables)
+```
+Fondo:       bg-surface (#0c0e12)
+Cards:        bg-white/[0.03] border border-white/[0.04] rounded-2xl
+Primario:     text-primary (#81e9ff), bg-primary-intense (#00e0ff)
+Texto:        text-on-surface (#f6f6fc), text-on-surface-variant (#aaabb0)
+Surface low:  bg-surface-low (#111318)
+Surface high: bg-surface-high (#1d2025)
+Surface highest: bg-surface-highest (#23262c)
+Acento:       text-accent (#F59E0B)
+Fuentes:      font-display (Bebas Neue), font-body (Inter), font-mono (Space Grotesk)
+Success:      text-emerald-400, bg-emerald-500/10
+Error:        text-red-400, bg-red-500/10
+```
 
 ## Datasets disponibles
 
@@ -92,6 +108,20 @@ Tablas existentes:
 
 ## Estado actual del desarrollo
 
+### Diseño y CSS
+- ✅ Tailwind CSS configurado (tailwind.config.js, postcss.config.mjs)
+- ✅ globals.css con Tailwind directives + CSS variables para compatibilidad
+- ✅ Layout principal con Bebas Neue + Inter + Space Grotesk
+- ✅ Diseño Token System implementado en todas las pages nuevas
+
+### Páginas migradas a Tailwind / redesignadas
+- ✅ Landing page (app/page.js) — 7 secciones, bento grid, stats, pricing
+- ✅ Chat/consulta (app/(app)/consulta/page.js) — streaming, ReactMarkdown
+- ✅ Catálogo (app/(app)/catalogo/CatalogoClient.js) — CRUD, modal, NCM autocomplete
+- ✅ Calculadora (app/(app)/calculadora/CalculadoraClient.js) — tabs impo/expo, 4 regímenes
+- ✅ Nomenclador (app/(app)/nomenclador/page.js) — búsqueda + panel deslizable con detalle NCM
+- ✅ Auth pages split-screen (login, registro, recuperar-password, reset-password)
+
 ### Módulo IA consultiva
 - ✅ Endpoint /api/consulta con Claude Haiku 4.5 + historial
 - ✅ RAG con Pinecone (104 archivos ingestados, búsqueda semántica)
@@ -107,28 +137,47 @@ Tablas existentes:
 - ✅ API route /api/catalogo con límites por plan (free: 2, pro: 30, empresa: ilimitado)
 
 ### Módulo ERP — Calculadora de costos
-- ✅ lib/calculadora/calc-importacion.js — régimen general + courier/PEF/UPU
-- ✅ lib/calculadora/calc-exportacion.js — conversión incoterms + derechos de expo
+- ✅ lib/calculadora/calc-importacion.js — firma: `calcularImportacion(supabase, params)`
+  - Busca NCM y arancel en Supabase, detecta Mercosur, busca preferencias
+  - Régulina general + courier (USD 3.000) + PEF + Correo UPU
+- ✅ lib/calculadora/calc-exportacion.js — firma: `calcularExportacion(params)`
+  - Normaliza precio a EXW, calcula FOB, derechos de exportación, tabla incoterms
+  - Busca aranceles destino en destination_tariffs
 - ✅ Tabla `destination_tariffs` (122K filas, aranceles por destino WITS/ITC)
-- ✅ Script scripts/load-tariffs.js para cargar destination_tariffs
 - ✅ API routes /api/calculadora/importacion y /api/calculadora/exportacion
-- ✅ Página /calculadora — UI con tabs impo/expo, 4 cards de regímenes, desglose
+- ✅ Página /calculadora — UI Tailwind con tabs impo/expo, 4 cards de regímenes, desglose
 - ✅ Límites por plan (free: 5 cálculos/mes, pro/empresa: ilimitado) via lib/calc-limit.js
 - ✅ Columna calcs_this_month en users_profile
+
+### Módulo ERP — Nomenclador NCM
+- ✅ app/(app)/nomenclador/page.js — página completa con Tailwind
+- Búsqueda con debounce 300ms (código por LIKE, texto por ILIKE)
+- Tabla con 6 columnas: NCM, Descripción, AEC, D.Expo, IVA, Organismos
+- Panel deslizable desde la derecha con: aranceles, organismos, preferencias, NTM, aranceles destino
+- Chips de ejemplo clickeables, "Cargar más" para +50 resultados
 
 ### Infraestructura y seguridad
 - ✅ Auth (Supabase Auth), Pagos (MercadoPago Checkout Pro)
 - ✅ Rate limiting dos capas, headers de seguridad, auditoría 2026-03-17
 - ✅ Suite de pruebas (Vitest, 52 tests unit + integration)
 
+### UI Components (components/ui/)
+- PageLayout.jsx — Header + separator + children wrapper
+- Card.jsx — default/highlighted/glass variants
+- Badge.jsx — primary/accent/success/error/neutral variants
+- DataTable.jsx — tabla con hover y alternating rows
+- Button.js — 4 variants (primary/secondary/ghost/danger), loading state
+- Input.js — con label, hint, error states
+
 ### Roadmap ERP pendiente
 - ⬜ Fase C: Comparador por país (usa calculadora para múltiples destinos)
 - ⬜ Fase D: Gestor de operaciones + checklist inteligente
+- ⬜ Rediseñar Sidebar (aún usa Sidebar.css, falta migrar a Tailwind)
+- ⬜ Página de Planes, Cuenta, Historial (rediseño pendiente)
 - ⬜ Deploy a producción (Vercel)
 - ⬜ Configurar webhook MP en producción (MP_WEBHOOK_SECRET obligatorio)
 - ⬜ Verificar RLS policies en Supabase dashboard
 - ⬜ OCR de 12 PDFs escaneados pendientes
-- ⬜ Agregar /catalogo y /calculadora al AppHeader
 
 ## Convenciones de código
 - Usar español para nombres de variables de dominio (ej: derechoImportacion)
@@ -137,65 +186,101 @@ Tablas existentes:
 - Archivos de componentes React en PascalCase
 - Archivos de utilidades en camelCase
 - API routes en kebab-case
+- Tailwind para estilos nuevos; CSS modules solo para archivos legacy no migrados
+- No emojis — usar SVG inline o Lucide React
+- No borders de 1px para separar secciones — usar cambios de tono
 
 ## Estructura del proyecto
 ```
 trade-ai/
 ├── app/
-│   ├── page.js                         # Landing page
+│   ├── page.js                         # Landing page (Tailwind, 7 secciones)
 │   ├── (app)/
-│   │   ├── consulta/page.js            # Chat con la IA
-│   │   ├── catalogo/                   # ERP: catálogo de productos
-│   │   │   ├── page.js                 # SSR — carga productos + países
-│   │   │   ├── CatalogoClient.js       # UI interactiva + modal formulario
-│   │   │   └── catalogo.module.css
-│   │   ├── calculadora/                # ERP: calculadora de costos
-│   │   │   ├── page.js                 # SSR — carga productos + países
-│   │   │   ├── CalculadoraClient.js    # UI tabs impo/expo + cards regímenes
-│   │   │   └── calculadora.module.css
-│   │   ├── planes/page.js              # Página de planes y precios
-│   │   ├── cuenta/page.js              # Mi cuenta
-│   │   └── historial/page.js           # Historial de consultas
-│   ├── (auth)/                         # Login / registro
-│   ├── api/
-│   │   ├── consulta/route.js           # Endpoint IA (Claude + RAG)
-│   │   ├── catalogo/route.js           # CRUD catálogo con límite de plan
+│   │   ├── layout.js                   # Shell con Sidebar + MobileNav
+│   │   ├── app-layout.css             # Margin del sidebar
+│   │   ├── consulta/page.js            # Chat IA (Tailwind, streaming)
+│   │   ├── catalogo/
+│   │   │   ├── page.js                # SSR wrapper
+│   │   │   ├── CatalogoClient.js       # UI CRUD + modal (Tailwind)
+│   │   │   └── catalogo.module.css     # Legacy — no migrado
 │   │   ├── calculadora/
-│   │   │   ├── importacion/route.js    # Cálculo 4 regímenes en paralelo
-│   │   │   └── exportacion/route.js    # Cálculo conversión incoterms
-│   │   ├── checkout/route.js           # Crear preferencia MercadoPago
-│   │   └── webhooks/mercadopago/       # Webhook handler MP (HMAC + anti-replay)
-│   └── layout.js
+│   │   │   ├── page.js                 # SSR wrapper
+│   │   │   └── CalculadoraClient.js    # Tabs impo/expo, 4 regímenes (Tailwind)
+│   │   ├── nomenclador/
+│   │   │   └── page.js                # Búsqueda NCM + panel detalle (Tailwind)
+│   │   ├── planes/page.js
+│   │   ├── cuenta/page.js
+│   │   └── historial/page.js
+│   ├── (auth)/
+│   │   ├── layout.js                  # bg-surface min-h-screen
+│   │   ├── login/page.js              # Split-screen: card 500x600 + form 400px
+│   │   ├── registro/page.js            # Split-screen igual que login
+│   │   ├── recuperar-password/page.js   # Split-screen igual que login
+│   │   └── reset-password/page.js      # Split-screen igual que login
+│   ├── auth/callback/route.js         # OAuth callback
+│   └── api/
+│       ├── consulta/route.js
+│       ├── catalogo/route.js
+│       ├── calculadora/
+│       │   ├── importacion/route.js   # Usa serviceClient + calcularImportacion(supabase, params)
+│       │   └── exportacion/route.js   # Usa calcularExportacion(params)
+│       ├── checkout/route.js
+│       └── webhooks/mercadopago/route.js
 ├── components/
-│   ├── chat/                           # ChatMessage, ChatInput
-│   └── layout/                         # AppHeader
+│   ├── ui/
+│   │   ├── PageLayout.jsx
+│   │   ├── Card.jsx
+│   │   ├── Badge.jsx
+│   │   ├── DataTable.jsx
+│   │   ├── Button.js                  # (legacy — vacío, migrar si se necesita)
+│   │   ├── Input.js                   # (legacy — vacío, migrar si se necesita)
+│   │   └── Modal.js                   # (legacy — vacío, migrar si se necesita)
+│   ├── layout/
+│   │   ├── Sidebar.js                # Aún usa CSS
+│   │   └── Sidebar.css
+│   └── chat/
+│       ├── ChatMessage.js             # Legacy — no usado (lógica en page)
+│       ├── ChatInput.js               # Legacy — no usado
+│       ├── ChatMessage.module.css     # Legacy
+│       └── ChatInput.module.css       # Legacy
 ├── lib/
 │   ├── calculadora/
-│   │   ├── calc-importacion.js         # Lógica pura: régimen general + courier/PEF/UPU
-│   │   └── calc-exportacion.js         # Lógica pura: incoterms + derechos expo
-│   ├── calc-limit.js                   # Límites mensuales de cálculos por plan
-│   ├── mercadopago/client.js           # Cliente MP + PLANES (precios + límites)
-│   ├── pinecone/                       # Búsqueda semántica RAG
-│   ├── rate-limit.js                   # RateLimiter reutilizable + getClientIp()
-│   ├── supabase/                       # Clientes Supabase (browser/server/middleware)
-│   ├── ncm-lookup.js                   # Consulta NCM + preferencias arancelarias
-│   ├── ntm-lookup.js                   # Barreras no arancelarias (UNCTAD TRAINS)
-│   ├── preferencias-lookup.js          # Acuerdos comerciales y TLC
-│   └── prompts/                        # System prompt + guías operativas
-├── middleware.js                       # Rate limiting IP + sesión Supabase
-├── next.config.mjs                     # Headers de seguridad (CSP, X-Frame, etc.)
+│   │   ├── calc-importacion.js        # calcularImportacion(supabase, params)
+│   │   └── calc-exportacion.js        # calcularExportacion(params)
+│   ├── calc-limit.js
+│   ├── mercadopago/client.js
+│   ├── pinecone/
+│   ├── rate-limit.js
+│   ├── supabase/                     # client.js + server.js
+│   ├── ncm-lookup.js
+│   ├── ntm-lookup.js
+│   ├── preferencias-lookup.js
+│   └── prompts/
+│       ├── system-prompt.js
+│       ├── guia-exportacion.js
+│       └── guia-importacion.js
+├── middleware.js
+├── next.config.mjs
+├── tailwind.config.js
+├── postcss.config.mjs
+├── app/
+│   └── globals.css                    # Tailwind directives + CSS variables
 ├── scripts/
-│   ├── ingest.js                       # Ingesta PDFs/TXTs a Pinecone
-│   ├── load-ntm.js                     # Carga NTM a Supabase (199K filas)
-│   ├── load-tariffs.js                 # Carga destination_tariffs (122K filas)
-│   └── test-runner.js                  # Runner de evaluación del agente
+│   ├── ingest.js
+│   ├── load-ntm.js
+│   ├── load-tariffs.js
+│   └── test-runner.js
 ├── tests/
-│   ├── test-queries.json               # 30 consultas de evaluación
-│   ├── unit/                           # Tests unitarios
-│   └── integration/                    # Tests de integración
-├── Security.md                         # Auditoría de seguridad y decisiones
-├── CLAUDE.md                           # Este archivo
-└── .skills/                            # Skills del agente
+│   ├── test-queries.json
+│   ├── unit/
+│   └── integration/
+├── Security.md
+├── CLAUDE.md
+└── .skills/
+    ├── ingesta-datos/SKILL.md
+    ├── consulta-ncm/SKILL.md
+    ├── frontend-chat/SKILL.md
+    └── base-de-datos/SKILL.md
 ```
 
 ## Reglas estrictas (NUNCA violar)
@@ -226,13 +311,11 @@ matriculado o un profesional de comercio exterior."
 - Puerto del servidor de desarrollo: 3000 (Next.js)
 - Base de datos: Supabase cloud (no hay PostgreSQL local)
 - Datos locales: C:\Users\Pablo\trade-ai-data\ (Excel de acuerdos, etc.)
-
-## Memoria
-Tenés acceso a memoria persistente via auto-memory (archivos en .claude/projects/).
-- Guardá proactivamente después de trabajo significativo
+- Build: `npm run build` — verificar siempre antes de considerar un cambio listo
+- Dev: `npm run dev`
 
 ## Skills disponibles
-Tengo skills especializadas en la carpeta .skills/:
+Tenés skills especializadas en la carpeta .skills/:
 - .skills/ingesta-datos/SKILL.md — Para procesar e importar datos
 - .skills/consulta-ncm/SKILL.md — Para consultas de aranceles y NCM
 - .skills/frontend-chat/SKILL.md — Para trabajo en la UI

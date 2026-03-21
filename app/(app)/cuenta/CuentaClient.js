@@ -1,64 +1,123 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import styles from './cuenta.module.css'
+import PageLayout from '@/components/ui/PageLayout'
+import Card from '@/components/ui/Card'
+import Badge from '@/components/ui/Badge'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
 
 const PLANES = {
-  free:     { label: 'Gratuito', limite: 15,       color: '#a3a3a3', bg: 'rgba(163,163,163,0.1)',  border: 'rgba(163,163,163,0.2)'  },
-  pro:      { label: 'Pro',      limite: 200,      color: '#FF6B35', bg: 'rgba(255,107,53,0.12)',  border: 'rgba(255,107,53,0.35)'  },
-  empresa:  { label: 'Empresa',  limite: Infinity, color: '#FF6B35', bg: 'rgba(255,107,53,0.18)',  border: 'rgba(255,107,53,0.45)'  },
+  free:     { label: 'GRATUITO', limite: 15,       variant: 'neutral' },
+  pro:      { label: 'PRO',      limite: 200,      variant: 'primary' },
+  empresa:  { label: 'EMPRESA',  limite: Infinity, variant: 'primary' },
 }
 
 function PlanBadge({ tipo }) {
   const plan = PLANES[tipo] ?? PLANES.free
   return (
-    <span
-      className={styles.planBadge}
-      style={{ color: plan.color, background: plan.bg, border: `1px solid ${plan.border}` }}
-    >
+    <Badge variant={plan.variant} className="tracking-widest">
       {plan.label}
-    </span>
+    </Badge>
   )
 }
 
-function BarraUso({ usadas, limite }) {
+function BarraProgreso({ usadas, limite }) {
   if (limite === Infinity) {
     return (
-      <div className={styles.usoBarra}>
-        <div className={styles.usoBarraFill} style={{ width: '100%', background: 'linear-gradient(90deg, #f59e0b, #fbbf24)' }} />
+      <div>
+        <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+          <div className="h-full w-full bg-gradient-to-r from-primary to-primary-intense rounded-full" />
+        </div>
+        <p className="font-mono text-[10px] text-on-surface-variant/40 mt-1.5">Ilimitado</p>
       </div>
     )
   }
   const pct = Math.min((usadas / limite) * 100, 100)
-  const color = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#FF6B35'
+  const color = pct >= 90 ? 'bg-red-500' : pct >= 70 ? 'bg-primary' : 'bg-primary'
   return (
-    <div className={styles.usoBarra}>
-      <div
-        className={styles.usoBarraFill}
-        style={{ width: `${pct}%`, background: color, transition: 'width 0.6s ease' }}
-      />
+    <div>
+      <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-700 ${color}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className="font-mono text-[10px] text-on-surface-variant/40 mt-1.5">
+        {pct >= 90 ? 'Límite alcanzado' : `${Math.round(pct)}% usado`}
+      </p>
+    </div>
+  )
+}
+
+function StatCard({ valor, label }) {
+  return (
+    <div className="bg-white/[0.02] rounded-xl p-4 text-center">
+      <p className="font-mono text-2xl text-on-surface">{valor}</p>
+      <p className="font-body text-[10px] text-on-surface-variant/50 mt-1 uppercase tracking-wider">{label}</p>
     </div>
   )
 }
 
 export default function CuentaClient({ user, perfil }) {
   const router = useRouter()
-  const [nombre, setNombre] = useState(perfil.full_name ?? '')
-  const [empresa, setEmpresa] = useState(perfil.company_name ?? '')
+  const [nombre, setNombre] = useState(perfil?.full_name ?? '')
+  const [empresa, setEmpresa] = useState(perfil?.company_name ?? '')
   const [guardando, setGuardando] = useState(false)
   const [guardadoOk, setGuardadoOk] = useState(false)
   const [errorGuardado, setErrorGuardado] = useState('')
 
-  const plan = PLANES[perfil.plan_type] ?? PLANES.free
-  const usadas = perfil.queries_this_month ?? 0
-  const limite = plan.limite
+  const [stats, setStats] = useState({ consultas: 0, operaciones: 0, productos: 0, calculos: 0 })
+  const [statsLoading, setStatsLoading] = useState(true)
 
-  // Fecha de reset
-  const fechaReset = perfil.queries_reset_date
+  const plan = PLANES[perfil?.plan_type] ?? PLANES.free
+  const usadas = perfil?.queries_this_month ?? 0
+  const limite = plan.limite
+  const pct = limite !== Infinity ? Math.min((usadas / limite) * 100, 100) : 100
+
+  const fechaReset = perfil?.queries_reset_date
     ? new Date(perfil.queries_reset_date).toLocaleDateString('es-AR', { day: '2-digit', month: 'long' })
     : null
+
+  const dirty = nombre !== (perfil?.full_name ?? '') || empresa !== (perfil?.company_name ?? '')
+
+  useEffect(() => {
+    async function loadStats() {
+      const supabase = createClient()
+      const inicioMes = new Date()
+      inicioMes.setDate(1)
+      inicioMes.setHours(0, 0, 0, 0)
+
+      const [q, ops, prods] = await Promise.all([
+        supabase
+          .from('queries_log')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .gte('created_at', inicioMes.toISOString()),
+        supabase
+          .from('operations')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .not('status', 'ilike', '%cerrada%'),
+        supabase
+          .from('user_products')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('is_active', true),
+      ])
+
+      setStats({
+        consultas: q.count ?? 0,
+        operaciones: ops.count ?? 0,
+        productos: prods.count ?? 0,
+        calculos: perfil?.calcs_this_month ?? 0,
+      })
+      setStatsLoading(false)
+    }
+    loadStats()
+  }, [user.id, perfil])
 
   async function handleGuardar(e) {
     e.preventDefault()
@@ -92,126 +151,178 @@ export default function CuentaClient({ user, perfil }) {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.inner}>
+    <PageLayout title="MI CUENTA" subtitle="Configuración y datos de tu cuenta">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl">
 
-        {/* Título */}
-        <div className={styles.pageHeader}>
-          <h1 className={styles.titulo}>Mi cuenta</h1>
-          <p className={styles.subtitulo}>{user.email}</p>
-        </div>
+        {/* Card 1 — Datos personales */}
+        <Card className="lg:col-span-2">
+          <h2 className="font-display text-sm tracking-wider uppercase text-on-surface-variant mb-6">
+            DATOS PERSONALES
+          </h2>
 
-        {/* Card: Plan y uso */}
-        <section className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitulo}>Plan actual</h2>
-            <PlanBadge tipo={perfil.plan_type} />
-          </div>
+          <form onSubmit={handleGuardar} className="space-y-4">
+            <Input
+              label="Nombre completo"
+              value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              placeholder="Tu nombre completo"
+              autoComplete="name"
+            />
 
-          <div className={styles.usoSection}>
-            <div className={styles.usoHeader}>
-              <span className={styles.usoLabel}>Consultas este mes</span>
-              <span className={styles.usoCount}>
-                {usadas}
-                <span className={styles.usoLimite}>
-                  {limite === Infinity ? ' / ilimitadas' : ` / ${limite}`}
-                </span>
-              </span>
-            </div>
-            <BarraUso usadas={usadas} limite={limite} />
-            {fechaReset && limite !== Infinity && (
-              <p className={styles.usoReset}>Se renueva el {fechaReset}</p>
-            )}
-            {limite !== Infinity && usadas >= limite && (
-              <p className={styles.usoAgotado}>
-                ⚠ Alcanzaste el límite mensual. Mejorá tu plan para seguir consultando.
-              </p>
-            )}
-          </div>
+            <Input
+              label="Empresa (opcional)"
+              value={empresa}
+              onChange={e => setEmpresa(e.target.value)}
+              placeholder="Nombre de tu empresa"
+              autoComplete="organization"
+            />
 
-          {perfil.plan_type !== 'empresa' && (
-            <div className={styles.cardFooter}>
-              <a href="/planes" className={styles.btnMejorar}>
-                ✦ Mejorar plan
-              </a>
-              <p className={styles.btnMejorarHint}>
-                {perfil.plan_type === 'free'
-                  ? 'Plan Pro: 200 consultas/mes · Historial completo'
-                  : 'Plan Empresa: consultas ilimitadas · Soporte prioritario'}
-              </p>
-            </div>
-          )}
-        </section>
-
-        {/* Card: Datos de la cuenta */}
-        <section className={styles.card}>
-          <h2 className={styles.cardTitulo}>Datos de la cuenta</h2>
-
-          <form onSubmit={handleGuardar} className={styles.form}>
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>Nombre completo</label>
+            <div>
+              <label className="block font-body text-xs text-on-surface-variant mb-1.5">Email</label>
               <input
-                className={styles.fieldInput}
-                type="text"
-                value={nombre}
-                onChange={e => setNombre(e.target.value)}
-                placeholder="Tu nombre"
-                autoComplete="name"
-              />
-            </div>
-
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>Empresa / Organización</label>
-              <input
-                className={styles.fieldInput}
-                type="text"
-                value={empresa}
-                onChange={e => setEmpresa(e.target.value)}
-                placeholder="Nombre de tu empresa (opcional)"
-                autoComplete="organization"
-              />
-            </div>
-
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>Email</label>
-              <input
-                className={`${styles.fieldInput} ${styles.fieldInputReadonly}`}
+                className="w-full bg-surface rounded-xl px-4 py-3 font-mono text-sm text-on-surface border border-transparent cursor-not-allowed opacity-60"
                 type="email"
                 value={user.email}
                 readOnly
                 tabIndex={-1}
               />
-              <p className={styles.fieldHint}>El email no se puede modificar desde acá.</p>
+              <p className="mt-1 font-body text-[10px] text-on-surface-variant/60">El email no se puede modificar.</p>
             </div>
 
             {errorGuardado && (
-              <div className={styles.errorMsg}>{errorGuardado}</div>
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <p className="font-body text-xs text-red-400">{errorGuardado}</p>
+              </div>
             )}
 
-            <div className={styles.formFooter}>
-              <button
+            {guardadoOk && (
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2">
+                <svg className="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <p className="font-body text-xs text-emerald-400">Cambios guardados correctamente.</p>
+              </div>
+            )}
+
+            <div className="flex items-center gap-4 pt-2">
+              <Button
                 type="submit"
-                className={styles.btnGuardar}
-                disabled={guardando}
+                loading={guardando}
+                disabled={!dirty}
               >
-                {guardando ? 'Guardando...' : guardadoOk ? '✓ Guardado' : 'Guardar cambios'}
-              </button>
+                {guardadoOk ? 'Guardado' : 'Guardar cambios'}
+              </Button>
             </div>
           </form>
-        </section>
 
-        {/* Card: Sesión */}
-        <section className={`${styles.card} ${styles.cardDanger}`}>
-          <h2 className={styles.cardTitulo}>Sesión</h2>
-          <p className={styles.dangerText}>
-            Al cerrar sesión vas a tener que volver a ingresar con tu email y contraseña o Google.
+          <div className="h-px bg-white/[0.04] my-6" />
+
+          <div className="space-y-2">
+            <a
+              href="/cuenta/password"
+              className="flex items-center gap-2 font-body text-sm text-primary hover:underline"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              Cambiar contraseña →
+            </a>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 font-body text-sm text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Cerrar sesión
+            </button>
+          </div>
+        </Card>
+
+        {/* Card 2 — Plan actual */}
+        <Card>
+          <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant mb-3">
+            TU PLAN
           </p>
-          <button className={styles.btnLogout} onClick={handleLogout}>
-            Cerrar sesión
-          </button>
-        </section>
 
+          <p className={`font-display text-3xl tracking-wider mb-1 ${
+            perfil?.plan_type === 'pro' ? 'text-primary' : 'text-on-surface'
+          }`}>
+            {plan.label}
+          </p>
+
+          {perfil?.plan_type === 'pro' && (
+            <Badge variant="primary" className="mb-4">RECOMENDADO</Badge>
+          )}
+
+          <div className="mt-5">
+            <div className="flex justify-between items-baseline mb-2">
+              <span className="font-body text-xs text-on-surface-variant">
+                Consultas este mes
+              </span>
+              <span className="font-mono text-xs text-on-surface">
+                {usadas}
+                <span className="text-on-surface-variant">
+                  {limite === Infinity ? ' / ilimitadas' : ` / ${limite}`}
+                </span>
+              </span>
+            </div>
+            <BarraProgreso usadas={usadas} limite={limite} />
+            {fechaReset && limite !== Infinity && (
+              <p className="font-mono text-[10px] text-on-surface-variant/40 mt-2">
+                Se renueva el {fechaReset}
+              </p>
+            )}
+          </div>
+
+          {perfil?.plan_type !== 'empresa' && (
+            <div className="mt-5 pt-5 border-t border-white/[0.04]">
+              {perfil?.plan_type === 'free' ? (
+                <a href="/planes" className="flex items-center gap-1.5 font-body text-sm text-primary hover:underline">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
+                  </svg>
+                  Mejorar a Pro →
+                </a>
+              ) : (
+                <p className="font-body text-xs text-on-surface-variant/50">
+                  Tu suscripción se renueva el {fechaReset}
+                </p>
+              )}
+            </div>
+          )}
+        </Card>
+
+        {/* Card 3 — Estadísticas */}
+        <Card className="lg:col-span-3">
+          <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant mb-4">
+            ACTIVIDAD
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {statsLoading ? (
+              <>
+                {[0,1,2,3].map(i => (
+                  <div key={i} className="bg-white/[0.02] rounded-xl p-4 animate-pulse">
+                    <div className="h-6 w-12 bg-white/[0.04] rounded mb-2" />
+                    <div className="h-3 w-20 bg-white/[0.03] rounded" />
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                <StatCard valor={stats.consultas} label="Consultas este mes" />
+                <StatCard valor={stats.operaciones} label="Operaciones activas" />
+                <StatCard valor={stats.productos} label="Productos en catálogo" />
+                <StatCard valor={stats.calculos} label="Cálculos realizados" />
+              </>
+            )}
+          </div>
+        </Card>
       </div>
-    </div>
+    </PageLayout>
   )
 }

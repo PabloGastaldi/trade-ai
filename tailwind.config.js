@@ -1,33 +1,30 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
       colors: {
-        // Fondos
-        'bg-primary':   '#0a0e1b',
-        'bg-secondary': '#111827',
-        'bg-tertiary':  '#1a2236',
-        // Acento dorado
-        'accent':       '#e99f1c',
-        'accent-hover': '#f0b030',
-        'accent-muted': 'rgba(233,159,28,0.12)',
-        // Bordes
-        'border-base':  '#1e2d45',
-        'border-light': '#2a3f5f',
-        // Texto
-        'text-primary':   '#e7edf5',
-        'text-secondary': '#b8c5d6',
-        'text-muted':     '#6b7f96',
-        // Legados (para compatibilidad con var() en globals)
-        background: "var(--bg)",
-        foreground: "var(--text)",
+        surface: '#0c0e12',
+        'surface-low': '#111318',
+        'surface-container': '#171a1f',
+        'surface-high': '#1d2025',
+        'surface-highest': '#23262c',
+        primary: '#81e9ff',
+        'primary-intense': '#00e0ff',
+        'on-surface': '#f6f6fc',
+        'on-surface-variant': '#aaabb0',
+        'on-primary': '#00363f',
+        accent: '#81e9ff',
+      },
+      fontFamily: {
+        display: ['Bebas Neue', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+        mono: ['Space Grotesk', 'monospace'],
       },
     },
   },
   plugins: [],
-};
+}
