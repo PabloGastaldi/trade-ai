@@ -1,410 +1,312 @@
-# trade.ai — Design System v2.0
+# trade.ai — Design System
 
 ## Concepto Visual
 
-**Dirección estética:** Dark luxury tech — como Bloomberg Terminal 
-meets fintech moderna. Profesional pero con personalidad. El efecto 
-de glow azul difuso (inspirado en Halo AI) da profundidad y 
-sofisticación sin ser infantil.
+**Dirección estética:** Dark luxury tech — ambiente oscuro profesional con acentos cyan
+que dan profundidad y sofisticación. Inspirado en interfaces de terminal modernas
+con la calidez del cyan como color de identidad.
 
-**Tono:** Serio pero accesible. No es un banco, no es un startup 
-colorido. Es la herramienta de trabajo de un profesional de 
-comercio exterior que valora su tiempo.
+**Tono:** Serio y profesional. Herramienta de trabajo para profesionales de comercio
+exterior. Sin color excesivo, sin gradientes llamativos. El cyan es el único color
+de acento — todo lo demás es superficie oscura o gris.
 
-**Diferenciador visual:** El glow azul ambiental que "respira" 
-detrás del contenido. No es un gradiente plano — es una atmósfera.
+**Diferenciador:** El cyan (#81e9ff) como identidad — se usa solo para elementos
+activos, CTAs, links y badges destacados. Nada más debe ser cyan.
 
 ---
 
 ## Paleta de Colores
 
 ### Fondos (de más oscuro a más claro)
-```css
---bg-deepest:    #050508;     /* fondo del body, lo más oscuro */
---bg-base:       #0a0d14;     /* fondo principal de la app */
---bg-surface:    #111827;     /* cards, paneles, sidebar */
---bg-elevated:   #1a2235;     /* elementos elevados, modals */
---bg-hover:      #1e293b;     /* hover states */
+```
+--surface:          #0c0e12   /* fondo principal de la app */
+--surface-low:      #111318   /* inputs, dropdowns */
+--surface-high:     #1d2025   /* hover states, headers de tabla */
+--surface-highest:  #23262c   /* inputs más oscuros, campos destacados */
 ```
 
 ### Bordes
-```css
---border-subtle:  #1e293b;    /* bordes sutiles entre secciones */
---border-default: #2a3a58;    /* bordes de cards y inputs */
---border-focus:   #0070FF40;  /* borde de focus con transparencia */
+```
+--border:           rgba(255,255,255,0.06)   /* default borders */
+--border-light:     rgba(255,255,255,0.10)   /* hover borders */
 ```
 
 ### Texto
-```css
---text-primary:   #f0f4fc;    /* texto principal, alta legibilidad */
---text-secondary: #94a3b8;    /* texto secundario, descripciones */
---text-muted:     #64748b;    /* texto terciario, hints, placeholders */
---text-disabled:  #334155;    /* texto deshabilitado */
+```
+--text:             #f6f6fc   /* texto principal */
+--text-muted:       #aaabb0   /* texto secundario, labels */
+--text-disabled:     #4a4b52  /* texto deshabilitado */
 ```
 
-### Accent (azul principal — identidad de trade.ai)
-```css
---accent:         #0070FF;    /* botones primarios, links, CTAs */
---accent-hover:   #0062e0;    /* hover del accent */
---accent-light:   #43b7f5;    /* highlights, badges, decorativo */
---accent-glow:    #0070FF20;  /* glow sutil para bordes y sombras */
---accent-glow-strong: #0070FF40; /* glow más fuerte para hero */
+### Primario (cyan — identidad de trade.ai)
 ```
-
-### Secundario (naranja/ámbar — alertas, badges, premium)
-```css
---secondary:      #F59E0B;    /* badges de plan, alertas, precio */
---secondary-hover:#D97706;    /* hover */
---secondary-muted:#F59E0B20;  /* background sutil de badges */
+--primary:          #81e9ff   /* color principal, CTAs, links activos */
+--primary-intense:   #00e0ff  /* fondo de botones primarios */
+--primary-muted:    rgba(129,233,255,0.06)  /* backgrounds sutiles */
+--on-primary:       #00363f  /* texto sobre fondo cyan */
 ```
 
 ### Semánticos
-```css
---success:        #10b981;    /* confirmaciones, docs completos */
---success-muted:  #10b98120;
---warning:        #F59E0B;    /* alertas, vencimientos cercanos */
---warning-muted:  #F59E0B20;
---error:          #ef4444;    /* errores, docs faltantes críticos */
---error-muted:    #ef444420;
---info:           #43b7f5;    /* información, tips */
---info-muted:     #43b7f520;
+```
+--success:          #10b981
+--success-muted:    rgba(16,185,129,0.10)
+--warning:          #f59e0b
+--warning-muted:    rgba(245,158,11,0.10)
+--error:            #ef4444
+--error-muted:      rgba(239,68,68,0.10)
 ```
 
 ---
 
 ## Tipografía
 
-### Fonts
-```css
-/* Display / Headlines — personalidad, impacto */
---font-display: 'Syne', sans-serif;
-/* 
-  Syne es angular, moderna, con carácter. 
-  Perfecta para headlines y el logo.
-  Pesos: 400, 500, 600, 700, 800
-*/
-
-/* Body / UI — legibilidad, profesionalismo */
---font-body: 'DM Sans', sans-serif;
-/*
-  DM Sans es limpia, geométrica, excelente legibilidad.
-  Mejor que Inter para este contexto.
-  Pesos: 300, 400, 500, 700
-*/
-
-/* Mono — datos, códigos NCM, números */
---font-mono: 'JetBrains Mono', monospace;
-/*
-  Para códigos NCM (0902.30.00), aranceles (20.0%), 
-  montos (USD 1,350.00). Da aspecto técnico/profesional.
-  Peso: 400, 500
-*/
+### Fonts (Google Fonts via next/font)
+```
+font-display  → Bebas Neue       /* títulos de página, headlines, logo */
+font-body     → Inter           /* body, UI, descripciones */
+font-mono     → Space Grotesk   /* códigos NCM, montos, datos */
 ```
 
-### Escala tipográfica
-```css
---text-xs:    0.65rem;   /* 10.4px — micro labels, badges */
---text-sm:    0.75rem;   /* 12px — labels, footnotes */
---text-base:  0.875rem;  /* 14px — body text principal */
---text-md:    0.95rem;   /* 15.2px — body destacado */
---text-lg:    1.125rem;  /* 18px — subtítulos */
---text-xl:    1.5rem;    /* 24px — títulos de sección */
---text-2xl:   2rem;      /* 32px — títulos de página */
---text-3xl:   2.5rem;    /* 40px — hero mobile */
---text-4xl:   3.5rem;    /* 56px — hero desktop */
---text-5xl:   4.5rem;    /* 72px — hero impacto máximo */
+### Escala
+```
+font-display text-5xl  → títulos de página (3rem)
+font-display text-2xl  → headlines de sección
+font-body text-base    → body principal (0.875rem)
+font-body text-sm      → UI labels, metadata
+font-body text-xs      → hints, footnotes
+font-mono text-xs      → NCM codes, montos
+font-mono text-[10px]  → micro labels, badges
 ```
 
 ### Aplicación
 ```
-Logo "trade.ai"    → Syne 700, text-xl
-Headlines hero     → Syne 700, text-4xl/text-5xl
-Títulos de página  → Syne 600, text-2xl
-Subtítulos         → DM Sans 500, text-lg
-Body text          → DM Sans 400, text-base, line-height 1.7
-Labels/UI          → DM Sans 500, text-sm, letter-spacing 0.05em
-Badges             → DM Sans 500, text-xs, uppercase, letter-spacing 0.1em
-Datos numéricos    → JetBrains Mono 500, text-base
-Códigos NCM        → JetBrains Mono 400, text-sm
-Precios grandes    → JetBrains Mono 500, text-xl
+Logo "trade.ai"     → font-display text-xl, ".ai" en --primary
+Títulos de página   → font-display uppercase tracking-wider
+Labels de sección    → font-display text-[10px] uppercase tracking-widest, --text-muted
+Body text            → font-body text-sm text--text, leading-relaxed
+Datos numéricos      → font-mono text-sm
+Badges               → font-mono text-[10px] uppercase tracking-widest
 ```
 
 ---
 
-## Espaciado y Layout
-
-### Spacing Scale
-```css
---space-1:  0.25rem;   /* 4px */
---space-2:  0.5rem;    /* 8px */
---space-3:  0.75rem;   /* 12px */
---space-4:  1rem;      /* 16px */
---space-5:  1.25rem;   /* 20px */
---space-6:  1.5rem;    /* 24px */
---space-8:  2rem;      /* 32px */
---space-10: 2.5rem;    /* 40px */
---space-12: 3rem;      /* 48px */
---space-16: 4rem;      /* 64px */
---space-20: 5rem;      /* 80px */
---space-24: 6rem;      /* 96px */
-```
+## Spaciado y Border Radius
 
 ### Border Radius
-```css
---radius-sm:   6px;    /* badges, tags */
---radius-md:   8px;    /* inputs, botones */
---radius-lg:   12px;   /* cards */
---radius-xl:   16px;   /* modals, panels grandes */
---radius-full: 9999px; /* pills, avatares */
+```
+rounded-sm:  6px    /* badges, tags pequeños */
+rounded:     8px    /* inputs, botones */
+rounded-lg:  12px   /* cards */
+rounded-xl:  16px   /* cards grandes, modals */
+rounded-2xl: 24px   /* panels grandes */
 ```
 
 ### Breakpoints
-```css
---mobile:  640px;
---tablet:  1024px;
---desktop: 1280px;
---wide:    1536px;
 ```
-
-### Layout
-```
-Sidebar:        250px (desktop), 60px (colapsado), 0 (mobile)
-Content max:    1200px (centrado con auto margins)
-Card padding:   space-5 (20px)
-Section gap:    space-12 (48px) entre secciones
-Grid gap:       space-4 (16px) entre cards
+mobile:  < 768px    → MobileNav (header + bottom tabs + drawer)
+tablet:  768–1024px → Sidebar colapsado (60px)
+desktop: ≥ 1024px  → Sidebar expanded (250px) + contenido
 ```
 
 ---
 
 ## Componentes Base
 
-### Botones
-```css
-/* Primario */
-.btn-primary {
-  background: var(--accent);
-  color: white;
-  font: 500 var(--text-sm) var(--font-body);
-  padding: 10px 20px;
-  border-radius: var(--radius-md);
-  border: none;
-  letter-spacing: 0.02em;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-.btn-primary:hover {
-  background: var(--accent-hover);
-  box-shadow: 0 0 20px var(--accent-glow);
-  transform: translateY(-1px);
-}
-
-/* Secundario (outline) */
-.btn-secondary {
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-default);
-  /* resto igual que primary */
-}
-.btn-secondary:hover {
-  color: var(--text-primary);
-  border-color: var(--accent);
-  background: var(--accent-glow);
-}
-
-/* Ghost (sin borde) */
-.btn-ghost {
-  background: transparent;
-  color: var(--text-secondary);
-  border: none;
-}
-.btn-ghost:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
-}
-```
-
 ### Cards
-```css
-.card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  transition: all 0.2s;
-}
-.card:hover {
-  border-color: var(--border-default);
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-}
-.card-highlighted {
-  border-color: var(--accent);
-  box-shadow: 0 0 30px var(--accent-glow);
-}
+```
+Base:        bg-white/[0.03] border border-white/[0.04] rounded-2xl
+Destacada:   border border-primary/20
+Glass:       bg-white/[0.03] backdrop-blur-xl
 ```
 
-### Inputs
-```css
-.input {
-  background: var(--bg-base);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
-  color: var(--text-primary);
-  font: 400 var(--text-base) var(--font-body);
-  transition: all 0.2s;
-}
-.input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-  outline: none;
-}
-.input::placeholder {
-  color: var(--text-muted);
-}
+### Botones (Button.js component)
+```
+primary:     bg-primary-intense text-on-primary hover:bg-primary
+secondary:   bg-white/[0.05] text-on-surface hover:bg-white/[0.08]
+ghost:       bg-transparent text-on-surface-variant hover:bg-white/[0.06]
+danger:      bg-red-500/10 text-red-400 border border-red-500/20
+Loading:     spinner SVG + texto "Cargando..."
+Disabled:    opacity-40 cursor-not-allowed
 ```
 
-### Badges
-```css
-.badge {
-  font: 500 var(--text-xs) var(--font-body);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-}
-.badge-accent {
-  color: var(--accent-light);
-  background: var(--accent-glow);
-  border: 1px solid var(--accent-glow-strong);
-}
-.badge-secondary {
-  color: var(--secondary);
-  background: var(--secondary-muted);
-  border: 1px solid var(--secondary)30;
-}
-.badge-success {
-  color: var(--success);
-  background: var(--success-muted);
-}
-.badge-error {
-  color: var(--error);
-  background: var(--error-muted);
-}
+### Inputs (Input.js component)
+```
+Base:        bg-surface-highest rounded-xl px-4 py-3
+Focus:       border border-primary/30 outline-none
+Error:       border border-red-500/50
+Label:       font-body text-xs text-on-surface-variant mb-1.5
+Hint:        font-body text-[10px] text-on-surface-variant/60 mt-1
+```
+
+### Badges (Badge.jsx)
+```
+primary:     bg-primary/10 text-primary
+accent:      bg-primary/10 text-primary (sin amarillo)
+success:     bg-emerald-500/10 text-emerald-400
+error:       bg-red-500/10 text-red-400
+neutral:     bg-white/[0.06] text-on-surface-variant
 ```
 
 ---
 
-## Efectos Especiales
+## Layout App Shell
 
-### Glow ambiental (el efecto Halo AI)
-```css
-/* Glow principal — detrás del hero */
-.glow-hero {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(
-      ellipse 80% 50% at 50% -20%, 
-      rgba(0, 112, 255, 0.15) 0%, 
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 60% 40% at 20% 50%, 
-      rgba(0, 112, 255, 0.08) 0%, 
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse 40% 60% at 80% 80%, 
-      rgba(67, 183, 245, 0.05) 0%, 
-      transparent 50%
-    );
-}
-
-/* Glow pulsante sutil (opcional, para el hero) */
-@keyframes glow-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-.glow-hero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle 400px at 50% 30%, 
-    rgba(0, 112, 255, 0.1) 0%, 
-    transparent 70%
-  );
-  animation: glow-pulse 8s ease-in-out infinite;
-}
+### Desktop (≥1024px)
+```
+Sidebar:        position fixed, left:0, top:0, bottom:0, width:250px
+Content:        margin-left:250px, overflow-y auto
+Colapsado:     width:60px, margin-left:60px
 ```
 
-### Backdrop blur (para headers y sidebars)
-```css
-.backdrop {
-  background: rgba(10, 13, 20, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
+### Mobile (<768px)
+```
+Header:        position fixed, top:0, height:52px, z-index:199
+               Logo izquierda + botón hamburguesa derecha
+Content:       margin-top:52px, padding-bottom:60px (para tabs)
+Bottom tabs:   position fixed, bottom:0, height:60px, z-index:200
+               4 columnas: Chat, Calculadora, Operaciones, Más
+Drawer:        position fixed, bottom:60px, z-index:200
+               translateY(100%) → translateY(0) al abrir
+               содержит: email, plan badge, todos los links, logout
 ```
 
-### Animaciones de entrada
-```css
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* Staggered entrance — aplicar con animation-delay */
-.animate-in {
-  opacity: 0;
-  animation: fadeUp 0.6s ease forwards;
-}
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
-.delay-5 { animation-delay: 0.5s; }
+### Navegación Sidebar (Desktop)
 ```
-
-### Grain overlay (textura sutil)
-```css
-.grain::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1000;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-}
+Secciones:     Chat IA, Herramientas, Mi negocio, Cuenta
+Items:         Icono Lucide (16px, stroke-width:1.5) + label
+Activo:        border-left-color:primary + bg-primary/6 + icono text-primary
+Hover:         bg-white/[0.04]
+Soon:          opacity-0.5, pointer-events-none, badge "Pronto"
+Logout:        Botón abajo del sidebar, ícono flecha SVG
 ```
 
 ---
 
-## Landing Page — Estructura
+## Chat / Consulta
 
-### Secciones
-1. HERO — título + subtítulo + CTAs + card de ejemplo + stats
-2. FEATURES — qué podés hacer con trade.ai (6 cards)
-3. CÓMO FUNCIONA — 3 pasos con visual
-4. CALCULADORA PREVIEW — demo interactiva (o mockup)
-5. PLANES — 3 cards de pricing
-6. FOOTER — links, disclaimer, "Hecho en Argentina"
+### Estructura
+```
+Container:     flex-col min-h-screen bg-surface
+Messages:      flex-1 overflow-y-auto, max-w-3xl mx-auto
+Empty state:   watermark TRADE.AI (muy sutil), título, chips ejemplo
+Bubble IA:    px-4 py-3 rounded-2xl rounded-bl-sm
+Bubble User:  px-4 py-3 rounded-2xl rounded-br-sm, bg-white/[0.06]
+Cursor:       ▌ (w-0.5 h-3.5 bg-primary animate-pulse) dentro del bubble
+Input:        bg-surface-low/80 backdrop-blur-xl border-t border-white/[0.04]
+               rounded-2xl, px-4 pb-6 pt-2
+Mobile:       input pb-[80px] para evitar solaparse con bottom tabs
+```
 
-### Scrollbar custom
-```css
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { 
-  background: var(--border-default); 
-  border-radius: 2px; 
-}
+### Markdown render (ReactMarkdown + remarkGfm)
+```
+p:            mb-1.5 last:mb-0 leading-relaxed
+h2:           font-display text-base mt-3 mb-1 pb-1 border-b border-white/[0.06]
+h3:           font-semibold text-sm mt-3 mb-1
+table:        overflow-x-auto rounded-xl border border-white/[0.06]
+th:           text-xs font-semibold text-primary uppercase
+td:           px-3 py-2 border-b border-white/[0.04]
+code:         bg-surface-high text-primary text-xs font-mono px-1.5 py-0.5 rounded
+pre:          bg-surface-high rounded-xl p-4 my-2
+blockquote:   border-l-2 border-primary/30 pl-3 my-1.5 italic
+strong:       font-semibold text-on-surface
+hr:           border-surface-high my-3
+```
+
+### Normalización de texto
+```
+función normalizarTexto():
+  .replace(/\n{3,}/g, '\n\n')  // máximo doble newline
+  .trim()
+```
+
+---
+
+## Calculadora de costos
+
+### Estructura
+```
+Tabs:         bg-white/[0.04] rounded-xl p-1 (Importación | Exportación)
+Regímenes:    4 cards en grid (Régimen general, Courier, PEF, Correo)
+Resultado:    Card destacada con desglose de costos
+Destacado:    border border-primary/20 bg-primary/3
+```
+
+### Desglose de costos
+```
+Valor FOB/CIF:  font-mono text-lg
+Tributos:       Lista con alícuota %
+Total:          font-mono text-xl text-primary
+Preferencia:    bg-emerald-500/5 border border-emerald-500/15
+Disclaimer:     bg-primary/5 border border-primary/10
+```
+
+---
+
+## Nomenclador NCM
+
+### Estructura
+```
+Buscador:      Input con icono búsqueda, debounce 300ms
+Tabla:         bg-white/[0.03] rounded-2xl, hover en filas
+Panel:         Slide-in desde derecha, max-w-md, overlay oscuro
+Detalle:       Aranceles, Organismos, Preferencias, NTM, Destinos
+```
+
+---
+
+## Auth pages (login, registro, etc.)
+
+### Split-screen
+```
+Container:     flex min-h-screen items-center justify-center gap-12 px-8 bg-surface
+Left (card):   w-[500px] h-[600px] — solo branding, nunca w-1/2
+Right (form):  w-[400px] shrink-0 — el formulario
+NO USAR:      flex-1, w-1/2
+```
+
+---
+
+## Iconografía
+
+### Lucide React — Sidebar
+```
+Chat IA:        MessageSquare
+Nomenclador:    BookOpen
+Calculadora:    Calculator
+Comparador:     Globe
+Catálogo:       Package
+Operaciones:    Ship
+Historial:      Clock
+Mi cuenta:      User
+Planes:         Star
+```
+
+### Tamaño estándar
+```
+Sidebar icons:  16px, strokeWidth=1.5
+Bottom tabs:   20px, strokeWidth=1.5
+Mobile drawer: 18px, strokeWidth=1.5
+```
+
+---
+
+## Animaciones y transiciones
+
+```
+Fade-in mensajes:   animation: fadeIn 0.3s ease-out (translateY 8px)
+Typing cursor:      animate-pulse en span w-0.5
+Bounce dots:       animate-bounce con stagger 0.2s
+Transiciones UI:    transition-all duration-150
+Drawer:            translateY con cubic-bezier(0.4,0,0.2,1) 0.28s
+```
+
+---
+
+## Scrollbar
+```
+::-webkit-scrollbar        { width: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb   { background: rgba(255,255,255,0.06); border-radius: 2px; }
+scrollbar-width:            thin;
+scrollbar-color:            var(--border) transparent;
 ```
