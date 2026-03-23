@@ -251,7 +251,7 @@ function DesgloseImportacion({ data }) {
               <>
                 <div className="h-px bg-white/[0.04] my-3" />
                 <p className="font-display text-[10px] tracking-widest text-on-surface-variant/60 uppercase mb-2">Tributos</p>
-                {Object.entries(data.regimenes.general.desglose).map(([key, v]) => {
+                {Object.entries(data.regimenes?.general?.desglose ?? {}).map(([key, v]) => {
                   if (!v || v.monto === 0) return null
                   const labels = {
                     derecho_importacion: 'Derecho de importación',
@@ -608,10 +608,10 @@ function TabImportacion({ productos, paises }) {
                   key={r.key}
                   regimen={r.key}
                   info={r}
-                  data={resultado.regimenes[r.key]}
+                  data={resultado.regimenes?.[r.key]}
                   esMejor={r.key === mejorOpcion}
                   seleccionado={regSeleccionado === r.key}
-                  onClick={() => resultado.regimenes[r.key].disponible && setRegSeleccionado(r.key)}
+                  onClick={() => resultado.regimenes?.[r.key]?.disponible && setRegSeleccionado(r.key)}
                 />
               ))}
             </div>
