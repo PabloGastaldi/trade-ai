@@ -284,7 +284,7 @@ export default function CatalogoClient({ productosIniciales, paises }) {
       {modalEliminar && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface-low rounded-2xl p-8 w-full max-w-sm border border-white/[0.06] shadow-2xl">
-            <h3 className="font-display text-xl tracking-wider text-on-surface mb-2">
+            <h3 className="font-body text-base font-semibold text-on-surface mb-2">
               ¿ELIMINAR PRODUCTO?
             </h3>
             <p className="font-body text-sm text-on-surface-variant mb-6">
@@ -415,7 +415,7 @@ function ModalProducto({ form, setForm, errores, setErrores, paises, editando, g
       <div className="bg-surface-low rounded-2xl w-full max-w-lg border border-white/[0.06] shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-0">
-          <h2 className="font-display text-xl tracking-wider text-on-surface">
+          <h2 className="font-body text-base font-semibold text-on-surface">
             {editando ? 'EDITAR PRODUCTO' : 'AGREGAR PRODUCTO'}
           </h2>
           <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-on-surface-variant hover:text-on-surface transition-all">

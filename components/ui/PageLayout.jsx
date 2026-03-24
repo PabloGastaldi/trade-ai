@@ -2,7 +2,7 @@ export default function PageLayout({ title, subtitle, children }) {
   return (
     <div className="px-6 py-6 max-w-6xl">
       <header>
-        <h1 className="font-display text-3xl tracking-wider uppercase text-on-surface">
+        <h1 className="font-body text-2xl font-semibold text-on-surface">
           {title}
         </h1>
         {subtitle && (

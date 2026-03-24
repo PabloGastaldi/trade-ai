@@ -156,7 +156,7 @@ export default function CuentaClient({ user, perfil }) {
 
         {/* Card 1 — Datos personales */}
         <Card className="lg:col-span-2">
-          <h2 className="font-display text-sm tracking-wider uppercase text-on-surface-variant mb-6">
+          <h2 className="font-body text-sm font-semibold tracking-widest uppercase text-on-surface-variant mb-6">
             DATOS PERSONALES
           </h2>
 
@@ -244,11 +244,11 @@ export default function CuentaClient({ user, perfil }) {
 
         {/* Card 2 — Plan actual */}
         <Card>
-          <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant mb-3">
+          <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant mb-3">
             TU PLAN
           </p>
 
-          <p className={`font-display text-3xl tracking-wider mb-1 ${
+          <p className={`font-body text-2xl font-semibold mb-1 ${
             perfil?.plan_type === 'pro' ? 'text-primary' : 'text-on-surface'
           }`}>
             {plan.label}
@@ -299,7 +299,7 @@ export default function CuentaClient({ user, perfil }) {
 
         {/* Card 3 — Estadísticas */}
         <Card className="lg:col-span-3">
-          <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant mb-4">
+          <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant mb-4">
             ACTIVIDAD
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

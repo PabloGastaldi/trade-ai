@@ -12,15 +12,16 @@ import './Sidebar.css'
 const NAV_SECTIONS = [
   {
     items: [
-      { label: 'Chat IA',     Icon: MessageSquare, href: '/consulta' },
-      { label: 'Nomenclador', Icon: BookOpen,      href: '/nomenclador', soon: true },
+      { label: 'Chat IA',   Icon: MessageSquare, href: '/consulta' },
+      { label: 'Historial', Icon: Clock,         href: '/historial' },
     ],
   },
   {
     label: 'Herramientas',
     items: [
       { label: 'Calculadora', Icon: Calculator, href: '/calculadora' },
-      { label: 'Comparador',  Icon: Globe,       href: '/comparador' },
+      { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
+      { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador', soon: true },
     ],
   },
   {
@@ -28,7 +29,6 @@ const NAV_SECTIONS = [
     items: [
       { label: 'Catálogo',    Icon: Package, href: '/catalogo' },
       { label: 'Operaciones', Icon: Ship,    href: '/operaciones' },
-      { label: 'Historial',   Icon: Clock,   href: '/historial' },
     ],
   },
   {

@@ -52,6 +52,9 @@ export async function POST(request) {
       pais_origen_iso3: pais_origen,
       condicion_iva,
     })
+    if (resultado.error) {
+      return NextResponse.json({ ok: false, error: resultado.error }, { status: 400 })
+    }
     await registrarCalc(supabaseUser, user.id)
     return NextResponse.json({ ok: true, data: resultado })
   } catch (err) {

@@ -52,7 +52,7 @@ export default function CalculadoraClient({ productos, paises }) {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-6 py-2.5 font-display text-sm tracking-wider rounded-lg transition-all duration-150 ${
+            className={`px-6 py-2.5 font-body text-sm font-semibold tracking-wide rounded-lg transition-all duration-150 ${
               tab === t.key
                 ? 'bg-white/[0.06] text-on-surface'
                 : 'text-on-surface-variant hover:text-on-surface cursor-pointer'
@@ -229,7 +229,7 @@ function DesgloseImportacion({ data }) {
         className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.02] transition-colors"
         onClick={() => setExpandido(p => !p)}
       >
-        <span className="font-display text-xs tracking-wider text-on-surface-variant uppercase">Desglose completo</span>
+        <span className="font-body text-xs font-semibold tracking-wide text-on-surface-variant uppercase">Desglose completo</span>
         <svg
           className={`w-4 h-4 text-on-surface-variant transition-transform duration-200 ${expandido ? 'rotate-180' : ''}`}
           viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
@@ -241,7 +241,7 @@ function DesgloseImportacion({ data }) {
       {expandido && (
         <div className="px-5 pb-5 border-t border-white/[0.04]">
           <div className="pt-4 space-y-0">
-            <p className="font-display text-[10px] tracking-widest text-on-surface-variant/60 uppercase mb-2">Base imponible</p>
+            <p className="font-body text-[10px] font-semibold tracking-widest text-on-surface-variant/60 uppercase mb-2">Base imponible</p>
             <LineaDesglose label="FOB" monto={data.valores_base?.fob} />
             <LineaDesglose label="Flete" monto={data.valores_base?.flete} />
             <LineaDesglose label="Seguro" monto={data.valores_base?.seguro} />
@@ -250,7 +250,7 @@ function DesgloseImportacion({ data }) {
             {data.regimenes?.general?.desglose && (
               <>
                 <div className="h-px bg-white/[0.04] my-3" />
-                <p className="font-display text-[10px] tracking-widest text-on-surface-variant/60 uppercase mb-2">Tributos</p>
+                <p className="font-body text-[10px] font-semibold tracking-widest text-on-surface-variant/60 uppercase mb-2">Tributos</p>
                 {Object.entries(data.regimenes?.general?.desglose ?? {}).map(([key, v]) => {
                   if (!v || v.monto === 0) return null
                   const labels = {
@@ -303,7 +303,7 @@ function CardRegimenImportacion({ regimen, info, data, esMejor, seleccionado, on
       >
         <div className="flex items-start justify-between mb-2">
           <div>
-            <p className="font-display text-sm tracking-wider text-on-surface uppercase">{info.label}</p>
+            <p className="font-body text-sm font-semibold tracking-wide text-on-surface uppercase">{info.label}</p>
             <p className="font-body text-[10px] text-on-surface-variant mt-0.5">{info.desc}</p>
           </div>
           <Badge variant="neutral">No disponible</Badge>
@@ -328,7 +328,7 @@ function CardRegimenImportacion({ regimen, info, data, esMejor, seleccionado, on
       <div className="flex items-start justify-between mb-1">
         <div>
           <div className="flex items-center gap-2">
-            <p className="font-display text-sm tracking-wider text-on-surface uppercase">{info.label}</p>
+            <p className="font-body text-sm font-semibold tracking-wide text-on-surface uppercase">{info.label}</p>
             {esMejor && <Badge variant="success">Mejor opción</Badge>}
           </div>
           <p className="font-body text-[10px] text-on-surface-variant mt-0.5">{info.desc}</p>
@@ -483,7 +483,7 @@ function TabImportacion({ productos, paises }) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <form onSubmit={handleCalcular} noValidate>
         <Card>
-          <p className="font-display text-lg tracking-wider text-on-surface uppercase mb-6">Datos de la operación</p>
+          <p className="font-body text-sm font-semibold tracking-widest text-on-surface-variant uppercase mb-6">Datos de la operación</p>
 
           <ProductoSelector productos={productos} onSelect={cargarDesdeProducto} operationType="importacion" />
 
@@ -699,7 +699,7 @@ function TabExportacion({ productos, paises }) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <form onSubmit={handleCalcular} noValidate>
         <Card>
-          <p className="font-display text-lg tracking-wider text-on-surface uppercase mb-6">Datos de la operación</p>
+          <p className="font-body text-sm font-semibold tracking-widest text-on-surface-variant uppercase mb-6">Datos de la operación</p>
 
           <ProductoSelector productos={productos} onSelect={cargarDesdeProducto} operationType="exportacion" />
 
@@ -837,7 +837,7 @@ function ResultadoExportacion({ resultado: r }) {
     <div className="space-y-4">
       <Card>
         <div className="text-center py-4">
-          <p className="font-display text-xs tracking-widest text-on-surface-variant uppercase">
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase">
             Precio {r.precio_calculado?.incoterm}
           </p>
           <p className="font-mono text-3xl text-on-surface font-semibold mt-2">
@@ -853,7 +853,7 @@ function ResultadoExportacion({ resultado: r }) {
       </Card>
 
       <Card>
-        <p className="font-display text-sm tracking-wider text-on-surface uppercase mb-4">Construcción del precio</p>
+        <p className="font-body text-sm font-semibold tracking-widest text-on-surface-variant uppercase mb-4">Construcción del precio</p>
 
         <div className="space-y-1.5">
           <LineaDesglose
@@ -892,13 +892,13 @@ function ResultadoExportacion({ resultado: r }) {
       </Card>
 
       <Card>
-        <p className="font-display text-sm tracking-wider text-on-surface uppercase mb-4">Conversión de incoterms</p>
+        <p className="font-body text-sm font-semibold tracking-widest text-on-surface-variant uppercase mb-4">Conversión de incoterms</p>
         <div className="grid grid-cols-2 gap-2">
           {incotermsMostrar.map(inc => {
             const valor = r.conversion_incoterms?.[inc]
             return (
               <div key={inc} className="flex justify-between items-center py-2 px-3 bg-white/[0.02] rounded-xl">
-                <span className="font-display text-xs tracking-wider text-on-surface-variant">{inc}</span>
+                <span className="font-body text-xs font-semibold tracking-wide text-on-surface-variant">{inc}</span>
                 <span className={`font-mono text-xs ${valor === null ? 'text-on-surface-variant/40' : 'text-on-surface'}`}>
                   {valor !== null ? usd(valor) : '—'}
                 </span>
@@ -910,7 +910,7 @@ function ResultadoExportacion({ resultado: r }) {
 
       {r.arancel_destino && (
         <Card>
-          <p className="font-display text-xs tracking-wider text-on-surface-variant uppercase mb-2">Arancel en destino</p>
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-2">Arancel en destino</p>
           <div className="flex items-center gap-3">
             <Badge variant="accent">
               {r.arancel_destino.ave_rate}% AVE

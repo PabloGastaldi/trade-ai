@@ -88,7 +88,7 @@ function PlanCard({ plan, esActual, onSuscribirse, cargando }) {
         </p>
 
         <div className="mt-4">
-          <span className={`font-display text-5xl tracking-wider ${
+          <span className={`font-mono text-5xl font-bold ${
             plan.id === 'free' ? 'text-on-surface' : ''
           }`}>
             {plan.precio}

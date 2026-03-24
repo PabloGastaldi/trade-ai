@@ -63,7 +63,7 @@ function EstadoVacio({ busqueda }) {
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         </svg>
       </div>
-      <p className="font-display text-xl tracking-wider text-on-surface-variant/40 uppercase mb-2">
+      <p className="font-body text-base font-semibold text-on-surface-variant/40 uppercase mb-2">
         {busqueda ? 'Sin resultados' : 'Sin consultas aún'}
       </p>
       <p className="font-body text-sm text-on-surface-variant/30">
@@ -149,7 +149,7 @@ function ConsultaItem({ consulta, expandido, onToggle, onBorrar, borrando }) {
 
       {expandido && (
         <div className="mt-4 pt-4 border-t border-white/[0.04]" onClick={e => e.stopPropagation()}>
-          <div className="font-body text-sm text-on-surface leading-relaxed [&_h1]:font-display [&_h1]:text-lg [&_h1]:tracking-wider [&_h1]:uppercase [&_h2]:font-display [&_h2]:text-base [&_h2]:tracking-wider [&_table]:w-full [&_table]:text-sm [&_th]:text-left [&_th]:font-mono [&_th]:text-[10px] [&_th]:uppercase [&_th]:tracking-widest [&_th]:text-on-surface-variant/50 [&_th]:pb-2 [&_td]:py-1.5 [&_tr]:border-t [&_tr]:border-white/[0.04] [&_code]:font-mono [&_code]:text-xs [&_code]:bg-white/[0.06] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_ul]:space-y-1 [&_ul]:pl-4 [&_li]:text-on-surface-variant [&_p]:mb-3 [&_p:last-child]:mb-0">
+          <div className="font-body text-sm text-on-surface leading-relaxed [&_h1]:font-display [&_h1]:text-lg [&_h1]:tracking-wider [&_h1]:uppercase [&_h2]:font-body [&_h2]:text-base [&_h2]:tracking-wider [&_table]:w-full [&_table]:text-sm [&_th]:text-left [&_th]:font-mono [&_th]:text-[10px] [&_th]:uppercase [&_th]:tracking-widest [&_th]:text-on-surface-variant/50 [&_th]:pb-2 [&_td]:py-1.5 [&_tr]:border-t [&_tr]:border-white/[0.04] [&_code]:font-mono [&_code]:text-xs [&_code]:bg-white/[0.06] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_ul]:space-y-1 [&_ul]:pl-4 [&_li]:text-on-surface-variant [&_p]:mb-3 [&_p:last-child]:mb-0">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {consulta.response_text}
             </ReactMarkdown>

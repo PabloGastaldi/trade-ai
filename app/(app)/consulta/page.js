@@ -31,7 +31,7 @@ function ChatBubble({ mensaje, onReintentar }) {
 
   return (
     <div className={`flex gap-3 py-3 animate-[fadeIn_0.3s_ease-out] ${esUsuario ? 'flex-row-reverse' : 'flex-row'}`}>
-      <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-display font-bold tracking-wide ${
+      <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-body font-bold ${
         esUsuario
           ? 'bg-surface-highest text-on-surface-variant/50'
           : 'bg-primary text-on-primary'
@@ -98,7 +98,7 @@ function ChatBubble({ mensaje, onReintentar }) {
                   <strong className="font-semibold text-on-surface">{children}</strong>
                 ),
                 h2: ({ children }) => (
-                  <h2 className="text-base font-display font-semibold text-on-surface mt-3 mb-1 pb-1 border-b border-white/[0.06] tracking-tight">
+                  <h2 className="text-base font-body font-semibold text-on-surface mt-3 mb-1 pb-1 border-b border-white/[0.06] tracking-tight">
                     {children}
                   </h2>
                 ),

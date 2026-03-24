@@ -110,7 +110,7 @@ function ModalDesglose({ resultado, tipo, onClose }) {
           <div className="flex items-center gap-3">
             <FlagImg iso3={pais_iso3} size={32} />
             <div>
-              <p className="font-display text-lg tracking-wider text-on-surface">{pais?.name ?? pais_iso3}</p>
+              <p className="font-body text-base font-semibold text-on-surface">{pais?.name ?? pais_iso3}</p>
               <Badge variant="neutral" className="mt-1">
                 {tipo === 'exportacion' ? 'EXPORTACIÓN' : 'IMPORTACIÓN'}
               </Badge>
@@ -152,7 +152,7 @@ function DesgloseExpo({ data }) {
 
       {data?.costos_exportacion && (
         <div className="space-y-1.5">
-          <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant/50 mb-2">Costos de exportación</p>
+          <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/50 mb-2">Costos de exportación</p>
           {data.costos_exportacion.derecho_exportacion?.monto > 0 && (
             <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
               <span className="font-body text-xs text-on-surface-variant">
@@ -176,7 +176,7 @@ function DesgloseExpo({ data }) {
 
       {data?.arancel_destino && (
         <div className="bg-white/[0.02] rounded-xl p-4">
-          <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant/50 mb-2">Arancel destino</p>
+          <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/50 mb-2">Arancel destino</p>
           <div className="flex justify-between items-center">
             <span className="font-body text-xs text-on-surface-variant">
               HS {data.arancel_destino.hs_code}
@@ -212,7 +212,7 @@ function DesgloseImpo({ data }) {
       </div>
 
       <div className="space-y-1">
-        <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant/50 mb-2">Tributos aplicados</p>
+        <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/50 mb-2">Tributos aplicados</p>
         {d.derecho_importacion && (
           <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
             <span className="font-body text-xs text-on-surface-variant">
@@ -251,7 +251,7 @@ function DesgloseImpo({ data }) {
 
       {data?.preferencia_aplicada && (
         <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-4">
-          <p className="font-display text-[10px] tracking-widest uppercase text-emerald-400/60 mb-1">Preferencia aplicada</p>
+          <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-emerald-400/60 mb-1">Preferencia aplicada</p>
           <p className="font-body text-sm text-emerald-400">{data.preferencia_aplicada.acuerdo}</p>
         </div>
       )}
@@ -411,7 +411,7 @@ export default function ComparadorClient({ productos }) {
       <div className="max-w-6xl">
         {/* Selector de producto */}
         <Card className="mb-6">
-          <p className="font-display text-[10px] tracking-widest uppercase text-on-surface-variant mb-4">
+          <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant mb-4">
             SELECCIONÁ UN PRODUCTO
           </p>
 
@@ -561,7 +561,7 @@ export default function ComparadorClient({ productos }) {
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
               </svg>
             </div>
-            <p className="font-display text-xl tracking-wider text-on-surface-variant/30 uppercase">
+            <p className="font-body text-base font-semibold text-on-surface-variant/30 uppercase">
               Seleccioná un producto y comparalo
             </p>
           </div>

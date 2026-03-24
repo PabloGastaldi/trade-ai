@@ -463,7 +463,7 @@ function KanbanColumna({ estado, operaciones, paises, onCardClick }) {
       className={`min-w-[280px] bg-white/[0.01] rounded-2xl p-3 flex-shrink-0 transition-all ${isOver ? 'bg-white/[0.03]' : ''}`}
     >
       <div className="flex items-center justify-between mb-3 px-1">
-        <span className="font-display text-xs tracking-widest text-on-surface-variant uppercase">{estado.label}</span>
+        <span className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase">{estado.label}</span>
         <span className="font-mono text-[10px] text-on-surface-variant/50">{operaciones.length}</span>
       </div>
       <div className="space-y-3">
@@ -558,7 +558,7 @@ function ModalNuevaOperacion({ form, setField, errores, productos, paises, guard
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && onCerrar()}>
       <div className="bg-surface-low rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-white/[0.04] sticky top-0 bg-surface-low z-10">
-          <h2 className="font-display text-xl tracking-wider text-on-surface uppercase">NUEVA OPERACIÓN</h2>
+          <h2 className="font-body text-base font-semibold text-on-surface uppercase">NUEVA OPERACIÓN</h2>
           <button onClick={onCerrar} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer">
             <IconCerrar />
           </button>

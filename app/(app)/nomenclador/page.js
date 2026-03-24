@@ -159,7 +159,7 @@ function PanelDetalle({ ncm, onClose }) {
           {(orgsImp.length > 0 || orgsExp.length > 0) && (
             <>
               <div className="h-px bg-white/[0.04] my-6" />
-              <p className="font-display text-sm tracking-wider text-on-surface-variant uppercase mb-3">Organismos intervinientes</p>
+              <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Organismos intervinientes</p>
               <div className="flex flex-wrap gap-1">
                 {orgsImp.map(o => <OrganismoBadge key={`imp-${o}`} org={o} />)}
                 {orgsExp.map(o => <OrganismoBadge key={`exp-${o}`} org={o} />)}
@@ -168,7 +168,7 @@ function PanelDetalle({ ncm, onClose }) {
           )}
 
           <div className="h-px bg-white/[0.04] my-6" />
-          <p className="font-display text-sm tracking-wider text-on-surface-variant uppercase mb-3">Acuerdos con preferencia</p>
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Acuerdos con preferencia</p>
 
           {loading ? (
             <div className="space-y-2">
@@ -200,7 +200,7 @@ function PanelDetalle({ ncm, onClose }) {
           )}
 
           <div className="h-px bg-white/[0.04] my-6" />
-          <p className="font-display text-sm tracking-wider text-on-surface-variant uppercase mb-3">Barreras no arancelarias por destino</p>
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Barreras no arancelarias por destino</p>
 
           {loading ? (
             <div className="space-y-2">
@@ -232,7 +232,7 @@ function PanelDetalle({ ncm, onClose }) {
           )}
 
           <div className="h-px bg-white/[0.04] my-6" />
-          <p className="font-display text-sm tracking-wider text-on-surface-variant uppercase mb-3">Aranceles en destinos</p>
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Aranceles en destinos</p>
 
           {loading ? (
             <div className="space-y-2">
@@ -287,7 +287,7 @@ function PanelDetalle({ ncm, onClose }) {
           {ncm.observaciones && (
             <>
               <div className="h-px bg-white/[0.04] my-6" />
-              <p className="font-display text-sm tracking-wider text-on-surface-variant uppercase mb-3">Observaciones</p>
+              <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Observaciones</p>
               <p className="font-body text-xs text-on-surface-variant/70 leading-relaxed">{ncm.observaciones}</p>
             </>
           )}

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { calcularExportacion } from '@/lib/calculadora/calc-exportacion'
 import { calcularImportacion } from '@/lib/calculadora/calc-importacion'
 import { verificarLimiteCalc, registrarCalc } from '@/lib/calc-limit'
@@ -79,18 +80,24 @@ export async function POST(request) {
     return NextResponse.json({ error: 'valor_fob debe ser mayor o igual a 0' }, { status: 400 })
   }
 
+  const serviceClient = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    { auth: { persistSession: false, autoRefreshToken: false } }
+  )
+
   const paisesUnicos = [...new Set(paises)].slice(0, MAX_PAISES)
   const resultados = await Promise.all(
     paisesUnicos.map(async (pais_iso3) => {
       try {
-        const data = await calcularImportacion({
+        const data = await calcularImportacion(serviceClient, {
           ncm_code,
           valor_fob,
           flete_internacional: flete_impo,
-          pais_origen: pais_iso3,
-          regimen: 'general',
+          pais_origen_iso3: pais_iso3,
           condicion_iva: 'responsable_inscripto',
         })
+        if (data.error) return { pais_iso3, ok: false, error: data.error }
         return { pais_iso3, ok: true, data }
       } catch (err) {
         return { pais_iso3, ok: false, error: err.message }

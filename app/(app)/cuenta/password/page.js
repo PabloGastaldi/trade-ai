@@ -43,7 +43,7 @@ export default function PasswordPage() {
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        <h1 className="font-display text-2xl tracking-wider uppercase text-on-surface text-center">
+        <h1 className="font-body text-xl font-semibold text-on-surface text-center">
           CAMBIAR CONTRASEÑA
         </h1>
         <p className="font-body text-sm text-on-surface-variant mt-2 mb-8 text-center">
