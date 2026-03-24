@@ -49,8 +49,8 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/consulta')
     router.refresh()
+    router.push('/consulta')
   }
 
   async function handleGoogle() {
