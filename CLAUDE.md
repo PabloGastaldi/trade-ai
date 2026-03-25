@@ -33,16 +33,22 @@ agentes de comercio exterior, consultores de comex.
 
 ## Design tokens (Tailwind + CSS variables)
 ```
-Fondo:         bg-surface (#0c0e12)
-Surface low:    bg-surface-low (#111318)
-Surface high:  bg-surface-high (#1d2025)
-Surface highest: bg-surface-highest (#23262c)
-Cards:         bg-white/[0.03] border border-white/[0.04] rounded-2xl
-Primario:      text-primary (#81e9ff), bg-primary-intense (#00e0ff)
-Texto:         text-on-surface (#f6f6fc), text-on-surface-variant (#aaabb0)
-Fuentes:       font-display (Bebas Neue), font-body (Inter), font-mono (Space Grotesk)
-Success:       text-emerald-400, bg-emerald-500/10
-Error:         text-red-400, bg-red-500/10
+Fondo:           bg-surface (#1A191C)
+Surface low:     bg-surface-low (#1f1e21)
+Surface high:    bg-surface-high (#2a292e)
+Surface highest: bg-surface-highest (#313035)
+Sidebar:         #111013 (más oscuro que surface para contraste)
+Cards:           bg-white/[0.03] border border-white/[0.04] rounded-2xl
+Primario:        text-primary (#DDD92A), bg-primary-intense (#EAE151)
+Sobre primario:  text-on-primary (#1A191C) — texto oscuro sobre amarillo
+Texto:           text-on-surface (#F5F5F5), text-on-surface-variant (#9E9DA0)
+Fuentes:         font-display (Bebas Neue — solo landing/auth)
+                 font-body (Inter — app interna, títulos de sección)
+                 font-mono (Space Grotesk — números/código)
+                 font-logo (Salin — SOLO logo "trade.ai")
+Logo:            <span className="font-logo"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span>
+Success:         text-emerald-400, bg-emerald-500/10
+Error:           text-red-400, bg-red-500/10
 ```
 
 ## Datasets disponibles
