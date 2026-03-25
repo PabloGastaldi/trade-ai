@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import {
   MessageSquare, BookOpen, Calculator, Globe,
   Package, Ship, Clock, User, Star,
@@ -42,6 +43,7 @@ const NAV_SECTIONS = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {

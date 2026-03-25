@@ -122,6 +122,14 @@ Tablas: `ncm`, `preferencias_arancelarias`, `acuerdos_generales`, `ntm_measures`
 Para operaciones concretas, consultá con un despachante de aduana
 matriculado o un profesional de comercio exterior."
 
+## Seguridad de configuración Claude Code
+- Auditado con [Clauditor](https://github.com/gabrielsoltz/clauditor) v0.5.4
+- Configuración endurecida aplicada en `.claude/settings.json` (scope: project)
+- Resultado scan: 19/51 checks PASS — mejora continua pendiente (32 FAIL restantes son managed/SSO/CODEOWNERS)
+- Checks críticos resueltos: `disableBypassPermissionsMode`, sandbox filesystem deny, deny `.env` directo, deny MCP filesystem server
+- Pendientes manuales: CODEOWNERS (CC001/CC030), SSO (CC007/CC008), managed scope (requiere Claude for Business)
+- Re-escanear con: `PYTHONUTF8=1 clauditor scan --path .`
+
 ## Entorno de desarrollo
 - Windows 11, PowerShell, VS Code
 - Puerto dev: 3000 (Next.js)

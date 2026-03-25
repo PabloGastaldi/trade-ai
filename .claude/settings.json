@@ -4,5 +4,51 @@
       "command": "engram",
       "args": ["mcp"]
     }
-  }
+  },
+  "disableBypassPermissionsMode": "disable",
+  "cleanupPeriodDays": 30,
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "denyWrite": [
+        "/etc",
+        "/usr",
+        "~/.ssh",
+        "~/.aws"
+      ],
+      "denyRead": [
+        "~/.ssh",
+        "~/.aws/credentials",
+        ".env",
+        "**/.env"
+      ]
+    },
+    "allowUnsandboxedCommands": false,
+    "enableWeakerNestedSandbox": false,
+    "network": {
+      "allowAllUnixSockets": false,
+      "allowedDomains": [
+        "*.supabase.co",
+        "*.pinecone.io",
+        "api.anthropic.com",
+        "*.mercadopago.com",
+        "*.vercel.app",
+        "vercel.com"
+      ]
+    },
+    "enableWeakerNetworkIsolation": false
+  },
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)"
+    ]
+  },
+  "deniedMcpServers": [
+    "filesystem"
+  ],
+  "disabledMcpjsonServers": [
+    "filesystem"
+  ]
 }
