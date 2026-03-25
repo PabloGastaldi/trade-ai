@@ -294,8 +294,8 @@ export default function ConsultaPage() {
         <div className="max-w-3xl mx-auto px-4">
           {sinMensajes ? (
             <div className="flex flex-col items-center justify-center min-h-[calc(100vh-220px)] text-center">
-              <p className="font-display text-6xl md:text-8xl tracking-widest text-on-surface/[0.04] select-none pointer-events-none mb-6">
-                TRADE.AI
+              <p className="font-logo text-6xl md:text-8xl text-on-surface/[0.04] select-none pointer-events-none mb-6">
+                trade.ai
               </p>
 
               <p className="font-body text-xl text-on-surface-variant mb-8">

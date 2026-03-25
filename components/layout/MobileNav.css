@@ -8,7 +8,7 @@
   left: 0;
   right: 0;
   height: 52px;
-  background: #1A191C;
+  background: #111013;
   border-bottom: 1px solid var(--border);
   z-index: 199;
   align-items: center;
@@ -51,7 +51,7 @@
   right: 0;
   z-index: 200;
   height: 60px;
-  background: #1A191C;
+  background: #111013;
   border-top: 1px solid var(--border);
   display: none;
   grid-template-columns: repeat(4, 1fr);
@@ -124,7 +124,7 @@
   left: 0;
   right: 0;
   z-index: 200;
-  background: #1A191C;
+  background: #111013;
   border-top: 1px solid var(--border);
   border-radius: 16px 16px 0 0;
   transform: translateY(100%);
