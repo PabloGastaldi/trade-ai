@@ -81,10 +81,9 @@ function MobileShell() {
   return (
     <>
       <div className="mobile-header">
-        <span className="mobile-header-title">
-          <span style={{ color: 'var(--text)' }}>trade</span>
-          <span style={{ color: '#81e9ff' }}>.</span>
-          <span style={{ color: '#81e9ff' }}>ai</span>
+        <span className="mobile-header-title font-logo">
+          <span className="text-on-surface">trade</span>
+          <span className="text-primary">.ai</span>
         </span>
         <button
           className="mobile-header-menu"
@@ -138,10 +137,9 @@ function MobileShell() {
 
       <div className={`mobile-drawer ${drawerOpen ? 'mobile-drawer--open' : ''}`}>
         <div className="mobile-drawer-header">
-          <span className="mobile-drawer-title">
-            <span style={{ color: 'var(--text)' }}>trade</span>
-            <span style={{ color: '#81e9ff' }}>.</span>
-            <span style={{ color: '#81e9ff' }}>ai</span>
+          <span className="mobile-drawer-title font-logo">
+            <span className="text-on-surface">trade</span>
+            <span className="text-primary">.ai</span>
           </span>
           <div className="mobile-drawer-user">
             {email && <span className="mobile-drawer-email">{email}</span>}

@@ -71,9 +71,8 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="sidebar-logo">
         <Link href="/consulta" className="sidebar-logo-link">
-          <span className="sidebar-logo-trade">trade</span>
-          <span className="sidebar-logo-dot">.</span>
-          <span className="sidebar-logo-ai">ai</span>
+          <span className="font-logo text-on-surface">trade</span>
+          <span className="font-logo text-primary">.ai</span>
           {!collapsed && <span className="sidebar-logo-badge">Beta</span>}
         </Link>
         <button

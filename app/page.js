@@ -115,10 +115,8 @@ export default function LandingPage() {
       <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-3xl px-4">
         <div className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-full bg-surface/60 backdrop-blur-2xl border border-white/[0.06] shadow-lg shadow-black/20">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-0.5 no-underline flex-shrink-0">
-            <span className="font-display text-lg tracking-[0.15em] text-on-surface">TRADE</span>
-            <span className="font-display text-lg tracking-[0.15em] text-primary">.</span>
-            <span className="font-display text-lg tracking-[0.15em] text-primary">AI</span>
+          <a href="/" className="flex items-center no-underline flex-shrink-0">
+            <span className="font-logo text-lg"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span>
           </a>
 
           {/* Desktop nav */}
@@ -147,7 +145,7 @@ export default function LandingPage() {
             </a>
             <a
               href="/registro"
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-on-primary bg-primary-intense hover:bg-primary hover:shadow-[0_0_20px_rgba(0,224,255,0.3)] transition-all duration-150 no-underline"
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-on-primary bg-primary-intense hover:bg-primary hover:shadow-[0_0_20px_rgba(221,217,42,0.25)] transition-all duration-150 no-underline"
             >
               Empezar gratis
             </a>
@@ -198,7 +196,7 @@ export default function LandingPage() {
         {/* Atmospheric glow */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
           <div className="absolute inset-0" style={{
-            background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0,224,255,0.06) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(221,217,42,0.04) 0%, transparent 70%)',
           }} />
         </div>
 
@@ -228,7 +226,7 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-center justify-center gap-4 mt-10 opacity-0 animate-[fadeInUp_0.8s_0.6s_ease_forwards]">
             <a
               href="/registro"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary-intense text-on-primary font-semibold text-base hover:shadow-[0_0_30px_rgba(0,224,255,0.3)] transition-all duration-200 no-underline"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary-intense text-on-primary font-semibold text-base hover:shadow-[0_0_30px_rgba(221,217,42,0.25)] transition-all duration-200 no-underline"
             >
               Empezar gratis
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
@@ -469,7 +467,7 @@ export default function LandingPage() {
               <FadeSection key={plan.id} delay={i * 100}>
                 <div className={`relative flex flex-col h-full p-8 rounded-2xl bg-white/[0.03] border transition-all duration-200 hover:scale-[1.02] ${
                   plan.destacado
-                    ? 'border-primary/30 shadow-[0_0_40px_rgba(0,224,255,0.06)]'
+                    ? 'border-primary/30 shadow-[0_0_40px_rgba(221,217,42,0.04)]'
                     : 'border-white/[0.04] hover:border-white/[0.08]'
                 }`}>
 
@@ -515,7 +513,7 @@ export default function LandingPage() {
                     href={plan.cta}
                     className={`mt-8 block text-center px-6 py-3 rounded-xl font-body text-sm transition-all duration-150 no-underline ${
                       plan.destacado
-                        ? 'bg-primary-intense text-on-primary font-semibold hover:bg-primary hover:shadow-[0_0_20px_rgba(0,224,255,0.2)]'
+                        ? 'bg-primary-intense text-on-primary font-semibold hover:bg-primary hover:shadow-[0_0_20px_rgba(221,217,42,0.2)]'
                         : 'border border-white/[0.1] text-on-surface hover:bg-white/[0.05]'
                     }`}
                   >
@@ -540,7 +538,7 @@ export default function LandingPage() {
             </p>
             <a
               href="/registro"
-              className="inline-flex items-center gap-3 px-10 py-5 rounded-xl bg-primary-intense text-on-primary font-semibold text-lg hover:shadow-[0_0_30px_rgba(0,224,255,0.3)] transition-all duration-200 no-underline"
+              className="inline-flex items-center gap-3 px-10 py-5 rounded-xl bg-primary-intense text-on-primary font-semibold text-lg hover:shadow-[0_0_30px_rgba(221,217,42,0.25)] transition-all duration-200 no-underline"
             >
               Crear cuenta gratis
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
@@ -557,8 +555,8 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between gap-10 mb-12">
             {/* Brand */}
             <div>
-              <div className="font-display text-xl tracking-[0.15em] text-on-surface-variant">
-                TRADE.AI
+              <div>
+                <span className="font-logo text-xl"><span className="text-on-surface-variant">trade</span><span className="text-primary">.ai</span></span>
               </div>
               <p className="font-body text-sm text-on-surface-variant/60 mt-2">
                 Plataforma de comercio exterior con IA

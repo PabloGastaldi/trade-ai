@@ -332,7 +332,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
 
           <button
             onClick={abrirModal}
-            className="bg-primary-intense text-on-primary px-5 py-2.5 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(0,224,255,0.15)] transition-all"
+            className="bg-primary-intense text-on-primary px-5 py-2.5 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all"
           >
             + Nueva operación
           </button>
@@ -344,7 +344,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
           <div className="text-on-surface-variant/20 mb-4"><IconBarco /></div>
           <p className="font-body text-lg text-on-surface-variant">No tenés operaciones activas</p>
           <p className="font-body text-sm text-on-surface-variant/60 mt-2">Creá tu primera operación para empezar a gestionar</p>
-          <button onClick={abrirModal} className="mt-6 bg-primary-intense text-on-primary px-6 py-3 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(0,224,255,0.15)] transition-all">
+          <button onClick={abrirModal} className="mt-6 bg-primary-intense text-on-primary px-6 py-3 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all">
             + Nueva operación
           </button>
         </div>
@@ -771,7 +771,7 @@ function ModalNuevaOperacion({ form, setField, errores, productos, paises, guard
             <button
               type="submit"
               disabled={guardando}
-              className="flex-1 py-3 rounded-xl bg-primary-intense text-on-primary font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(0,224,255,0.15)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3 rounded-xl bg-primary-intense text-on-primary font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {guardando ? 'Creando…' : 'Crear operación'}
             </button>

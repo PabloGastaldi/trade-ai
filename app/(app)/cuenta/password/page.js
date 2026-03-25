@@ -125,7 +125,7 @@ export default function PasswordPage() {
           <button
             type="submit"
             disabled={!puedeEnviar}
-            className="w-full bg-primary-intense text-on-primary py-3 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(0,224,255,0.15)] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-2 mt-2"
+            className="w-full bg-primary-intense text-on-primary py-3 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-2 mt-2"
           >
             {guardando ? (
               <>

@@ -1,5 +1,5 @@
 const variants = {
-  primary: 'bg-primary-intense text-on-primary hover:shadow-[0_0_20px_rgba(0,224,255,0.15)]',
+  primary: 'bg-primary-intense text-on-primary hover:shadow-[0_0_20px_rgba(221,217,42,0.2)]',
   secondary: 'bg-white/[0.05] text-on-surface hover:bg-white/[0.08] border border-white/[0.08]',
   ghost: 'text-on-surface-variant hover:text-on-surface hover:bg-white/[0.04]',
   danger: 'bg-red-500/10 text-red-400 hover:bg-red-500/20',

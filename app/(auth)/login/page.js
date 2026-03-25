@@ -67,10 +67,10 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center gap-12 px-8 bg-surface">
       <div className="hidden md:flex w-[500px] h-[600px] rounded-3xl bg-surface-low flex-col justify-between p-10 relative overflow-hidden shrink-0">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,224,255,0.12) 0%, rgba(0,224,255,0.03) 40%, transparent 70%)' }} />
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(221,217,42,0.06) 0%, rgba(221,217,42,0.02) 40%, transparent 70%)' }} />
         </div>
         <div className="relative z-10">
-          <Link href="/" className="font-display text-sm tracking-[0.15em] text-on-surface no-underline">TRADE<span className="text-primary">.</span><span className="text-primary">AI</span></Link>
+          <Link href="/" className="no-underline"><span className="font-logo"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span></Link>
         </div>
         <div className="relative z-10">
           <h2 className="font-display text-6xl tracking-wider leading-tight text-on-surface">DONDE EL COMERCIO SE VUELVE INTELIGENTE.</h2>
@@ -82,7 +82,7 @@ export default function LoginPage() {
 
       <div className="w-[400px] shrink-0">
         <div className="md:hidden mb-8">
-          <Link href="/" className="font-display text-2xl tracking-[0.15em] text-on-surface no-underline">                TRADE<span className="text-primary">.</span><span className="text-primary">AI</span></Link>
+          <Link href="/" className="no-underline"><span className="font-logo text-2xl"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span></Link>
         </div>
         <h1 className="font-display text-4xl tracking-wider text-on-surface">BIENVENIDO DE VUELTA</h1>
         <p className="font-body text-base text-on-surface-variant mt-2 mb-8">Ingresá a tu cuenta para continuar</p>
@@ -122,7 +122,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button type="submit" disabled={loading} className="w-full py-3.5 rounded-xl bg-[#e8e8e8] text-[#0c0e12] font-body font-semibold text-sm hover:bg-[#f0f0f0] hover:shadow-[0_0_20px_rgba(255,255,255,0.08)] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed mt-1">
+          <button type="submit" disabled={loading} className="w-full py-3.5 rounded-xl bg-primary text-on-primary font-body font-semibold text-sm hover:bg-primary-intense hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed mt-1">
             {loading ? 'Ingresando...' : 'Iniciar sesión'}
           </button>
         </form>

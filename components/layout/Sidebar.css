@@ -6,7 +6,7 @@
   left: 0;
   bottom: 0;
   width: 250px;
-  background: #0d1117;
+  background: #1A191C;
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -44,8 +44,8 @@
 }
 
 .sidebar-logo-trade { color: var(--text); }
-.sidebar-logo-dot   { color: #81e9ff; }
-.sidebar-logo-ai    { color: #81e9ff; }
+.sidebar-logo-dot   { color: #DDD92A; }
+.sidebar-logo-ai    { color: #DDD92A; }
 
 .sidebar-logo-badge {
   margin-left: 0.5rem;
@@ -54,8 +54,8 @@
   font-family: var(--font-body);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #81e9ff;
-  background: rgba(129, 233, 255, 0.1);
+  color: #DDD92A;
+  background: rgba(221,217,42,0.1);
   border-radius: 3px;
   padding: 0.14rem 0.38rem;
 }
@@ -144,8 +144,8 @@
 
 .sidebar-link--active {
   color: var(--text);
-  background: rgba(129, 233, 255, 0.06);
-  border-left-color: #81e9ff;
+  background: rgba(221,217,42,0.06);
+  border-left-color: #DDD92A;
 }
 
 .sidebar-link--soon {
@@ -188,13 +188,13 @@
 }
 
 .sidebar-plan-badge--pro {
-  color: #81e9ff;
-  background: rgba(129, 233, 255, 0.1);
+  color: #DDD92A;
+  background: rgba(221,217,42,0.1);
 }
 
 .sidebar-plan-badge--empresa {
-  color: #81e9ff;
-  background: rgba(129, 233, 255, 0.15);
+  color: #DDD92A;
+  background: rgba(221,217,42,0.15);
 }
 
 /* Soon badge */
@@ -284,9 +284,9 @@
 }
 
 .sidebar--collapsed .sidebar-link--active {
-  background: rgba(129, 233, 255, 0.08);
+  background: rgba(221,217,42,0.08);
   border-bottom-color: transparent;
-  box-shadow: inset 0 0 0 1px rgba(129, 233, 255, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(221,217,42,0.15);
 }
 
 .sidebar--collapsed .sidebar-section + .sidebar-section {
