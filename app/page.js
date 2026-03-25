@@ -213,8 +213,8 @@ export default function LandingPage() {
           </div>
 
           {/* Title */}
-          <h1 className="font-display text-[clamp(5rem,15vw,14rem)] leading-none tracking-[0.05em] text-on-surface opacity-0 animate-[fadeInUp_0.8s_0.2s_ease_forwards]">
-            <span>TRADE</span><span className="text-primary-intense">.AI</span>
+          <h1 className="font-logo text-[clamp(5rem,15vw,14rem)] leading-none text-on-surface opacity-0 animate-[fadeInUp_0.8s_0.2s_ease_forwards]">
+            <span>trade</span><span className="text-primary">.ai</span>
           </h1>
 
           {/* Subtitle */}
