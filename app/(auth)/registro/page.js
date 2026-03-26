@@ -78,7 +78,7 @@ export default function RegistroPage() {
 
   if (success) {
     return (
-      <div className="flex min-h-screen items-center justify-center gap-12 px-8 bg-surface">
+      <div className="flex min-h-screen items-center justify-center gap-12 px-4 sm:px-8 bg-surface">
         <div className="hidden md:flex w-[500px] h-[600px] rounded-3xl bg-surface-low flex-col justify-between p-10 relative overflow-hidden shrink-0">
           <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
             <div className="absolute inset-0" style={{
@@ -98,7 +98,7 @@ export default function RegistroPage() {
           </div>
         </div>
 
-        <div className="w-[400px] shrink-0">
+        <div className="w-full max-w-[400px]">
           <div className="md:hidden mb-8">
             <Link href="/" className="no-underline"><span className="font-logo text-2xl"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span></Link>
           </div>
@@ -145,7 +145,7 @@ export default function RegistroPage() {
         </div>
       </div>
 
-      <div className="w-[400px] shrink-0">
+      <div className="w-full max-w-[400px]">
         <div className="md:hidden mb-8">
           <Link href="/" className="no-underline"><span className="font-logo text-2xl"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span></Link>
         </div>

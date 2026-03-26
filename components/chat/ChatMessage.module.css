@@ -139,9 +139,13 @@
 /* Tablas */
 .texto table {
   width: 100%;
+  min-width: 0;
   border-collapse: collapse;
   margin: 0.75rem 0;
   font-size: 0.875rem;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .texto thead {
@@ -261,4 +265,23 @@
   font-size: 0.78rem;
   flex-shrink: 0;
   margin-top: 0.05rem;
+}
+
+@media (max-width: 767px) {
+  .wrapper {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .content {
+    max-width: calc(100vw - 5rem);
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .texto {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
 }

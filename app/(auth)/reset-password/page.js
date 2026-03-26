@@ -65,10 +65,10 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center gap-12 px-8 bg-surface">
+    <div className="flex min-h-screen items-center justify-center gap-12 px-4 sm:px-8 bg-surface">
       <LeftBrandingCard />
 
-      <div className="w-[400px] shrink-0">
+      <div className="w-full max-w-[400px]">
         <div className="md:hidden mb-8">
           <Link href="/" className="no-underline"><span className="font-logo text-2xl"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span></Link>
         </div>

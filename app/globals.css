@@ -43,7 +43,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display), 'Bebas Neue', sans-serif;
+  font-family: var(--font-body), 'Inter', sans-serif;
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.02em;
