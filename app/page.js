@@ -202,15 +202,6 @@ export default function LandingPage() {
 
         <div className="relative z-10 flex flex-col items-center text-center max-w-5xl mx-auto">
 
-          {/* Chip */}
-          <div className="mb-12 opacity-0 animate-[fadeInUp_0.8s_ease_forwards]">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.05] backdrop-blur-sm border border-white/[0.06]">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary-intense animate-pulse" />
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
-                Comercio Exterior Argentino
-              </span>
-            </span>
-          </div>
 
           {/* Title */}
           <h1 className="font-logo text-[clamp(5rem,15vw,14rem)] leading-none text-on-surface opacity-0 animate-[fadeInUp_0.8s_0.2s_ease_forwards]">
