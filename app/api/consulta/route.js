@@ -233,7 +233,6 @@ Criterios ESTRICTOS de complejidad — el tope de tokens es real, no malgastes:
     const texto = respuestaHaiku.content[0]?.text ?? ''
     const json  = texto.replace(/```json|```/g, '').trim()
     clasificacion = { ...clasificacion, ...JSON.parse(json) }
-    console.log('[clasificacion]', JSON.stringify(clasificacion))
   } catch (err) {
     console.warn('[consulta] Clasificación Haiku falló, usando fallback:', err.message)
     // No crítico — el flujo continúa con los defaults
@@ -319,11 +318,6 @@ Criterios ESTRICTOS de complejidad — el tope de tokens es real, no malgastes:
 
     const fragmentos = await buscarEnPinecone(queryPinecone, { topK })
 
-    console.log('Fragmentos encontrados:', fragmentos.map(f => ({
-      fuente: f.fuente,
-      tipo:   f.tipo,
-      score:  f.score,
-    })))
 
     if (fragmentos.length > 0) {
       contextoPinecone =

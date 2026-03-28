@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
   MessageSquare, Calculator, Ship, MoreHorizontal,
-  Package, Globe, Clock, User, Star, BookOpen,
+  Package, Globe, Clock, User, Star, BookOpen, BarChart3,
 } from 'lucide-react'
 import './MobileNav.css'
 
@@ -21,11 +21,12 @@ const BOTTOM_TABS = [
 
 const DRAWER_ITEMS = [
   { label: 'Catálogo',    Icon: Package,    href: '/catalogo' },
-  { label: 'Comparador',  Icon: Globe,     href: '/comparador' },
-  { label: 'Historial',   Icon: Clock,     href: '/historial' },
-  { label: 'Mi cuenta',   Icon: User,      href: '/cuenta' },
-  { label: 'Planes',      Icon: Star,      href: '/planes' },
-  { label: 'Nomenclador', Icon: BookOpen,  href: '/nomenclador', soon: true },
+  { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
+  { label: 'Mercados',    Icon: BarChart3,  href: '/mercados' },
+  { label: 'Historial',   Icon: Clock,      href: '/historial' },
+  { label: 'Mi cuenta',   Icon: User,       href: '/cuenta' },
+  { label: 'Planes',      Icon: Star,       href: '/planes' },
+  { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador', soon: true },
 ]
 
 export default function MobileNav() {

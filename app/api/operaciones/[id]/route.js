@@ -45,7 +45,8 @@ export async function PATCH(request, { params }) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('[operaciones] Error al actualizar estado:', error.message)
+      return NextResponse.json({ error: 'Error al actualizar la operación' }, { status: 500 })
     }
     return NextResponse.json({ operacion: data })
   }
@@ -60,7 +61,8 @@ export async function PATCH(request, { params }) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('[operaciones] Error al actualizar notas:', error.message)
+      return NextResponse.json({ error: 'Error al actualizar la operación' }, { status: 500 })
     }
     return NextResponse.json({ operacion: data })
   }
@@ -84,7 +86,8 @@ export async function PATCH(request, { params }) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('[operaciones] Error al actualizar documento:', error.message)
+      return NextResponse.json({ error: 'Error al actualizar el documento' }, { status: 500 })
     }
     return NextResponse.json({ documento: data })
   }

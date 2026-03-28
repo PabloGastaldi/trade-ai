@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
   MessageSquare, BookOpen, Calculator, Globe,
-  Package, Ship, Clock, User, Star,
+  Package, Ship, Clock, User, Star, BarChart3,
 } from 'lucide-react'
 import './Sidebar.css'
 
@@ -22,6 +22,7 @@ const NAV_SECTIONS = [
     items: [
       { label: 'Calculadora', Icon: Calculator, href: '/calculadora' },
       { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
+      { label: 'Mercados',    Icon: BarChart3,  href: '/mercados' },
       { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador', soon: true },
     ],
   },

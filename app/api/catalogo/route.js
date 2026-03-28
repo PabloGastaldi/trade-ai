@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+// Whitelists de validación
+const VALID_CURRENCIES = ['USD', 'EUR', 'ARS']
+const VALID_INCOTERMS  = ['EXW', 'FCA', 'FOB', 'CFR', 'CIF', 'CIP', 'DAP', 'DPU', 'DDP']
+
 // Límites de productos por plan — FUENTE DE VERDAD SERVER-SIDE
 const LIMITES_PRODUCTOS = {
   free:    2,
@@ -72,6 +76,12 @@ export async function POST(request) {
   if (!['exportacion', 'importacion'].includes(operation_type)) {
     return NextResponse.json({ error: 'operation_type inválido' }, { status: 400 })
   }
+  if (currency && !VALID_CURRENCIES.includes(currency)) {
+    return NextResponse.json({ error: 'Moneda no válida' }, { status: 400 })
+  }
+  if (!VALID_INCOTERMS.includes(incoterm)) {
+    return NextResponse.json({ error: 'Incoterm no válido' }, { status: 400 })
+  }
 
   // Verificar que el NCM existe en la tabla ncm
   const { data: ncmRow, error: ncmError } = await supabase
@@ -104,7 +114,8 @@ export async function POST(request) {
     .single()
 
   if (insertError) {
-    return NextResponse.json({ error: insertError.message }, { status: 500 })
+    console.error('[catalogo] Error al insertar producto:', insertError.message)
+    return NextResponse.json({ error: 'Error al procesar la solicitud' }, { status: 500 })
   }
 
   return NextResponse.json({ producto: data }, { status: 201 })
