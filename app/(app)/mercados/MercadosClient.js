@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   TrendingUp, TrendingDown, RefreshCw, DollarSign,
-  BarChart3, Wheat, Activity, AlertCircle, Minus, Ship,
+  BarChart3, Wheat, AlertCircle, Minus,
 } from 'lucide-react';
 
 // ── Hook ────────────────────────────────────────────────────────────────────
@@ -265,24 +265,6 @@ export default function MercadosClient() {
             </button>
           </div>
         </div>
-
-        {/* Brecha cambiaria banner */}
-        {dolares?.brecha != null && (
-          <div className="mb-5 bg-primary/[0.06] border border-primary/10 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <Activity size={16} strokeWidth={1.5} className="text-primary" />
-              <span className="font-body text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">
-                Brecha cambiaria
-              </span>
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-mono text-2xl text-primary font-medium">
-                {dolares.brecha.toFixed(1)}%
-              </span>
-              <span className="font-mono text-[10px] text-on-surface-variant">Blue vs Oficial</span>
-            </div>
-          </div>
-        )}
 
         {/* Grid principal */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
