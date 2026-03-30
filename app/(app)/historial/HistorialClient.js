@@ -218,6 +218,7 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
   const [expandido, setExpandido] = useState(null)
   const [cargando, setCargando] = useState(false)
   const [borrando, setBorrando] = useState(null)
+  const [confirmBorrar, setConfirmBorrar] = useState(null)
   const debounceRef = useRef(null)
 
   const totalPaginas = Math.ceil(total / porPagina)
@@ -265,7 +266,11 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
 
   async function handleBorrar(e, id) {
     e.stopPropagation()
-    if (!confirm('¿Borrar esta consulta del historial?')) return
+    setConfirmBorrar(id)
+  }
+
+  async function confirmarBorrar(id) {
+    setConfirmBorrar(null)
     setBorrando(id)
     try {
       const res = await fetch(`/api/historial/${id}`, { method: 'DELETE' })
@@ -337,6 +342,42 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
             >
               {cargando ? 'Cargando…' : 'Cargar más'}
             </button>
+          </div>
+        )}
+
+        {confirmBorrar && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setConfirmBorrar(null)}>
+            <div className="bg-surface-low rounded-2xl p-6 max-w-sm w-full border border-white/[0.06]" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-body text-base font-semibold text-on-surface">Eliminar consulta</h3>
+                  <p className="font-body text-sm text-on-surface-variant">Esta acción no se puede deshacer</p>
+                </div>
+              </div>
+              <p className="font-body text-sm text-on-surface-variant/80 mb-6">
+                ¿Estás seguro de que querés eliminar esta consulta del historial?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmBorrar(null)}
+                  className="flex-1 py-2.5 rounded-xl bg-white/[0.05] text-on-surface font-body font-medium text-sm hover:bg-white/[0.08] transition-all cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => confirmarBorrar(confirmBorrar)}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500/10 text-red-400 font-body font-medium text-sm border border-red-500/20 hover:bg-red-500/20 transition-all cursor-pointer"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
