@@ -1,5 +1,5 @@
 // app/api/market-data/route.js
-// Fuentes: DolarApi, ArgentinaDatos, BCR (scraping)
+// Fuentes: DolarApi, ArgentinaDatos, BCR (granos), Yahoo Finance (commodities/indices/forex)
 // Cache: ISR 5 minutos en Vercel
 
 export const revalidate = 300;
@@ -52,7 +52,6 @@ function parseARSPrice(str) {
 }
 
 function extractTableRows(html) {
-  // Extract all <tr> blocks containing <td> elements
   const rows = [];
   const trPattern = /<tr[\s\S]*?<\/tr>/gi;
   const tdPattern = /<td[^>]*>([\s\S]*?)<\/td>/gi;
@@ -62,7 +61,6 @@ function extractTableRows(html) {
     const cells = [];
     let tdMatch;
     while ((tdMatch = tdPattern.exec(rowHtml)) !== null) {
-      // Strip inner tags and decode entities
       const text = tdMatch[1]
         .replace(/<[^>]+>/g, '')
         .replace(/&nbsp;/g, ' ')
@@ -85,15 +83,12 @@ async function fetchGranosBCR() {
     if (!html) return null;
 
     const rows = extractTableRows(html);
-    // First data row = most recent, second = previous day
-    // Filter rows that look like date rows (first cell matches dd/mm/yyyy)
     const dataRows = rows.filter(r => /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(r[0]));
     if (dataRows.length < 1) return null;
 
     const latest = dataRows[0];
     const prev = dataRows[1] || null;
 
-    // Columns: [fecha, soja, sorgo, girasol, trigo, maiz]
     const granos = GRAIN_NAMES.map((name, i) => {
       const price = parseARSPrice(latest[i + 1]);
       const prevPrice = prev ? parseARSPrice(prev[i + 1]) : null;
@@ -157,13 +152,60 @@ async function fetchTasas() {
   return data[data.length - 1];
 }
 
+async function fetchYahooChart(ticker) {
+  const url = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=2d`;
+  const data = await fetchJSON(url, 8000);
+  const meta = data?.chart?.result?.[0]?.meta;
+  if (!meta) return null;
+  const closes = data.chart.result[0].indicators?.quote?.[0]?.close ?? [];
+  const prev = closes.length >= 2 ? closes[closes.length - 2] : null;
+  const price = meta.regularMarketPrice ?? null;
+  const change = price != null && prev != null ? price - prev : null;
+  const changePercent = price != null && prev != null && prev > 0 ? ((price - prev) / prev) * 100 : null;
+  return {
+    symbol: ticker, price, change, changePercent,
+    currency: meta.currency || 'USD', marketState: meta.marketState || 'CLOSED',
+  };
+}
+
+async function fetchYahooQuotes() {
+  const tickers = ['ZS=F','ZW=F','ZC=F','ZL=F','ZM=F','CL=F','BZ=F','^GSPC','EURUSD=X','BRL=X','CNY=X'];
+  const results = await Promise.all(tickers.map(fetchYahooChart));
+  if (results.every(r => r === null)) return null;
+  const quotes = {};
+  for (let i = 0; i < tickers.length; i++) {
+    if (results[i]) quotes[tickers[i]] = results[i];
+  }
+  return quotes;
+}
+
+const NAMES = {
+  'ZS=F':'Soja','ZW=F':'Trigo','ZC=F':'Maíz','ZL=F':'Aceite de soja','ZM=F':'Harina de soja',
+  'CL=F':'Petróleo WTI','BZ=F':'Petróleo Brent','^GSPC':'S&P 500',
+  'EURUSD=X':'EUR/USD','BRL=X':'USD/BRL','CNY=X':'USD/CNY',
+};
+const UNITS = {
+  'ZS=F':'USD/bu','ZW=F':'USD/bu','ZC=F':'USD/bu',
+  'ZL=F':'USD/lb','ZM=F':'USD/ton','CL=F':'USD/bbl','BZ=F':'USD/bbl',
+};
+
 export async function GET() {
   const start = Date.now();
-  const [dolares, monedas, riesgoPais, inflacion, inflacionInteranual, tasas, granosData] =
+  const [dolares, monedas, riesgoPais, inflacion, inflacionInteranual, tasas, yahooQuotes, granosData] =
     await Promise.all([
       fetchDolares(), fetchMonedas(), fetchRiesgoPais(),
-      fetchInflacion(), fetchInflacionInteranual(), fetchTasas(), fetchGranosBCR(),
+      fetchInflacion(), fetchInflacionInteranual(), fetchTasas(),
+      fetchYahooQuotes(), fetchGranosBCR(),
     ]);
+
+  let commodities = null, indices = null, forex = null;
+  if (yahooQuotes) {
+    const enrich = (ts) => ts.map(t => yahooQuotes[t]).filter(Boolean)
+      .map(q => ({ ...q, displayName: NAMES[q.symbol] || q.symbol, unit: UNITS[q.symbol] || '' }));
+    commodities = enrich(['ZS=F','ZW=F','ZC=F','ZL=F','ZM=F','CL=F','BZ=F']);
+    indices = enrich(['^GSPC']);
+    forex = enrich(['EURUSD=X','BRL=X','CNY=X']);
+  }
 
   return Response.json({
     timestamp: new Date().toISOString(),
@@ -174,6 +216,9 @@ export async function GET() {
     inflacion,
     inflacionInteranual,
     tasas,
+    commodities,
+    indices,
+    forex,
     granos: granosData,
   }, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' } });
 }

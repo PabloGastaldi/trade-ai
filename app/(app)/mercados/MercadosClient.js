@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   TrendingUp, TrendingDown, RefreshCw, DollarSign,
-  BarChart3, Wheat, AlertCircle, Minus, AlertTriangle,
+  BarChart3, Wheat, AlertCircle, Minus,
 } from 'lucide-react';
 
 // ── Hook ────────────────────────────────────────────────────────────────────
@@ -48,13 +48,22 @@ function fmtARS(v) {
 
 function fmtARSCompact(v) {
   if (v == null) return '—';
-  // e.g. 484000 → "$484.000"
   return `$${v.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+}
+
+function fmtUSD(v, d = 2) {
+  if (v == null) return '—';
+  return `$${v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d })}`;
 }
 
 function fmtPct(v) {
   if (v == null) return '—';
   return `${v > 0 ? '+' : ''}${v.toFixed(2)}%`;
+}
+
+function fmtNum(v, d = 2) {
+  if (v == null) return '—';
+  return v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 
 function timeAgo(date) {
@@ -105,27 +114,6 @@ function MarketCard({ title, icon: Icon, children, className = '' }) {
   );
 }
 
-// ── Brecha cambiaria banner ──────────────────────────────────────────────────
-
-function BrechaBanner({ brecha }) {
-  if (brecha == null) return null;
-  const level = brecha > 100 ? 'error' : brecha > 50 ? 'warning' : 'ok';
-  const colors = {
-    error: 'bg-red-500/[0.08] border-red-500/20 text-red-400',
-    warning: 'bg-amber-500/[0.08] border-amber-500/20 text-amber-400',
-    ok: 'bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-400',
-  };
-  return (
-    <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border mb-4 ${colors[level]}`}>
-      <AlertTriangle size={13} strokeWidth={1.5} />
-      <span className="font-body text-xs">
-        Brecha cambiaria (Blue / Oficial):{' '}
-        <span className="font-mono font-semibold">{fmtPct(brecha)}</span>
-      </span>
-    </div>
-  );
-}
-
 // ── Dolar row ───────────────────────────────────────────────────────────────
 
 function DolarRow({ label, data, highlight = false }) {
@@ -148,6 +136,26 @@ function DolarRow({ label, data, highlight = false }) {
             {fmtARS(data.venta)}
           </span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Commodity row ───────────────────────────────────────────────────────────
+
+function CommodityItem({ commodity }) {
+  if (!commodity) return null;
+  return (
+    <div className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+      <div className="flex items-center gap-2">
+        <span className="font-body text-sm text-on-surface">{commodity.displayName}</span>
+        {commodity.unit && (
+          <span className="font-mono text-[10px] text-on-surface-variant">{commodity.unit}</span>
+        )}
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-sm text-on-surface">{fmtUSD(commodity.price)}</span>
+        <ChangeIndicator value={commodity.changePercent} />
       </div>
     </div>
   );
@@ -225,7 +233,7 @@ export default function MercadosClient() {
             <p className="font-body text-sm text-on-surface-variant mt-1">Cargando datos...</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)}
+            {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
           </div>
         </div>
       </div>
@@ -247,14 +255,14 @@ export default function MercadosClient() {
     );
   }
 
-  const { dolares, monedas, riesgoPais, inflacion, inflacionInteranual, tasas, granos } = data || {};
+  const { dolares, monedas, riesgoPais, inflacion, inflacionInteranual, tasas, commodities, indices, forex, granos } = data || {};
   const rpVariant = riesgoPais?.valor > 1500 ? 'error' : riesgoPais?.valor > 800 ? 'warning' : 'success';
 
   return (
     <div className="min-h-screen p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
 
-        {/* Header */}
+        {/* Header — font-body (Inter), no Bebas Neue */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
           <div>
             <h1 className="font-body text-2xl font-semibold text-on-surface">Mercados</h1>
@@ -280,9 +288,6 @@ export default function MercadosClient() {
             </button>
           </div>
         </div>
-
-        {/* Brecha cambiaria */}
-        {dolares?.brecha != null && <BrechaBanner brecha={dolares.brecha} />}
 
         {/* Grid principal */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -361,33 +366,55 @@ export default function MercadosClient() {
             )}
           </MarketCard>
 
-          {/* Próximamente */}
-          <MarketCard title="Próximamente" icon={BarChart3}>
-            <div className="space-y-3 py-2">
-              {[
-                'Índices bursátiles',
-                'Petróleo WTI / Brent',
-                'S&P 500',
-                'Baltic Dry Index (BDI)',
-                'Merval en USD CCL',
-                'Reservas BCRA',
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0" />
-                  <span className="font-body text-sm text-on-surface-variant">{item}</span>
+          {/* Commodities USD */}
+          <MarketCard title="Commodities" icon={Wheat}>
+            {commodities?.length > 0 ? (
+              commodities.map(c => <CommodityItem key={c.symbol} commodity={c} />)
+            ) : (
+              <p className="font-body text-sm text-on-surface-variant">Datos no disponibles</p>
+            )}
+          </MarketCard>
+
+          {/* Índices y Forex */}
+          <MarketCard title="Índices y forex" icon={BarChart3}>
+            {indices?.length > 0 && indices.map(idx => (
+              <div key={idx.symbol} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+                <span className="font-body text-sm text-on-surface">{idx.displayName}</span>
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-sm text-on-surface">{fmtNum(idx.price, 0)}</span>
+                  <ChangeIndicator value={idx.changePercent} />
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
+            {forex?.length > 0 && (
+              <>
+                <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mt-3 mb-1 block">
+                  Forex
+                </span>
+                {forex.map(fx => (
+                  <div key={fx.symbol} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+                    <span className="font-body text-sm text-on-surface">{fx.displayName}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-sm text-on-surface">{fmtNum(fx.price, 4)}</span>
+                      <ChangeIndicator value={fx.changePercent} />
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+            {!indices?.length && !forex?.length && (
+              <p className="font-body text-sm text-on-surface-variant">Datos no disponibles</p>
+            )}
           </MarketCard>
         </div>
 
         {/* Disclaimer */}
         <div className="mt-6 px-4 py-3 bg-primary/[0.05] border border-primary/10 rounded-xl">
           <p className="font-body text-[11px] text-on-surface-variant leading-relaxed">
-            Los datos provienen de fuentes públicas (DolarApi, ArgentinaDatos, Bolsa de Comercio de Rosario)
-            y pueden tener demoras. Esta información es orientativa y está respaldada por fuentes oficiales.
-            Para operaciones concretas, consultá con un despachante de aduana matriculado o un profesional
-            de comercio exterior.
+            Los datos provienen de fuentes públicas (DolarApi, ArgentinaDatos, Bolsa de Comercio de Rosario,
+            Yahoo Finance) y pueden tener demoras de hasta 15 minutos. Esta información es orientativa y está
+            respaldada por fuentes oficiales. Para operaciones concretas, consultá con un despachante de aduana
+            matriculado o un profesional de comercio exterior.
           </p>
         </div>
 
