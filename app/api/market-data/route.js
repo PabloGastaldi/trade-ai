@@ -1,6 +1,16 @@
 // app/api/market-data/route.js
-// Fuentes: DolarApi, ArgentinaDatos, BCR (granos), Yahoo Finance (commodities/indices/forex)
+// Fuentes: DolarApi, ArgentinaDatos, Supabase (granos BCR via cron), Yahoo Finance
 // Cache: ISR 5 minutos en Vercel
+
+import { createClient } from '@supabase/supabase-js'
+
+function getServiceClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    { auth: { persistSession: false } },
+  )
+}
 
 export const revalidate = 300;
 
@@ -22,100 +32,18 @@ async function fetchJSON(url, timeout = 8000) {
   }
 }
 
-async function fetchHTML(url, timeout = 10000) {
-  try {
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(timeout),
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml',
-        'Accept-Language': 'es-AR,es;q=0.9',
-      },
-    });
-    if (!res.ok) return null;
-    return await res.text();
-  } catch {
-    return null;
-  }
-}
-
-function parseARSPrice(str) {
-  if (!str) return null;
-  // "$ 484.000,00" → 484000
-  const clean = str.replace(/\$/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.');
-  const val = parseFloat(clean);
-  return isNaN(val) ? null : val;
-}
-
-function extractCells(html, tag) {
-  // Use split approach to avoid RegExp escaping issues with \s\S in template literals
-  const open = `<${tag}`;
-  const close = `</${tag}>`;
-  const cells = [];
-  let pos = 0;
-  while (pos < html.length) {
-    const start = html.indexOf(open, pos);
-    if (start === -1) break;
-    const tagEnd = html.indexOf('>', start);
-    if (tagEnd === -1) break;
-    const contentStart = tagEnd + 1;
-    const end = html.indexOf(close, contentStart);
-    if (end === -1) break;
-    const raw = html.slice(contentStart, end);
-    const text = raw
-      .replace(/<[^>]+>/g, '')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .trim();
-    cells.push(text);
-    pos = end + close.length;
-  }
-  return cells;
-}
-
-// BCR table layout:
-// <th>: Fecha Negociación | Trading date | 26/03/2026 | 25/03/2026 | ...
-// <td> per grain: Nombre ES | Nombre EN | $precio_hoy | $precio_ayer | ...
-const GRAIN_MAP = { 'Soja': 'Soja', 'Sorgo': 'Sorgo', 'Girasol': 'Girasol', 'Trigo': 'Trigo', 'Ma': 'Maíz' };
-const GRAIN_NAMES_ES = ['Soja', 'Sorgo', 'Girasol', 'Trigo', 'Maíz'];
-
+// Lee el último registro de granos guardado por el cron /api/cron/bcr
 async function fetchGranosBCR() {
   try {
-    const html = await fetchHTML(
-      'https://www.bcr.com.ar/es/mercados/mercado-de-granos/cotizaciones/cotizaciones-locales-0',
-    );
-    if (!html) return null;
-
-    const ths = extractCells(html, 'th');
-    const tds = extractCells(html, 'td');
-
-    // ths: ["Fecha Negociación", "Trading date", "26/03/2026", "25/03/2026", ...]
-    const dateHeaders = ths.filter(t => /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(t));
-    const fecha = dateHeaders[0] || null;
-
-    // tds come in groups of 7: [nombre_es, nombre_en, precio_d0, precio_d1, ...]
-    // Each grain has 2 label cells + 5 price cells = 7 cells
-    const CELLS_PER_GRAIN = 7;
-    const granos = [];
-
-    for (let i = 0; i < tds.length; i += CELLS_PER_GRAIN) {
-      const nameES = tds[i];
-      const price = parseARSPrice(tds[i + 2]);
-      const prevPrice = parseARSPrice(tds[i + 3]);
-      if (!nameES || price == null) break;
-
-      // Normalize name (handle encoding of "Maíz")
-      const name = nameES === 'Ma\u00edz' || nameES.startsWith('Ma') && nameES.length <= 5 ? 'Maíz' : nameES;
-
-      const change = prevPrice != null ? price - prevPrice : null;
-      const changePercent =
-        prevPrice != null && prevPrice > 0 ? ((price - prevPrice) / prevPrice) * 100 : null;
-
-      granos.push({ name, price, prevPrice, change, changePercent, unit: 'ARS/Tn' });
-    }
-
-    if (granos.length === 0) return null;
-    return { fecha, granos };
+    const supabase = getServiceClient();
+    const { data, error } = await supabase
+      .from('granos_bcr')
+      .select('fecha_bcr, granos, fetched_at')
+      .order('fetched_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (error || !data) return null;
+    return { fecha: data.fecha_bcr, granos: data.granos, fetchedAt: data.fetched_at };
   } catch {
     return null;
   }
