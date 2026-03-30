@@ -16,6 +16,7 @@
 }
 
 :root {
+  /* Core tokens */
   --surface:           #1A191C;
   --surface-low:        #1f1e21;
   --surface-container: #242327;
@@ -26,6 +27,24 @@
   --on-surface:         #F5F5F5;
   --on-surface-variant: #9E9DA0;
   --on-primary:         #1A191C;
+
+  /* Legacy aliases (used by CSS modules) */
+  --accent:             #DDD92A;
+  --accent-hover:       #EAE151;
+  --accent-dim:         rgba(221, 217, 42, 0.1);
+  --accent-dim-border:  rgba(221, 217, 42, 0.2);
+  --text:               #F5F5F5;
+  --text-muted:         #9E9DA0;
+  --text-dim:           #9E9DA0;
+  --bg:                 #1A191C;
+  --surface-2:          #2a292e;
+  --border:             rgba(255, 255, 255, 0.04);
+  --border-light:       rgba(255, 255, 255, 0.08);
+
+  /* Fonts */
+  --font-display:       'Bebas Neue', sans-serif;
+  --font-body:          'Inter', sans-serif;
+  --font-mono:          'Space Grotesk', monospace;
 }
 
 html {
