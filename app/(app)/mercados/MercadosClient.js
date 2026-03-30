@@ -297,7 +297,7 @@ export default function MercadosClient() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
               <div>
                 <DolarRow label="Oficial" data={dolares?.oficial} />
-                <DolarRow label="Blue" data={dolares?.blue} highlight />
+                <DolarRow label="Blue" data={dolares?.blue} />
                 <DolarRow label="MEP (Bolsa)" data={dolares?.mep} />
               </div>
               <div>
