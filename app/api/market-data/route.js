@@ -51,29 +51,27 @@ function parseARSPrice(str) {
   return isNaN(val) ? null : val;
 }
 
-function extractTableRows(html) {
-  const rows = [];
-  const trPattern = /<tr[\s\S]*?<\/tr>/gi;
-  const tdPattern = /<td[^>]*>([\s\S]*?)<\/td>/gi;
-  let trMatch;
-  while ((trMatch = trPattern.exec(html)) !== null) {
-    const rowHtml = trMatch[0];
-    const cells = [];
-    let tdMatch;
-    while ((tdMatch = tdPattern.exec(rowHtml)) !== null) {
-      const text = tdMatch[1]
-        .replace(/<[^>]+>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .trim();
-      cells.push(text);
-    }
-    if (cells.length >= 5) rows.push(cells);
+function extractCellTexts(html, tag) {
+  // Extract text content from all <td> or <th> elements
+  const pattern = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'gi');
+  const cells = [];
+  let m;
+  while ((m = pattern.exec(html)) !== null) {
+    const text = m[1]
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .trim();
+    cells.push(text);
   }
-  return rows;
+  return cells;
 }
 
-const GRAIN_NAMES = ['Soja', 'Sorgo', 'Girasol', 'Trigo', 'Maíz'];
+// BCR table layout:
+// <th>: Fecha Negociación | Trading date | 26/03/2026 | 25/03/2026 | ...
+// <td> per grain: Nombre ES | Nombre EN | $precio_hoy | $precio_ayer | ...
+const GRAIN_MAP = { 'Soja': 'Soja', 'Sorgo': 'Sorgo', 'Girasol': 'Girasol', 'Trigo': 'Trigo', 'Ma': 'Maíz' };
+const GRAIN_NAMES_ES = ['Soja', 'Sorgo', 'Girasol', 'Trigo', 'Maíz'];
 
 async function fetchGranosBCR() {
   try {
@@ -82,25 +80,36 @@ async function fetchGranosBCR() {
     );
     if (!html) return null;
 
-    const rows = extractTableRows(html);
-    const dataRows = rows.filter(r => /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(r[0]));
-    if (dataRows.length < 1) return null;
+    const ths = extractCellTexts(html, 'th');
+    const tds = extractCellTexts(html, 'td');
 
-    const latest = dataRows[0];
-    const prev = dataRows[1] || null;
+    // ths: ["Fecha Negociación", "Trading date", "26/03/2026", "25/03/2026", ...]
+    const dateHeaders = ths.filter(t => /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(t));
+    const fecha = dateHeaders[0] || null;
 
-    const granos = GRAIN_NAMES.map((name, i) => {
-      const price = parseARSPrice(latest[i + 1]);
-      const prevPrice = prev ? parseARSPrice(prev[i + 1]) : null;
-      const change = price != null && prevPrice != null ? price - prevPrice : null;
+    // tds come in groups of 7: [nombre_es, nombre_en, precio_d0, precio_d1, ...]
+    // Each grain has 2 label cells + 5 price cells = 7 cells
+    const CELLS_PER_GRAIN = 7;
+    const granos = [];
+
+    for (let i = 0; i < tds.length; i += CELLS_PER_GRAIN) {
+      const nameES = tds[i];
+      const price = parseARSPrice(tds[i + 2]);
+      const prevPrice = parseARSPrice(tds[i + 3]);
+      if (!nameES || price == null) break;
+
+      // Normalize name (handle encoding of "Maíz")
+      const name = nameES === 'Ma\u00edz' || nameES.startsWith('Ma') && nameES.length <= 5 ? 'Maíz' : nameES;
+
+      const change = prevPrice != null ? price - prevPrice : null;
       const changePercent =
-        price != null && prevPrice != null && prevPrice > 0
-          ? ((price - prevPrice) / prevPrice) * 100
-          : null;
-      return { name, price, prevPrice, change, changePercent, unit: 'ARS/Tn' };
-    });
+        prevPrice != null && prevPrice > 0 ? ((price - prevPrice) / prevPrice) * 100 : null;
 
-    return { fecha: latest[0], granos };
+      granos.push({ name, price, prevPrice, change, changePercent, unit: 'ARS/Tn' });
+    }
+
+    if (granos.length === 0) return null;
+    return { fecha, granos };
   } catch {
     return null;
   }
@@ -202,7 +211,8 @@ export async function GET() {
   if (yahooQuotes) {
     const enrich = (ts) => ts.map(t => yahooQuotes[t]).filter(Boolean)
       .map(q => ({ ...q, displayName: NAMES[q.symbol] || q.symbol, unit: UNITS[q.symbol] || '' }));
-    commodities = enrich(['ZS=F','ZW=F','ZC=F','ZL=F','ZM=F','CL=F','BZ=F']);
+    // Granos (soja/trigo/maíz/aceite/harina) removed — covered by BCR in ARS
+    commodities = enrich(['CL=F','BZ=F']);
     indices = enrich(['^GSPC']);
     forex = enrich(['EURUSD=X','BRL=X','CNY=X']);
   }

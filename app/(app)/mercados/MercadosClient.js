@@ -343,33 +343,33 @@ export default function MercadosClient() {
             )}
           </MarketCard>
 
-          {/* Granos BCR */}
-          <MarketCard title="Granos — BCR" icon={Wheat} className="xl:col-span-2">
-            {granos?.granos?.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-                  <div>
-                    {granos.granos.slice(0, 3).map(g => <GrainRow key={g.name} grain={g} />)}
-                  </div>
-                  <div>
-                    {granos.granos.slice(3).map(g => <GrainRow key={g.name} grain={g} />)}
-                  </div>
+          {/* Commodities — Granos BCR (ARS) + Petróleo Yahoo (USD) */}
+          <MarketCard title="Commodities" icon={Wheat} className="xl:col-span-2">
+            {(granos?.granos?.length > 0 || commodities?.length > 0) ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                <div>
+                  {granos?.granos?.length > 0 ? (
+                    <>
+                      <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mb-1 block">
+                        Granos — BCR{granos.fecha ? ` (${granos.fecha})` : ''}
+                      </span>
+                      {granos.granos.map(g => <GrainRow key={g.name} grain={g} />)}
+                    </>
+                  ) : (
+                    <p className="font-body text-sm text-on-surface-variant">Granos no disponibles</p>
+                  )}
                 </div>
-                {granos.fecha && (
-                  <p className="font-mono text-[10px] text-on-surface-variant mt-3">
-                    Última sesión BCR: {granos.fecha}
-                  </p>
-                )}
-              </>
-            ) : (
-              <p className="font-body text-sm text-on-surface-variant">Datos no disponibles</p>
-            )}
-          </MarketCard>
-
-          {/* Commodities USD */}
-          <MarketCard title="Commodities" icon={Wheat}>
-            {commodities?.length > 0 ? (
-              commodities.map(c => <CommodityItem key={c.symbol} commodity={c} />)
+                <div>
+                  {commodities?.length > 0 ? (
+                    <>
+                      <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mb-1 block">
+                        Petróleo
+                      </span>
+                      {commodities.map(c => <CommodityItem key={c.symbol} commodity={c} />)}
+                    </>
+                  ) : null}
+                </div>
+              </div>
             ) : (
               <p className="font-body text-sm text-on-surface-variant">Datos no disponibles</p>
             )}
