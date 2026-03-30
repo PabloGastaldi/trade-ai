@@ -23,22 +23,18 @@ async function fetchJSON(url, timeout = 8000) {
 }
 
 async function fetchHTML(url, timeout = 10000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
   try {
     const res = await fetch(url, {
-      signal: controller.signal,
+      signal: AbortSignal.timeout(timeout),
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml',
         'Accept-Language': 'es-AR,es;q=0.9',
       },
     });
-    clearTimeout(id);
     if (!res.ok) return null;
     return await res.text();
   } catch {
-    clearTimeout(id);
     return null;
   }
 }
@@ -51,18 +47,28 @@ function parseARSPrice(str) {
   return isNaN(val) ? null : val;
 }
 
-function extractCellTexts(html, tag) {
-  // Extract text content from all <td> or <th> elements
-  const pattern = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'gi');
+function extractCells(html, tag) {
+  // Use split approach to avoid RegExp escaping issues with \s\S in template literals
+  const open = `<${tag}`;
+  const close = `</${tag}>`;
   const cells = [];
-  let m;
-  while ((m = pattern.exec(html)) !== null) {
-    const text = m[1]
+  let pos = 0;
+  while (pos < html.length) {
+    const start = html.indexOf(open, pos);
+    if (start === -1) break;
+    const tagEnd = html.indexOf('>', start);
+    if (tagEnd === -1) break;
+    const contentStart = tagEnd + 1;
+    const end = html.indexOf(close, contentStart);
+    if (end === -1) break;
+    const raw = html.slice(contentStart, end);
+    const text = raw
       .replace(/<[^>]+>/g, '')
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
       .trim();
     cells.push(text);
+    pos = end + close.length;
   }
   return cells;
 }
@@ -80,8 +86,8 @@ async function fetchGranosBCR() {
     );
     if (!html) return null;
 
-    const ths = extractCellTexts(html, 'th');
-    const tds = extractCellTexts(html, 'td');
+    const ths = extractCells(html, 'th');
+    const tds = extractCells(html, 'td');
 
     // ths: ["Fecha Negociación", "Trading date", "26/03/2026", "25/03/2026", ...]
     const dateHeaders = ths.filter(t => /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(t));
