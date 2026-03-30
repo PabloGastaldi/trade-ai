@@ -1,5 +1,6 @@
 'use client'
 
+// Medio de pago - operaciones
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getMedioPago } from '@/lib/data/medios-pago'
