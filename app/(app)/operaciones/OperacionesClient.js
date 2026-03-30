@@ -15,6 +15,7 @@ import {
 import PageLayout from '@/components/ui/PageLayout'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
+import { MEDIOS_PAGO_OPTIONS, getMedioPago } from '@/lib/data/medios-pago'
 
 const ESTADOS_EXPO = [
   { key: 'expo_preparacion',    label: 'Preparación' },
@@ -73,6 +74,7 @@ const FORM_VACIO = {
   counterpart_name: '',
   counterpart_country: '',
   incoterm: 'FOB',
+  payment_method: '',
   currency: 'USD',
   total_value: '',
   estimated_ship_date: '',
@@ -232,6 +234,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
         counterpart_name: form.counterpart_name.trim() || null,
         counterpart_country: form.counterpart_country || null,
         incoterm: form.incoterm || null,
+        payment_method: form.payment_method || null,
         currency: form.currency,
         total_value: form.total_value ? Number(form.total_value) : null,
         estimated_ship_date: form.estimated_ship_date || null,
@@ -511,6 +514,142 @@ function KanbanCard({ op, paises, onClickCard, overlay }) {
   )
 }
 
+function badgeRiesgo(riesgo) {
+  if (!riesgo) return null
+  const r = riesgo.toLowerCase()
+  if (r === 'muy bajo' || r === 'bajo') return { bg: 'bg-emerald-500/10', text: 'text-emerald-400' }
+  if (r === 'medio') return { bg: 'bg-amber-500/10', text: 'text-amber-400' }
+  return { bg: 'bg-red-500/10', text: 'text-red-400' }
+}
+
+function IconCheck({ className = '' }) {
+  return (
+    <svg className={className} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  )
+}
+
+function IconX({ className = '' }) {
+  return (
+    <svg className={className} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  )
+}
+
+function IconChevronDown({ className = '' }) {
+  return (
+    <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  )
+}
+
+function IconChevronUp({ className = '' }) {
+  return (
+    <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="18 15 12 9 6 15"/>
+    </svg>
+  )
+}
+
+function PanelMedioPagoInline({ medioId }) {
+  const [expandir, setExpandir] = useState(false)
+  const medio = getMedioPago(medioId)
+  if (!medio) return null
+
+  const riesgoExp = badgeRiesgo(medio.riesgo_exportador)
+  const riesgoImp = badgeRiesgo(medio.riesgo_importador)
+  const costo = badgeRiesgo(medio.costo_relativo)
+
+  return (
+    <div className="bg-white/[0.02] rounded-xl p-5 mt-3 border border-white/[0.04]">
+      <h4 className="font-body text-base font-semibold text-on-surface">{medio.nombre}</h4>
+      <p className="font-body text-sm text-on-surface-variant mt-2">{medio.descripcion}</p>
+
+      <div className="flex flex-wrap gap-2 mt-3">
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium ${riesgoExp.bg} ${riesgoExp.text}`}>
+          Exportador: {medio.riesgo_exportador}
+        </span>
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium ${riesgoImp.bg} ${riesgoImp.text}`}>
+          Importador: {medio.riesgo_importador}
+        </span>
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium ${costo.bg} ${costo.text}`}>
+          Costo: {medio.costo_relativo}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        className="mt-3 flex items-center gap-1.5 text-primary text-sm font-body hover:underline cursor-pointer"
+        onClick={() => setExpandir(v => !v)}
+      >
+        {expandir ? 'Ocultar detalles' : 'Ver más detalles'}
+        {expandir ? <IconChevronUp /> : <IconChevronDown />}
+      </button>
+
+      {expandir && (
+        <div className="mt-4 space-y-4">
+          <div>
+            <p className="font-body text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Cómo funciona</p>
+            <ol className="space-y-1.5">
+              {medio.como_funciona.map((paso, i) => (
+                <li key={i} className="flex gap-2 text-sm font-body text-on-surface-variant">
+                  <span className="text-primary font-mono text-xs mt-0.5 shrink-0">{i + 1}.</span>
+                  <span>{paso}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="font-body text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Ventajas</p>
+              <ul className="space-y-1">
+                {medio.ventajas.map((v, i) => (
+                  <li key={i} className="flex gap-2 text-sm font-body text-on-surface-variant">
+                    <IconCheck className="text-emerald-400 mt-0.5 shrink-0" />
+                    <span>{v}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="font-body text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Desventajas</p>
+              <ul className="space-y-1">
+                {medio.desventajas.map((d, i) => (
+                  <li key={i} className="flex gap-2 text-sm font-body text-on-surface-variant">
+                    <IconX className="text-red-400 mt-0.5 shrink-0" />
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <p className="font-body text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Documentos bancarios</p>
+            <ul className="space-y-1">
+              {medio.documentos_bancarios.map((doc, i) => (
+                <li key={i} className="flex gap-2 text-sm font-body text-on-surface-variant">
+                  <span className="text-primary mt-0.5 shrink-0">•</span>
+                  <span>{doc}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="pt-2 border-t border-white/[0.04]">
+            <p className="font-body text-xs text-on-surface-variant/60">Recomendado para: {medio.recomendado_para}</p>
+            <p className="font-mono text-[10px] text-on-surface-variant/40 mt-1">Normativa: {medio.normativa}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ModalNuevaOperacion({ form, setField, errores, productos, paises, guardando, onGuardar, onCerrar, onProductoChange }) {
   const [expandir, setExpandir] = useState(false)
   const [ncmSugerencias, setNcmSugerencias] = useState([])
@@ -667,6 +806,19 @@ function ModalNuevaOperacion({ form, setField, errores, productos, paises, guard
                 {INCOTERMS.map(i => <option key={i} value={i}>{i}</option>)}
               </select>
             </div>
+          </div>
+
+          <div>
+            <label className="block font-body text-xs text-on-surface-variant mb-1.5">Medio de pago</label>
+            <select
+              className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer"
+              value={form.payment_method}
+              onChange={e => setField('payment_method', e.target.value)}
+            >
+              <option value="">Seleccionar…</option>
+              {MEDIOS_PAGO_OPTIONS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+            </select>
+            {form.payment_method && <PanelMedioPagoInline medioId={form.payment_method} />}
           </div>
 
           <div>

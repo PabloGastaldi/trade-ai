@@ -122,7 +122,7 @@ function ConsultaItem({ consulta, expandido, onToggle, onBorrar, borrando }) {
         <div className="flex items-center gap-2 shrink-0">
           <button
             className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer text-on-surface-variant/40 hover:text-on-surface"
-            onClick={(e) => handleBorrar(e, consulta.id)}
+            onClick={(e) => onBorrar(e, consulta.id)}
             disabled={borrando === consulta.id}
             title="Eliminar consulta"
           >
