@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import PageLayout from '@/components/ui/PageLayout'
 import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
@@ -95,32 +94,14 @@ function NcmAutocomplete({ value, onSelect, error }) {
     debounceRef.current = setTimeout(async () => {
       setBuscando(true)
       try {
-        const supabase = createClient()
         const trimmed = val.trim()
-        const isNum = /^\d/.test(trimmed)
-        
-        let results = []
-        
-        if (isNum) {
-          const { data } = await supabase
-            .from('ncm')
-            .select('ncm_code, description')
-            .like('ncm_code', `${trimmed}%`)
-            .order('ncm_code')
-            .limit(5)
-          results = data ?? []
-        } else {
-          const { data } = await supabase
-            .from('ncm')
-            .select('ncm_code, description')
-            .like('description', `%${trimmed}%`)
-            .order('ncm_code')
-            .limit(5)
-          results = data ?? []
+        const res = await fetch(`/api/ncm-search?q=${encodeURIComponent(trimmed)}`)
+        const data = await res.json()
+        if (!res.ok) {
+          console.error('NCM search error:', data.error)
         }
-        
-        setSugerencias(results)
-        setVisible(results.length > 0)
+        setSugerencias(data ?? [])
+        setVisible((data ?? []).length > 0)
       } catch (err) {
         console.error('NCM search exception:', err)
       } finally {
