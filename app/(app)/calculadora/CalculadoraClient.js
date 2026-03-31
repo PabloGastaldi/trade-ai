@@ -806,6 +806,34 @@ function TabExportacion({ productos, paises }) {
                 </div>
               )}
             </div>
+
+            <div className="space-y-3 mt-5 pt-4 border-t border-white/[0.04]">
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={form.bonus_reintegro}
+                  onChange={e => set('bonus_reintegro', e.target.checked)}
+                  className="w-4 h-4 rounded border border-white/[0.2] bg-surface-highest accent"
+                />
+                <div className="flex-1">
+                  <span className="font-body text-sm text-on-surface">Mi producto es orgánico / tiene denominación de origen / sello Alimentos Argentinos</span>
+                  <p className="font-body text-[10px] text-on-surface-variant/60 mt-0.5">Activa bonus de +0.5% en el reintegro</p>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={form.pais_facturacion_diferente}
+                  onChange={e => set('pais_facturacion_diferente', e.target.checked)}
+                  className="w-4 h-4 rounded border border-white/[0.2] bg-surface-highest accent"
+                />
+                <div className="flex-1">
+                  <span className="font-body text-sm text-on-surface">El país de facturación es diferente al destino</span>
+                  <p className="font-body text-[10px] text-on-surface-variant/60 mt-0.5">Activa percepción adicional de Ganancias 0.5%</p>
+                </div>
+              </label>
+            </div>
           </div>
 
           {errores._general && (
