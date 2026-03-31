@@ -61,13 +61,8 @@ function PanelDetalle({ ncm, onClose }) {
     const hs6 = ncm.ncm_code.replace(/\./g, '').substring(0, 6)
 
     async function fetchAll() {
-      const ncmBase = ncm.ncm_code.replace(/\./g, '').substring(0, 8)
-
       const [prefRes, ntmRes, tariffRes] = await Promise.all([
-        supabase
-          .from('preferencias_arancelarias')
-          .select('*')
-          .like('ncm_naladisa', `${ncmBase}%`),
+        fetch(`/api/nomenclador/preferencias?ncm=${encodeURIComponent(ncm.ncm_code)}`).then(r => r.json()),
         supabase
           .from('ntm_measures')
           .select('reporter, ntm_code, ntm_non_h')
@@ -81,7 +76,18 @@ function PanelDetalle({ ncm, onClose }) {
           .limit(10),
       ])
 
-      setPreferencias(prefRes.data ?? [])
+      // Combinar preferencias específicas y acuerdos de cobertura total
+      const prefs = prefRes.error ? [] : [
+        ...(prefRes.preferencias_especificas ?? []),
+        ...(prefRes.acuerdos_cobertura_total ?? []).map(a => ({
+          acuerdo: a.acuerdo,
+          pais: a.pais,
+          porcentaje: 100,
+          tipo: a.tipo,
+          esCoberturaTotal: true,
+        })),
+      ]
+      setPreferencias(prefs)
       setNtm(ntmRes.data ?? [])
       setTariffDest(tariffRes.data ?? [])
       setLoading(false)
@@ -181,11 +187,13 @@ function PanelDetalle({ ncm, onClose }) {
               {preferencias.slice(0, 10).map((p, i) => (
                 <div key={i} className="flex justify-between items-center py-2 px-3 bg-white/[0.02] rounded-xl">
                   <div>
-                    <p className="font-body text-sm text-on-surface">{p.acuerdo ?? p.nombre_acuerdo ?? 'Acuerdo'}</p>
-                    <p className="font-body text-[10px] text-on-surface-variant/60">{p.pais ?? p.pais_iso3}</p>
+                    <p className="font-body text-sm text-on-surface">{p.acuerdo ?? 'Acuerdo'}</p>
+                    <p className="font-body text-[10px] text-on-surface-variant/60">
+                      {p.pais}{p.bloque ? ` · ${p.bloque}` : ''}{p.esCoberturaTotal ? ' · Libre comercio' : ''}
+                    </p>
                   </div>
                   <span className="font-mono text-sm text-primary">
-                    {p.arancel_preferencial != null ? `${p.arancel_preferencial}%` : '0%'}
+                    {p.esCoberturaTotal ? 'TLC' : `${p.porcentaje ?? 0}% pref.`}
                   </span>
                 </div>
               ))}

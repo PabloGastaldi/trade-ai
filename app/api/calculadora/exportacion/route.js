@@ -37,6 +37,8 @@ export async function POST(request) {
     seguro_internacional = null,
     gastos_portuarios = null,
     gastos_aduana_exportacion = null,
+    bonus_reintegro = false,
+    pais_facturacion_diferente = false,
   } = body
 
   if (!ncm_code) return NextResponse.json({ error: 'ncm_code requerido' }, { status: 400 })
@@ -57,6 +59,8 @@ export async function POST(request) {
       seguro_internacional,
       gastos_portuarios,
       gastos_aduana_exportacion,
+      bonus_reintegro,
+      pais_facturacion_diferente,
     })
     await registrarCalc(supabase, user.id)
     return NextResponse.json({ ok: true, data: resultado })

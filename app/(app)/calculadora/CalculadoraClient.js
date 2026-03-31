@@ -207,15 +207,15 @@ function CampoSelect({ label, value, onChange, options, className = '' }) {
   )
 }
 
-function LineaDesglose({ label, alicuota, monto }) {
+function LineaDesglose({ label, alicuota, monto, className = '' }) {
   if (!monto && monto !== 0) return null
   return (
     <div className="flex justify-between items-center py-1.5">
-      <span className="font-body text-xs text-on-surface-variant">
+      <span className={`font-body text-xs text-on-surface-variant ${className}`}>
         {label}
         {alicuota ? <span className="ml-1 text-[10px] text-on-surface-variant/50">({pct(alicuota)})</span> : null}
       </span>
-      <span className="font-mono text-xs text-on-surface">{usd(monto)}</span>
+      <span className={`font-mono text-xs text-on-surface ${className}`}>{usd(monto)}</span>
     </div>
   )
 }
@@ -632,11 +632,29 @@ function TabExportacion({ productos, paises }) {
     incoterm_deseado: 'CIF', pais_destino: '',
     flete_interno: '', flete_internacional: '', seguro_internacional: '',
     gastos_portuarios: '', gastos_aduana: '',
+    bonus_reintegro: false,
+    pais_facturacion_diferente: false,
   })
   const [errores, setErrores] = useState({})
   const [calculando, setCalculando] = useState(false)
   const [resultado, setResultado] = useState(null)
   const [gastosExpanded, setGastosExpanded] = useState(false)
+  const [modoFOB, setModoFOB] = useState('precio') // 'precio' | 'calcular'
+  const [resultadoFOB, setResultadoFOB] = useState(null)
+  const [formFOB, setFormFOB] = useState({
+    costo_mercaderia: '',
+    envases_embalajes: '',
+    flete_interno: '',
+    seguro_interno: '',
+    otros_gastos: '',
+    gastos_indirectos_pct: '',
+    derecho_exportacion_pct: '',
+    reintegro_pct: '',
+    bonus_reintegro: false,
+    utilidad_pct: '',
+    utilidad_monto: '',
+    utilidad_tipo: 'pct',
+  })
 
   function set(campo, valor) {
     setForm(prev => ({ ...prev, [campo]: valor }))
@@ -683,6 +701,8 @@ function TabExportacion({ productos, paises }) {
           seguro_internacional: Number(form.seguro_internacional) || null,
           gastos_portuarios: Number(form.gastos_portuarios) || null,
           gastos_aduana_exportacion: Number(form.gastos_aduana) || null,
+          bonus_reintegro: form.bonus_reintegro || false,
+          pais_facturacion_diferente: form.pais_facturacion_diferente || false,
         }),
       })
       const json = await res.json()
@@ -888,6 +908,22 @@ function ResultadoExportacion({ resultado: r }) {
               {usd(r.margen_neto)}
             </span>
           </div>
+
+          {r.reintegro?.alicuota !== null && r.reintegro?.monto > 0 && (
+            <LineaDesglose
+              label={`+ Reintegro (${pct(r.reintegro.alicuota)}${r.reintegro.bonus_aplicado ? ' + bonus' : ''})`}
+              monto={-r.reintegro.monto}
+              className="text-emerald-400"
+            />
+          )}
+
+          {r.percepcion_ganancias_expo?.aplica && (
+            <LineaDesglose
+              label={`− Percepción Ganancias expo (${pct(r.percepcion_ganancias_expo.alicuota)}): ${r.percepcion_ganancias_expo.motivo}`}
+              monto={r.percepcion_ganancias_expo.monto}
+              className="text-amber-400"
+            />
+          )}
         </div>
       </Card>
 
