@@ -97,12 +97,16 @@ function NcmAutocomplete({ value, onSelect, error }) {
       try {
         const supabase = createClient()
         const trimmed = val.trim()
-        const { data, error } = await supabase
-          .from('ncm')
-          .select('ncm_code, description')
-          .or(`ncm_code.ilike.%${trimmed}%,description.ilike.%${trimmed}%`)
-          .order('ncm_code')
-          .limit(5)
+        const isNum = /^\d/.test(trimmed)
+        let query = supabase.from('ncm').select('ncm_code, description').order('ncm_code').limit(5)
+        
+        if (isNum) {
+          query = query.ilike('ncm_code', `%${trimmed}%`)
+        } else {
+          query = query.ilike('description', `%${trimmed}%`)
+        }
+        
+        const { data, error } = await query
         if (error) {
           console.error('NCM search error:', error)
         }
