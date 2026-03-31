@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import PageLayout from '@/components/ui/PageLayout';
 import {
   TrendingUp, TrendingDown, RefreshCw, DollarSign,
   BarChart3, Wheat, AlertCircle, Minus,
@@ -226,32 +227,25 @@ export default function MercadosClient() {
 
   if (loading && !data) {
     return (
-      <div className="min-h-screen p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
-            <h1 className="font-body text-2xl font-semibold text-on-surface">Mercados</h1>
-            <p className="font-body text-sm text-on-surface-variant mt-1">Cargando datos...</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
-          </div>
+      <PageLayout title="MERCADOS" subtitle="Cargando datos...">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
   if (error && !data) {
     return (
-      <div className="min-h-screen p-6 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <AlertCircle size={32} className="text-red-400 mx-auto" />
-          <p className="font-body text-sm text-on-surface-variant">Error al cargar datos de mercado</p>
+      <PageLayout title="MERCADOS" subtitle="Error al cargar datos">
+        <div className="flex flex-col items-center justify-center py-12">
+          <AlertCircle size={32} className="text-red-400 mb-4" />
           <p className="font-mono text-xs text-red-400">{error}</p>
-          <button onClick={refresh} className="font-body text-sm text-primary hover:underline">
+          <button onClick={refresh} className="font-body text-sm text-primary hover:underline mt-4">
             Reintentar
           </button>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
@@ -259,171 +253,158 @@ export default function MercadosClient() {
   const rpVariant = riesgoPais?.valor > 1500 ? 'error' : riesgoPais?.valor > 800 ? 'warning' : 'success';
 
   return (
-    <div className="min-h-screen p-4 md:p-6">
-      <div className="max-w-6xl mx-auto">
+    <PageLayout title="MERCADOS" subtitle="Datos financieros para comercio exterior">
+      <div className="flex justify-between items-center mb-4">
+        {lastUpdate && (
+          <span className="font-mono text-[10px] text-on-surface-variant">
+            Actualizado {timeAgo(lastUpdate)}
+          </span>
+        )}
+        <button
+          onClick={refresh}
+          disabled={loading}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.08]
+                     text-on-surface-variant hover:text-on-surface transition-all duration-150
+                     disabled:opacity-40 disabled:cursor-not-allowed font-body text-xs"
+        >
+          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
+          Actualizar
+        </button>
+      </div>
 
-        {/* Header — font-body (Inter), no Bebas Neue */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
-          <div>
-            <h1 className="font-body text-2xl font-semibold text-on-surface">Mercados</h1>
-            <p className="font-body text-sm text-on-surface-variant mt-1">
-              Datos financieros para comercio exterior
-            </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+
+        {/* Tipos de cambio */}
+        <MarketCard title="Tipos de cambio" icon={DollarSign} className="md:col-span-2 xl:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+            <div>
+              <DolarRow label="Oficial" data={dolares?.oficial} />
+              <DolarRow label="Blue" data={dolares?.blue} />
+              <DolarRow label="MEP (Bolsa)" data={dolares?.mep} />
+            </div>
+            <div>
+              <DolarRow label="CCL" data={dolares?.ccl} />
+              <DolarRow label="Mayorista" data={dolares?.mayorista} />
+              <DolarRow label="Tarjeta" data={dolares?.tarjeta} />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            {lastUpdate && (
-              <span className="font-mono text-[10px] text-on-surface-variant">
-                Actualizado {timeAgo(lastUpdate)}
+          {(monedas?.eur || monedas?.brl) && (
+            <div className="mt-3 pt-3 border-t border-white/[0.04]">
+              <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mb-2 block">
+                Monedas regionales
               </span>
-            )}
-            <button
-              onClick={refresh}
-              disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.08]
-                         text-on-surface-variant hover:text-on-surface transition-all duration-150
-                         disabled:opacity-40 disabled:cursor-not-allowed font-body text-xs"
-            >
-              <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-              Actualizar
-            </button>
-          </div>
-        </div>
-
-        {/* Grid principal */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-
-          {/* Tipos de cambio */}
-          <MarketCard title="Tipos de cambio" icon={DollarSign} className="md:col-span-2 xl:col-span-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-              <div>
-                <DolarRow label="Oficial" data={dolares?.oficial} />
-                <DolarRow label="Blue" data={dolares?.blue} />
-                <DolarRow label="MEP (Bolsa)" data={dolares?.mep} />
-              </div>
-              <div>
-                <DolarRow label="CCL" data={dolares?.ccl} />
-                <DolarRow label="Mayorista" data={dolares?.mayorista} />
-                <DolarRow label="Tarjeta" data={dolares?.tarjeta} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                {monedas?.eur && <DolarRow label="Euro" data={monedas.eur} />}
+                {monedas?.brl && <DolarRow label="Real brasileño" data={monedas.brl} />}
               </div>
             </div>
-            {(monedas?.eur || monedas?.brl) && (
-              <div className="mt-3 pt-3 border-t border-white/[0.04]">
-                <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mb-2 block">
-                  Monedas regionales
-                </span>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-                  {monedas?.eur && <DolarRow label="Euro" data={monedas.eur} />}
-                  {monedas?.brl && <DolarRow label="Real brasileño" data={monedas.brl} />}
-                </div>
-              </div>
-            )}
-          </MarketCard>
+          )}
+        </MarketCard>
 
-          {/* Indicadores */}
-          <MarketCard title="Indicadores" icon={BarChart3}>
-            {riesgoPais && (
-              <StatBox label="Riesgo país" value={riesgoPais.valor?.toLocaleString('es-AR') || '—'} unit="pb" variant={rpVariant} />
-            )}
-            {inflacionInteranual && (
-              <StatBox
-                label="Inflación interanual"
-                value={inflacionInteranual.valor?.toFixed(1) || '—'}
-                unit="%" variant={inflacionInteranual.valor > 100 ? 'error' : 'warning'}
-              />
-            )}
-            {inflacion?.length > 0 && (
-              <StatBox
-                label={`IPC mensual (${inflacion[inflacion.length - 1]?.fecha || ''})`}
-                value={inflacion[inflacion.length - 1]?.valor?.toFixed(1) || '—'}
-                unit="%" variant="default"
-              />
-            )}
-            {tasas && (
-              <StatBox label="Tasa depósitos 30d" value={tasas.valor?.toFixed(1) || '—'} unit="% TNA" variant="default" />
-            )}
-          </MarketCard>
+        {/* Indicadores */}
+        <MarketCard title="Indicadores" icon={BarChart3}>
+          {riesgoPais && (
+            <StatBox label="Riesgo país" value={riesgoPais.valor?.toLocaleString('es-AR') || '—'} unit="pb" variant={rpVariant} />
+          )}
+          {inflacionInteranual && (
+            <StatBox
+              label="Inflación interanual"
+              value={inflacionInteranual.valor?.toFixed(1) || '—'}
+              unit="%" variant={inflacionInteranual.valor > 100 ? 'error' : 'warning'}
+            />
+          )}
+          {inflacion?.length > 0 && (
+            <StatBox
+              label={`IPC mensual (${inflacion[inflacion.length - 1]?.fecha || ''})`}
+              value={inflacion[inflacion.length - 1]?.valor?.toFixed(1) || '—'}
+              unit="%" variant="default"
+            />
+          )}
+          {tasas && (
+            <StatBox label="Tasa depósitos 30d" value={tasas.valor?.toFixed(1) || '—'} unit="% TNA" variant="default" />
+          )}
+        </MarketCard>
 
-          {/* Commodities — Granos BCR (ARS) + Petróleo Yahoo (USD) */}
-          <MarketCard title="Commodities" icon={Wheat} className="xl:col-span-2">
-            {(granos?.granos?.length > 0 || commodities?.length > 0) ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-                <div>
-                  {granos?.granos?.length > 0 ? (
-                    <>
-                      <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mb-1 block">
-                        Granos — BCR{granos.fecha ? ` (${granos.fecha})` : ''}
-                      </span>
-                      {granos.granos.map(g => <GrainRow key={g.name} grain={g} />)}
-                    </>
-                  ) : (
-                    <p className="font-body text-sm text-on-surface-variant">Granos no disponibles</p>
-                  )}
-                </div>
-                <div>
-                  {commodities?.length > 0 ? (
-                    <>
-                      <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mb-1 block">
-                        Petróleo
-                      </span>
-                      {commodities.map(c => <CommodityItem key={c.symbol} commodity={c} />)}
-                    </>
-                  ) : null}
-                </div>
+        {/* Commodities — Granos BCR (ARS) + Petróleo Yahoo (USD) */}
+        <MarketCard title="Commodities" icon={Wheat} className="xl:col-span-2">
+          {(granos?.granos?.length > 0 || commodities?.length > 0) ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+              <div>
+                {granos?.granos?.length > 0 ? (
+                  <>
+                    <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mb-1 block">
+                      Granos — BCR{granos.fecha ? ` (${granos.fecha})` : ''}
+                    </span>
+                    {granos.granos.map(g => <GrainRow key={g.name} grain={g} />)}
+                  </>
+                ) : (
+                  <p className="font-body text-sm text-on-surface-variant">Granos no disponibles</p>
+                )}
               </div>
-            ) : (
-              <p className="font-body text-sm text-on-surface-variant">Datos no disponibles</p>
-            )}
-          </MarketCard>
+              <div>
+                {commodities?.length > 0 ? (
+                  <>
+                    <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mb-1 block">
+                      Petróleo
+                    </span>
+                    {commodities.map(c => <CommodityItem key={c.symbol} commodity={c} />)}
+                  </>
+                ) : null}
+              </div>
+            </div>
+          ) : (
+            <p className="font-body text-sm text-on-surface-variant">Datos no disponibles</p>
+          )}
+        </MarketCard>
 
-          {/* Índices y Forex */}
-          <MarketCard title="Índices y forex" icon={BarChart3}>
-            {indices?.length > 0 && indices.map(idx => (
-              <div key={idx.symbol} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
-                <span className="font-body text-sm text-on-surface">{idx.displayName}</span>
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-sm text-on-surface">{fmtNum(idx.price, 0)}</span>
-                  <ChangeIndicator value={idx.changePercent} />
-                </div>
+        {/* Índices y Forex */}
+        <MarketCard title="Índices y forex" icon={BarChart3}>
+          {indices?.length > 0 && indices.map(idx => (
+            <div key={idx.symbol} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+              <span className="font-body text-sm text-on-surface">{idx.displayName}</span>
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-sm text-on-surface">{fmtNum(idx.price, 0)}</span>
+                <ChangeIndicator value={idx.changePercent} />
               </div>
-            ))}
-            {forex?.length > 0 && (
-              <>
-                <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mt-3 mb-1 block">
-                  Forex
-                </span>
-                {forex.map(fx => (
-                  <div key={fx.symbol} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
-                    <span className="font-body text-sm text-on-surface">{fx.displayName}</span>
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-sm text-on-surface">{fmtNum(fx.price, 4)}</span>
-                      <ChangeIndicator value={fx.changePercent} />
-                    </div>
+            </div>
+          ))}
+          {forex?.length > 0 && (
+            <>
+              <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mt-3 mb-1 block">
+                Forex
+              </span>
+              {forex.map(fx => (
+                <div key={fx.symbol} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+                  <span className="font-body text-sm text-on-surface">{fx.displayName}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-sm text-on-surface">{fmtNum(fx.price, 4)}</span>
+                    <ChangeIndicator value={fx.changePercent} />
                   </div>
-                ))}
-              </>
-            )}
-            {!indices?.length && !forex?.length && (
-              <p className="font-body text-sm text-on-surface-variant">Datos no disponibles</p>
-            )}
-          </MarketCard>
-        </div>
-
-        {/* Disclaimer */}
-        <div className="mt-6 px-4 py-3 bg-primary/[0.05] border border-primary/10 rounded-xl">
-          <p className="font-body text-[11px] text-on-surface-variant leading-relaxed">
-            Los datos provienen de fuentes públicas (DolarApi, ArgentinaDatos, Bolsa de Comercio de Rosario,
-            Yahoo Finance) y pueden tener demoras de hasta 15 minutos. Esta información es orientativa y está
-            respaldada por fuentes oficiales. Para operaciones concretas, consultá con un despachante de aduana
-            matriculado o un profesional de comercio exterior.
-          </p>
-        </div>
-
-        {data?.latencyMs && (
-          <div className="mt-2 text-right">
-            <span className="font-mono text-[10px] text-on-surface-variant/40">API: {data.latencyMs}ms</span>
-          </div>
-        )}
+                </div>
+              ))}
+            </>
+          )}
+          {!indices?.length && !forex?.length && (
+            <p className="font-body text-sm text-on-surface-variant">Datos no disponibles</p>
+          )}
+        </MarketCard>
       </div>
-    </div>
+
+      {/* Disclaimer */}
+      <div className="mt-6 px-4 py-3 bg-primary/[0.05] border border-primary/10 rounded-xl">
+        <p className="font-body text-[11px] text-on-surface-variant leading-relaxed">
+          Los datos provienen de fuentes públicas (DolarApi, ArgentinaDatos, Bolsa de Comercio de Rosario,
+          Yahoo Finance) y pueden tener demoras de hasta 15 minutos. Esta información es orientativa y está
+          respaldada por fuentes oficiales. Para operaciones concretas, consultá con un despachante de aduana
+          matriculado o un profesional de comercio exterior.
+        </p>
+      </div>
+
+      {data?.latencyMs && (
+        <div className="mt-2 text-right">
+          <span className="font-mono text-[10px] text-on-surface-variant/40">API: {data.latencyMs}ms</span>
+        </div>
+      )}
+    </PageLayout>
   );
 }
