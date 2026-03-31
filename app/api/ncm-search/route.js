@@ -19,14 +19,14 @@ export async function GET(request) {
 
     let query = supabase
       .from('ncm')
-      .select('ncm_code, description')
-      .order('ncm_code')
+      .select('codigo_ncm, descripcion')
+      .order('codigo_ncm')
       .limit(5)
 
     if (isNum) {
-      query = query.like('ncm_code', `${q}%`)
+      query = query.like('codigo_ncm', `${q}%`)
     } else {
-      query = query.like('description', `%${q}%`)
+      query = query.like('descripcion', `%${q}%`)
     }
 
     const { data, error } = await query
@@ -36,9 +36,25 @@ export async function GET(request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json(data ?? [])
+    const formatted = (data ?? []).map(row => ({
+      ncm_code: formatNCMDisplay(row.codigo_ncm),
+      description: row.descripcion,
+    }))
+
+    return NextResponse.json(formatted)
   } catch (err) {
     console.error('[api/ncm-search] Exception:', err)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
+}
+
+function formatNCMDisplay(codigo) {
+  if (!codigo || codigo.length < 4) return codigo
+  if (codigo.length === 11) {
+    return `${codigo.slice(0,4)}.${codigo.slice(4,6)}.${codigo.slice(6,8)}.${codigo.slice(8)}`
+  }
+  if (codigo.length === 8) {
+    return `${codigo.slice(0,4)}.${codigo.slice(4,6)}.${codigo.slice(6)}`
+  }
+  return codigo
 }
