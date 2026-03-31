@@ -2,10 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import PageLayout from '@/components/ui/PageLayout'
 import Badge from '@/components/ui/Badge'
-import Button from '@/components/ui/Button'
 
 const CHIP_BUSQUEDAS = [
   { label: '0902 — Té', query: '0902' },
@@ -14,29 +12,13 @@ const CHIP_BUSQUEDAS = [
   { label: '2204 — Vino', query: '2204' },
 ]
 
-const ORGANISMOS_FILTRO = ['SENASA', 'ANMAT', 'INAL', 'ANAC', 'ARCA', 'INV', 'CNV', 'SSN']
-
-function parseOrganismos(campo) {
-  if (!campo) return []
-  return ORGANISMOS_FILTRO.filter(o =>
-    campo.toUpperCase().includes(o)
-  )
+function formatearNCM(codigo) {
+  if (!codigo || codigo.length !== 11) return codigo ?? ''
+  return `${codigo.slice(0,4)}.${codigo.slice(4,6)}.${codigo.slice(6,8)}.${codigo.slice(8)}`
 }
 
-function OrganismoBadge({ org, count }) {
-  const map = {
-    SENASA: { variant: 'primary', label: 'SENASA' },
-    ANMAT:  { variant: 'accent',  label: 'ANMAT' },
-    INAL:   { variant: 'accent',  label: 'INAL' },
-    ANAC:   { variant: 'neutral', label: 'ANAC' },
-    ARCA:   { variant: 'neutral', label: 'ARCA' },
-    INV:    { variant: 'neutral', label: 'INV' },
-    CNV:    { variant: 'neutral', label: 'CNV' },
-    SSN:    { variant: 'neutral', label: 'SSN' },
-  }
-  const cfg = map[org] ?? { variant: 'neutral', label: org }
-  if (count > 1) cfg.label += ` (${count})`
-  return <Badge variant={cfg.variant} className="mr-1 mb-1">{cfg.label}</Badge>
+function normalizarNCM(input) {
+  return input.replace(/[.\s]/g, '').replace(/\D/g, '')
 }
 
 function InfoCelda({ label, value, highlight }) {
@@ -48,7 +30,14 @@ function InfoCelda({ label, value, highlight }) {
   )
 }
 
+function arancelColor(rate) {
+  if (rate === 0 || rate == null) return 'text-emerald-400'
+  if (rate > 15) return 'text-primary'
+  return 'text-on-surface'
+}
+
 function PanelDetalle({ ncm, onClose }) {
+  const [aranceles, setAranceles] = useState(null)
   const [preferencias, setPreferencias] = useState([])
   const [ntm, setNtm] = useState([])
   const [tariffDest, setTariffDest] = useState([])
@@ -58,11 +47,14 @@ function PanelDetalle({ ncm, onClose }) {
     if (!ncm) return
     setLoading(true)
     const supabase = createClient()
-    const hs6 = ncm.ncm_code.replace(/\./g, '').substring(0, 6)
+    const hs6 = ncm.codigo_ncm.substring(0, 6)
 
     async function fetchAll() {
-      const [prefRes, ntmRes, tariffRes] = await Promise.all([
-        fetch(`/api/nomenclador/preferencias?ncm=${encodeURIComponent(ncm.ncm_code)}`).then(r => r.json()),
+      const [arancRes, prefRes, ntmRes, tariffRes] = await Promise.all([
+        // Aranceles impo + expo en una query via API route (server-side, tablas grandes)
+        fetch(`/api/nomenclador/aranceles?ncm=${encodeURIComponent(ncm.codigo_ncm)}`).then(r => r.json()),
+        // Preferencias via API route (acuerdos_importacion tiene 1.1M filas)
+        fetch(`/api/nomenclador/preferencias?ncm=${encodeURIComponent(ncm.codigo_ncm)}`).then(r => r.json()),
         supabase
           .from('ntm_measures')
           .select('reporter, ntm_code, ntm_non_h')
@@ -76,7 +68,7 @@ function PanelDetalle({ ncm, onClose }) {
           .limit(10),
       ])
 
-      // Combinar preferencias específicas y acuerdos de cobertura total
+      setAranceles(arancRes.error ? null : arancRes)
       const prefs = prefRes.error ? [] : [
         ...(prefRes.preferencias_especificas ?? []),
         ...(prefRes.acuerdos_cobertura_total ?? []).map(a => ({
@@ -98,39 +90,27 @@ function PanelDetalle({ ncm, onClose }) {
 
   if (!ncm) return null
 
-  const orgsImp = parseOrganismos(ncm.organismos_imp)
-  const orgsExp = parseOrganismos(ncm.organismos_exp)
+  const ai = aranceles?.importacion ?? {}
+  const ae = aranceles?.exportacion ?? {}
 
   const ntmPorPais = {}
-  if (ntm.length > 0) {
-    ntm.forEach(m => {
-      if (!ntmPorPais[m.reporter]) ntmPorPais[m.reporter] = []
-      if (m.ntm_code) ntmPorPais[m.reporter].push(m.ntm_code)
-    })
-  }
+  ntm.forEach(m => {
+    if (!ntmPorPais[m.reporter]) ntmPorPais[m.reporter] = []
+    if (m.ntm_code) ntmPorPais[m.reporter].push(m.ntm_code)
+  })
   const ntmTop = Object.entries(ntmPorPais)
     .sort((a, b) => b[1].length - a[1].length)
     .slice(0, 5)
 
   function mapNtmCode(code) {
     if (!code) return null
-    const c = code.charAt(0)
     const map = { A: 'SPS', B: 'TBT', C: 'INS', E: 'LIC', P: 'EXP' }
-    return map[c] ?? code.substring(0, 3)
-  }
-
-  function arancelColor(rate) {
-    if (rate === 0 || rate === null) return 'text-emerald-400'
-    if (rate > 15) return 'text-primary'
-    return 'text-on-surface'
+    return map[code.charAt(0)] ?? code.substring(0, 3)
   }
 
   return (
     <>
-      <div
-        className="fixed inset-0 bg-black/40 z-40"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
       <div className="fixed right-0 top-0 h-full w-full max-w-lg bg-surface-low border-l border-white/[0.04] z-50 overflow-y-auto">
         <div className="p-8">
           <button
@@ -143,44 +123,57 @@ function PanelDetalle({ ncm, onClose }) {
             </svg>
           </button>
 
-          <p className="font-mono text-2xl text-primary tracking-wide">{ncm.ncm_code}</p>
-          <p className="font-body text-base text-on-surface mt-2 leading-relaxed">{ncm.description}</p>
-          {ncm.section && (
+          <p className="font-mono text-2xl text-primary tracking-wide">{formatearNCM(ncm.codigo_ncm)}</p>
+          <p className="font-body text-base text-on-surface mt-2 leading-relaxed">{ncm.descripcion}</p>
+          {ncm.seccion && (
             <p className="font-body text-xs text-on-surface-variant mt-1">
-              {ncm.section} — {ncm.chapter ? `Capítulo ${ncm.chapter}` : ''}
+              {ncm.seccion}{ncm.capitulo ? ` — Capítulo ${ncm.capitulo}` : ''}
             </p>
           )}
 
           <div className="h-px bg-white/[0.04] my-6" />
 
-          <div className="grid grid-cols-2 gap-3">
-            <InfoCelda label="AEC (Extrazona)" value={ncm.arancel_extrazona != null ? `${ncm.arancel_extrazona}%` : '—'} />
-            <InfoCelda label="Intrazona" value={ncm.arancel_intrazona != null ? `${ncm.arancel_intrazona}%` : '—'} />
-            <InfoCelda label="D. Exportación" value={ncm.derecho_exportacion != null ? `${ncm.derecho_exportacion}%` : '—'} />
-            <InfoCelda label="IVA Importación" value={ncm.iva_importacion != null ? `${ncm.iva_importacion}%` : '—'} />
-            <InfoCelda label="Tasa Estadística" value={ncm.tasa_estadistica != null ? `${ncm.tasa_estadistica}%` : '—'} />
-            <InfoCelda label="Unidad" value={ncm.unidad_medida ?? '—'} />
-          </div>
-
-          {(orgsImp.length > 0 || orgsExp.length > 0) && (
-            <>
-              <div className="h-px bg-white/[0.04] my-6" />
-              <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Organismos intervinientes</p>
-              <div className="flex flex-wrap gap-1">
-                {orgsImp.map(o => <OrganismoBadge key={`imp-${o}`} org={o} />)}
-                {orgsExp.map(o => <OrganismoBadge key={`exp-${o}`} org={o} />)}
-              </div>
-            </>
+          {/* Aranceles de importación */}
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Aranceles de importación</p>
+          {loading ? (
+            <div className="grid grid-cols-2 gap-3">
+              {[0,1,2,3,4,5].map(i => <div key={i} className="h-16 bg-white/[0.03] rounded-xl animate-pulse" />)}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <InfoCelda label="AEC (Extrazona)" value={ai.aec != null ? `${ai.aec}%` : '—'} />
+              <InfoCelda label="DIE (Extrazona)" value={ai.die != null ? `${ai.die}%` : '—'} />
+              <InfoCelda label="DII (Intrazona)" value={ai.dii != null ? `${ai.dii}%` : '—'} />
+              <InfoCelda label="Tasa Estadística" value={ai.te != null ? `${ai.te}%` : '—'} />
+              <InfoCelda label="IVA" value={ai.iva != null ? `${ai.iva}%` : '—'} />
+              <InfoCelda label="IVA Adicional" value={ai.iva_ad != null ? `${ai.iva_ad}%` : '—'} />
+              <InfoCelda label="Ganancias" value={ai.gan != null ? `${ai.gan}%` : '—'} />
+              <InfoCelda label="Ing. Brutos" value={ai.iibb != null ? `${ai.iibb}%` : '—'} />
+            </div>
           )}
 
           <div className="h-px bg-white/[0.04] my-6" />
-          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Acuerdos con preferencia</p>
 
+          {/* Aranceles de exportación */}
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Aranceles de exportación</p>
+          {loading ? (
+            <div className="grid grid-cols-2 gap-3">
+              {[0,1].map(i => <div key={i} className="h-16 bg-white/[0.03] rounded-xl animate-pulse" />)}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              <InfoCelda label="D. Exportación" value={ae.derecho_exportacion != null ? `${ae.derecho_exportacion}%` : '—'} />
+              <InfoCelda label="Reintegro" value={ae.reintegro != null ? `${ae.reintegro}%` : '—'} highlight={ae.reintegro > 0 ? 'text-emerald-400' : ''} />
+            </div>
+          )}
+
+          <div className="h-px bg-white/[0.04] my-6" />
+
+          {/* Acuerdos y preferencias */}
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Acuerdos con preferencia</p>
           {loading ? (
             <div className="space-y-2">
-              {[0,1,2].map(i => (
-                <div key={i} className="h-10 bg-white/[0.03] rounded-xl animate-pulse" />
-              ))}
+              {[0,1,2].map(i => <div key={i} className="h-10 bg-white/[0.03] rounded-xl animate-pulse" />)}
             </div>
           ) : preferencias.length > 0 ? (
             <div className="space-y-2">
@@ -192,7 +185,7 @@ function PanelDetalle({ ncm, onClose }) {
                       {p.pais}{p.bloque ? ` · ${p.bloque}` : ''}{p.esCoberturaTotal ? ' · Libre comercio' : ''}
                     </p>
                   </div>
-                  <span className="font-mono text-sm text-primary">
+                  <span className={`font-mono text-sm ${p.porcentaje === 100 || p.esCoberturaTotal ? 'text-emerald-400' : 'text-primary'}`}>
                     {p.esCoberturaTotal ? 'TLC' : `${p.porcentaje ?? 0}% pref.`}
                   </span>
                 </div>
@@ -208,13 +201,12 @@ function PanelDetalle({ ncm, onClose }) {
           )}
 
           <div className="h-px bg-white/[0.04] my-6" />
-          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Barreras no arancelarias por destino</p>
 
+          {/* Barreras no arancelarias */}
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Barreras no arancelarias por destino</p>
           {loading ? (
             <div className="space-y-2">
-              {[0,1,2].map(i => (
-                <div key={i} className="h-12 bg-white/[0.03] rounded-xl animate-pulse" />
-              ))}
+              {[0,1,2].map(i => <div key={i} className="h-12 bg-white/[0.03] rounded-xl animate-pulse" />)}
             </div>
           ) : ntmTop.length > 0 ? (
             <div className="space-y-2">
@@ -240,13 +232,12 @@ function PanelDetalle({ ncm, onClose }) {
           )}
 
           <div className="h-px bg-white/[0.04] my-6" />
-          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Aranceles en destinos</p>
 
+          {/* Aranceles en destinos */}
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Aranceles en destinos</p>
           {loading ? (
             <div className="space-y-2">
-              {[0,1,2,3].map(i => (
-                <div key={i} className="h-9 bg-white/[0.03] rounded-xl animate-pulse" />
-              ))}
+              {[0,1,2,3].map(i => <div key={i} className="h-9 bg-white/[0.03] rounded-xl animate-pulse" />)}
             </div>
           ) : tariffDest.length > 0 ? (
             <div className="space-y-1">
@@ -270,7 +261,7 @@ function PanelDetalle({ ncm, onClose }) {
           <div className="h-px bg-white/[0.04] my-6" />
           <div className="space-y-3 pb-4">
             <a
-              href={`/calculadora?ncm=${encodeURIComponent(ncm.ncm_code)}`}
+              href={`/calculadora?ncm=${encodeURIComponent(formatearNCM(ncm.codigo_ncm))}`}
               className="flex items-center gap-2 font-body text-sm text-primary hover:underline"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -282,7 +273,7 @@ function PanelDetalle({ ncm, onClose }) {
               Calcular costos de importación →
             </a>
             <a
-              href={`/catalogo?add=${encodeURIComponent(ncm.ncm_code)}`}
+              href={`/catalogo?add=${encodeURIComponent(formatearNCM(ncm.codigo_ncm))}`}
               className="flex items-center gap-2 font-body text-sm text-primary hover:underline"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -291,30 +282,9 @@ function PanelDetalle({ ncm, onClose }) {
               Agregar al catálogo →
             </a>
           </div>
-
-          {ncm.observaciones && (
-            <>
-              <div className="h-px bg-white/[0.04] my-6" />
-              <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Observaciones</p>
-              <p className="font-body text-xs text-on-surface-variant/70 leading-relaxed">{ncm.observaciones}</p>
-            </>
-          )}
         </div>
       </div>
     </>
-  )
-}
-
-function OrganismoBadges({ campo, maxVisible = 2 }) {
-  const orgs = parseOrganismos(campo)
-  if (orgs.length === 0) return <span className="text-on-surface-variant/30">—</span>
-  return (
-    <div className="flex flex-wrap gap-1">
-      {orgs.slice(0, maxVisible).map(o => <OrganismoBadge key={o} org={o} />)}
-      {orgs.length > maxVisible && (
-        <Badge variant="neutral">+{orgs.length - maxVisible}</Badge>
-      )}
-    </div>
   )
 }
 
@@ -339,16 +309,23 @@ export default function NomencladorPage() {
 
     setLoading(true)
     const trimmed = q.trim()
+    const digits = normalizarNCM(trimmed)
+    const esCodigo = digits.length >= 2 && /^\d+$/.test(digits)
 
-    const { data, error, count } = await supabase
+    let query_sb = supabase
       .from('ncm')
-      .select('ncm_code, description, arancel_extrazona, derecho_exportacion, iva_importacion, organismos_imp, organismos_exp, section, chapter', { count: 'exact' })
-      .or(`ncm_code.ilike.%${trimmed}%,description.ilike.%${trimmed}%`)
-      .order('ncm_code')
+      .select('codigo_ncm, descripcion, capitulo, seccion', { count: 'exact' })
+      .order('codigo_ncm')
       .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1)
 
-    setLoading(false)
+    if (esCodigo) {
+      query_sb = query_sb.like('codigo_ncm', `${digits}%`)
+    } else {
+      query_sb = query_sb.ilike('descripcion', `%${trimmed}%`)
+    }
 
+    const { data, error, count } = await query_sb
+    setLoading(false)
     if (error) return
 
     if (pageNum === 0) {
@@ -381,53 +358,29 @@ export default function NomencladorPage() {
 
   const columns = [
     {
-      key: 'ncm_code',
+      key: 'codigo_ncm',
       label: 'NCM',
-      render: (val) => <span className="font-mono text-sm text-primary">{val}</span>,
+      render: (val) => <span className="font-mono text-sm text-primary">{formatearNCM(val)}</span>,
     },
     {
-      key: 'description',
+      key: 'descripcion',
       label: 'DESCRIPCIÓN',
-      render: (val) => (
-        <span className="font-body text-sm text-on-surface line-clamp-1">{val}</span>
-      ),
+      render: (val) => <span className="font-body text-sm text-on-surface line-clamp-1">{val}</span>,
     },
     {
-      key: 'arancel_extrazona',
-      label: 'AEC',
-      render: (val) => (
-        <span className="font-mono text-sm text-on-surface">
-          {val != null ? `${val}%` : '—'}
-        </span>
-      ),
+      key: 'capitulo',
+      label: 'CAP.',
+      render: (val) => <span className="font-mono text-sm text-on-surface-variant">{val ?? '—'}</span>,
     },
     {
-      key: 'derecho_exportacion',
-      label: 'D.EXPO',
-      render: (val) => (
-        <span className="font-mono text-sm text-on-surface">
-          {val != null ? `${val}%` : '—'}
-        </span>
-      ),
-    },
-    {
-      key: 'iva_importacion',
-      label: 'IVA',
-      render: (val) => (
-        <span className="font-mono text-sm text-on-surface-variant">
-          {val != null ? `${val}%` : '—'}
-        </span>
-      ),
-    },
-    {
-      key: 'organismos_imp',
-      label: 'ORGANISMOS',
-      render: (val, row) => <OrganismoBadges campo={val} maxVisible={2} />,
+      key: 'seccion',
+      label: 'SECCIÓN',
+      render: (val) => <span className="font-body text-xs text-on-surface-variant">{val ?? '—'}</span>,
     },
   ]
 
   return (
-    <PageLayout title="NOMENCLADOR" subtitle="10.000+ posiciones arancelarias">
+    <PageLayout title="NOMENCLADOR" subtitle="26.000+ posiciones arancelarias">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
           <div className="relative max-w-2xl mx-auto">
@@ -497,10 +450,7 @@ export default function NomencladorPage() {
                 <thead>
                   <tr className="bg-surface-high">
                     {columns.map(col => (
-                      <th
-                        key={col.key}
-                        className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-medium"
-                      >
+                      <th key={col.key} className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-medium">
                         {col.label}
                       </th>
                     ))}
@@ -509,7 +459,7 @@ export default function NomencladorPage() {
                 <tbody>
                   {resultados.map((row, i) => (
                     <tr
-                      key={row.ncm_code + i}
+                      key={row.codigo_ncm + i}
                       className="border-t border-white/[0.04] hover:bg-white/[0.03] transition-colors cursor-pointer"
                       onClick={() => setSelectedNcm(row)}
                     >
@@ -546,10 +496,7 @@ export default function NomencladorPage() {
       </div>
 
       {selectedNcm && (
-        <PanelDetalle
-          ncm={selectedNcm}
-          onClose={() => setSelectedNcm(null)}
-        />
+        <PanelDetalle ncm={selectedNcm} onClose={() => setSelectedNcm(null)} />
       )}
     </PageLayout>
   )

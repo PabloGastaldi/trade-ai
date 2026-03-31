@@ -8,6 +8,11 @@ import PageLayout from '@/components/ui/PageLayout'
 
 const INCOTERMS = ['EXW', 'FCA', 'FAS', 'FOB', 'CFR', 'CIF', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP']
 
+function formatearNCM(codigo) {
+  if (!codigo || codigo.length !== 11) return codigo ?? ''
+  return `${codigo.slice(0,4)}.${codigo.slice(4,6)}.${codigo.slice(6,8)}.${codigo.slice(8)}`
+}
+
 const FORM_VACIO = {
   name: '',
   operation_type: 'exportacion',
@@ -349,16 +354,23 @@ function ModalProducto({ form, setForm, errores, setErrores, paises, editando, g
       const supabase = createClient()
       const esNumerico = /^\d/.test(valor.trim())
 
-      let query = supabase.from('ncm').select('ncm_code, description').limit(5)
+      const digits = valor.trim().replace(/[.\s]/g, '').replace(/\D/g, '')
+      let query = supabase.from('ncm').select('codigo_ncm, descripcion').limit(5)
       if (esNumerico) {
-        query = query.ilike('ncm_code', `${valor.trim()}%`)
+        query = query.like('codigo_ncm', `${digits}%`)
       } else {
-        query = query.ilike('description', `%${valor.trim()}%`)
+        query = query.ilike('descripcion', `%${valor.trim()}%`)
       }
 
       const { data } = await query
-      setNcmSugerencias(data ?? [])
-      setNcmDropdownVisible((data ?? []).length > 0)
+      // Normalizar al formato display con puntos para mostrar en UI
+      const sugerencias = (data ?? []).map(r => ({
+        ncm_code: formatearNCM(r.codigo_ncm),
+        description: r.descripcion,
+        codigo_ncm: r.codigo_ncm,
+      }))
+      setNcmSugerencias(sugerencias)
+      setNcmDropdownVisible(sugerencias.length > 0)
       setBuscandoNcm(false)
     }, 300)
   }

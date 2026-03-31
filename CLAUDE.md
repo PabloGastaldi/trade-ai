@@ -53,25 +53,41 @@ Error:           text-red-400, bg-red-500/10
 
 ## Datasets disponibles
 
-### 1. Nomenclatura NCM (cargada en Supabase)
-- Tabla: `ncm` — 10,432 filas con posiciones arancelarias argentinas
-- Formato ncm_code: `XXXX.XX.XX` con puntos
+### 1. Nomenclatura NCM — schema nuevo (cargado 2026-03-31)
+- `ncm` — 26.439 filas. PK: `codigo_ncm` (11 dígitos sin puntos, ej: `29339141000`)
+  Campos: `seccion`, `capitulo`, `partida`, `descripcion`
+- `aranceles_importacion` — 26.437 filas. FK → `ncm.codigo_ncm`
+  Campos: `aec`, `die`, `dii`, `te`, `iva`, `iva_ad`, `gan`, `iibb`
+- `aranceles_exportacion` — 26.384 filas. FK → `ncm.codigo_ncm`
+  Campos: `derecho_exportacion`, `reintegro`
+- `acuerdos_importacion` — 1.106.272 filas. FK → `ncm.codigo_ncm`
+  Campos: `bloque`, `pais` (nombre en español), `codigo_acuerdo`, `porcentaje` (0-100, % de preferencia), `nomenclatura`, `ncm_acuerdo`
+- `acuerdos_exportacion` — 931.482 filas. Misma estructura que `acuerdos_importacion`
+- `acuerdos_generales` — 4 filas. TLC de cobertura total (sin NCM específico)
+  Campos: `acuerdo_id`, `pais`, `tipo`, `notas`
+- `preferencias_arancelarias` — 52.510 filas. Tabla VIEJA (NALADISA) — NO usar en código nuevo
 
-### 2. Acuerdos comerciales con preferencias (cargados en Supabase)
-- Tabla: `preferencias_arancelarias` — 52,510 filas
-- NCM en formato NALADISA sin puntos (10 dígitos), mapeado a formato con puntos
-- Acuerdos: ACE-6 (México), ACE-13 (Paraguay), ACE-35 (Chile), ACE-58 (Perú), ACE-59 (Colombia/Ecuador/Venezuela), MERCOSUR-India
+**Normalización NCM:** usar siempre `normalizarCodigoNCM()` de `lib/ncm-lookup.js`.
+El campo `pais` en acuerdos es nombre en español — cruzar con `country_codes.name_es` para resolver desde ISO3.
 
-### 3. Barreras no arancelarias — UNCTAD TRAINS (cargada en Supabase)
-- Tabla: `ntm_measures` — 199,165 filas filtradas para Argentina
-- Tabla auxiliar `country_codes`: mapeo ISO3 → nombre en español
+### 2. Barreras no arancelarias — UNCTAD TRAINS
+- `ntm_measures` — 199.165 filas filtradas para Argentina
+- `country_codes` — mapeo ISO3 → nombre en español/inglés
 
-### 4. Aranceles en destino (cargados en Supabase)
-- Tabla: `destination_tariffs` — 122,220 filas
-- Fuente: WITS/ITC, HS 6 dígitos, AVE%
+### 3. Aranceles en destino
+- `destination_tariffs` — 122.220 filas. Fuente: WITS/ITC, HS 6 dígitos, AVE%
+- Join: `ncm.codigo_ncm.slice(0,6)` → `destination_tariffs.hs_code`
+
+### 4. Tablas operativas
+- `documentos_requeridos` — 50 filas. Checklist de documentación por `tipo_operacion` + `regimen`. Filtros opcionales: `ncm_patron`, `pais_patron`
+- `regimen_intervenciones` — 52 filas. Organismos (SENASA, ANMAT, etc.) por operación/régimen/categoría de producto. Filtro por `ncm_patron`
+- `restricciones_regimenes` — 25 filas. Límites y condiciones por régimen (ej: courier USD 3.000)
 
 ## Estructura de la base de datos
-Tablas: `ncm`, `preferencias_arancelarias`, `acuerdos_generales`, `ntm_measures`, `country_codes`, `destination_tariffs`, `users_profile`, `queries_log`, `documents_registry`, `user_products`
+Tablas NCM: `ncm`, `aranceles_importacion`, `aranceles_exportacion`, `acuerdos_importacion`, `acuerdos_exportacion`, `acuerdos_generales`
+Tablas operativas: `documentos_requeridos`, `regimen_intervenciones`, `restricciones_regimenes`
+Tablas auxiliares: `ntm_measures`, `country_codes`, `destination_tariffs`, `preferencias_arancelarias` (legacy)
+Tablas de app: `users_profile`, `queries_log`, `documents_registry`, `user_products`
 
 ## Páginas migradas a Tailwind / redesignadas
 - ✅ Landing page (`app/page.js`)
