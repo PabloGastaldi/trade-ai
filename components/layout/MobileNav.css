@@ -42,72 +42,6 @@
   border-color: var(--border-light);
 }
 
-/* ── Bottom bar ───────────────────────────────── */
-.mobile-nav {
-  display: none; /* visible solo en mobile */
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  height: 60px;
-  background: #111013;
-  border-top: 1px solid var(--border);
-  display: none;
-  grid-template-columns: repeat(4, 1fr);
-  align-items: stretch;
-}
-
-.mobile-nav-tab {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.2rem;
-  text-decoration: none;
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-size: 0.68rem;
-  font-weight: 500;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem 0.25rem 0.6rem;
-  transition: color 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mobile-nav-tab:hover,
-.mobile-nav-tab--active {
-  color: var(--text);
-}
-
-.mobile-nav-tab--active .mobile-nav-tab-icon {
-  position: relative;
-}
-.mobile-nav-tab--active .mobile-nav-tab-icon::after {
-  content: '';
-  position: absolute;
-  bottom: -3px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 2px;
-  background: #DDD92A;
-  border-radius: 1px;
-}
-
-.mobile-nav-tab-icon {
-  font-size: 1.25rem;
-  position: relative;
-  display: inline-block;
-  line-height: 1;
-}
-
-.mobile-nav-tab-label {
-  white-space: nowrap;
-}
-
 /* ── Overlay ──────────────────────────────────── */
 .mobile-drawer-overlay {
   position: fixed;
@@ -120,7 +54,7 @@
 /* ── Drawer ───────────────────────────────────── */
 .mobile-drawer {
   position: fixed;
-  bottom: 60px; /* encima del bottom bar */
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 200;
@@ -129,7 +63,7 @@
   border-radius: 16px 16px 0 0;
   transform: translateY(100%);
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  max-height: 80vh;
+  max-height: 85vh;
   display: flex;
   flex-direction: column;
 }
@@ -286,9 +220,6 @@
 
 /* ── Solo visible en mobile ───────────────────── */
 @media (max-width: 767px) {
-  .mobile-nav {
-    display: grid;
-  }
   .mobile-header {
     display: flex;
   }

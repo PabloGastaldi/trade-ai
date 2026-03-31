@@ -5,28 +5,24 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
-  MessageSquare, Calculator, Ship, MoreHorizontal,
+  MessageSquare, Calculator, Ship,
   Package, Globe, Clock, User, Star, BookOpen, BarChart3,
 } from 'lucide-react'
 import './MobileNav.css'
 
 const MOBILE_BREAKPOINT = 768
 
-const BOTTOM_TABS = [
+const DRAWER_ITEMS = [
   { label: 'Chat',        Icon: MessageSquare,  href: '/consulta' },
   { label: 'Calculadora', Icon: Calculator,    href: '/calculadora' },
-  { label: 'Operaciones', Icon: Ship,         href: '/operaciones' },
-  { label: 'Más',         Icon: MoreHorizontal, href: null, isMore: true },
-]
-
-const DRAWER_ITEMS = [
-  { label: 'Catálogo',    Icon: Package,    href: '/catalogo' },
-  { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
-  { label: 'Mercados',    Icon: BarChart3,  href: '/mercados' },
-  { label: 'Historial',   Icon: Clock,      href: '/historial' },
-  { label: 'Mi cuenta',   Icon: User,       href: '/cuenta' },
-  { label: 'Planes',      Icon: Star,       href: '/planes' },
-  { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador', soon: true },
+  { label: 'Operaciones', Icon: Ship,          href: '/operaciones' },
+  { label: 'Catálogo',    Icon: Package,       href: '/catalogo' },
+  { label: 'Comparador',  Icon: Globe,        href: '/comparador' },
+  { label: 'Mercados',    Icon: BarChart3,    href: '/mercados' },
+  { label: 'Historial',   Icon: Clock,        href: '/historial' },
+  { label: 'Mi cuenta',   Icon: User,         href: '/cuenta' },
+  { label: 'Planes',      Icon: Star,         href: '/planes' },
+  { label: 'Nomenclador', Icon: BookOpen,     href: '/nomenclador', soon: true },
 ]
 
 export default function MobileNav() {
@@ -98,39 +94,6 @@ function MobileShell() {
           </svg>
         </button>
       </div>
-
-      <nav className="mobile-nav">
-        {BOTTOM_TABS.map((tab) => {
-          if (tab.isMore) {
-            return (
-              <button
-                key="more"
-                className={`mobile-nav-tab ${drawerOpen ? 'mobile-nav-tab--active' : ''}`}
-                onClick={() => setDrawerOpen((v) => !v)}
-              >
-                <span className="mobile-nav-tab-icon">
-                  <tab.Icon size={20} strokeWidth={1.5} />
-                </span>
-                <span className="mobile-nav-tab-label">{tab.label}</span>
-              </button>
-            )
-          }
-          const isActive = pathname === tab.href && !drawerOpen
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={`mobile-nav-tab ${isActive ? 'mobile-nav-tab--active' : ''}`}
-              onClick={() => setDrawerOpen(false)}
-            >
-              <span className="mobile-nav-tab-icon">
-                <tab.Icon size={20} strokeWidth={1.5} />
-              </span>
-              <span className="mobile-nav-tab-label">{tab.label}</span>
-            </Link>
-          )
-        })}
-      </nav>
 
       {drawerOpen && (
         <div className="mobile-drawer-overlay" onClick={() => setDrawerOpen(false)} />
