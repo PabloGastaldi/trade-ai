@@ -105,7 +105,7 @@ function NcmAutocomplete({ value, onSelect, error }) {
           const { data } = await supabase
             .from('ncm')
             .select('ncm_code, description')
-            .ilike('ncm_code', `%${trimmed}%`)
+            .like('ncm_code', `${trimmed}%`)
             .order('ncm_code')
             .limit(5)
           results = data ?? []
@@ -113,7 +113,7 @@ function NcmAutocomplete({ value, onSelect, error }) {
           const { data } = await supabase
             .from('ncm')
             .select('ncm_code, description')
-            .ilike('description', `%${trimmed}%`)
+            .like('description', `%${trimmed}%`)
             .order('ncm_code')
             .limit(5)
           results = data ?? []
