@@ -94,14 +94,25 @@ function NcmAutocomplete({ value, onSelect, error }) {
     if (val.trim().length < 2) { setSugerencias([]); setVisible(false); return }
     debounceRef.current = setTimeout(async () => {
       setBuscando(true)
-      const supabase = createClient()
-      const esNum = /^\d/.test(val.trim())
-      const { data } = esNum
-        ? await supabase.from('ncm').select('ncm_code, description').ilike('ncm_code', `${val.trim()}%`).limit(5)
-        : await supabase.from('ncm').select('ncm_code, description').ilike('description', `%${val.trim()}%`).limit(5)
-      setSugerencias(data ?? [])
-      setVisible((data ?? []).length > 0)
-      setBuscando(false)
+      try {
+        const supabase = createClient()
+        const trimmed = val.trim()
+        const { data, error } = await supabase
+          .from('ncm')
+          .select('ncm_code, description')
+          .or(`ncm_code.ilike.%${trimmed}%,description.ilike.%${trimmed}%`)
+          .order('ncm_code')
+          .limit(5)
+        if (error) {
+          console.error('NCM search error:', error)
+        }
+        setSugerencias(data ?? [])
+        setVisible((data ?? []).length > 0)
+      } catch (err) {
+        console.error('NCM search exception:', err)
+      } finally {
+        setBuscando(false)
+      }
     }, 300)
   }
 
