@@ -91,10 +91,15 @@ function scrapeBCR(html) {
 }
 
 export async function GET(request) {
-  // Verificar Authorization header en producción
-  const authHeader = request.headers.get('authorization')
-  if (process.env.NODE_ENV === 'production' && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  // Verificar que viene de Vercel Cron o de una llamada autorizada
+  if (process.env.NODE_ENV === 'production') {
+    const authHeader = request.headers.get('authorization')
+    const isVercelCron = request.headers.get('x-vercel-cron') === '1'
+    const cronSecret = process.env.CRON_SECRET
+    const hasValidSecret = cronSecret && authHeader === `Bearer ${cronSecret}`
+    if (!isVercelCron && !hasValidSecret) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    }
   }
 
   const html = await fetchHTML(
