@@ -19,7 +19,7 @@ export default function NcmAutocomplete({ value, onSelect, error }) {
   }, [])
 
   function handleInput(val) {
-    onSelect({ ncm_code: val, description: '' })
+    onSelect({ codigo_ncm: val, descripcion: '' })
     setDescripcion('')
     clearTimeout(debounceRef.current)
     if (val.trim().length < 2) { setSugerencias([]); setVisible(false); return }
@@ -39,8 +39,13 @@ export default function NcmAutocomplete({ value, onSelect, error }) {
   }
 
   function handleSelect(item) {
-    onSelect(item)
-    setDescripcion(item.description)
+    // API devuelve ncm_code/description, normalizamos a codigo_ncm/descripcion
+    const normalized = {
+      codigo_ncm: item.codigo_ncm ?? item.ncm_code ?? '',
+      descripcion: item.descripcion ?? item.description ?? '',
+    }
+    onSelect(normalized)
+    setDescripcion(normalized.descripcion)
     setSugerencias([])
     setVisible(false)
   }
