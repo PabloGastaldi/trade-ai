@@ -59,7 +59,7 @@ function MobileShell() {
   return (
     <>
       <div className="mobile-header">
-        <span className="mobile-header-title font-logo">
+        <span className="font-logo text-lg">
           <span className="text-on-surface">trade</span>
           <span className="text-primary">.ai</span>
         </span>
