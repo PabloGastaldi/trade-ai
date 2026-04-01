@@ -10,15 +10,7 @@ import { RateLimiter } from '@/lib/rate-limit'
 import { SYSTEM_PROMPT } from '@/lib/prompts/system-prompt'
 import { GUIA_EXPORTACION } from '@/lib/prompts/guia-exportacion'
 import { GUIA_IMPORTACION } from '@/lib/prompts/guia-importacion'
-
-// ─────────────────────────────────────────────
-// CONFIGURACIÓN DE LÍMITES POR PLAN
-// ─────────────────────────────────────────────
-const LIMITES_PLAN = {
-  free:     100,   // 100 para desarrollo, bajar a 15 en producción
-  pro:      200,
-  empresa:  Infinity,
-}
+import { getPlanConfig } from '@/lib/plans-config'
 
 // ─────────────────────────────────────────────
 // RATE LIMITING POR USUARIO (2da capa)
@@ -146,6 +138,15 @@ export async function POST(request) {
 
     let consultasEsteMes = perfil?.queries_this_month ?? 0
 
+    const RESET_TODOS_CONTADORES = {
+      queries_this_month:     0,
+      calcs_this_month:       0,
+      simulador_this_month:   0,
+      comparador_this_month:  0,
+      nomenclador_this_month: 0,
+      operaciones_this_month: 0,
+    }
+
     if (!fechaReset) {
       // Usuario nuevo — inicializar fecha de reset a 1 mes desde hoy
       const proximoReset = new Date(ahora)
@@ -153,7 +154,7 @@ export async function POST(request) {
 
       await supabase
         .from('users_profile')
-        .update({ queries_this_month: 0, queries_reset_date: proximoReset.toISOString() })
+        .update({ ...RESET_TODOS_CONTADORES, queries_reset_date: proximoReset.toISOString() })
         .eq('id', userId)
 
       consultasEsteMes = 0
@@ -165,21 +166,24 @@ export async function POST(request) {
 
       await supabase
         .from('users_profile')
-        .update({ queries_this_month: 0, queries_reset_date: proximoReset.toISOString() })
+        .update({ ...RESET_TODOS_CONTADORES, queries_reset_date: proximoReset.toISOString() })
         .eq('id', userId)
 
       consultasEsteMes = 0
       seReinicio = true
     }
 
-    const limite = LIMITES_PLAN[planUsuario] ?? LIMITES_PLAN.free
+    const planConfig = getPlanConfig(planUsuario)
+    const limiteConsulta = planConfig.limits.consulta.monthly
+    const limite = limiteConsulta ?? Infinity
 
-    if (consultasEsteMes >= limite) {
+    if (limite !== Infinity && consultasEsteMes >= limite) {
       return NextResponse.json(
         {
-          error: `Alcanzaste el límite de ${limite} consultas mensuales de tu plan ${planUsuario}. Actualizá tu plan para continuar.`,
+          error: `Alcanzaste el límite de ${limite} consultas mensuales de tu plan ${planUsuario === 'free' ? 'gratuito' : planUsuario}. Actualizá tu plan para continuar.`,
+          limitAlcanzado: true,
         },
-        { status: 403 }
+        { status: 429 }
       )
     }
   } catch (err) {

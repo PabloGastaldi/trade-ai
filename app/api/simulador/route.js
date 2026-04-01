@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient as createAuthClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 import { normalizarCodigoNCM } from '@/lib/ncm-lookup'
+import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
 
 function getServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -26,6 +27,12 @@ export async function POST(request) {
   const { data: { user }, error: authError } = await authSupabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+  }
+
+  // Verificar límite del plan
+  const { permitido, motivo, limitAlcanzado } = await verificarLimite(authSupabase, user.id, 'simulador')
+  if (!permitido) {
+    return NextResponse.json({ error: motivo, limitAlcanzado }, { status: 429 })
   }
 
   let body
@@ -335,5 +342,6 @@ export async function POST(request) {
     warnings,
   }
 
+  await registrarUso(authSupabase, user.id, 'simulador')
   return NextResponse.json(response)
 }

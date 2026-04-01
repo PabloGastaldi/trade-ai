@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import PageLayout from '@/components/ui/PageLayout'
 import Badge from '@/components/ui/Badge'
@@ -353,11 +353,8 @@ export default function NomencladorPage() {
               <p className="font-body text-xs text-on-surface-variant/40 text-center mt-2">Escribí un código (ej: 0902.30) o un producto (ej: galletas de chocolate)</p>
             </div>
             {!resultados && !loading && (
-              <div className="text-center py-16">
-                <p className="font-display text-4xl tracking-widest text-on-surface/[0.05] uppercase mb-8 select-none pointer-events-none">Buscá un NCM</p>
-                <div className="flex flex-wrap justify-center gap-3">
-                  {CHIP_BUSQUEDAS.map(c => (<button key={c.query} className="bg-white/[0.03] rounded-full px-5 py-2.5 text-sm font-body text-on-surface-variant hover:text-on-surface hover:bg-white/[0.06] transition-all cursor-pointer" onClick={() => handleChip(c.query)}>{c.label}</button>))}
-                </div>
+              <div className="flex flex-wrap justify-center gap-3 py-8">
+                {CHIP_BUSQUEDAS.map(c => (<button key={c.query} className="bg-white/[0.03] rounded-full px-5 py-2.5 text-sm font-body text-on-surface-variant hover:text-on-surface hover:bg-white/[0.06] transition-all cursor-pointer" onClick={() => handleChip(c.query)}>{c.label}</button>))}
               </div>
             )}
             {loading && resultados === null && (<div className="space-y-2">{[0,1,2,3,4,5].map(i => <div key={i} className="h-14 bg-white/[0.02] rounded-xl animate-pulse" />)}</div>)}
@@ -433,7 +430,7 @@ export default function NomencladorPage() {
                     {!c.ncm_exacto && c.similares && c.similares.length > 0 && (
                       <div className="mt-4 p-3 bg-white/[0.02] rounded-xl">
                         <p className="font-body text-xs text-on-surface-variant mb-2">El NCM exacto sugerido no existe. Posibles posiciones similares:</p>
-                        <div className="space-y-1">{c.similares.map((s, j) => (<button key={s.codigo_ncm} className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => verDetalle(s)}><span className="font-mono text-xs text-primary">{formatearNCM(s.codigo_ncm)}</span><span className="font-body text-xs text-on-surface-variant ml-2">— {s.descripcion?.slice(0, 50)}</span></button>))}</div>
+                        <div className="space-y-1">{c.similares.map((s) => (<button key={s.codigo_ncm} className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => verDetalle(s)}><span className="font-mono text-xs text-primary">{formatearNCM(s.codigo_ncm)}</span><span className="font-body text-xs text-on-surface-variant ml-2">— {s.descripcion?.slice(0, 50)}</span></button>))}</div>
                       </div>
                     )}
                     <div className="flex flex-wrap gap-3 mt-4">

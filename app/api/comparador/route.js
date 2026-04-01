@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { calcularExportacion } from '@/lib/calculadora/calc-exportacion'
 import { calcularImportacion } from '@/lib/calculadora/calc-importacion'
-import { verificarLimiteCalc, registrarCalc } from '@/lib/calc-limit'
+import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
 
 // POST /api/comparador
 // Calcula exportación o importación para múltiples países en paralelo.
@@ -23,9 +23,9 @@ export async function POST(request) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
   }
 
-  const { permitido, motivo, limitAlcanzado } = await verificarLimiteCalc(supabase, user.id)
+  const { permitido, motivo, limitAlcanzado } = await verificarLimite(supabase, user.id, 'comparador')
   if (!permitido) {
-    return NextResponse.json({ error: motivo, limitAlcanzado }, { status: 403 })
+    return NextResponse.json({ error: motivo, limitAlcanzado }, { status: 429 })
   }
 
   let body
@@ -70,7 +70,7 @@ export async function POST(request) {
         }
       })
     )
-    await registrarCalc(supabase, user.id)
+    await registrarUso(supabase, user.id, 'comparador')
     return NextResponse.json({ ok: true, resultados })
   }
 
@@ -104,6 +104,6 @@ export async function POST(request) {
       }
     })
   )
-  await registrarCalc(supabase, user.id)
+  await registrarUso(supabase, user.id, 'comparador')
   return NextResponse.json({ ok: true, resultados })
 }

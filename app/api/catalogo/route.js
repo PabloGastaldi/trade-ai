@@ -1,16 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getPlanConfig } from '@/lib/plans-config'
 
 // Whitelists de validación
 const VALID_CURRENCIES = ['USD', 'EUR', 'ARS']
 const VALID_INCOTERMS  = ['EXW', 'FCA', 'FOB', 'CFR', 'CIF', 'CIP', 'DAP', 'DPU', 'DDP']
-
-// Límites de productos por plan — FUENTE DE VERDAD SERVER-SIDE
-const LIMITES_PRODUCTOS = {
-  free:    2,
-  pro:     30,
-  empresa: Infinity,
-}
 
 // POST /api/catalogo — inserta un producto validando el límite del plan
 export async function POST(request) {
@@ -34,7 +28,9 @@ export async function POST(request) {
   }
 
   const plan = perfil.plan_type ?? 'free'
-  const limite = LIMITES_PRODUCTOS[plan] ?? LIMITES_PRODUCTOS.free
+  const planConfig = getPlanConfig(plan)
+  const limiteTotal = planConfig.limits.catalogo.total
+  const limite = limiteTotal ?? Infinity
 
   // Contar productos activos del usuario
   const { count, error: countError } = await supabase
@@ -47,14 +43,15 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Error al verificar límite' }, { status: 500 })
   }
 
-  if (count >= limite) {
+  if (limite !== Infinity && count >= limite) {
+    const label = planConfig.limits.catalogo.label
     const mensajes = {
-      free: `El plan gratuito permite hasta ${limite} productos. Actualizá a Pro para agregar hasta 30.`,
-      pro:  `El plan Pro permite hasta ${limite} productos. Contactanos para el plan Empresa.`,
+      free: `El plan gratuito permite hasta ${label}. Actualizá a Pro para acceso ilimitado.`,
+      pro:  `El plan Pro no tiene límite de productos. Contactanos para el plan Empresa.`,
     }
     return NextResponse.json(
-      { error: mensajes[plan] ?? `Límite de ${limite} productos alcanzado`, limitAlcanzado: true },
-      { status: 403 }
+      { error: mensajes[plan] ?? `Límite de ${label} alcanzado`, limitAlcanzado: true },
+      { status: 429 }
     )
   }
 

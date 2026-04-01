@@ -240,28 +240,36 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
     if (Object.keys(errs).length > 0) { setErroresForm(errs); return }
     setGuardando(true)
     try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      const payload = {
-        user_id: user.id,
-        operation_type: form.operation_type,
-        status: form.operation_type === 'exportacion' ? 'expo_preparacion' : 'impo_orden_compra',
-        product_id: form.product_id || null,
-        ncm_code: form.ncm_code.trim() || null,
-        product_description: form.product_description.trim() || null,
-        counterpart_name: form.counterpart_name.trim() || null,
-        counterpart_country: form.counterpart_country || null,
-        incoterm: form.incoterm || null,
-        payment_method: form.payment_method || null,
-        currency: form.currency,
-        total_value: form.total_value ? Number(form.total_value) : null,
-        estimated_ship_date: form.estimated_ship_date || null,
-        transport_mode: form.transport_mode || null,
-        customs_broker: form.customs_broker.trim() || null,
-        notes: form.notes.trim() || null,
+      const res = await fetch('/api/operaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          operation_type: form.operation_type,
+          product_id: form.product_id || null,
+          ncm_code: form.ncm_code.trim() || null,
+          product_description: form.product_description.trim() || null,
+          counterpart_name: form.counterpart_name.trim() || null,
+          counterpart_country: form.counterpart_country || null,
+          incoterm: form.incoterm || null,
+          payment_method: form.payment_method || null,
+          currency: form.currency,
+          total_value: form.total_value ? Number(form.total_value) : null,
+          estimated_ship_date: form.estimated_ship_date || null,
+          transport_mode: form.transport_mode || null,
+          customs_broker: form.customs_broker.trim() || null,
+          notes: form.notes.trim() || null,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        if (json.limitAlcanzado) {
+          setErroresForm({ _general: json.error, _limitAlcanzado: true })
+        } else {
+          throw new Error(json.error || 'Error al crear la operación')
+        }
+        return
       }
-      const { data, error } = await supabase.from('operations').insert(payload).select().single()
-      if (error) throw error
+      const data = json.operacion
       setOperaciones(prev => [{ ...data, docs_total: 0, docs_completos: 0 }, ...prev])
       cerrarModal()
       router.push(`/operaciones/${data.id}`)
@@ -926,7 +934,12 @@ function ModalNuevaOperacion({ form, setField, errores, productos, paises, guard
           )}
 
           {errores._general && (
-            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">{errores._general}</div>
+            <div className={`px-4 py-3 rounded-xl text-sm ${errores._limitAlcanzado ? 'bg-primary/5 border border-primary/30 text-on-surface' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
+              {errores._general}
+              {errores._limitAlcanzado && (
+                <a href="/planes" className="ml-2 font-semibold text-primary underline underline-offset-2">Ver planes</a>
+              )}
+            </div>
           )}
 
           <div className="flex gap-3 pt-2">

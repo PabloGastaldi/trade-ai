@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createAuthClient } from '@/lib/supabase/server'
+import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
@@ -7,6 +9,18 @@ export async function GET(request) {
 
   if (q.length < 2) {
     return NextResponse.json([])
+  }
+
+  // Verificar autenticación y límite de plan
+  const authSupabase = await createAuthClient()
+  const { data: { user }, error: authError } = await authSupabase.auth.getUser()
+  if (authError || !user) {
+    return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+  }
+
+  const { permitido, motivo, limitAlcanzado } = await verificarLimite(authSupabase, user.id, 'nomenclador')
+  if (!permitido) {
+    return NextResponse.json({ error: motivo, limitAlcanzado }, { status: 429 })
   }
 
   try {
@@ -47,6 +61,7 @@ export async function GET(request) {
       description: row.descripcion,
     }))
 
+    await registrarUso(authSupabase, user.id, 'nomenclador')
     return NextResponse.json(formatted)
   } catch (err) {
     console.error('[api/ncm-search] Exception:', err)
