@@ -1,18 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
   MessageSquare, Calculator, Ship,
-  Package, Globe, Clock, User, Star, BookOpen, BarChart3,
+  Package, Globe, Clock, User, Star, BookOpen, BarChart3, FileSearch, LogOut,
 } from 'lucide-react'
 import './MobileNav.css'
 
 const MOBILE_BREAKPOINT = 768
 
 const DRAWER_ITEMS = [
+  { label: 'Simulador',   Icon: FileSearch,    href: '/simulador' },
   { label: 'Chat',        Icon: MessageSquare,  href: '/consulta' },
   { label: 'Calculadora', Icon: Calculator,    href: '/calculadora' },
   { label: 'Operaciones', Icon: Ship,          href: '/operaciones' },
@@ -46,34 +47,14 @@ function MobileShell() {
   const pathname = usePathname()
   const router = useRouter()
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [email, setEmail] = useState('')
-  const [planType, setPlanType] = useState('free')
-
-  useEffect(() => {
-    async function loadUser() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      setEmail(user.email ?? '')
-      const { data: profile } = await supabase
-        .from('users_profile')
-        .select('plan_type')
-        .eq('id', user.id)
-        .single()
-      if (profile?.plan_type) setPlanType(profile.plan_type)
-    }
-    loadUser()
-  }, [])
 
   async function handleLogout() {
     const supabase = createClient()
     await supabase.auth.signOut()
     setDrawerOpen(false)
-    router.push('/')
+    router.push('/login')
     router.refresh()
   }
-
-  const planLabel = { free: 'Free', pro: 'Pro', empresa: 'Empresa' }[planType] ?? 'Free'
 
   return (
     <>
@@ -100,17 +81,6 @@ function MobileShell() {
       )}
 
       <div className={`mobile-drawer ${drawerOpen ? 'mobile-drawer--open' : ''}`}>
-        <div className="mobile-drawer-header">
-          <span className="mobile-drawer-title font-logo">
-            <span className="text-on-surface">trade</span>
-            <span className="text-primary">.ai</span>
-          </span>
-          <div className="mobile-drawer-user">
-            {email && <span className="mobile-drawer-email">{email}</span>}
-            <span className={`mobile-drawer-plan mobile-drawer-plan--${planType}`}>{planLabel}</span>
-          </div>
-        </div>
-
         <div className="mobile-drawer-items">
           {DRAWER_ITEMS.map((item) => {
             const isActive = pathname === item.href
@@ -131,11 +101,10 @@ function MobileShell() {
           })}
         </div>
 
-        <div className="mobile-drawer-footer">
-          <button className="mobile-logout-btn" onClick={handleLogout}>
-            Cerrar sesión
-          </button>
-        </div>
+        <Link href="/login" className="mobile-drawer-item" onClick={() => setDrawerOpen(false)}>
+          <span className="mobile-drawer-item-icon"><LogOut size={18} strokeWidth={1.5} /></span>
+          <span className="mobile-drawer-item-label">Cerrar sesión</span>
+        </Link>
       </div>
     </>
   )

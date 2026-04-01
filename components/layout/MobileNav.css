@@ -17,7 +17,7 @@
 }
 
 .mobile-header-title {
-  font-family: var(--font-display);
+  font-family: var(--font-logo);
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: -0.03em;
