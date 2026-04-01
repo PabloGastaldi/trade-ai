@@ -54,7 +54,7 @@ const PLANES = [
       'Integraciones personalizadas',
     ],
     cta: 'Contactanos',
-    href: 'mailto:tradeaicomex@gmail.com',
+    href: 'mailto:tradeaicomex@gmail.com?subject=Consulta%20Plan%20Empresa%20%E2%80%94%20trade.ai',
   },
 ]
 
@@ -374,7 +374,7 @@ export default function LandingPage() {
                 {/* Progress mockup */}
                 <div className="mt-6 space-y-3">
                   {[
-                    { label: 'DUA de exportación', done: true },
+                    { label: 'Factura comercial', done: true },
                     { label: 'Certificado de origen', done: true },
                     { label: 'Habilitación SENASA', done: false },
                   ].map((item, i) => (
