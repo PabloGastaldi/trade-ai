@@ -60,7 +60,7 @@ Detalles adicionales: ${detalles || 'Ninguno'}
 `
 
     const response = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20241022',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 800,
       temperature: 0,
       system: systemPrompt,
@@ -101,10 +101,13 @@ Detalles adicionales: ${detalles || 'Ninguno'}
       let similares = null
       if (!ncmReal && codigo.length >= 4) {
         const prefijo = codigo.slice(0, 6)
+        const padded = prefijo.padEnd(11, '0')
+        const next = (BigInt(prefijo.padEnd(11, '9')) + 1n).toString().padStart(11, '0')
         const { data: sim } = await supabase
           .from('ncm')
           .select('codigo_ncm, descripcion, seccion, capitulo, partida')
-          .like('codigo_ncm', `${prefijo}%`)
+          .gte('codigo_ncm', padded)
+          .lt('codigo_ncm', next)
           .limit(5)
         similares = sim ?? []
       }
