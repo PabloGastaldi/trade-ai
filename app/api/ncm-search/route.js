@@ -38,11 +38,11 @@ export async function GET(request) {
       .limit(5)
 
     if (isNum) {
-      // codigo_ncm es columna numérica — pasar Number para evitar ambigüedad con ceros líderes
+      // codigo_ncm es texto — comparación lexicográfica, strings con ceros funcionan correctamente
       const digits = q.replace(/\D/g, '')
       if (digits.length > 0) {
-        const desde = Number(digits.padEnd(11, '0'))
-        const hasta = Number(digits.padEnd(11, '9')) + 1
+        const desde = digits.padEnd(11, '0')
+        const hasta = String(parseInt(digits, 10) + 1).padStart(digits.length, '0').padEnd(11, '0')
         query = query.gte('codigo_ncm', desde).lt('codigo_ncm', hasta)
       }
     } else {

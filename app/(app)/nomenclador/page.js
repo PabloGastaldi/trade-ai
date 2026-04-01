@@ -259,9 +259,9 @@ export default function NomencladorPage() {
     const esCodigo = digits.length >= 2 && /^\d+$/.test(digits)
     let query_sb = supabase.from('ncm').select('codigo_ncm, descripcion, capitulo, seccion', { count: 'exact' }).order('codigo_ncm').range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1)
     if (esCodigo) {
-      // codigo_ncm es numérico en Supabase — pasar como Number, no string con ceros
-      const desde = Number(digits.padEnd(11, '0'))
-      const hasta = Number(digits.padEnd(11, '9')) + 1
+      // codigo_ncm es texto — comparación lexicográfica con strings
+      const desde = digits.padEnd(11, '0')
+      const hasta = String(parseInt(digits, 10) + 1).padStart(digits.length, '0').padEnd(11, '0')
       query_sb = query_sb.gte('codigo_ncm', desde).lt('codigo_ncm', hasta)
     } else { query_sb = query_sb.ilike('descripcion', `%${trimmed}%`) }
     const { data, error, count } = await query_sb
@@ -326,7 +326,7 @@ export default function NomencladorPage() {
   const confianzaVariant = { alta: 'success', media: 'accent', baja: 'error' }
 
   return (
-    <PageLayout title="NOMENCLADOR" subtitle="26.000+ posiciones arancelarias">
+    <PageLayout title="NOMENCLADOR" subtitle="10.000+ posiciones arancelarias">
       <div className="max-w-5xl mx-auto">
         <div className="flex bg-white/[0.02] rounded-xl p-1 w-fit mb-8">
           {[
