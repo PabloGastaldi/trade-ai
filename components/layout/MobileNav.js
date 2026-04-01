@@ -23,7 +23,7 @@ const DRAWER_ITEMS = [
   { label: 'Historial',   Icon: Clock,        href: '/historial' },
   { label: 'Mi cuenta',   Icon: User,         href: '/cuenta' },
   { label: 'Planes',      Icon: Star,         href: '/planes' },
-  { label: 'Nomenclador', Icon: BookOpen,     href: '/nomenclador', soon: true },
+  { label: 'Nomenclador', Icon: BookOpen,     href: '/nomenclador' },
 ]
 
 export default function MobileNav() {
