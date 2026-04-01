@@ -3,12 +3,17 @@
 import { useState, useRef, useEffect } from 'react'
 
 export default function NcmAutocomplete({ value, onSelect, error }) {
+  const [inputVal, setInputVal] = useState(value ?? '')
   const [sugerencias, setSugerencias] = useState([])
   const [buscando, setBuscando] = useState(false)
   const [visible, setVisible] = useState(false)
-  const [descripcion, setDescripcion] = useState('')
   const debounceRef = useRef(null)
   const wrapRef = useRef(null)
+
+  // Sincronizar si el padre cambia el valor (ej: reset del form)
+  useEffect(() => {
+    setInputVal(value ?? '')
+  }, [value])
 
   useEffect(() => {
     function handleClick(e) {
@@ -19,8 +24,7 @@ export default function NcmAutocomplete({ value, onSelect, error }) {
   }, [])
 
   function handleInput(val) {
-    onSelect({ codigo_ncm: val, descripcion: '' })
-    setDescripcion('')
+    setInputVal(val)
     clearTimeout(debounceRef.current)
     if (val.trim().length < 2) { setSugerencias([]); setVisible(false); return }
     debounceRef.current = setTimeout(async () => {
@@ -30,8 +34,8 @@ export default function NcmAutocomplete({ value, onSelect, error }) {
         const data = await res.json()
         setSugerencias(data ?? [])
         setVisible((data ?? []).length > 0)
-      } catch (err) {
-        console.error('NCM search error:', err)
+      } catch {
+        // silencioso
       } finally {
         setBuscando(false)
       }
@@ -39,15 +43,10 @@ export default function NcmAutocomplete({ value, onSelect, error }) {
   }
 
   function handleSelect(item) {
-    // API devuelve ncm_code/description, normalizamos a codigo_ncm/descripcion
-    const normalized = {
-      codigo_ncm: item.codigo_ncm ?? item.ncm_code ?? '',
-      descripcion: item.descripcion ?? item.description ?? '',
-    }
-    onSelect(normalized)
-    setDescripcion(normalized.descripcion)
+    setInputVal(item.ncm_code)
     setSugerencias([])
     setVisible(false)
+    onSelect(item)
   }
 
   return (
@@ -58,7 +57,7 @@ export default function NcmAutocomplete({ value, onSelect, error }) {
         }`}
         type="text"
         placeholder="Código NCM o descripción..."
-        value={value}
+        value={inputVal}
         onChange={e => handleInput(e.target.value)}
         onFocus={() => sugerencias.length > 0 && setVisible(true)}
         autoComplete="off"
@@ -83,9 +82,6 @@ export default function NcmAutocomplete({ value, onSelect, error }) {
           </div>
         )}
       </div>
-      {descripcion && !visible && (
-        <p className="mt-1 font-body text-[10px] text-on-surface-variant/60">{descripcion}</p>
-      )}
       {error && <p className="mt-1 font-body text-[10px] text-red-400">{error}</p>}
     </div>
   )

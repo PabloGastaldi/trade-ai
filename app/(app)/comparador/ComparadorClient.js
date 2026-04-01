@@ -319,7 +319,7 @@ export default function ComparadorClient({ paises }) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              codigo_ncm: ncmItem.codigo_ncm,
+              codigo_ncm: ncmItem.ncm_code,
               pais_iso3: iso3,
               tipo_operacion: tipo,
               regimen,
@@ -399,7 +399,7 @@ export default function ComparadorClient({ paises }) {
             <div>
               <label className="block font-body text-xs text-on-surface-variant mb-1.5">Código NCM</label>
               <NcmAutocomplete
-                value={ncmItem?.codigo_ncm ?? ''}
+                value={ncmItem?.ncm_code ?? ''}
                 onSelect={(item) => { setNcmItem(item); setNcmError('') }}
                 error={ncmError}
               />
@@ -420,9 +420,9 @@ export default function ComparadorClient({ paises }) {
 
           {ncmItem && (
             <div className="mb-5 px-4 py-2.5 bg-white/[0.03] rounded-xl flex items-center gap-3">
-              <span className="font-mono text-sm text-primary">{ncmItem.codigo_ncm}</span>
+              <span className="font-mono text-sm text-primary">{ncmItem.ncm_code}</span>
               <span className="text-on-surface-variant/20">|</span>
-              <span className="font-body text-xs text-on-surface-variant line-clamp-1">{ncmItem.descripcion}</span>
+              <span className="font-body text-xs text-on-surface-variant line-clamp-1">{ncmItem.description}</span>
             </div>
           )}
 
