@@ -700,12 +700,19 @@ function ModalNuevaOperacion({ form, setField, errores, productos, paises, guard
       setBuscandoNcm(true)
       const supabase = createClient()
       const esNum = /^\d/.test(val.trim())
-      const q = esNum
-        ? supabase.from('ncm').select('ncm_code, description').ilike('ncm_code', `${val.trim()}%`).limit(5)
-        : supabase.from('ncm').select('ncm_code, description').ilike('description', `%${val.trim()}%`).limit(5)
+      const digits = val.trim().replace(/\D/g, '')
+      let q = supabase.from('ncm').select('codigo_ncm, descripcion').limit(5)
+      if (esNum && digits.length > 0) {
+        const desde = Number(digits.padEnd(11, '0'))
+        const hasta = Number(digits.padEnd(11, '9')) + 1
+        q = q.gte('codigo_ncm', desde).lt('codigo_ncm', hasta).order('codigo_ncm')
+      } else {
+        q = q.ilike('descripcion', `%${val.trim()}%`)
+      }
       const { data } = await q
-      setNcmSugerencias(data ?? [])
-      setNcmVisible((data ?? []).length > 0)
+      const items = (data ?? []).map(r => ({ ncm_code: String(r.codigo_ncm).padStart(11, '0'), description: r.descripcion }))
+      setNcmSugerencias(items)
+      setNcmVisible(items.length > 0)
       setBuscandoNcm(false)
     }, 300)
   }
