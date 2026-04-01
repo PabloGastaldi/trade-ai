@@ -10,54 +10,105 @@ function getServiceClient() {
   )
 }
 
+// Busca candidatos reales en la DB usando palabras clave
+async function buscarCandidatosDB(supabase, producto, material, uso) {
+  const terminos = [producto, material, uso]
+    .filter(Boolean)
+    .flatMap(t => t.toLowerCase().split(/[\s,\/]+/))
+    .filter(t => t.length >= 3)
+    .slice(0, 4) // máximo 4 términos para no sobrecargar
+
+  if (terminos.length === 0) return []
+
+  // Buscar con cada término y unir resultados únicos
+  const sets = await Promise.all(
+    terminos.map(t =>
+      supabase
+        .from('ncm')
+        .select('codigo_ncm, descripcion, capitulo, seccion')
+        .ilike('descripcion', `%${t}%`)
+        .limit(15)
+    )
+  )
+
+  const vistos = new Set()
+  const candidatos = []
+  for (const { data } of sets) {
+    for (const row of data ?? []) {
+      if (!vistos.has(row.codigo_ncm)) {
+        vistos.add(row.codigo_ncm)
+        candidatos.push(row)
+      }
+    }
+  }
+
+  return candidatos.slice(0, 40)
+}
+
 export async function POST(request) {
   try {
     const body = await request.json()
     const { producto, material, uso, estado, presentacion, detalles } = body
 
-    if (!producto || !producto.trim()) {
+    if (!producto?.trim()) {
       return NextResponse.json({ error: 'El campo "producto" es obligatorio.' }, { status: 400 })
     }
-
-    if (!estado || !estado.trim()) {
+    if (!estado?.trim()) {
       return NextResponse.json({ error: 'El campo "estado" es obligatorio.' }, { status: 400 })
     }
 
+    const supabase = getServiceClient()
+
+    // PASO 1: buscar candidatos reales en la DB
+    const candidatosDB = await buscarCandidatosDB(supabase, producto, material, uso)
+
+    if (candidatosDB.length === 0) {
+      return NextResponse.json({
+        candidatos: [],
+        nota: 'No se encontraron posiciones NCM en la base de datos para los términos ingresados. Intentá con palabras más específicas o en español.',
+      })
+    }
+
+    // PASO 2: pasar los candidatos reales a la IA para que elija
+    const listaParaIA = candidatosDB
+      .map(r => `${r.codigo_ncm} | ${r.descripcion}`)
+      .join('\n')
+
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-    const systemPrompt = `Sos un clasificador arancelario experto en el sistema NCM (Nomenclatura Común del Mercosur) argentino. 
+    const systemPrompt = `Sos un clasificador arancelario experto en NCM (Nomenclatura Común del Mercosur) argentino.
 
-Tu tarea es sugerir entre 1 y 3 posiciones arancelarias NCM candidatas para un producto, ordenadas de más probable a menos probable.
+Se te proporciona una lista de posiciones NCM reales extraídas de la base de datos oficial. Tu única tarea es elegir las 1 a 3 más adecuadas para el producto descripto, en orden de relevancia.
 
-REGLAS:
-- Respondé SOLO con JSON válido, sin texto adicional
-- Cada candidato tiene: codigo_ncm (11 dígitos sin puntos), confianza (alta/media/baja), razonamiento (1-2 oraciones explicando por qué esa posición)
-- Si no tenés suficiente información para clasificar, devolvé un array vacío
-- Los códigos NCM son de 11 dígitos. Si solo podés determinar hasta partida (4 dígitos) o subpartida (6-8 dígitos), completá con ceros
-- Priorizá precisión sobre cantidad: si solo tenés 1 candidato claro, devolvé solo 1
+REGLAS ESTRICTAS:
+- Solo podés elegir códigos de la lista provista. NUNCA inventes ni modifiques un código.
+- Respondé SOLO con JSON válido, sin texto adicional.
+- Si ninguna posición de la lista es adecuada, devolvés candidatos vacío con una nota explicando qué información falta.
 
-Formato de respuesta:
+Formato:
 {
   "candidatos": [
     {
       "codigo_ncm": "04090000000",
       "confianza": "alta",
-      "razonamiento": "Miel natural se clasifica en la partida 04.09, sin procesamiento adicional corresponde a la subpartida 0409.00"
+      "razonamiento": "1-2 oraciones explicando por qué esta posición es la correcta para el producto."
     }
   ],
-  "nota": "texto opcional si necesitás aclarar algo o pedir más info"
-}
-`
+  "nota": "opcional — aclaración o pedido de más información"
+}`
 
-    const userPrompt = `Clasificá este producto:
+    const userPrompt = `Producto a clasificar:
+- Nombre: ${producto}
+- Material/materia prima: ${material || 'No especificado'}
+- Uso/destino: ${uso || 'No especificado'}
+- Estado/procesamiento: ${estado}
+- Presentación: ${presentacion || 'No especificada'}
+- Detalles: ${detalles || 'Ninguno'}
 
-Producto: ${producto}
-Material/materia prima: ${material || 'No especificado'}
-Uso/destino: ${uso || 'No especificado'}
-Estado/procesamiento: ${estado}
-Presentación: ${presentacion || 'No especificada'}
-Detalles adicionales: ${detalles || 'Ninguno'}
-`
+Posiciones NCM disponibles en la base de datos (codigo_ncm | descripcion):
+${listaParaIA}
+
+Elegí las más adecuadas de esta lista.`
 
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -69,12 +120,9 @@ Detalles adicionales: ${detalles || 'Ninguno'}
 
     const text = response.content[0]?.text ?? ''
     let parsed = { candidatos: [], nota: null }
-
     try {
-      const jsonStr = text.replace(/```json|```/g, '').trim()
-      parsed = JSON.parse(jsonStr)
-    } catch (parseErr) {
-      console.error('[nomenclador/clasificar] Parse error:', parseErr.message, text)
+      parsed = JSON.parse(text.replace(/```json|```/g, '').trim())
+    } catch {
       return NextResponse.json({ error: 'Error al parsear respuesta de IA' }, { status: 500 })
     }
 
@@ -83,63 +131,29 @@ Detalles adicionales: ${detalles || 'Ninguno'}
       return NextResponse.json({ candidatos: [], nota: parsed.nota })
     }
 
-    const supabase = getServiceClient()
+    // PASO 3: enriquecer con aranceles — solo códigos que existen en candidatosDB
+    const codigosValidos = new Set(candidatosDB.map(r => r.codigo_ncm))
     const candidatos = []
 
     for (const candidato of candidatosRaw) {
-      const codigo = candidato.codigo_ncm?.replace(/\D/g, '') ?? ''
-      if (codigo.length < 4) continue
+      const codigo = candidato.codigo_ncm?.replace(/\D/g, '').padEnd(11, '0').slice(0, 11) ?? ''
+      if (!codigosValidos.has(codigo)) continue // ignorar si la IA inventó algo
 
-      const codigoFormateado = codigo.padEnd(11, '0').slice(0, 11)
+      const ncmReal = candidatosDB.find(r => r.codigo_ncm === codigo)
 
-      const { data: ncmReal } = await supabase
-        .from('ncm')
-        .select('codigo_ncm, descripcion, seccion, capitulo, partida')
-        .eq('codigo_ncm', codigoFormateado)
-        .single()
-
-      let similares = null
-      if (!ncmReal && codigo.length >= 4) {
-        const prefijo = codigo.slice(0, 6)
-        const padded = prefijo.padEnd(11, '0')
-        const next = (BigInt(prefijo.padEnd(11, '9')) + 1n).toString().padStart(11, '0')
-        const { data: sim } = await supabase
-          .from('ncm')
-          .select('codigo_ncm, descripcion, seccion, capitulo, partida')
-          .gte('codigo_ncm', padded)
-          .lt('codigo_ncm', next)
-          .limit(5)
-        similares = sim ?? []
-      }
-
-      let arancImpo = null
-      let arancExpo = null
-      if (ncmReal || similares?.length > 0) {
-        const ncmToQuery = ncmReal?.codigo_ncm ?? (similares?.[0]?.codigo_ncm ?? '')
-        if (ncmToQuery) {
-          const [impo, expo] = await Promise.all([
-            supabase.from('aranceles_importacion')
-              .select('die, te, iva')
-              .eq('codigo_ncm', ncmToQuery)
-              .single(),
-            supabase.from('aranceles_exportacion')
-              .select('derecho_exportacion, reintegro')
-              .eq('codigo_ncm', ncmToQuery)
-              .single(),
-          ])
-          arancImpo = impo.data
-          arancExpo = expo.data
-        }
-      }
+      const [impo, expo] = await Promise.all([
+        supabase.from('aranceles_importacion').select('die, te, iva').eq('codigo_ncm', codigo).single(),
+        supabase.from('aranceles_exportacion').select('derecho_exportacion, reintegro').eq('codigo_ncm', codigo).single(),
+      ])
 
       candidatos.push({
-        codigo_ncm: codigoFormateado,
+        codigo_ncm: codigo,
         confianza: candidato.confianza ?? 'media',
         razonamiento: candidato.razonamiento ?? '',
-        ncm_exacto: ncmReal,
-        similares: similares?.length > 0 ? similares : null,
-        aranceles_impo: arancImpo,
-        aranceles_expo: arancExpo,
+        ncm_exacto: ncmReal ?? null,
+        similares: null,
+        aranceles_impo: impo.data ?? null,
+        aranceles_expo: expo.data ?? null,
       })
     }
 
