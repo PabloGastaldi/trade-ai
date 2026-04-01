@@ -100,6 +100,65 @@ export async function POST(request) {
   } catch (regErr) {
     console.error('[operaciones] registrarUso exception:', regErr?.message)
   }
+
+  // Generar checklist automático (no bloquea la respuesta)
+  if (data.ncm_code && data.operation_type) {
+    const operacionId = data.id
+    const ncm = data.ncm_code
+    const regimen = body.regimen || 'general'
+    const tipoOp = data.operation_type
+
+    ;(async () => {
+      try {
+        const [docRes, intRes] = await Promise.all([
+          supabase.rpc('documentos_por_operacion', {
+            p_tipo: tipoOp,
+            p_regimen: regimen,
+            p_ncm: ncm,
+          }),
+          supabase.rpc('intervenciones_por_operacion', {
+            p_operacion: tipoOp,
+            p_regimen: regimen,
+            p_ncm: ncm,
+          }),
+        ])
+
+        const rows = []
+
+        for (const doc of docRes.data ?? []) {
+          rows.push({
+            operation_id:      operacionId,
+            document_name:     doc.documento,
+            document_category: doc.documento_categoria,
+            sort_order:        doc.sort_order ?? 0,
+            is_completed:      false,
+          })
+        }
+
+        for (const org of intRes.data ?? []) {
+          rows.push({
+            operation_id:      operacionId,
+            document_name:     org.organismo,
+            document_category: org.estado === 'obligatorio' ? 'intervencion_obligatoria' : 'intervencion_opcional',
+            sort_order:        100,
+            is_completed:      false,
+          })
+        }
+
+        if (rows.length > 0) {
+          const { error: checklistErr } = await supabase
+            .from('operation_documents')
+            .insert(rows)
+          if (checklistErr) {
+            console.error('[operaciones] checklist insert error:', checklistErr.message)
+          }
+        }
+      } catch (chkErr) {
+        console.error('[operaciones] checklist generation error:', chkErr?.message)
+      }
+    })()
+  }
+
   return NextResponse.json({ operacion: data }, { status: 201 })
   } catch (err) {
     console.error('[operaciones] Unhandled exception:', err?.message, err?.stack)

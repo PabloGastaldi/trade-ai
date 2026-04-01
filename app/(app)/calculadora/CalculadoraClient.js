@@ -464,6 +464,7 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
   const [calculando, setCalculando] = useState(false)
   const [resultado, setResultado] = useState(null)
   const [regSeleccionado, setRegSeleccionado] = useState('general')
+  const [contexto, setContexto] = useState(null)
 
   function set(campo, valor) {
     setForm(prev => ({ ...prev, [campo]: valor }))
@@ -490,19 +491,22 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
 
     setCalculando(true)
     setResultado(null)
+    setContexto(null)
 
     const seguro = form.estimarSeguro ? null : (Number(form.seguro_internacional) || null)
+    const ncmTrimmed = form.ncm_code.trim()
+    const paisOrigen = form.pais_origen || null
 
     try {
       const res = await fetch('/api/calculadora/importacion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ncm_code: form.ncm_code.trim(),
+          ncm_code: ncmTrimmed,
           valor_fob: Number(form.valor_fob),
           flete_internacional: Number(form.flete_internacional) || 0,
           seguro_internacional: seguro,
-          pais_origen: form.pais_origen || null,
+          pais_origen: paisOrigen,
           condicion_iva: form.condicion_iva,
         }),
       })
@@ -510,6 +514,14 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
       if (!res.ok || !json.ok) throw new Error(json.error ?? 'Error de cálculo')
       setResultado(json.data)
       setRegSeleccionado('general')
+
+      // Cargar contexto comercial en paralelo (no bloquea el resultado)
+      if (ncmTrimmed && paisOrigen) {
+        fetch(`/api/calculadora/contexto-impo?ncm=${encodeURIComponent(ncmTrimmed)}&pais=${encodeURIComponent(paisOrigen)}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(d => d && setContexto(d))
+          .catch(() => {})
+      }
     } catch (err) {
       setErrores({ _general: err.message })
     } finally {
@@ -659,9 +671,57 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
             {resultado.regimenes[regSeleccionado]?.disponible && (
               <DesgloseImportacion data={resultado} />
             )}
+
+            {contexto && <ContextoComercialImpo contexto={contexto} />}
           </>
         )}
       </div>
+    </div>
+  )
+}
+
+function ContextoComercialImpo({ contexto }) {
+  const { acuerdos, ntm } = contexto
+
+  if ((!acuerdos || acuerdos.length === 0) && (!ntm || ntm.length === 0)) return null
+
+  return (
+    <div className="space-y-3">
+      {acuerdos?.length > 0 && (
+        <div className="bg-white/[0.02] rounded-2xl border border-white/[0.04] p-5">
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Acuerdos disponibles</p>
+          <div className="space-y-2">
+            {acuerdos.map((a, i) => (
+              <div key={i} className="flex justify-between items-center py-2 px-3 bg-white/[0.02] rounded-xl">
+                <div>
+                  <p className="font-body text-sm text-on-surface">{a.codigo_acuerdo ?? a.acuerdo}</p>
+                  <p className="font-body text-[10px] text-on-surface-variant/60">{a.bloque ?? ''}{a.pais ? ` · ${a.pais}` : ''}</p>
+                </div>
+                <Badge variant={a.porcentaje === 100 ? 'success' : 'primary'}>
+                  {a.porcentaje === 100 ? 'Libre' : `${a.porcentaje}% pref.`}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {ntm?.length > 0 && (
+        <div className="bg-white/[0.02] rounded-2xl border border-white/[0.04] p-5">
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">
+            Barreras no arancelarias aplicables
+          </p>
+          <div className="space-y-1.5">
+            {ntm.map((m, i) => (
+              <div key={i} className="flex items-center gap-2 py-1.5 px-3 bg-white/[0.02] rounded-lg">
+                <Badge variant="neutral">{m.ntm_code}</Badge>
+                <span className="font-body text-xs text-on-surface-variant">{m.tipo_medida}</span>
+                {m.cobertura && <span className="font-body text-[10px] text-on-surface-variant/50 ml-auto">{m.cobertura}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -678,6 +738,7 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
   const [errores, setErrores] = useState({})
   const [calculando, setCalculando] = useState(false)
   const [resultado, setResultado] = useState(null)
+  const [contextoExpo, setContextoExpo] = useState(null)
   const [gastosExpanded, setGastosExpanded] = useState(false)
   const [modoFOB, setModoFOB] = useState('precio') // 'precio' | 'calcular'
   const [resultadoFOB, setResultadoFOB] = useState(null)
@@ -725,17 +786,21 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
 
     setCalculando(true)
     setResultado(null)
+    setContextoExpo(null)
+
+    const ncmTrimmed = form.ncm_code.trim()
+    const paisDestino = form.pais_destino || null
 
     try {
       const res = await fetch('/api/calculadora/exportacion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ncm_code: form.ncm_code.trim(),
+          ncm_code: ncmTrimmed,
           precio_producto: Number(form.precio_producto),
           incoterm_base: form.incoterm_base,
           incoterm_deseado: form.incoterm_deseado,
-          pais_destino: form.pais_destino || null,
+          pais_destino: paisDestino,
           flete_interno: Number(form.flete_interno) || null,
           flete_internacional: Number(form.flete_internacional) || null,
           seguro_internacional: Number(form.seguro_internacional) || null,
@@ -748,6 +813,14 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
       const json = await res.json()
       if (!res.ok || !json.ok) throw new Error(json.error ?? 'Error de cálculo')
       setResultado(json.data)
+
+      // Cargar contexto comercial de exportación en paralelo
+      if (ncmTrimmed && paisDestino) {
+        fetch(`/api/calculadora/contexto-expo?ncm=${encodeURIComponent(ncmTrimmed)}&pais=${encodeURIComponent(paisDestino)}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(d => d && setContextoExpo(d))
+          .catch(() => {})
+      }
     } catch (err) {
       setErrores({ _general: err.message })
     } finally {
@@ -902,8 +975,59 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
           </div>
         )}
 
-        {resultado && <ResultadoExportacion resultado={resultado} />}
+        {resultado && (
+          <div className="space-y-4">
+            <ResultadoExportacion resultado={resultado} />
+            {contextoExpo && <ContextoComercialExpo contexto={contextoExpo} />}
+          </div>
+        )}
       </div>
+    </div>
+  )
+}
+
+function ContextoComercialExpo({ contexto }) {
+  const { acuerdos, ntm_destino } = contexto
+
+  if ((!acuerdos || acuerdos.length === 0) && (!ntm_destino || ntm_destino.length === 0)) return null
+
+  return (
+    <div className="space-y-3">
+      {acuerdos?.length > 0 && (
+        <div className="bg-white/[0.02] rounded-2xl border border-white/[0.04] p-5">
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Acuerdos de exportación</p>
+          <div className="space-y-2">
+            {acuerdos.map((a, i) => (
+              <div key={i} className="flex justify-between items-center py-2 px-3 bg-white/[0.02] rounded-xl">
+                <div>
+                  <p className="font-body text-sm text-on-surface">{a.codigo_acuerdo ?? a.acuerdo}</p>
+                  <p className="font-body text-[10px] text-on-surface-variant/60">{a.bloque ?? ''}{a.pais ? ` · ${a.pais}` : ''}</p>
+                </div>
+                <Badge variant={a.porcentaje === 100 ? 'success' : 'primary'}>
+                  {a.porcentaje === 100 ? 'Libre' : `${a.porcentaje}% pref.`}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {ntm_destino?.length > 0 && (
+        <div className="bg-white/[0.02] rounded-2xl border border-white/[0.04] p-5">
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">
+            Barreras en destino
+          </p>
+          <div className="space-y-1.5">
+            {ntm_destino.map((m, i) => (
+              <div key={i} className="flex items-center gap-2 py-1.5 px-3 bg-white/[0.02] rounded-lg">
+                <Badge variant="neutral">{m.ntm_code}</Badge>
+                <span className="font-body text-xs text-on-surface-variant">{m.tipo_medida}</span>
+                {m.cobertura && <span className="font-body text-[10px] text-on-surface-variant/50 ml-auto">{m.cobertura}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

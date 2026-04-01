@@ -59,19 +59,37 @@ function PanelDetalle({ ncm, onClose }) {
   const [ntm, setNtm] = useState([])
   const [tariffDest, setTariffDest] = useState([])
   const [loading, setLoading] = useState(true)
+  const [tabOperacion, setTabOperacion] = useState('importacion')
+  const [documentos, setDocumentos] = useState({ importacion: [], exportacion: [] })
+  const [intervenciones, setIntervenciones] = useState({ importacion: [], exportacion: [] })
+  const [restricciones, setRestricciones] = useState([])
+  const [ntmGlobal, setNtmGlobal] = useState({ paisesCount: 0, tiposFreq: [] })
 
   useEffect(() => {
     if (!ncm) return
     setLoading(true)
     const supabase = createClient()
     const hs6 = ncm.codigo_ncm.substring(0, 6)
+    const ncm11 = ncm.codigo_ncm.replace(/\./g, '')
 
     async function fetchAll() {
-      const [arancRes, prefRes, ntmRes, tariffRes] = await Promise.all([
+      const [
+        arancRes, prefRes, ntmRes, tariffRes,
+        docsImpoRes, docsExpoRes,
+        interImpoRes, interExpoRes,
+        restRes,
+        ntmAffectingRes,
+      ] = await Promise.all([
         fetch(`/api/nomenclador/aranceles?ncm=${encodeURIComponent(ncm.codigo_ncm)}`).then(r => r.json()),
         fetch(`/api/nomenclador/preferencias?ncm=${encodeURIComponent(ncm.codigo_ncm)}`).then(r => r.json()),
         supabase.from('ntm_measures').select('reporter, ntm_code, ntm_non_h').eq('hs_code', hs6).limit(100),
         supabase.from('destination_tariffs').select('reporting_country, ave_rate, year').eq('hs_code', hs6).order('ave_rate', { ascending: false }).limit(10),
+        supabase.rpc('documentos_por_operacion', { p_tipo: 'importacion', p_regimen: 'general', p_ncm: ncm11 }),
+        supabase.rpc('documentos_por_operacion', { p_tipo: 'exportacion', p_regimen: 'general', p_ncm: ncm11 }),
+        supabase.rpc('intervenciones_por_operacion', { p_operacion: 'importacion', p_regimen: 'general', p_ncm: ncm11 }),
+        supabase.rpc('intervenciones_por_operacion', { p_operacion: 'exportacion', p_regimen: 'general', p_ncm: ncm11 }),
+        supabase.rpc('restricciones_por_regimen', { p_regimen: 'general' }),
+        supabase.from('ntm_measures_affecting_argentina').select('pais_que_aplica, tipo_medida').eq('hs_code', hs6).limit(200),
       ])
 
       setAranceles(arancRes.error ? null : arancRes)
@@ -84,6 +102,24 @@ function PanelDetalle({ ncm, onClose }) {
       setPreferencias(prefs)
       setNtm(ntmRes.data ?? [])
       setTariffDest(tariffRes.data ?? [])
+      setDocumentos({
+        importacion: docsImpoRes.data ?? [],
+        exportacion: docsExpoRes.data ?? [],
+      })
+      setIntervenciones({
+        importacion: interImpoRes.data ?? [],
+        exportacion: interExpoRes.data ?? [],
+      })
+      setRestricciones(restRes.data ?? [])
+
+      // NTM global: países que aplican barreras a productos argentinos
+      const affRows = ntmAffectingRes.data ?? []
+      const paisesUnicos = new Set(affRows.map(r => r.pais_que_aplica).filter(Boolean))
+      const tiposCount = {}
+      affRows.forEach(r => { if (r.tipo_medida) tiposCount[r.tipo_medida] = (tiposCount[r.tipo_medida] ?? 0) + 1 })
+      const tiposFreq = Object.entries(tiposCount).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([tipo]) => tipo)
+      setNtmGlobal({ paisesCount: paisesUnicos.size, tiposFreq })
+
       setLoading(false)
     }
 
@@ -181,6 +217,20 @@ function PanelDetalle({ ncm, onClose }) {
           ) : (
             <p className="font-body text-sm text-on-surface-variant/50 italic">Sin datos NTM para esta posición</p>
           )}
+          {!loading && ntmGlobal.paisesCount > 0 && (
+            <div className="mt-3 px-3 py-2.5 bg-amber-500/[0.06] border border-amber-500/20 rounded-xl">
+              <p className="font-body text-xs text-amber-400 font-semibold mb-1">
+                {ntmGlobal.paisesCount} país{ntmGlobal.paisesCount !== 1 ? 'es' : ''} aplica{ntmGlobal.paisesCount === 1 ? '' : 'n'} barreras a exportaciones argentinas
+              </p>
+              {ntmGlobal.tiposFreq.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {ntmGlobal.tiposFreq.map(t => (
+                    <span key={t} className="font-body text-[10px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300">{t}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           <div className="h-px bg-white/[0.04] my-6" />
           <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Aranceles en destinos</p>
           {loading ? (
@@ -198,6 +248,96 @@ function PanelDetalle({ ncm, onClose }) {
           ) : (
             <p className="font-body text-sm text-on-surface-variant/50 italic">Aranceles de destino no disponibles</p>
           )}
+          <div className="h-px bg-white/[0.04] my-6" />
+
+          {/* ── Documentos e intervenciones ── */}
+          <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Documentos e intervenciones</p>
+          <div className="flex gap-1 mb-4">
+            {['importacion', 'exportacion'].map(t => (
+              <button
+                key={t}
+                onClick={() => setTabOperacion(t)}
+                className={`px-3 py-1 rounded-lg font-body text-xs transition-colors cursor-pointer ${tabOperacion === t ? 'bg-primary text-on-primary font-semibold' : 'text-on-surface-variant hover:bg-white/[0.05]'}`}
+              >
+                {t === 'importacion' ? 'Importación' : 'Exportación'}
+              </button>
+            ))}
+          </div>
+          {loading ? (
+            <div className="space-y-2">{[0,1,2].map(i => <div key={i} className="h-10 bg-white/[0.03] rounded-xl animate-pulse" />)}</div>
+          ) : (() => {
+            const docs = documentos[tabOperacion]
+            const inters = intervenciones[tabOperacion]
+            const interObligatorios = inters.filter(o => o.estado === 'obligatorio')
+
+            if (docs.length === 0 && inters.length === 0) {
+              return <p className="font-body text-sm text-on-surface-variant/50 italic">Sin datos para régimen general</p>
+            }
+
+            // Agrupar documentos por categoría
+            const porCategoria = {}
+            for (const doc of docs) {
+              const cat = doc.documento_categoria ?? 'general'
+              if (!porCategoria[cat]) porCategoria[cat] = []
+              porCategoria[cat].push(doc)
+            }
+
+            const catColors = { critico: 'text-red-400', recomendado: 'text-primary', condicional: 'text-on-surface-variant', general: 'text-on-surface-variant' }
+
+            return (
+              <div className="space-y-4">
+                {interObligatorios.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {interObligatorios.map((org, i) => (
+                      <Badge key={i} variant="error">{org.organismo}</Badge>
+                    ))}
+                  </div>
+                )}
+                {Object.entries(porCategoria).map(([cat, items]) => (
+                  <div key={cat}>
+                    <p className={`font-body text-[10px] uppercase tracking-widest mb-1 ${catColors[cat] ?? 'text-on-surface-variant'}`}>{cat}</p>
+                    <div className="space-y-1">
+                      {items.map((doc, i) => (
+                        <div key={i} className="py-1.5 px-3 bg-white/[0.02] rounded-lg">
+                          <p className="font-body text-sm text-on-surface">{doc.documento}</p>
+                          {doc.notas && <p className="font-body text-[11px] text-on-surface-variant/60 mt-0.5">{doc.notas}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {inters.filter(o => o.estado !== 'obligatorio').length > 0 && (
+                  <div>
+                    <p className="font-body text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Organismos opcionales</p>
+                    <div className="space-y-1">
+                      {inters.filter(o => o.estado !== 'obligatorio').map((org, i) => (
+                        <div key={i} className="py-1.5 px-3 bg-white/[0.02] rounded-lg flex items-center justify-between">
+                          <p className="font-body text-sm text-on-surface">{org.organismo}</p>
+                          {org.notas && <p className="font-body text-[11px] text-on-surface-variant/60">{org.notas}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+
+          {restricciones.length > 0 && (
+            <>
+              <div className="h-px bg-white/[0.04] my-6" />
+              <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Restricciones régimen general</p>
+              <div className="space-y-1">
+                {restricciones.map((r, i) => (
+                  <div key={i} className="py-1.5 px-3 bg-white/[0.02] rounded-lg">
+                    <p className="font-body text-sm text-on-surface">{r.restriccion}{r.valor ? `: ${r.valor}` : ''}</p>
+                    {r.notas && <p className="font-body text-[11px] text-on-surface-variant/60 mt-0.5">{r.notas}</p>}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
           <div className="h-px bg-white/[0.04] my-6" />
           <div className="space-y-3 pb-4">
             <a href={`/calculadora?ncm=${encodeURIComponent(formatearNCM(ncm.codigo_ncm))}&tipo=importacion`} className="flex items-center gap-2 font-body text-sm text-primary hover:underline">

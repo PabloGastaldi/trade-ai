@@ -3,6 +3,7 @@ import { createClient as createAuthClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 import { normalizarCodigoNCM } from '@/lib/ncm-lookup'
 import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
+import { resumenNTMCompleto } from '@/lib/ntm-extended-lookup'
 
 function getServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -14,12 +15,6 @@ function getServiceClient() {
 const REGIMENES_VALIDOS = ['general', 'courier', 'puerta_a_puerta', 'exporta_simple', 'muestras', 'rancho', 'equipaje']
 const TIPOS_VALIDOS = ['importacion', 'exportacion']
 
-// Verifica si el capítulo NCM matchea un patrón tipo "01%,02%,03%"
-function capituloMatcheaPatron(capitulo, patron) {
-  if (!patron || patron === 'nan' || patron === '') return false
-  const caps = patron.split(',').map(p => p.trim().replace('%', '').padStart(2, '0'))
-  return caps.includes(capitulo.padStart(2, '0'))
-}
 
 export async function POST(request) {
   // Verificar autenticación
@@ -59,7 +54,6 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Código NCM inválido o incompleto (se requieren 11 dígitos)' }, { status: 400 })
   }
   const codigo_ncm = normalizado.codigoNCM
-  const capitulo = codigo_ncm.slice(0, 2)
 
   const supabase = getServiceClient()
 
@@ -88,6 +82,7 @@ export async function POST(request) {
     restriccionesResult,
     ntmResult,
     destinoTariffsResult,
+    ntmExtendedResult,
   ] = await Promise.all([
     // 1. Datos base NCM
     supabase.from('ncm')
@@ -124,23 +119,23 @@ export async function POST(request) {
       .select('acuerdo_id, pais, tipo, notas')
       .ilike('pais', `%${nombre_pais_es}%`),
 
-    // 6. Documentos requeridos
-    supabase.from('documentos_requeridos')
-      .select('*')
-      .eq('tipo_operacion', tipo_operacion)
-      .eq('regimen', regimen)
-      .order('sort_order'),
+    // 6. Documentos requeridos (RPC con filtrado server-side)
+    supabase.rpc('documentos_por_operacion', {
+      p_tipo: tipo_operacion,
+      p_regimen: regimen,
+      p_ncm: codigo_ncm,
+      p_pais: pais_iso3.toUpperCase(),
+    }),
 
-    // 7. Organismos que intervienen
-    supabase.from('regimen_intervenciones')
-      .select('*')
-      .eq('operacion', tipo_operacion)
-      .eq('regimen', regimen),
+    // 7. Organismos que intervienen (RPC con filtrado server-side)
+    supabase.rpc('intervenciones_por_operacion', {
+      p_operacion: tipo_operacion,
+      p_regimen: regimen,
+      p_ncm: codigo_ncm,
+    }),
 
-    // 8. Restricciones del régimen
-    supabase.from('restricciones_regimenes')
-      .select('*')
-      .eq('regimen', regimen),
+    // 8. Restricciones del régimen (RPC)
+    supabase.rpc('restricciones_por_regimen', { p_regimen: regimen }),
 
     // 9. Barreras NTM (Argentina aplica a importaciones)
     tipo_operacion === 'importacion'
@@ -167,6 +162,10 @@ export async function POST(request) {
           .eq('hs_code', codigo_ncm.slice(0, 6))
           .limit(5)
       : Promise.resolve({ data: null }),
+
+    // 11. NTM extended (affecting/applied)
+    resumenNTMCompleto(supabase, codigo_ncm.slice(0, 6), pais_iso3.toUpperCase(), tipo_operacion)
+      .catch(() => ({ barreras_en_destino: [], barreras_argentinas: [], total: 0 })),
   ])
 
   if (ncmResult.error || !ncmResult.data) {
@@ -178,30 +177,15 @@ export async function POST(request) {
   const ae = arancelesExpoResult.data ?? {}
   const acuerdos = acuerdosResult.data ?? []
   const acuerdosGenerales = acuerdosGeneralesResult.data ?? []
-  const documentosTodos = documentosResult.data ?? []
-  const intervencionesTodas = intervencionesResult.data ?? []
+  const documentosFiltradosRPC = documentosResult.data ?? []
+  const intervencionesFiltradas = intervencionesResult.data ?? []
   const restricciones = restriccionesResult.data ?? []
   const ntmMedidas = ntmResult.data ?? []
   const destinoTariffs = destinoTariffsResult.data ?? []
+  const ntmExtended = ntmExtendedResult ?? { barreras_en_destino: [], barreras_argentinas: [], total: 0 }
 
-  // ── Post-procesamiento: filtrar documentos por NCM y país ──
-  const documentosFiltrados = documentosTodos.filter(doc => {
-    if (doc.ncm_patron && doc.ncm_patron !== 'nan' && doc.ncm_patron !== '') {
-      if (!capituloMatcheaPatron(capitulo, doc.ncm_patron)) return false
-    }
-    if (doc.pais_patron && doc.pais_patron !== 'nan' && doc.pais_patron !== '') {
-      if (!doc.pais_patron.toLowerCase().includes(pais_iso3.toLowerCase())) return false
-    }
-    return true
-  })
-
-  // ── Post-procesamiento: filtrar intervenciones por NCM ──
-  const intervencionesFiltradas = intervencionesTodas.filter(inter => {
-    if (inter.ncm_patron && inter.ncm_patron !== 'nan' && inter.ncm_patron !== '') {
-      return capituloMatcheaPatron(capitulo, inter.ncm_patron)
-    }
-    return true
-  })
+  // RPCs ya devuelven datos filtrados por NCM, tipo y régimen
+  const documentosFiltrados = documentosFiltradosRPC
 
   // ── Calcular preferencia arancelaria ──
   const mejorAcuerdo = acuerdos.length > 0 ? acuerdos[0] : null
@@ -330,6 +314,12 @@ export async function POST(request) {
     })),
 
     barreras_ntm: ntmProcesadas,
+
+    ntm_extended: {
+      barreras_en_destino: ntmExtended.barreras_en_destino,
+      barreras_argentinas: ntmExtended.barreras_argentinas,
+      total: ntmExtended.total,
+    },
 
     aranceles_destino: tipo_operacion === 'exportacion' && arancelDestino
       ? {

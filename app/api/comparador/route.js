@@ -4,6 +4,34 @@ import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { calcularExportacion } from '@/lib/calculadora/calc-exportacion'
 import { calcularImportacion } from '@/lib/calculadora/calc-importacion'
 import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
+import { normalizarCodigoNCM } from '@/lib/ncm-lookup'
+
+// Obtiene cantidad de medidas NTM por país desde la tabla correspondiente
+async function fetchNtmCounts(supabase, hs6, paisesISO3, tipo) {
+  const table = tipo === 'exportacion'
+    ? 'ntm_measures_affecting_argentina'
+    : 'ntm_measures_applied_by_argentina'
+  const paisCol = tipo === 'exportacion' ? 'pais_que_aplica' : 'pais_afectado'
+
+  const { data } = await supabase
+    .from(table)
+    .select(paisCol)
+    .eq('hs_code', hs6)
+    .in(paisCol, paisesISO3)
+
+  const counts = {}
+  for (const row of data ?? []) {
+    const p = row[paisCol]
+    counts[p] = (counts[p] ?? 0) + 1
+  }
+  return counts
+}
+
+function ntmSemaforo(count) {
+  if (count <= 2) return 'verde'
+  if (count <= 5) return 'amarillo'
+  return 'rojo'
+}
 
 // POST /api/comparador
 // Calcula exportación o importación para múltiples países en paralelo.
@@ -54,24 +82,38 @@ export async function POST(request) {
     }
 
     const paisesUnicos = [...new Set(paises)].slice(0, MAX_PAISES)
-    const resultados = await Promise.all(
-      paisesUnicos.map(async (pais_iso3) => {
-        try {
-          const data = await calcularExportacion({
-            ncm_code,
-            precio_producto,
-            incoterm_base,
-            incoterm_deseado: 'CIF',
-            pais_destino: pais_iso3,
-          })
-          return { pais_iso3, ok: true, data }
-        } catch (err) {
-          return { pais_iso3, ok: false, error: err.message }
-        }
-      })
-    )
+    const normalizado = normalizarCodigoNCM(ncm_code)
+    const hs6 = normalizado ? normalizado.codigoNCM.slice(0, 6) : null
+
+    const [resultados, ntmCounts] = await Promise.all([
+      Promise.all(
+        paisesUnicos.map(async (pais_iso3) => {
+          try {
+            const data = await calcularExportacion({
+              ncm_code,
+              precio_producto,
+              incoterm_base,
+              incoterm_deseado: 'CIF',
+              pais_destino: pais_iso3,
+            })
+            return { pais_iso3, ok: true, data }
+          } catch (err) {
+            return { pais_iso3, ok: false, error: err.message }
+          }
+        })
+      ),
+      hs6
+        ? fetchNtmCounts(supabase, hs6, paisesUnicos, 'exportacion').catch(() => ({}))
+        : Promise.resolve({}),
+    ])
+
+    const resultadosConNtm = resultados.map(r => {
+      const count = ntmCounts[r.pais_iso3] ?? 0
+      return { ...r, ntm: { count, semaforo: ntmSemaforo(count) } }
+    })
+
     await registrarUso(supabase, user.id, 'comparador')
-    return NextResponse.json({ ok: true, resultados })
+    return NextResponse.json({ ok: true, resultados: resultadosConNtm })
   }
 
   // importacion
@@ -87,23 +129,37 @@ export async function POST(request) {
   )
 
   const paisesUnicos = [...new Set(paises)].slice(0, MAX_PAISES)
-  const resultados = await Promise.all(
-    paisesUnicos.map(async (pais_iso3) => {
-      try {
-        const data = await calcularImportacion(serviceClient, {
-          ncm_code,
-          valor_fob,
-          flete_internacional: flete_impo,
-          pais_origen_iso3: pais_iso3,
-          condicion_iva: 'responsable_inscripto',
-        })
-        if (data.error) return { pais_iso3, ok: false, error: data.error }
-        return { pais_iso3, ok: true, data }
-      } catch (err) {
-        return { pais_iso3, ok: false, error: err.message }
-      }
-    })
-  )
+  const normalizado = normalizarCodigoNCM(ncm_code)
+  const hs6 = normalizado ? normalizado.codigoNCM.slice(0, 6) : null
+
+  const [resultados, ntmCounts] = await Promise.all([
+    Promise.all(
+      paisesUnicos.map(async (pais_iso3) => {
+        try {
+          const data = await calcularImportacion(serviceClient, {
+            ncm_code,
+            valor_fob,
+            flete_internacional: flete_impo,
+            pais_origen_iso3: pais_iso3,
+            condicion_iva: 'responsable_inscripto',
+          })
+          if (data.error) return { pais_iso3, ok: false, error: data.error }
+          return { pais_iso3, ok: true, data }
+        } catch (err) {
+          return { pais_iso3, ok: false, error: err.message }
+        }
+      })
+    ),
+    hs6
+      ? fetchNtmCounts(supabase, hs6, paisesUnicos, 'importacion').catch(() => ({}))
+      : Promise.resolve({}),
+  ])
+
+  const resultadosConNtm = resultados.map(r => {
+    const count = ntmCounts[r.pais_iso3] ?? 0
+    return { ...r, ntm: { count, semaforo: ntmSemaforo(count) } }
+  })
+
   await registrarUso(supabase, user.id, 'comparador')
-  return NextResponse.json({ ok: true, resultados })
+  return NextResponse.json({ ok: true, resultados: resultadosConNtm })
 }

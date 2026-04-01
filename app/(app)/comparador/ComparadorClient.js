@@ -657,8 +657,12 @@ export default function ComparadorClient({ paises }) {
                         label="Barreras NTM"
                         values={resultados}
                         renderCell={r => {
-                          const n = r.data?.barreras_ntm?.length ?? 0
-                          return <span className="font-mono text-xs text-on-surface-variant">{n > 0 ? `${n} medidas` : '—'}</span>
+                          const extTotal = r.data?.ntm_extended?.total ?? 0
+                          const base = r.data?.barreras_ntm?.length ?? 0
+                          const total = extTotal + base
+                          if (total === 0) return <span className="font-mono text-xs text-on-surface-variant/30">—</span>
+                          const color = total <= 2 ? 'text-emerald-400' : total <= 5 ? 'text-amber-400' : 'text-red-400'
+                          return <span className={`font-mono text-xs ${color}`}>{total} medidas</span>
                         }}
                       />
                       <SectionRow

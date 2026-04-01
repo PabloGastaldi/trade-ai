@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { buscarNCM, formatearResultadosNCM } from '@/lib/ncm-lookup'
 import { buscarPreferencias, formatearPreferencias } from '@/lib/preferencias-lookup'
 import { buscarBarrerasNTM, formatearBarrerasNTM, resolverISO3 } from '@/lib/ntm-lookup'
+import { resumenNTMCompleto } from '@/lib/ntm-extended-lookup'
 import { buscarEnPinecone } from '@/lib/pinecone-search'
 import { sanitizarPregunta } from '@/lib/utils/sanitize'
 import { RateLimiter } from '@/lib/rate-limit'
@@ -200,18 +201,22 @@ export async function POST(request) {
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   let clasificacion = {
-    producto:        null,
-    terminos_ncm:    null,
-    destino:         null,
-    tipo_operacion:  null,
-    requiere_ncm:    true,
-    complejidad:     'media', // fallback seguro
+    producto:              null,
+    terminos_ncm:          null,
+    destino:               null,
+    tipo_operacion:        null,
+    requiere_ncm:          true,
+    complejidad:           'media', // fallback seguro
+    needs_documentos:      false,
+    needs_intervenciones:  false,
+    needs_restricciones:   false,
+    regimen:               null,
   }
 
   try {
     const respuestaHaiku = await anthropic.messages.create({
       model:      'claude-haiku-4-5-20251001',
-      max_tokens: 256,
+      max_tokens: 300,
       system: `Sos un clasificador de consultas de comercio exterior argentino.
 Analizá la consulta y respondé ÚNICAMENTE con un objeto JSON válido, sin texto adicional, sin markdown.
 Campos requeridos:
@@ -221,6 +226,10 @@ Campos requeridos:
 - tipo_operacion: "exportacion" | "importacion" | "consulta_general"
 - requiere_ncm: boolean — false si es consulta sobre Incoterms, normativa general, conceptos
 - complejidad: "simple" | "media" | "compleja"
+- needs_documentos: boolean — true si pregunta por documentación, requisitos, trámites, habilitaciones, permisos, certificados
+- needs_intervenciones: boolean — true si pregunta por organismos (SENASA, ANMAT, INAL, SRT), certificaciones obligatorias, quién interviene
+- needs_restricciones: boolean — true si pregunta por límites de régimen, montos máximos, condiciones, courier, correo
+- regimen: "general" | "courier" | "pef" | "correo_upu" | null — régimen mencionado explícitamente, null si no se menciona
 
 Criterios ESTRICTOS de complejidad — el tope de tokens es real, no malgastes:
   simple   = dato puntual SIN destino específico: "qué significa FOB", "qué arancel tiene el NCM 0902.10.00"
@@ -231,7 +240,17 @@ Criterios ESTRICTOS de complejidad — el tope de tokens es real, no malgastes:
              "¿qué NCM tiene el té para exportar a Europa?". Es la categoría por defecto.
   compleja = EXCEPCIONAL: múltiples productos distintos a comparar, múltiples destinos,
              análisis normativo cruzado entre varios organismos. No usar solo porque
-             hay barreras NTM o documentación — eso cabe en media.`,
+             hay barreras NTM o documentación — eso cabe en media.
+
+Ejemplos:
+  "¿Qué documentos necesito para exportar miel a la UE?" →
+    needs_documentos: true, needs_intervenciones: true, tipo_operacion: "exportacion"
+  "¿SENASA interviene en la importación de quesos?" →
+    needs_intervenciones: true, tipo_operacion: "importacion"
+  "¿Cuál es el límite del régimen courier?" →
+    needs_restricciones: true, regimen: "courier"
+  "¿Qué arancel tiene el vino para exportar a Brasil?" →
+    needs_documentos: false, needs_intervenciones: false, needs_restricciones: false`,
       messages: [{ role: 'user', content: preguntaSanitizada }],
     })
     const texto = respuestaHaiku.content[0]?.text ?? ''
@@ -248,6 +267,9 @@ Criterios ESTRICTOS de complejidad — el tope de tokens es real, no malgastes:
   let contextoNCM          = ''
   let contextoPreferencias = ''
   let contextoNTM          = ''
+  let contextoDocumentos   = ''
+  let contextoIntervenciones = ''
+  let contextoRestricciones  = ''
   let ncmCodesEncontrados  = []
 
   if (clasificacion.requiere_ncm !== false) {
@@ -264,19 +286,54 @@ Criterios ESTRICTOS de complejidad — el tope de tokens es real, no malgastes:
 
         // Derivar HS6 del primer NCM (quitar puntos, tomar primeros 6 dígitos)
         const hs6 = resultadosNCM[0].ncm_code.replace(/\./g, '').slice(0, 6)
+        // NCM normalizado para RPCs (sin puntos, 11 dígitos)
+        const ncm11 = resultadosNCM[0].ncm_code.replace(/\./g, '')
 
         // Resolver ISO3 del destino si está disponible
         const destinoISO3 = resolverISO3(clasificacion.destino)
         const direction   = clasificacion.tipo_operacion === 'importacion' ? 'import' : 'export'
+        const tipoOp      = clasificacion.tipo_operacion === 'exportacion' ? 'exportacion' : 'importacion'
+        const regimen     = clasificacion.regimen ?? 'general'
 
-        // Buscar preferencias y NTM en paralelo
+        // Buscar en paralelo: preferencias, NTM, NTM extendido, documentos, intervenciones, restricciones
         const ncmsParaPref = resultadosNCM.slice(0, 3).map((r) => r.ncm_code)
-        const [todasPref, barrerasNTM] = await Promise.all([
+        const [
+          todasPref,
+          barrerasNTM,
+          ntmExtendido,
+          docsResult,
+          interResult,
+          restResult,
+        ] = await Promise.all([
           Promise.all(ncmsParaPref.map(buscarPreferencias)),
-          // NTM solo si hay destino específico identificado por Haiku
+          // NTM solo si hay destino específico
           destinoISO3
             ? buscarBarrerasNTM(hs6, { reporter: destinoISO3, direction })
             : Promise.resolve([]),
+          // NTM extendido solo si hay destino y es operación concreta
+          destinoISO3 && clasificacion.tipo_operacion !== 'consulta_general'
+            ? resumenNTMCompleto(supabase, hs6, destinoISO3, tipoOp)
+            : Promise.resolve(null),
+          // Documentos requeridos (solo si la consulta los necesita)
+          clasificacion.needs_documentos
+            ? supabase.rpc('documentos_por_operacion', {
+                p_tipo: tipoOp,
+                p_regimen: regimen,
+                p_ncm: ncm11,
+              })
+            : Promise.resolve(null),
+          // Organismos intervinientes
+          clasificacion.needs_intervenciones
+            ? supabase.rpc('intervenciones_por_operacion', {
+                p_operacion: tipoOp,
+                p_regimen: regimen,
+                p_ncm: ncm11,
+              })
+            : Promise.resolve(null),
+          // Restricciones del régimen
+          clasificacion.needs_restricciones
+            ? supabase.rpc('restricciones_por_regimen', { p_regimen: regimen })
+            : Promise.resolve(null),
         ])
 
         const prefCombinadas = todasPref.filter(Boolean)
@@ -286,6 +343,52 @@ Criterios ESTRICTOS de complejidad — el tope de tokens es real, no malgastes:
 
         if (barrerasNTM.length > 0) {
           contextoNTM = formatearBarrerasNTM(barrerasNTM, { hs_code: hs6, direction })
+        }
+
+        // NTM extendido
+        if (ntmExtendido?.total > 0) {
+          const barreras = ntmExtendido.barreras_en_destino.length > 0
+            ? ntmExtendido.barreras_en_destino
+            : ntmExtendido.barreras_argentinas
+          const etiqueta = ntmExtendido.barreras_en_destino.length > 0
+            ? '[BARRERAS_EN_DESTINO]'
+            : '[BARRERAS_ARGENTINAS_A_IMPORTACION]'
+          contextoNTM += `\n\n${etiqueta}\n` +
+            barreras.map((b) => `• ${b.ntm_code} — ${b.tipo_medida} [${b.cobertura}]`).join('\n')
+        }
+
+        // Documentos requeridos
+        if (docsResult?.data?.length > 0) {
+          const porCategoria = {}
+          for (const doc of docsResult.data) {
+            const cat = doc.documento_categoria ?? 'general'
+            if (!porCategoria[cat]) porCategoria[cat] = []
+            porCategoria[cat].push(doc.documento + (doc.notas ? ` (${doc.notas})` : ''))
+          }
+          const lineas = ['[DOCUMENTOS_REQUERIDOS]']
+          for (const [cat, docs] of Object.entries(porCategoria)) {
+            lineas.push(`${cat}:`)
+            docs.forEach((d) => lineas.push(`  • ${d}`))
+          }
+          contextoDocumentos = lineas.join('\n')
+        }
+
+        // Organismos intervinientes
+        if (interResult?.data?.length > 0) {
+          const lineas = ['[ORGANISMOS_INTERVINIENTES]']
+          for (const org of interResult.data) {
+            lineas.push(`• ${org.organismo} [${org.estado}]${org.notas ? ` — ${org.notas}` : ''}`)
+          }
+          contextoIntervenciones = lineas.join('\n')
+        }
+
+        // Restricciones del régimen
+        if (restResult?.data?.length > 0) {
+          const lineas = [`[RESTRICCIONES_REGIMEN_${regimen.toUpperCase()}]`]
+          for (const r of restResult.data) {
+            lineas.push(`• ${r.restriccion}${r.valor ? `: ${r.valor}` : ''}${r.notas ? ` — ${r.notas}` : ''}`)
+          }
+          contextoRestricciones = lineas.join('\n')
         }
       }
     } catch (err) {
@@ -360,7 +463,16 @@ Criterios ESTRICTOS de complejidad — el tope de tokens es real, no malgastes:
   )
 
   // ── Armar contexto y mensajes para Claude ──
-  const seccionesContexto = [contextoNCM, contextoPreferencias, contextoNTM, contextoPinecone, guiaOperativa]
+  const seccionesContexto = [
+    contextoNCM,
+    contextoPreferencias,
+    contextoNTM,
+    contextoDocumentos,
+    contextoIntervenciones,
+    contextoRestricciones,
+    contextoPinecone,
+    guiaOperativa,
+  ]
     .filter(Boolean)
     .join('\n\n')
 
