@@ -501,7 +501,7 @@ export default function LandingPage() {
                   </ul>
 
                   <a
-                    href={plan.cta}
+                    href={plan.href}
                     className={`mt-8 block text-center px-6 py-3 rounded-xl font-body text-sm transition-all duration-150 no-underline ${
                       plan.destacado
                         ? 'bg-primary-intense text-on-primary font-semibold hover:bg-primary hover:shadow-[0_0_20px_rgba(221,217,42,0.2)]'
