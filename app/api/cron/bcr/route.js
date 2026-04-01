@@ -91,28 +91,36 @@ function scrapeBCR(html) {
 }
 
 export async function GET(request) {
-  // Verificar que viene de Vercel Cron (x-vercel-cron header) o permitir en dev
+  // Allow calls from Vercel Cron OR with specific debug header
   const isVercelCron = request.headers.get('x-vercel-cron') === '1'
+  const isDebug = request.headers.get('x-debug-cron') === 'true'
   const isDev = process.env.NODE_ENV !== 'production'
   
-  // En producción, solo permitir Vercel Cron; en dev permitir todo
-  if (!isDev && !isVercelCron) {
+  // Allow in dev, with debug header, or from Vercel Cron
+  if (!isDev && !isVercelCron && !isDebug) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  console.log('[cron/bcr] Starting scrape...')
   const html = await fetchHTML(
     'https://www.bcr.com.ar/es/mercados/mercado-de-granos/cotizaciones/cotizaciones-locales-0',
   )
 
   if (!html) {
+    console.error('[cron/bcr] Failed to fetch BCR HTML')
     return Response.json({ ok: false, error: 'BCR fetch failed' }, { status: 502 })
   }
 
+  console.log('[cron/bcr] HTML fetched, length:', html.length)
+  
   const data = scrapeBCR(html)
 
   if (!data) {
+    console.error('[cron/bcr] Failed to parse BCR data')
     return Response.json({ ok: false, error: 'BCR parse failed' }, { status: 502 })
   }
+
+  console.log('[cron/bcr] Scraped:', data.fecha, 'granos:', data.granos.length)
 
   const supabase = getServiceClient()
   const { error } = await supabase.from('granos_bcr').insert({
@@ -121,9 +129,11 @@ export async function GET(request) {
   })
 
   if (error) {
-    console.error('[cron/bcr] Supabase insert error:', error.message)
+    console.error('[cron/bcr] Supabase insert error:', error.message, error.details)
     return Response.json({ ok: false, error: 'DB insert failed' }, { status: 500 })
   }
+
+  console.log('[cron/bcr] Inserted successfully')
 
   // Limpiar registros viejos (más de 7 días)
   await supabase
