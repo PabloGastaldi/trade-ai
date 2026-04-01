@@ -254,8 +254,11 @@ export default function NomencladorPage() {
     const digits = normalizarNCM(trimmed)
     const esCodigo = digits.length >= 2 && /^\d+$/.test(digits)
     let query_sb = supabase.from('ncm').select('codigo_ncm, descripcion, capitulo, seccion', { count: 'exact' }).order('codigo_ncm').range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1)
-    if (esCodigo) { query_sb = query_sb.like('codigo_ncm', `${digits}%`) }
-    else { query_sb = query_sb.ilike('descripcion', `%${trimmed}%`) }
+    if (esCodigo) {
+      const padded = digits.padEnd(11, '0')
+      const next = (BigInt(digits.padEnd(11, '9')) + 1n).toString().padStart(11, '0')
+      query_sb = query_sb.gte('codigo_ncm', padded).lt('codigo_ncm', next)
+    } else { query_sb = query_sb.ilike('descripcion', `%${trimmed}%`) }
     const { data, error, count } = await query_sb
     setLoading(false)
     if (error) return
