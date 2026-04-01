@@ -6,13 +6,14 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
   MessageSquare, BookOpen, Calculator, Globe,
-  Package, Ship, Clock, User, Star, BarChart3,
+  Package, Ship, Clock, User, Star, BarChart3, FileSearch,
 } from 'lucide-react'
 import './Sidebar.css'
 
 const NAV_SECTIONS = [
   {
     items: [
+      { label: 'Simulador', Icon: FileSearch,   href: '/simulador' },
       { label: 'Chat IA',   Icon: MessageSquare, href: '/consulta' },
       { label: 'Historial', Icon: Clock,         href: '/historial' },
     ],
