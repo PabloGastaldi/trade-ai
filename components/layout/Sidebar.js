@@ -24,7 +24,7 @@ const NAV_SECTIONS = [
       { label: 'Calculadora', Icon: Calculator, href: '/calculadora' },
       { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
       { label: 'Mercados',    Icon: BarChart3,  href: '/mercados' },
-      { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador', soon: true },
+      { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador' },
     ],
   },
   {
