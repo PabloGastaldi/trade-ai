@@ -1,6 +1,28 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+
+function Checkbox({ checked, onChange }) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={checked}
+      onClick={() => onChange({ target: { checked: !checked } })}
+      className={`w-5 h-5 rounded-md border shrink-0 flex items-center justify-center transition-all cursor-pointer ${
+        checked
+          ? 'bg-primary border-primary'
+          : 'bg-surface-highest border-white/[0.15] hover:border-white/[0.3]'
+      }`}
+    >
+      {checked && (
+        <svg className="w-3 h-3 text-on-primary" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="2 6 5 9 10 3" />
+        </svg>
+      )}
+    </button>
+  )
+}
 import PageLayout from '@/components/ui/PageLayout'
 import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
@@ -827,12 +849,7 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
 
             <div className="space-y-3 mt-5 pt-4 border-t border-white/[0.04]">
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={form.bonus_reintegro}
-                  onChange={e => set('bonus_reintegro', e.target.checked)}
-                  className="w-4 h-4 rounded border border-white/[0.2] bg-surface-highest accent"
-                />
+                <Checkbox checked={form.bonus_reintegro} onChange={e => set('bonus_reintegro', e.target.checked)} />
                 <div className="flex-1">
                   <span className="font-body text-sm text-on-surface">Mi producto es orgánico / tiene denominación de origen / sello Alimentos Argentinos</span>
                   <p className="font-body text-[10px] text-on-surface-variant/60 mt-0.5">Activa bonus de +0.5% en el reintegro</p>
@@ -840,12 +857,7 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
               </label>
 
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={form.pais_facturacion_diferente}
-                  onChange={e => set('pais_facturacion_diferente', e.target.checked)}
-                  className="w-4 h-4 rounded border border-white/[0.2] bg-surface-highest accent"
-                />
+                <Checkbox checked={form.pais_facturacion_diferente} onChange={e => set('pais_facturacion_diferente', e.target.checked)} />
                 <div className="flex-1">
                   <span className="font-body text-sm text-on-surface">El país de facturación es diferente al destino</span>
                   <p className="font-body text-[10px] text-on-surface-variant/60 mt-0.5">Activa percepción adicional de Ganancias 0.5%</p>
