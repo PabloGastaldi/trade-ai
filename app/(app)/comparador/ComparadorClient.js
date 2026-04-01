@@ -1,83 +1,45 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import PageLayout from '@/components/ui/PageLayout'
 import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
-
-const PAISES_EXPO = [
-  { iso3: 'BRA', name: 'Brasil',          region: 'mercosur' },
-  { iso3: 'URY', name: 'Uruguay',         region: 'mercosur' },
-  { iso3: 'PRY', name: 'Paraguay',        region: 'mercosur' },
-  { iso3: 'CHL', name: 'Chile',           region: 'latam' },
-  { iso3: 'PER', name: 'Perú',            region: 'latam' },
-  { iso3: 'COL', name: 'Colombia',        region: 'latam' },
-  { iso3: 'ECU', name: 'Ecuador',         region: 'latam' },
-  { iso3: 'MEX', name: 'México',          region: 'latam' },
-  { iso3: 'BOL', name: 'Bolivia',         region: 'latam' },
-  { iso3: 'VEN', name: 'Venezuela',       region: 'latam' },
-  { iso3: 'CRI', name: 'Costa Rica',      region: 'latam' },
-  { iso3: 'PAN', name: 'Panamá',          region: 'latam' },
-  { iso3: 'GTM', name: 'Guatemala',       region: 'latam' },
-  { iso3: 'DEU', name: 'Alemania',        region: 'europa' },
-  { iso3: 'ESP', name: 'España',          region: 'europa' },
-  { iso3: 'ITA', name: 'Italia',          region: 'europa' },
-  { iso3: 'FRA', name: 'Francia',         region: 'europa' },
-  { iso3: 'NLD', name: 'Países Bajos',    region: 'europa' },
-  { iso3: 'GBR', name: 'Gran Bretaña',    region: 'europa' },
-  { iso3: 'POL', name: 'Polonia',         region: 'europa' },
-  { iso3: 'CHN', name: 'China',           region: 'asia' },
-  { iso3: 'JPN', name: 'Japón',           region: 'asia' },
-  { iso3: 'KOR', name: 'Corea del Sur',   region: 'asia' },
-  { iso3: 'IND', name: 'India',           region: 'asia' },
-  { iso3: 'IDN', name: 'Indonesia',       region: 'asia' },
-  { iso3: 'THA', name: 'Tailandia',       region: 'asia' },
-  { iso3: 'VNM', name: 'Vietnam',        region: 'asia' },
-  { iso3: 'AUS', name: 'Australia',       region: 'asia' },
-  { iso3: 'USA', name: 'Estados Unidos',  region: 'otros' },
-  { iso3: 'CAN', name: 'Canadá',          region: 'otros' },
-  { iso3: 'ZAF', name: 'Sudáfrica',       region: 'otros' },
-  { iso3: 'EGY', name: 'Egipto',          region: 'otros' },
-  { iso3: 'ISR', name: 'Israel',          region: 'otros' },
-  { iso3: 'MAR', name: 'Marruecos',       region: 'otros' },
-  { iso3: 'NGA', name: 'Nigeria',         region: 'otros' },
-  { iso3: 'SAU', name: 'Arabia Saudita', region: 'otros' },
-  { iso3: 'ARE', name: 'Emiratos Árabes', region: 'otros' },
-  { iso3: 'RUS', name: 'Rusia',           region: 'otros' },
-  { iso3: 'TUR', name: 'Turquía',         region: 'otros' },
-]
-
-const PAISES_IMPO = PAISES_EXPO
-const PAISES = PAISES_EXPO
-
-const REGIONES = [
-  { key: 'todos',    label: 'Todos' },
-  { key: 'mercosur', label: 'Mercosur' },
-  { key: 'latam',    label: 'Latam' },
-  { key: 'europa',   label: 'Europa' },
-  { key: 'asia',     label: 'Asia' },
-  { key: 'otros',    label: 'Otros' },
-]
+import NcmAutocomplete from '@/components/ui/NcmAutocomplete'
 
 const ISO3_TO_ISO2 = {
-  BRA:'br', URY:'uy', PRY:'py', CHL:'cl', PER:'pe', COL:'co', ECU:'ec',
-  MEX:'mx', BOL:'bo', VEN:'ve', CRI:'cr', PAN:'pa', GTM:'gt', DEU:'de',
-  ESP:'es', ITA:'it', FRA:'fr', NLD:'nl', GBR:'gb', POL:'pl', CHN:'cn',
-  JPN:'jp', KOR:'kr', IND:'in', IDN:'id', THA:'th', VNM:'vn', AUS:'au',
-  USA:'us', CAN:'ca', ZAF:'za', EGY:'eg', ISR:'il', MAR:'ma', NGA:'ng',
-  SAU:'sa', ARE:'ae', RUS:'ru', TUR:'tr',
+  AFG:'af', ALB:'al', DZA:'dz', AND:'ad', AGO:'ao', ATG:'ag', ARG:'ar', ARM:'am',
+  AUS:'au', AUT:'at', AZE:'az', BHS:'bs', BHR:'bh', BGD:'bd', BRB:'bb', BLR:'by',
+  BEL:'be', BLZ:'bz', BEN:'bj', BTN:'bt', BOL:'bo', BIH:'ba', BWA:'bw', BRA:'br',
+  BRN:'bn', BGR:'bg', BFA:'bf', BDI:'bi', CPV:'cv', KHM:'kh', CMR:'cm', CAN:'ca',
+  CAF:'cf', TCD:'td', CHL:'cl', CHN:'cn', COL:'co', COM:'km', COD:'cd', COG:'cg',
+  CRI:'cr', CIV:'ci', HRV:'hr', CUB:'cu', CYP:'cy', CZE:'cz', DNK:'dk', DJI:'dj',
+  DOM:'do', ECU:'ec', EGY:'eg', SLV:'sv', GNQ:'gq', ERI:'er', EST:'ee', SWZ:'sz',
+  ETH:'et', FJI:'fj', FIN:'fi', FRA:'fr', GAB:'ga', GMB:'gm', GEO:'ge', DEU:'de',
+  GHA:'gh', GRC:'gr', GTM:'gt', GIN:'gn', GNB:'gw', GUY:'gy', HTI:'ht', HND:'hn',
+  HUN:'hu', ISL:'is', IND:'in', IDN:'id', IRN:'ir', IRQ:'iq', IRL:'ie', ISR:'il',
+  ITA:'it', JAM:'jm', JPN:'jp', JOR:'jo', KAZ:'kz', KEN:'ke', KIR:'ki', PRK:'kp',
+  KOR:'kr', KWT:'kw', KGZ:'kg', LAO:'la', LVA:'lv', LBN:'lb', LSO:'ls', LBR:'lr',
+  LBY:'ly', LIE:'li', LTU:'lt', LUX:'lu', MDG:'mg', MWI:'mw', MYS:'my', MDV:'mv',
+  MLI:'ml', MLT:'mt', MHL:'mh', MRT:'mr', MUS:'mu', MEX:'mx', FSM:'fm', MDA:'md',
+  MCO:'mc', MNG:'mn', MNE:'me', MAR:'ma', MOZ:'mz', MMR:'mm', NAM:'na', NRU:'nr',
+  NPL:'np', NLD:'nl', NZL:'nz', NIC:'ni', NER:'ne', NGA:'ng', MKD:'mk', NOR:'no',
+  OMN:'om', PAK:'pk', PLW:'pw', PAN:'pa', PNG:'pg', PRY:'py', PER:'pe', PHL:'ph',
+  POL:'pl', PRT:'pt', QAT:'qa', ROU:'ro', RUS:'ru', RWA:'rw', KNA:'kn', LCA:'lc',
+  VCT:'vc', WSM:'ws', SMR:'sm', STP:'st', SAU:'sa', SEN:'sn', SRB:'rs', SLE:'sl',
+  SGP:'sg', SVK:'sk', SVN:'si', SLB:'sb', SOM:'so', ZAF:'za', SSD:'ss', ESP:'es',
+  LKA:'lk', SDN:'sd', SUR:'sr', SWE:'se', CHE:'ch', SYR:'sy', TWN:'tw', TJK:'tj',
+  TZA:'tz', THA:'th', TLS:'tl', TGO:'tg', TON:'to', TTO:'tt', TUN:'tn', TUR:'tr',
+  TKM:'tm', TUV:'tv', UGA:'ug', UKR:'ua', ARE:'ae', GBR:'gb', USA:'us', URY:'uy',
+  UZB:'uz', VUT:'vu', VEN:'ve', VNM:'vn', YEM:'ye', ZMB:'zm', ZWE:'zw',
 }
 
 const FLAG_URL = 'https://flagcdn.com/w40'
 
-function FlagImg({ iso3, size = 28 }) {
-  const iso2 = ISO3_TO_ISO2[iso3]
-  if (!iso2) {
-    return (
-      <span className="inline-block w-7 h-5 bg-white/[0.06] rounded" />
-    )
-  }
+function FlagImg({ iso3, size = 24 }) {
+  const iso2 = ISO3_TO_ISO2[iso3?.toUpperCase()]
+  if (!iso2) return <span className="inline-block rounded bg-white/[0.06]" style={{ width: size, height: Math.round(size * 0.7) }} />
   return (
     <img
       src={`${FLAG_URL}/${iso2}.png`}
@@ -89,513 +51,740 @@ function FlagImg({ iso3, size = 28 }) {
   )
 }
 
-function fmtUSD(n) {
-  if (n === null || n === undefined) return null
-  return n.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+const REGIMENES = {
+  importacion: [
+    { key: 'general',         label: 'General' },
+    { key: 'courier',         label: 'Courier' },
+    { key: 'puerta_a_puerta', label: 'Puerta a puerta' },
+    { key: 'muestras',        label: 'Muestras' },
+  ],
+  exportacion: [
+    { key: 'general',        label: 'General' },
+    { key: 'courier',        label: 'Courier' },
+    { key: 'exporta_simple', label: 'Exporta simple' },
+    { key: 'muestras',       label: 'Muestras' },
+    { key: 'rancho',         label: 'Rancho' },
+  ],
 }
 
-function ModalDesglose({ resultado, tipo, onClose }) {
-  if (!resultado) return null
-  const { data, pais_iso3 } = resultado
-  const pais = PAISES.find(p => p.iso3 === pais_iso3)
+function fmt(n, tipo) {
+  if (n === null || n === undefined) return null
+  if (tipo === 'importacion') return `${n}%`
+  return `${n.toFixed(1)}% AVE`
+}
 
+function getBestCountry(resultados, tipo) {
+  const conDatos = resultados.filter(r => r.ok && r.metrica !== null)
+  if (conDatos.length === 0) return null
+  return conDatos.reduce((best, r) => r.metrica < best.metrica ? r : best).iso3
+}
+
+function SectionRow({ label, values, renderCell }) {
   return (
-    <>
-      <div
-        className="fixed inset-0 bg-black/50 z-40"
-        onClick={onClose}
-      />
-      <div className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg bg-surface-low border border-white/[0.06] rounded-2xl z-50 overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between p-6 border-b border-white/[0.04] shrink-0">
-          <div className="flex items-center gap-3">
-            <FlagImg iso3={pais_iso3} size={32} />
-            <div>
-              <p className="font-body text-base font-semibold text-on-surface">{pais?.name ?? pais_iso3}</p>
-              <Badge variant="neutral" className="mt-1">
-                {tipo === 'exportacion' ? 'EXPORTACIÓN' : 'IMPORTACIÓN'}
-              </Badge>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer text-on-surface-variant/60 hover:text-on-surface"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="p-6 overflow-y-auto flex-1">
-          {tipo === 'exportacion' ? <DesgloseExpo data={data} /> : <DesgloseImpo data={data} />}
-        </div>
-      </div>
-    </>
+    <tr className="border-b border-white/[0.03]">
+      <td className="py-2.5 pr-4 font-body text-xs text-on-surface-variant/60 whitespace-nowrap w-40 align-top">{label}</td>
+      {values.map((v, i) => (
+        <td key={i} className="py-2.5 px-3 align-top">
+          {renderCell(v)}
+        </td>
+      ))}
+    </tr>
   )
 }
 
-function DesgloseExpo({ data }) {
-  const ci = data?.conversion_incoterms ?? {}
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
-        {['EXW','FOB','CIF'].map(inc => (
-          <div key={inc} className="bg-white/[0.02] rounded-xl p-3 text-center">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">{inc}</p>
-            <p className="font-mono text-base text-on-surface mt-1">
-              {ci[inc] != null ? `USD ${fmtUSD(ci[inc])}` : '—'}
-            </p>
-          </div>
-        ))}
-      </div>
+function DetailCard({ resultado, tipo, nombre }) {
+  const { ok, data } = resultado
+  if (!ok || !data) return null
 
-      {data?.costos_exportacion && (
-        <div className="space-y-1.5">
-          <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/50 mb-2">Costos de exportación</p>
-          {data.costos_exportacion.derecho_exportacion?.monto > 0 && (
-            <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
-              <span className="font-body text-xs text-on-surface-variant">
-                Derechos ({(data.costos_exportacion.derecho_exportacion.alicuota * 100).toFixed(0)}%)
-              </span>
-              <span className="font-mono text-xs text-on-surface">USD {fmtUSD(data.costos_exportacion.derecho_exportacion.monto)}</span>
+  const [open, setOpen] = useState(false)
+
+  const aranceles = data.aranceles ?? {}
+  const prefs = data.preferencias ?? {}
+  const docs = data.documentos ?? {}
+  const organismos = data.organismos ?? {}
+  const ntm = data.barreras_ntm ?? []
+  const restricciones = data.restricciones ?? []
+
+  return (
+    <div className="border border-white/[0.04] rounded-xl overflow-hidden">
+      <button
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/[0.02] transition-colors cursor-pointer"
+        onClick={() => setOpen(v => !v)}
+      >
+        <div className="flex items-center gap-2.5">
+          <FlagImg iso3={resultado.iso3} size={22} />
+          <span className="font-body text-sm font-medium text-on-surface">{nombre}</span>
+        </div>
+        <svg
+          className={`w-4 h-4 text-on-surface-variant/40 transition-transform ${open ? 'rotate-180' : ''}`}
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 space-y-4 border-t border-white/[0.04]">
+          {/* Aranceles */}
+          {tipo === 'importacion' && (
+            <div className="pt-3">
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Aranceles</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  ['AEC', aranceles.aec],
+                  ['DIE', aranceles.die],
+                  ['DII', aranceles.dii],
+                  ['TE', aranceles.te],
+                  ['IVA', aranceles.iva],
+                  ['IIBB', aranceles.iibb],
+                ].filter(([, v]) => v !== null && v !== undefined).map(([k, v]) => (
+                  <div key={k} className="flex justify-between px-3 py-1.5 bg-white/[0.02] rounded-lg">
+                    <span className="font-mono text-[10px] text-on-surface-variant/50">{k}</span>
+                    <span className="font-mono text-xs text-on-surface">{v}%</span>
+                  </div>
+                ))}
+              </div>
+              {prefs.tiene_preferencia && prefs.acuerdos?.length > 0 && (
+                <div className="mt-2 px-3 py-2 bg-emerald-500/5 border border-emerald-500/15 rounded-lg">
+                  <p className="font-mono text-[10px] text-emerald-400/60 uppercase tracking-widest mb-0.5">Preferencia arancelaria</p>
+                  <p className="font-body text-xs text-emerald-400">{prefs.acuerdos[0].bloque} — {prefs.acuerdos[0].porcentaje}% de descuento → arancel efectivo: {prefs.arancel_efectivo}%</p>
+                </div>
+              )}
             </div>
           )}
-          <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
-            <span className="font-body text-xs text-on-surface-variant">Costo neto</span>
-            <span className="font-mono text-xs text-on-surface">USD {fmtUSD(data.costo_neto_exportacion)}</span>
-          </div>
-          <div className="flex justify-between py-1.5 px-3 bg-primary/5 border border-primary/10 rounded-lg">
-            <span className="font-body text-xs text-on-surface">Ingreso neto</span>
-            <span className={`font-mono text-xs ${data.margen_neto >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-              USD {fmtUSD(data.margen_neto)}
-            </span>
-          </div>
-        </div>
-      )}
 
-      {data?.arancel_destino && (
-        <div className="bg-white/[0.02] rounded-xl p-4">
-          <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/50 mb-2">Arancel destino</p>
-          <div className="flex justify-between items-center">
-            <span className="font-body text-xs text-on-surface-variant">
-              HS {data.arancel_destino.hs_code}
-            </span>
-            <span className="font-mono text-sm text-on-surface">
-              {data.arancel_destino.ave_rate != null ? `${data.arancel_destino.ave_rate}% AVE` : 'Sin datos'}
-            </span>
-          </div>
-          <p className="font-mono text-[10px] text-on-surface-variant/30 mt-1">Fuente: WITS {data.arancel_destino.year}</p>
-        </div>
-      )}
-    </div>
-  )
-}
+          {tipo === 'exportacion' && data.aranceles_destino && (
+            <div className="pt-3">
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Arancel en destino</p>
+              <div className="flex justify-between px-3 py-2 bg-white/[0.02] rounded-lg">
+                <span className="font-mono text-[10px] text-on-surface-variant/50">HS {data.aranceles_destino.hs_code}</span>
+                <span className="font-mono text-sm text-on-surface">{data.aranceles_destino.ave_pct}% AVE</span>
+              </div>
+              {aranceles.derecho_exportacion !== null && aranceles.derecho_exportacion !== undefined && (
+                <div className="flex justify-between px-3 py-2 bg-white/[0.02] rounded-lg mt-1">
+                  <span className="font-mono text-[10px] text-on-surface-variant/50">Derecho exportación</span>
+                  <span className="font-mono text-xs text-on-surface">{aranceles.derecho_exportacion}%</span>
+                </div>
+              )}
+              {aranceles.reintegro !== null && aranceles.reintegro !== undefined && aranceles.reintegro > 0 && (
+                <div className="flex justify-between px-3 py-2 bg-emerald-500/5 border border-emerald-500/15 rounded-lg mt-1">
+                  <span className="font-mono text-[10px] text-emerald-400/60">Reintegro</span>
+                  <span className="font-mono text-xs text-emerald-400">{aranceles.reintegro}%</span>
+                </div>
+              )}
+            </div>
+          )}
 
-function DesgloseImpo({ data }) {
-  const d = data?.desglose ?? {}
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: 'FOB', val: data?.valor_fob },
-          { label: 'CIF', val: data?.valor_cif },
-          { label: 'Tributos', val: data?.total_tributos },
-        ].map(item => (
-          <div key={item.label} className="bg-white/[0.02] rounded-xl p-3 text-center">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">{item.label}</p>
-            <p className="font-mono text-base text-on-surface mt-1">
-              {item.val != null ? `USD ${fmtUSD(item.val)}` : '—'}
-            </p>
-          </div>
-        ))}
-      </div>
+          {/* Organismos */}
+          {(organismos.obligatorios?.length > 0 || organismos.condicionales?.length > 0) && (
+            <div>
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Organismos</p>
+              <div className="flex flex-wrap gap-1.5">
+                {organismos.obligatorios?.map((o, i) => (
+                  <span key={i} className="font-mono text-[10px] px-2 py-1 rounded-md bg-red-500/10 text-red-400">{o.organismo}</span>
+                ))}
+                {organismos.condicionales?.map((o, i) => (
+                  <span key={i} className="font-mono text-[10px] px-2 py-1 rounded-md bg-white/[0.04] text-on-surface-variant">{o.organismo}</span>
+                ))}
+              </div>
+            </div>
+          )}
 
-      <div className="space-y-1">
-        <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/50 mb-2">Tributos aplicados</p>
-        {d.derecho_importacion && (
-          <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
-            <span className="font-body text-xs text-on-surface-variant">
-              Derecho ({(d.derecho_importacion.alicuota * 100).toFixed(0)}%)
-            </span>
-            <span className="font-mono text-xs text-on-surface">USD {fmtUSD(d.derecho_importacion.monto)}</span>
-          </div>
-        )}
-        {d.tasa_estadistica && (
-          <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
-            <span className="font-body text-xs text-on-surface-variant">Tasa estadística (3%)</span>
-            <span className="font-mono text-xs text-on-surface">USD {fmtUSD(d.tasa_estadistica.monto)}</span>
-          </div>
-        )}
-        {d.iva && (
-          <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
-            <span className="font-body text-xs text-on-surface-variant">
-              IVA ({(d.iva.alicuota * 100).toFixed(0)}%)
-            </span>
-            <span className="font-mono text-xs text-on-surface">USD {fmtUSD(d.iva.monto)}</span>
-          </div>
-        )}
-        {d.iva_adicional?.monto > 0 && (
-          <div className="flex justify-between py-1.5 px-3 bg-white/[0.02] rounded-lg">
-            <span className="font-body text-xs text-on-surface-variant">
-              IVA adicional ({(d.iva_adicional.alicuota * 100).toFixed(0)}%)
-            </span>
-            <span className="font-mono text-xs text-on-surface">USD {fmtUSD(d.iva_adicional.monto)}</span>
-          </div>
-        )}
-        <div className="flex justify-between py-1.5 px-3 bg-primary/5 border border-primary/10 rounded-lg font-semibold">
-          <span className="font-body text-xs text-on-surface">Costo total en Argentina</span>
-          <span className="font-mono text-xs text-on-surface">USD {fmtUSD(data?.costo_total_usd)}</span>
-        </div>
-      </div>
+          {/* Documentos críticos */}
+          {docs.criticos?.length > 0 && (
+            <div>
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Documentos críticos</p>
+              <div className="space-y-1">
+                {docs.criticos.map((d, i) => (
+                  <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.02] rounded-lg">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-400/60 shrink-0" />
+                    <span className="font-body text-xs text-on-surface-variant">{d.documento}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-      {data?.preferencia_aplicada && (
-        <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-4">
-          <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-emerald-400/60 mb-1">Preferencia aplicada</p>
-          <p className="font-body text-sm text-emerald-400">{data.preferencia_aplicada.acuerdo}</p>
+          {/* NTM */}
+          {ntm.length > 0 && (
+            <div>
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Barreras no arancelarias ({ntm.length})</p>
+              <div className="flex flex-wrap gap-1.5">
+                {ntm.slice(0, 6).map((m, i) => (
+                  <span key={i} className="font-mono text-[10px] px-2 py-1 rounded-md bg-white/[0.04] text-on-surface-variant">{m.codigo}</span>
+                ))}
+                {ntm.length > 6 && (
+                  <span className="font-mono text-[10px] px-2 py-1 rounded-md bg-white/[0.04] text-on-surface-variant/40">+{ntm.length - 6} más</span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Restricciones */}
+          {restricciones.filter(r => r.valor && r.valor !== 'nan').length > 0 && (
+            <div>
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Restricciones del régimen</p>
+              {restricciones.filter(r => r.valor && r.valor !== 'nan').map((r, i) => (
+                <div key={i} className="flex justify-between px-3 py-1.5 bg-white/[0.02] rounded-lg text-xs">
+                  <span className="font-body text-on-surface-variant">{r.restriccion}</span>
+                  <span className="font-mono text-on-surface">{r.valor}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
   )
 }
 
-function PaisCard({ resultado, tipo, onClick }) {
-  const { ok, metrica, esMejor, esPeor, data } = resultado
-  const pais = PAISES.find(p => p.iso3 === resultado.pais_iso3) ?? { name: resultado.pais_iso3 }
-  const tieneDatos = ok && metrica !== null
-
-  return (
-    <button
-      onClick={tieneDatos ? onClick : undefined}
-      disabled={!tieneDatos}
-      title={ok && !tieneDatos ? 'Sin datos de arancel' : undefined}
-      className={`relative text-center p-4 rounded-xl transition-all cursor-pointer w-full ${
-        esMejor
-          ? 'border border-emerald-500/30 bg-emerald-500/[0.02]'
-          : esPeor
-          ? 'border border-red-500/20'
-          : 'border border-white/[0.04] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.08]'
-      } ${!tieneDatos ? 'opacity-30 cursor-default' : ''}`}
-    >
-      {esMejor && (
-        <span className="absolute top-2 right-2 font-mono text-[9px] tracking-widest text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-          MEJOR
-        </span>
-      )}
-      {esPeor && (
-        <span className="absolute top-2 right-2 font-mono text-[9px] tracking-widest text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">
-          MÁS CARO
-        </span>
-      )}
-
-      <div className="flex justify-center mb-2">
-        <FlagImg iso3={resultado.pais_iso3} size={32} />
-      </div>
-      <p className="font-body text-[10px] text-on-surface-variant mt-1 leading-tight">
-        {pais.name}
-      </p>
-
-      {tieneDatos ? (
-        <p className="font-mono text-base text-on-surface font-bold mt-2">
-          {tipo === 'exportacion' ? `${metrica}%` : `USD ${fmtUSD(metrica)}`}
-        </p>
-      ) : ok ? (
-        <p className="font-mono text-[10px] text-on-surface-variant/40 mt-2">Sin datos</p>
-      ) : (
-        <p className="font-mono text-[10px] text-red-400/60 mt-2">Error</p>
-      )}
-
-      {ok && data?.preferencia_aplicada && (
-        <p className="font-mono text-[9px] text-emerald-400/60 mt-1">{data.preferencia_aplicada.acuerdo}</p>
-      )}
-    </button>
-  )
-}
-
-export default function ComparadorClient({ productos }) {
-  const [tipo, setTipo] = useState('exportacion')
-  const [region, setRegion] = useState('todos')
+export default function ComparadorClient({ paises }) {
+  const searchParams = useSearchParams()
+  const [tipo, setTipo] = useState('importacion')
+  const [regimen, setRegimen] = useState('general')
+  const [ncmItem, setNcmItem] = useState(null)
+  const [ncmError, setNcmError] = useState('')
+  const [paisesSeleccionados, setPaisesSeleccionados] = useState(['', '', ''])
+  const [paisError, setPaisError] = useState('')
   const [cargando, setCargando] = useState(false)
   const [resultados, setResultados] = useState(null)
   const [error, setError] = useState(null)
-  const [modalData, setModalData] = useState(null)
+  const [tabMobile, setTabMobile] = useState(0)
 
-  const [productoId, setProductoId] = useState('')
-  const [ncmManual, setNcmManual] = useState('')
-  const [precioManual, setPrecioManual] = useState('')
-  const [incoterm, setIncoterm] = useState('FOB')
+  // Pre-cargar NCM desde query param
+  useEffect(() => {
+    const ncmParam = searchParams.get('ncm')
+    if (ncmParam) {
+      fetch(`/api/ncm-search?q=${encodeURIComponent(ncmParam.replace(/\D/g, ''))}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.length > 0) {
+            setNcmItem(data[0])
+          }
+        })
+        .catch(() => {})
+    }
+  }, [])
 
-  const paisesLista = tipo === 'exportacion' ? PAISES_EXPO : PAISES_IMPO
-  const paisesRegion = region === 'todos' ? paisesLista : paisesLista.filter(p => p.region === region)
+  const regimenLabel = REGIMENES[tipo].find(r => r.key === regimen)?.label ?? regimen
 
-  const productoSel = productos.find(p => p.id === productoId) ?? null
-  const ncmCode = productoSel ? productoSel.ncm_code : ncmManual.trim()
-  const precioNum = productoSel ? productoSel.unit_price : parseFloat(precioManual)
-
-  const resultadosProcesados = useMemo(() => {
-    if (!resultados) return null
-
-    const conValor = resultados.map(r => {
-      if (!r.ok) return { ...r, metrica: null }
-      if (tipo === 'exportacion') {
-        const ae = r.data?.arancel_destino
-        return { ...r, metrica: ae?.ave_rate != null ? ae.ave_rate : null }
-      } else {
-        return { ...r, metrica: r.data?.costo_total_usd ?? null }
-      }
-    })
-
-    const soloConMetrica = conValor.filter(r => r.metrica !== null)
-    if (soloConMetrica.length === 0) return conValor
-
-    const valMin = Math.min(...soloConMetrica.map(r => r.metrica))
-    const valMax = Math.max(...soloConMetrica.map(r => r.metrica))
-    const hayVariacion = valMin !== valMax
-
-    return conValor.map(r => ({
-      ...r,
-      esMejor: hayVariacion && r.metrica !== null && r.metrica === valMin,
-      esPeor:  hayVariacion && r.metrica !== null && r.metrica === valMax,
-    }))
-  }, [resultados, tipo])
-
-  async function handleCalcular() {
-    setError(null)
+  function handleTipoChange(t) {
+    setTipo(t)
+    setRegimen('general')
     setResultados(null)
+  }
 
-    if (!ncmCode) {
-      setError('Seleccioná un producto o ingresá un NCM')
+  function setPais(idx, val) {
+    setPaisesSeleccionados(prev => {
+      const next = [...prev]
+      next[idx] = val
+      return next
+    })
+  }
+
+  function addPais() {
+    if (paisesSeleccionados.length < 3) {
+      setPaisesSeleccionados(prev => [...prev, ''])
+    }
+  }
+
+  function removePais(idx) {
+    if (paisesSeleccionados.length <= 2) return
+    setPaisesSeleccionados(prev => prev.filter((_, i) => i !== idx))
+  }
+
+  const paisesValidos = paisesSeleccionados.filter(p => p !== '')
+
+  async function handleComparar() {
+    setError(null)
+    setNcmError('')
+    setPaisError('')
+
+    if (!ncmItem) {
+      setNcmError('Seleccioná un NCM')
       return
     }
-    if (isNaN(precioNum) || precioNum <= 0) {
-      setError('Ingresá un precio válido mayor a 0')
+    if (paisesValidos.length < 2) {
+      setPaisError('Seleccioná al menos 2 países para comparar')
       return
     }
 
     setCargando(true)
+    setResultados(null)
+
     try {
-      const body = {
-        tipo,
-        ncm_code: ncmCode,
-        paises: paisesRegion.map(p => p.iso3),
-        ...(tipo === 'exportacion'
-          ? { precio_producto: precioNum, incoterm_base: incoterm }
-          : { valor_fob: precioNum }
-        ),
+      const fetchPais = async (iso3) => {
+        try {
+          const res = await fetch('/api/simulador', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              codigo_ncm: ncmItem.codigo_ncm,
+              pais_iso3: iso3,
+              tipo_operacion: tipo,
+              regimen,
+            }),
+          })
+          const json = await res.json()
+          if (!res.ok) return { iso3, ok: false, error: json.error ?? 'Error' }
+          return { iso3, ok: true, data: json }
+        } catch {
+          return { iso3, ok: false, error: 'Error de red' }
+        }
       }
 
-      const res = await fetch('/api/comparador', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+      const raw = await Promise.all(paisesValidos.map(fetchPais))
+
+      // Calcular métrica por país
+      const withMetrica = raw.map(r => {
+        if (!r.ok) return { ...r, metrica: null }
+        if (tipo === 'importacion') {
+          const ae = r.data?.preferencias?.arancel_efectivo
+          const base = r.data?.aranceles?.arancel_base
+          return { ...r, metrica: ae ?? base ?? null }
+        } else {
+          return { ...r, metrica: r.data?.aranceles_destino?.ave_pct ?? null }
+        }
       })
-      const json = await res.json()
 
-      if (!res.ok || !json.ok) {
-        setError(json.error ?? 'Error al calcular')
-        return
-      }
-      setResultados(json.resultados)
-    } catch {
-      setError('Error de red — intentá de nuevo')
+      // Marcar mejor y peor
+      const conMetrica = withMetrica.filter(r => r.metrica !== null)
+      const valMin = conMetrica.length > 0 ? Math.min(...conMetrica.map(r => r.metrica)) : null
+      const valMax = conMetrica.length > 0 ? Math.max(...conMetrica.map(r => r.metrica)) : null
+      const hayVariacion = valMin !== null && valMin !== valMax
+
+      const final = withMetrica.map(r => ({
+        ...r,
+        esMejor: hayVariacion && r.metrica === valMin,
+        esPeor: hayVariacion && r.metrica === valMax,
+      }))
+
+      setResultados(final)
+      setTabMobile(0)
     } finally {
       setCargando(false)
     }
   }
 
-  const conteoOk = resultadosProcesados?.filter(r => r.metrica !== null).length ?? 0
-  const conteoSin = resultadosProcesados?.filter(r => r.ok && r.metrica === null).length ?? 0
+  const nombrePais = (iso3) => paises.find(p => p.iso3 === iso3)?.name_es ?? iso3
+
+  const paisesDisponibles = (idx) => {
+    const selOtros = paisesSeleccionados.filter((_, i) => i !== idx)
+    return paises.filter(p => !selOtros.includes(p.iso3))
+  }
 
   return (
-    <PageLayout title="COMPARADOR" subtitle="Compará costos entre destinos">
-      <div className="max-w-6xl">
-        {/* Selector de producto */}
-        <Card className="mb-6">
-          <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant mb-4">
-            SELECCIONÁ UN PRODUCTO
-          </p>
+    <PageLayout title="COMPARADOR" subtitle="Compará el mismo producto entre 2 o 3 países">
+      <div className="max-w-5xl">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block font-body text-xs text-on-surface-variant mb-1.5">
-                Del catálogo
-              </label>
-              <select
-                className="w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface border border-transparent outline-none focus:border-primary/30 transition-all cursor-pointer"
-                value={productoId}
-                onChange={e => setProductoId(e.target.value)}
+        {/* Formulario */}
+        <Card className="mb-6">
+          {/* Tipo de operación */}
+          <div className="flex bg-white/[0.04] rounded-xl p-1 gap-1 w-fit mb-5">
+            {['importacion', 'exportacion'].map(t => (
+              <button
+                key={t}
+                className={`px-5 py-2 rounded-lg font-body text-sm transition-all cursor-pointer ${
+                  tipo === t ? 'bg-primary-intense text-on-primary' : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+                onClick={() => handleTipoChange(t)}
               >
-                <option value="">— Seleccionar producto —</option>
-                {productos.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.ncm_code})
-                  </option>
+                {t === 'importacion' ? 'Importación' : 'Exportación'}
+              </button>
+            ))}
+          </div>
+
+          {/* NCM + régimen */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+            <div>
+              <label className="block font-body text-xs text-on-surface-variant mb-1.5">Código NCM</label>
+              <NcmAutocomplete
+                value={ncmItem?.codigo_ncm ?? ''}
+                onSelect={(item) => { setNcmItem(item); setNcmError('') }}
+                error={ncmError}
+              />
+            </div>
+            <div>
+              <label className="block font-body text-xs text-on-surface-variant mb-1.5">Régimen</label>
+              <select
+                className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent outline-none focus:border-primary/30 transition-all cursor-pointer"
+                value={regimen}
+                onChange={e => setRegimen(e.target.value)}
+              >
+                {REGIMENES[tipo].map(r => (
+                  <option key={r.key} value={r.key}>{r.label}</option>
                 ))}
               </select>
             </div>
-
-            {!productoSel && (
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-body text-xs text-on-surface-variant mb-1.5">NCM</label>
-                  <input
-                    className="w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none transition-all"
-                    placeholder="ej: 0902.40.00"
-                    value={ncmManual}
-                    onChange={e => setNcmManual(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block font-body text-xs text-on-surface-variant mb-1.5">Precio (USD)</label>
-                  <input
-                    className="w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none transition-all"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="1000"
-                    value={precioManual}
-                    onChange={e => setPrecioManual(e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
-          {productoSel && (
-            <div className="bg-white/[0.03] rounded-xl px-4 py-3 font-mono text-sm text-on-surface-variant flex items-center gap-3">
-              <span className="text-primary">{productoSel.ncm_code}</span>
-              <span className="text-on-surface-variant/30">|</span>
-              <span>{productoSel.name}</span>
-              <span className="text-on-surface-variant/30">|</span>
-              <span>USD {fmtUSD(productoSel.unit_price)} {productoSel.incoterm}</span>
+          {ncmItem && (
+            <div className="mb-5 px-4 py-2.5 bg-white/[0.03] rounded-xl flex items-center gap-3">
+              <span className="font-mono text-sm text-primary">{ncmItem.codigo_ncm}</span>
+              <span className="text-on-surface-variant/20">|</span>
+              <span className="font-body text-xs text-on-surface-variant line-clamp-1">{ncmItem.descripcion}</span>
             </div>
           )}
 
-          <div className="h-px bg-white/[0.04] my-4" />
-
-          {/* Tabs + Incoterm */}
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex bg-white/[0.04] rounded-xl p-1 gap-1">
-              <button
-                className={`px-4 py-2 rounded-lg font-body text-sm transition-all cursor-pointer ${
-                  tipo === 'exportacion'
-                    ? 'bg-primary-intense text-on-primary'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-                onClick={() => { setTipo('exportacion'); setResultados(null) }}
-              >
-                Exportación
-              </button>
-              <button
-                className={`px-4 py-2 rounded-lg font-body text-sm transition-all cursor-pointer ${
-                  tipo === 'importacion'
-                    ? 'bg-primary-intense text-on-primary'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-                onClick={() => { setTipo('importacion'); setResultados(null) }}
-              >
-                Importación
-              </button>
-            </div>
-
-            {tipo === 'exportacion' && (
-              <select
-                className="bg-surface-highest rounded-xl px-4 py-2.5 font-mono text-sm text-on-surface border border-transparent focus:border-primary/30 outline-none transition-all cursor-pointer"
-                value={incoterm}
-                onChange={e => setIncoterm(e.target.value)}
-              >
-                {['EXW','FOB','CIF','CFR','DDP'].map(i => (
-                  <option key={i} value={i}>{i}</option>
-                ))}
-              </select>
-            )}
-
-            {/* Filtro región */}
-            <div className="flex flex-wrap gap-1.5 ml-auto">
-              {REGIONES.map(r => (
-                <button
-                  key={r.key}
-                  onClick={() => setRegion(r.key)}
-                  className={`px-3 py-1.5 rounded-lg font-body text-xs transition-all cursor-pointer ${
-                    region === r.key
-                      ? 'bg-white/[0.08] text-on-surface'
-                      : 'text-on-surface-variant/60 hover:text-on-surface'
-                  }`}
-                >
-                  {r.label}
-                </button>
+          {/* Países */}
+          <div>
+            <label className="block font-body text-xs text-on-surface-variant mb-2">Países a comparar</label>
+            <div className="space-y-2">
+              {paisesSeleccionados.map((iso3, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  {iso3 && <FlagImg iso3={iso3} size={22} />}
+                  {!iso3 && <span className="w-7 h-5 bg-white/[0.04] rounded inline-block shrink-0" />}
+                  <select
+                    className="flex-1 bg-surface-highest rounded-xl px-4 py-2.5 font-body text-sm text-on-surface border border-transparent outline-none focus:border-primary/30 transition-all cursor-pointer"
+                    value={iso3}
+                    onChange={e => setPais(idx, e.target.value)}
+                  >
+                    <option value="">— Seleccionar país —</option>
+                    {paisesDisponibles(idx).map(p => (
+                      <option key={p.iso3} value={p.iso3}>{p.name_es}</option>
+                    ))}
+                  </select>
+                  {paisesSeleccionados.length > 2 && (
+                    <button
+                      onClick={() => removePais(idx)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant/40 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
+
+            {paisesSeleccionados.length < 3 && (
+              <button
+                onClick={addPais}
+                className="mt-2 flex items-center gap-1.5 font-body text-xs text-on-surface-variant/50 hover:text-primary transition-colors cursor-pointer"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Agregar tercer país
+              </button>
+            )}
+
+            {paisError && (
+              <p className="mt-2 font-body text-xs text-red-400">{paisError}</p>
+            )}
           </div>
 
-          <p className="font-mono text-[10px] text-on-surface-variant/40 mt-3">
-            {paisesRegion.length} países — {tipo === 'exportacion' ? 'arancel que cobra el destino (%)' : 'costo total en Argentina (USD)'}
-          </p>
-
           {error && (
-            <div className="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
               <p className="font-body text-xs text-red-400">{error}</p>
             </div>
           )}
 
-          <Button
-            className="mt-4"
-            loading={cargando}
-            onClick={handleCalcular}
-          >
-            {cargando ? (
-              <>Calculando {paisesRegion.length} países…</>
-            ) : (
-              <>COMPARAR {paisesRegion.length} PAÍSES</>
-            )}
+          <Button className="mt-5" loading={cargando} onClick={handleComparar}>
+            {cargando ? 'Consultando...' : 'COMPARAR'}
           </Button>
         </Card>
 
-        {/* Resultados */}
-        {!resultadosProcesados && !cargando && (
+        {/* Estado vacío */}
+        {!resultados && !cargando && (
           <div className="text-center py-16">
-            <div className="mx-auto w-16 h-16 mb-4 text-on-surface-variant/[0.1]">
+            <div className="mx-auto w-14 h-14 mb-4 text-on-surface-variant/[0.08]">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="2" y1="12" x2="22" y2="12" />
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
               </svg>
             </div>
-            <p className="font-body text-base font-semibold text-on-surface-variant/30 uppercase">
-              Seleccioná un producto y comparalo
+            <p className="font-body text-sm text-on-surface-variant/30 uppercase tracking-wide">
+              Seleccioná un NCM y 2 países para comparar
             </p>
           </div>
         )}
 
-        {resultadosProcesados && (
+        {/* Resultados */}
+        {resultados && (
           <>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center gap-3 font-body text-xs text-on-surface-variant">
-                {conteoOk > 0 && (
-                  <span className="text-emerald-400">{conteoOk} con datos</span>
-                )}
-                {conteoSin > 0 && (
-                  <span className="text-on-surface-variant/40">{conteoSin} sin datos de arancel</span>
-                )}
+            {/* ── Mejor opción ── */}
+            {resultados.some(r => r.esMejor) && (
+              <div className="mb-5 px-4 py-3 bg-emerald-500/[0.06] border border-emerald-500/20 rounded-xl flex items-center gap-3">
+                <svg className="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <div>
+                  <span className="font-body text-xs text-emerald-400/70 uppercase tracking-widest">Mejor opción</span>
+                  {resultados.filter(r => r.esMejor).map(r => (
+                    <p key={r.iso3} className="font-body text-sm text-emerald-400 font-medium">
+                      {nombrePais(r.iso3)} —{' '}
+                      {tipo === 'importacion'
+                        ? `arancel efectivo ${r.metrica}%`
+                        : `arancel destino ${r.metrica?.toFixed(1)}% AVE`
+                      }
+                      {tipo === 'importacion' && r.data?.preferencias?.tiene_preferencia && (
+                        <span className="ml-2 font-mono text-[10px] text-emerald-400/60">con preferencia arancelaria</span>
+                      )}
+                    </p>
+                  ))}
+                </div>
               </div>
-              <a href="/planes" className="ml-auto font-body text-xs text-on-surface-variant/30 hover:text-primary transition-colors">
-                Free: 2 comparaciones/mes
-              </a>
+            )}
+
+            {/* ── Tabla desktop ── */}
+            <div className="hidden md:block mb-6">
+              <Card>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-white/[0.05]">
+                        <th className="py-3 pr-4 font-body text-[10px] text-on-surface-variant/40 uppercase tracking-widest w-40">Métrica</th>
+                        {resultados.map(r => (
+                          <th key={r.iso3} className="py-3 px-3">
+                            <div className="flex items-center gap-2">
+                              <FlagImg iso3={r.iso3} size={20} />
+                              <span className={`font-body text-sm font-medium ${r.esMejor ? 'text-emerald-400' : 'text-on-surface'}`}>
+                                {nombrePais(r.iso3)}
+                              </span>
+                              {r.esMejor && (
+                                <span className="font-mono text-[9px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">MEJOR</span>
+                              )}
+                              {r.esPeor && (
+                                <span className="font-mono text-[9px] text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">MAYOR COSTO</span>
+                              )}
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Métrica principal */}
+                      <tr className="border-b border-white/[0.04] bg-white/[0.01]">
+                        <td className="py-3 pr-4 font-body text-xs font-semibold text-on-surface-variant/80">
+                          {tipo === 'importacion' ? 'Arancel efectivo' : 'Arancel destino'}
+                        </td>
+                        {resultados.map(r => (
+                          <td key={r.iso3} className="py-3 px-3">
+                            {!r.ok ? (
+                              <span className="font-mono text-xs text-red-400/60">Error</span>
+                            ) : r.metrica === null ? (
+                              <span className="font-mono text-xs text-on-surface-variant/30">Sin datos</span>
+                            ) : (
+                              <span className={`font-mono text-base font-bold ${r.esMejor ? 'text-emerald-400' : r.esPeor ? 'text-red-400' : 'text-on-surface'}`}>
+                                {tipo === 'importacion' ? `${r.metrica}%` : `${r.metrica?.toFixed(1)}%`}
+                              </span>
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+
+                      {tipo === 'importacion' && (
+                        <>
+                          <SectionRow
+                            label="AEC"
+                            values={resultados}
+                            renderCell={r => <span className="font-mono text-xs text-on-surface-variant">{r.data?.aranceles?.aec ?? '—'}%</span>}
+                          />
+                          <SectionRow
+                            label="Arancel base"
+                            values={resultados}
+                            renderCell={r => <span className="font-mono text-xs text-on-surface-variant">{r.data?.aranceles?.arancel_base ?? '—'}%</span>}
+                          />
+                          <SectionRow
+                            label="IVA"
+                            values={resultados}
+                            renderCell={r => <span className="font-mono text-xs text-on-surface-variant">{r.data?.aranceles?.iva ?? '—'}%</span>}
+                          />
+                          <SectionRow
+                            label="Preferencia"
+                            values={resultados}
+                            renderCell={r => r.data?.preferencias?.tiene_preferencia
+                              ? <span className="font-body text-xs text-emerald-400">{r.data.preferencias.acuerdos?.[0]?.bloque ?? 'Sí'}</span>
+                              : <span className="font-mono text-xs text-on-surface-variant/30">No</span>
+                            }
+                          />
+                        </>
+                      )}
+
+                      {tipo === 'exportacion' && (
+                        <>
+                          <SectionRow
+                            label="Derecho expo."
+                            values={resultados}
+                            renderCell={r => <span className="font-mono text-xs text-on-surface-variant">{r.data?.aranceles?.derecho_exportacion ?? '—'}%</span>}
+                          />
+                          <SectionRow
+                            label="Reintegro"
+                            values={resultados}
+                            renderCell={r => {
+                              const v = r.data?.aranceles?.reintegro
+                              return v > 0
+                                ? <span className="font-mono text-xs text-emerald-400">{v}%</span>
+                                : <span className="font-mono text-xs text-on-surface-variant/30">—</span>
+                            }}
+                          />
+                          <SectionRow
+                            label="Preferencia"
+                            values={resultados}
+                            renderCell={r => r.data?.preferencias?.tiene_preferencia
+                              ? <span className="font-body text-xs text-emerald-400">{r.data.preferencias.acuerdos?.[0]?.bloque ?? 'Sí'}</span>
+                              : <span className="font-mono text-xs text-on-surface-variant/30">No</span>
+                            }
+                          />
+                        </>
+                      )}
+
+                      <SectionRow
+                        label="Organismos"
+                        values={resultados}
+                        renderCell={r => {
+                          const obs = r.data?.organismos?.obligatorios ?? []
+                          return obs.length > 0
+                            ? <span className="font-body text-xs text-red-400">{obs.map(o => o.organismo).join(', ')}</span>
+                            : <span className="font-mono text-xs text-on-surface-variant/30">—</span>
+                        }}
+                      />
+                      <SectionRow
+                        label="Docs. críticos"
+                        values={resultados}
+                        renderCell={r => {
+                          const n = r.data?.documentos?.criticos?.length ?? 0
+                          return <span className="font-mono text-xs text-on-surface-variant">{n > 0 ? `${n} documentos` : '—'}</span>
+                        }}
+                      />
+                      <SectionRow
+                        label="Barreras NTM"
+                        values={resultados}
+                        renderCell={r => {
+                          const n = r.data?.barreras_ntm?.length ?? 0
+                          return <span className="font-mono text-xs text-on-surface-variant">{n > 0 ? `${n} medidas` : '—'}</span>
+                        }}
+                      />
+                      <SectionRow
+                        label="Warnings"
+                        values={resultados}
+                        renderCell={r => {
+                          const w = r.data?.warnings ?? []
+                          return w.length > 0
+                            ? <span className="font-body text-xs text-amber-400">{w.length} alerta{w.length > 1 ? 's' : ''}</span>
+                            : <span className="font-mono text-xs text-on-surface-variant/30">—</span>
+                        }}
+                      />
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
             </div>
 
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3">
-              {resultadosProcesados.map(r => (
-                <PaisCard
-                  key={r.pais_iso3}
+            {/* ── Tabs mobile ── */}
+            <div className="md:hidden mb-4">
+              <div className="flex bg-white/[0.04] rounded-xl p-1 gap-1 mb-4">
+                {resultados.map((r, i) => (
+                  <button
+                    key={r.iso3}
+                    onClick={() => setTabMobile(i)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg font-body text-xs transition-all cursor-pointer ${
+                      tabMobile === i ? 'bg-white/[0.08] text-on-surface' : 'text-on-surface-variant/50'
+                    }`}
+                  >
+                    <FlagImg iso3={r.iso3} size={16} />
+                    <span className="truncate">{nombrePais(r.iso3).split(' ')[0]}</span>
+                  </button>
+                ))}
+              </div>
+
+              {resultados[tabMobile] && (() => {
+                const r = resultados[tabMobile]
+                return (
+                  <Card>
+                    <div className="flex items-center gap-2 mb-4">
+                      <FlagImg iso3={r.iso3} size={24} />
+                      <span className={`font-body text-base font-semibold ${r.esMejor ? 'text-emerald-400' : 'text-on-surface'}`}>
+                        {nombrePais(r.iso3)}
+                      </span>
+                      {r.esMejor && <span className="font-mono text-[9px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">MEJOR</span>}
+                      {r.esPeor && <span className="font-mono text-[9px] text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">MAYOR COSTO</span>}
+                    </div>
+
+                    {!r.ok ? (
+                      <p className="font-body text-sm text-red-400">{r.error ?? 'Error al consultar'}</p>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex justify-between px-3 py-2 bg-white/[0.03] rounded-xl">
+                          <span className="font-body text-xs text-on-surface-variant">
+                            {tipo === 'importacion' ? 'Arancel efectivo' : 'Arancel destino'}
+                          </span>
+                          <span className={`font-mono text-sm font-bold ${r.esMejor ? 'text-emerald-400' : r.esPeor ? 'text-red-400' : 'text-on-surface'}`}>
+                            {r.metrica !== null ? `${tipo === 'importacion' ? r.metrica : r.metrica?.toFixed(1)}%` : 'Sin datos'}
+                          </span>
+                        </div>
+
+                        {tipo === 'importacion' && [
+                          ['AEC', r.data?.aranceles?.aec],
+                          ['DII / DIE', r.data?.aranceles?.arancel_base],
+                          ['IVA', r.data?.aranceles?.iva],
+                        ].map(([label, val]) => val !== null && val !== undefined ? (
+                          <div key={label} className="flex justify-between px-3 py-1.5 bg-white/[0.02] rounded-lg">
+                            <span className="font-mono text-[10px] text-on-surface-variant/50">{label}</span>
+                            <span className="font-mono text-xs text-on-surface">{val}%</span>
+                          </div>
+                        ) : null)}
+
+                        {tipo === 'exportacion' && r.data?.aranceles?.reintegro > 0 && (
+                          <div className="flex justify-between px-3 py-1.5 bg-emerald-500/5 border border-emerald-500/15 rounded-lg">
+                            <span className="font-mono text-[10px] text-emerald-400/60">Reintegro</span>
+                            <span className="font-mono text-xs text-emerald-400">{r.data.aranceles.reintegro}%</span>
+                          </div>
+                        )}
+
+                        {r.data?.preferencias?.tiene_preferencia && (
+                          <div className="px-3 py-2 bg-emerald-500/5 border border-emerald-500/15 rounded-xl">
+                            <p className="font-mono text-[10px] text-emerald-400/60 uppercase tracking-widest mb-0.5">Preferencia</p>
+                            <p className="font-body text-xs text-emerald-400">
+                              {r.data.preferencias.acuerdos?.[0]?.bloque}
+                            </p>
+                          </div>
+                        )}
+
+                        {(r.data?.organismos?.obligatorios?.length > 0) && (
+                          <div className="px-3 py-2 bg-red-500/5 border border-red-500/15 rounded-xl">
+                            <p className="font-mono text-[10px] text-red-400/60 uppercase tracking-widest mb-1">Organismos obligatorios</p>
+                            <p className="font-body text-xs text-red-400">
+                              {r.data.organismos.obligatorios.map(o => o.organismo).join(', ')}
+                            </p>
+                          </div>
+                        )}
+
+                        {r.data?.warnings?.length > 0 && (
+                          <div className="px-3 py-2 bg-amber-500/5 border border-amber-500/15 rounded-xl">
+                            <p className="font-mono text-[10px] text-amber-400/60 uppercase tracking-widest mb-1">Alertas</p>
+                            {r.data.warnings.map((w, i) => (
+                              <p key={i} className="font-body text-xs text-amber-400">{w}</p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Card>
+                )
+              })()}
+            </div>
+
+            {/* ── Detalle colapsable por país ── */}
+            <div className="space-y-2 mb-6">
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-3">
+                Detalle completo por país
+              </p>
+              {resultados.map(r => (
+                <DetailCard
+                  key={r.iso3}
                   resultado={r}
                   tipo={tipo}
-                  onClick={() => setModalData(r)}
+                  nombre={nombrePais(r.iso3)}
                 />
               ))}
             </div>
 
-            <p className="font-mono text-[10px] text-on-surface-variant/20 text-center mt-6 leading-relaxed">
-              Datos de aranceles: ARCA (importación Argentina) · WITS 2024 (aranceles en destino).
+            <p className="font-mono text-[10px] text-on-surface-variant/20 text-center leading-relaxed">
+              Datos: ARCA (aranceles importación ARG) · WITS/ITC 2024 (aranceles destino) · UNCTAD TRAINS (NTM).
               Esta información es orientativa y está respaldada por fuentes oficiales.
               Para operaciones concretas, consultá con un despachante de aduana matriculado
               o un profesional de comercio exterior.
@@ -603,14 +792,6 @@ export default function ComparadorClient({ productos }) {
           </>
         )}
       </div>
-
-      {modalData && (
-        <ModalDesglose
-          resultado={modalData}
-          tipo={tipo}
-          onClose={() => setModalData(null)}
-        />
-      )}
     </PageLayout>
   )
 }
