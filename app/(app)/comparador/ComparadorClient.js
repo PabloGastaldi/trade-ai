@@ -250,6 +250,9 @@ export default function ComparadorClient({ paises }) {
   const [resultados, setResultados] = useState(null)
   const [error, setError] = useState(null)
   const [tabMobile, setTabMobile] = useState(0)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   // Pre-cargar NCM desde query param
   useEffect(() => {
@@ -435,12 +438,12 @@ export default function ComparadorClient({ paises }) {
                   {iso3 && <FlagImg iso3={iso3} size={22} />}
                   {!iso3 && <span className="w-7 h-5 bg-white/[0.04] rounded inline-block shrink-0" />}
                   <select
-                    className="flex-1 bg-surface-highest rounded-xl px-4 py-2.5 font-body text-sm text-on-surface border border-transparent outline-none focus:border-primary/30 transition-all cursor-pointer"
+                    className={`flex-1 bg-surface-highest rounded-xl px-4 py-2.5 font-body text-sm border border-transparent outline-none focus:border-primary/30 transition-all cursor-pointer ${iso3 ? 'text-on-surface' : 'text-on-surface-variant/50'}`}
                     value={iso3}
                     onChange={e => setPais(idx, e.target.value)}
                   >
-                    <option value="">— Seleccionar país —</option>
-                    {paisesDisponibles(idx).map(p => (
+                    <option value="">Seleccionar país</option>
+                    {mounted && paisesDisponibles(idx).map(p => (
                       <option key={p.iso3} value={p.iso3}>{p.name_es}</option>
                     ))}
                   </select>
