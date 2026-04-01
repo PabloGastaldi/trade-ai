@@ -12,11 +12,15 @@ function getServiceClient() {
 
 // Busca candidatos reales en la DB usando palabras clave
 async function buscarCandidatosDB(supabase, producto, material, uso) {
-  const terminos = [producto, material, uso]
+  // Incluir primero la frase completa del producto (ej: "yerba mate"),
+  // luego palabras individuales de 4+ caracteres como fallback
+  const fraseProducto = producto?.toLowerCase().trim()
+  const palabrasSueltas = [producto, material, uso]
     .filter(Boolean)
     .flatMap(t => t.toLowerCase().split(/[\s,\/]+/))
-    .filter(t => t.length >= 3)
-    .slice(0, 4) // máximo 4 términos para no sobrecargar
+    .filter(t => t.length >= 4)
+
+  const terminos = [...new Set([fraseProducto, ...palabrasSueltas].filter(Boolean))].slice(0, 5)
 
   if (terminos.length === 0) return []
 

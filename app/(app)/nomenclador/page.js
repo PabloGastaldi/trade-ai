@@ -200,9 +200,13 @@ function PanelDetalle({ ncm, onClose }) {
           )}
           <div className="h-px bg-white/[0.04] my-6" />
           <div className="space-y-3 pb-4">
-            <a href={`/calculadora?ncm=${encodeURIComponent(formatearNCM(ncm.codigo_ncm))}`} className="flex items-center gap-2 font-body text-sm text-primary hover:underline">
+            <a href={`/calculadora?ncm=${encodeURIComponent(formatearNCM(ncm.codigo_ncm))}&tipo=importacion`} className="flex items-center gap-2 font-body text-sm text-primary hover:underline">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="8" y1="6" x2="16" y2="6" /><line x1="8" y1="10" x2="16" y2="10" /><line x1="8" y1="14" x2="12" y2="14" /></svg>
               Calcular costos de importación →
+            </a>
+            <a href={`/calculadora?ncm=${encodeURIComponent(formatearNCM(ncm.codigo_ncm))}&tipo=exportacion`} className="flex items-center gap-2 font-body text-sm text-primary hover:underline">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="8" y1="6" x2="16" y2="6" /><line x1="8" y1="10" x2="16" y2="10" /><line x1="8" y1="14" x2="12" y2="14" /></svg>
+              Calcular costos de exportación →
             </a>
             <a href={`/catalogo?add=${encodeURIComponent(formatearNCM(ncm.codigo_ncm))}`} className="flex items-center gap-2 font-body text-sm text-primary hover:underline">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
@@ -216,7 +220,7 @@ function PanelDetalle({ ncm, onClose }) {
 }
 
 export default function NomencladorPage() {
-  const [tab, setTab] = useState('buscar')
+  const [tab, setTab] = useState('clasificar')
   const [query, setQuery] = useState('')
   const [resultados, setResultados] = useState(null)
   const [selectedNcm, setSelectedNcm] = useState(null)
@@ -307,11 +311,6 @@ export default function NomencladorPage() {
       setNotaHaiku(json.nota ?? null)
     } catch (err) { setClasificarError(err.message) }
     finally { setClasificando(false) }
-  }
-
-  function seleccionarCandidato(c) {
-    if (c.ncm_exacto) { setSelectedNcm(c.ncm_exacto) }
-    else if (c.similares?.length > 0) { setSelectedNcm(c.similares[0]) }
   }
 
   function verDetalle(ncm) { setSelectedNcm(ncm) }
@@ -433,10 +432,11 @@ export default function NomencladorPage() {
                         <div className="space-y-1">{c.similares.map((s) => (<button key={s.codigo_ncm} className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => verDetalle(s)}><span className="font-mono text-xs text-primary">{formatearNCM(s.codigo_ncm)}</span><span className="font-body text-xs text-on-surface-variant ml-2">— {s.descripcion?.slice(0, 50)}</span></button>))}</div>
                       </div>
                     )}
-                    <div className="flex flex-wrap gap-3 mt-4">
-                      <button className="flex-1 min-w-[180px] bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl px-4 py-2.5 font-body text-sm text-on-surface transition-all cursor-pointer" onClick={() => seleccionarCandidato(c)}>Seleccionar este NCM</button>
-                      {(c.ncm_exacto || c.similares?.[0]) && <button className="flex-1 min-w-[180px] bg-primary-intense hover:bg-primary text-on-primary rounded-xl px-4 py-2.5 font-body text-sm font-semibold transition-all cursor-pointer" onClick={() => verDetalle(c.ncm_exacto || c.similares[0])}>Ver detalle completo →</button>}
-                    </div>
+                    {(c.ncm_exacto || c.similares?.[0]) && (
+                      <div className="mt-4">
+                        <button className="w-full bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl px-4 py-2.5 font-body text-sm text-on-surface transition-all cursor-pointer" onClick={() => verDetalle(c.ncm_exacto || c.similares[0])}>Ver detalle completo →</button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
