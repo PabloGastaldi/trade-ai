@@ -88,20 +88,29 @@ Tablas NCM: `ncm`, `aranceles_importacion`, `aranceles_exportacion`, `acuerdos_i
 Tablas operativas: `documentos_requeridos`, `regimen_intervenciones`, `restricciones_regimenes`
 Tablas auxiliares: `ntm_measures`, `country_codes`, `destination_tariffs`, `preferencias_arancelarias` (legacy)
 Tablas de app: `users_profile`, `queries_log`, `documents_registry`, `user_products`
+Tablas de mercados: `granos_bcr` — cacheado por cron diario (fetched_at, fecha_bcr, granos JSON)
 
-## Páginas migradas a Tailwind / redesignadas
+**IMPORTANTE — búsquedas por codigo_ncm:** El campo `codigo_ncm` es tipo NUMÉRICO en Supabase.
+`.like()` / `.ilike()` NO funcionan en columnas numéricas. Usar siempre rango `gte`/`lt` para búsqueda por prefijo:
+```js
+const padded = digits.padEnd(11, '0')
+const next = (BigInt(digits.padEnd(11, '9')) + 1n).toString().padStart(11, '0')
+query.gte('codigo_ncm', padded).lt('codigo_ncm', next)
+```
+
+## Páginas activas
 - ✅ Landing page (`app/page.js`)
-- ✅ Chat IA (`app/(app)/consulta/page.js`) — streaming, ReactMarkdown, normalización de texto
+- ✅ Chat IA (`app/(app)/consulta/page.js`) — streaming, ReactMarkdown
+- ✅ Simulador (`app/(app)/simulador/SimuladorClient.js`) — POST /api/simulador, 10 queries paralelas, reporte accordion 6 secciones
+- ✅ Calculadora (`app/(app)/calculadora/CalculadoraClient.js`) — acepta ?ncm=&pais=&tipo= para precarga
+- ✅ Comparador (`app/(app)/comparador/ComparadorClient.js`) — 2-3 países, tabla lado a lado, llama /api/simulador por país
 - ✅ Catálogo (`app/(app)/catalogo/CatalogoClient.js`)
-- ✅ Calculadora (`app/(app)/calculadora/CalculadoraClient.js`)
-- ✅ Nomenclador (`app/(app)/nomenclador/page.js`)
-- ✅ Historial (`app/(app)/historial/HistorialClient.js`)
-- ✅ Mi cuenta (`app/(app)/cuenta/CuentaClient.js`)
-- ✅ Cambiar contraseña (`app/(app)/cuenta/password/page.js`)
-- ✅ Planes (`app/(app)/planes/page.js` + PlanesClient.js)
-- ✅ Comparador (`app/(app)/comparador/ComparadorClient.js`)
-- ✅ Operaciones (`app/(app)/operaciones/OperacionesClient.js`, `DetalleClient.js`)
-- ✅ Auth pages split-screen (login, registro, recuperar-password, reset-password)
+- ✅ Operaciones (`app/(app)/operaciones/OperacionesClient.js`) — acepta ?ncm=&pais=&tipo= para abrir modal precargado
+- ✅ Mercados (`app/(app)/mercados/`) — DolarApi + ArgentinaDatos + Yahoo Finance + BCR (cron)
+- ✅ Nomenclador (`app/(app)/nomenclador/page.js`) — activo (sin soon)
+- ✅ Historial, Mi cuenta, Planes, Comparador, Auth pages
+- ✅ Términos y Condiciones (`app/terminos/page.js`)
+- ✅ Política de Privacidad (`app/privacidad/page.js`)
 
 ## UI Components (components/ui/)
 - `PageLayout.jsx` — wrapper con título y subtítulo
@@ -110,10 +119,20 @@ Tablas de app: `users_profile`, `queries_log`, `documents_registry`, `user_produ
 - `DataTable.jsx` — tabla con hover
 - `Button.js` — primary/secondary/ghost/danger, loading state
 - `Input.js` — label, hint, error states
+- `NcmAutocomplete.js` — autocomplete compartido para NCM (simulador, comparador). El componente maneja su propio estado de input; `onSelect(item)` se llama solo al elegir un ítem, devuelve `{ ncm_code, description }` (mismos campos del API)
+
+## API Routes relevantes
+- `POST /api/simulador` — panorama completo de operación: NCM + país + tipo + régimen → aranceles, preferencias, documentos, organismos, NTM, restricciones
+- `GET /api/ncm-search?q=` — búsqueda NCM, devuelve `[{ ncm_code, description }]`
+- `GET /api/cron/bcr` — scraper BCR granos, ejecutado por Vercel Cron (vercel.json: `0 15 * * *` = 12:00 AR)
 
 ## Layout responsive
 - **Desktop (≥1024px)**: Sidebar fija izquierda 250px + contenido
-- **Mobile (<768px)**: Header fijo arriba (logo + hamburguesa) + Bottom tabs (Chat/Calculadora/Operaciones/Más) + Drawer deslizable
+- **Mobile (<768px)**: Header fijo arriba (logo + hamburguesa) + Drawer deslizable con todos los ítems
+
+## Cron Jobs (vercel.json)
+- `/api/cron/bcr` — `0 15 * * *` UTC (= 12:00 AR). Scrapea BCR, guarda en `granos_bcr`.
+  Auth: acepta header `x-vercel-cron: 1` (Vercel lo inyecta automáticamente) o `Authorization: Bearer <CRON_SECRET>`.
 
 ## Convenciones de código
 - Usar español para variables de dominio (ej: derechoImportacion)
