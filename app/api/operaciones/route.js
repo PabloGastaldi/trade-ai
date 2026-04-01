@@ -3,12 +3,13 @@ import { createClient } from '@/lib/supabase/server'
 import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
 
 const VALID_OPERATION_TYPES = ['importacion', 'exportacion']
-const VALID_INCOTERMS = ['EXW', 'FCA', 'FOB', 'CFR', 'CIF', 'CIP', 'DAP', 'DPU', 'DDP']
+const VALID_INCOTERMS = ['EXW', 'FCA', 'FAS', 'FOB', 'CFR', 'CIF', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP']
 const VALID_CURRENCIES = ['USD', 'EUR', 'ARS']
 const VALID_TRANSPORT = ['maritimo', 'aereo', 'terrestre', 'multimodal']
 
 // POST /api/operaciones — crea una operación validando el límite del plan
 export async function POST(request) {
+  try {
   const supabase = await createClient()
 
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -17,9 +18,14 @@ export async function POST(request) {
   }
 
   // Verificar límite del plan
-  const { permitido, motivo, limitAlcanzado } = await verificarLimite(supabase, user.id, 'operaciones')
-  if (!permitido) {
-    return NextResponse.json({ error: motivo, limitAlcanzado }, { status: 429 })
+  try {
+    const { permitido, motivo, limitAlcanzado } = await verificarLimite(supabase, user.id, 'operaciones')
+    if (!permitido) {
+      return NextResponse.json({ error: motivo, limitAlcanzado }, { status: 429 })
+    }
+  } catch (limErr) {
+    console.error('[operaciones] verificarLimite exception:', limErr?.message)
+    // No bloquear por error técnico en verificación
   }
 
   let body
@@ -85,10 +91,18 @@ export async function POST(request) {
     .single()
 
   if (insertError) {
-    console.error('[operaciones] Error al insertar:', insertError.message)
-    return NextResponse.json({ error: 'Error al crear la operación' }, { status: 500 })
+    console.error('[operaciones] Error al insertar:', insertError.message, insertError.details, insertError.hint)
+    return NextResponse.json({ error: 'Error al crear la operación', detail: insertError.message }, { status: 500 })
   }
 
-  await registrarUso(supabase, user.id, 'operaciones')
+  try {
+    await registrarUso(supabase, user.id, 'operaciones')
+  } catch (regErr) {
+    console.error('[operaciones] registrarUso exception:', regErr?.message)
+  }
   return NextResponse.json({ operacion: data }, { status: 201 })
+  } catch (err) {
+    console.error('[operaciones] Unhandled exception:', err?.message, err?.stack)
+    return NextResponse.json({ error: 'Error interno del servidor', detail: err?.message }, { status: 500 })
+  }
 }
