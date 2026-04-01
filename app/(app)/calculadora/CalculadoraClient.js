@@ -39,7 +39,20 @@ function formatAlicuota(n) {
 }
 
 export default function CalculadoraClient({ productos, paises }) {
-  const [tab, setTab] = useState('importacion')
+  const searchParams = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search)
+    : null
+
+  const [tab, setTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const t = new URLSearchParams(window.location.search).get('tipo')
+      if (t === 'exportacion' || t === 'importacion') return t
+    }
+    return 'importacion'
+  })
+
+  const initNcm  = searchParams?.get('ncm')  ?? ''
+  const initPais = searchParams?.get('pais') ?? ''
 
   return (
     <PageLayout title="CALCULADORA" subtitle="Calculá costos de importación y exportación">
@@ -63,8 +76,8 @@ export default function CalculadoraClient({ productos, paises }) {
       </div>
 
       {tab === 'importacion'
-        ? <TabImportacion productos={productos} paises={paises} />
-        : <TabExportacion productos={productos} paises={paises} />
+        ? <TabImportacion productos={productos} paises={paises} initNcm={initNcm} initPais={initPais} />
+        : <TabExportacion productos={productos} paises={paises} initNcm={initNcm} initPais={initPais} />
       }
     </PageLayout>
   )
@@ -419,11 +432,11 @@ function CardRegimenImportacion({ regimen, info, data, esMejor, seleccionado, on
   )
 }
 
-function TabImportacion({ productos, paises }) {
+function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
   const [form, setForm] = useState({
-    ncm_code: '', valor_fob: '', flete_internacional: '',
+    ncm_code: initNcm, valor_fob: '', flete_internacional: '',
     seguro_internacional: '', estimarSeguro: true,
-    pais_origen: '', condicion_iva: 'responsable_inscripto',
+    pais_origen: initPais, condicion_iva: 'responsable_inscripto',
   })
   const [errores, setErrores] = useState({})
   const [calculando, setCalculando] = useState(false)
@@ -631,10 +644,10 @@ function TabImportacion({ productos, paises }) {
   )
 }
 
-function TabExportacion({ productos, paises }) {
+function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
   const [form, setForm] = useState({
-    ncm_code: '', precio_producto: '', incoterm_base: 'FOB',
-    incoterm_deseado: 'CIF', pais_destino: '',
+    ncm_code: initNcm, precio_producto: '', incoterm_base: 'FOB',
+    incoterm_deseado: 'CIF', pais_destino: initPais,
     flete_interno: '', flete_internacional: '', seguro_internacional: '',
     gastos_portuarios: '', gastos_aduana: '',
     bonus_reintegro: false,

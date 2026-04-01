@@ -359,7 +359,7 @@ export default function SimuladorClient({ paises }) {
           )}
 
           {/* Acciones */}
-          <AccionesPostReporte resultado={resultado} router={router} />
+          <AccionesPostReporte resultado={resultado} />
         </div>
       )}
     </PageLayout>
@@ -674,10 +674,10 @@ function SeccionArancelesDestino({ resultado }) {
   )
 }
 
-function AccionesPostReporte({ resultado, router }) {
+function AccionesPostReporte({ resultado }) {
   const { ncm, pais, tipo_operacion } = resultado
-  const calcUrl = `/calculadora?ncm=${ncm.codigo_ncm}&pais=${pais.iso3}&tipo=${tipo_operacion}`
-  const opsUrl = `/operaciones`
+  const calcUrl = `/calculadora?ncm=${encodeURIComponent(ncm.codigo_ncm)}&pais=${encodeURIComponent(pais.iso3)}&tipo=${tipo_operacion}`
+  const opsUrl  = `/operaciones?ncm=${encodeURIComponent(ncm.codigo_ncm)}&pais=${encodeURIComponent(pais.iso3)}&tipo=${tipo_operacion}`
 
   return (
     <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -692,7 +692,7 @@ function AccionesPostReporte({ resultado, router }) {
         href={opsUrl}
         className="flex items-center justify-center gap-2 px-5 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl font-body text-sm text-on-surface-variant hover:text-on-surface hover:bg-white/[0.05] transition-colors"
       >
-        <span>Ver operaciones</span>
+        <span>Nueva operación</span>
         <ArrowRight size={14} />
       </a>
     </div>

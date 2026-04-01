@@ -166,6 +166,24 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
   const [form, setForm] = useState(FORM_VACIO)
   const [activeDragId, setActiveDragId] = useState(null)
 
+  // Precargar desde query params (ej: viene del Simulador)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const ncm  = params.get('ncm')
+    const pais = params.get('pais')
+    const tipo = params.get('tipo')
+    if (ncm || pais || tipo) {
+      setForm({
+        ...FORM_VACIO,
+        ncm_code: ncm ?? '',
+        counterpart_country: pais ?? '',
+        operation_type: (tipo === 'importacion' || tipo === 'exportacion') ? tipo : 'exportacion',
+      })
+      setModalAbierto(true)
+    }
+  }, [])
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   )
