@@ -38,12 +38,12 @@ export async function GET(request) {
       .limit(5)
 
     if (isNum) {
-      // codigo_ncm puede ser tipo numérico; usamos gte/lt para buscar por prefijo
+      // codigo_ncm es columna numérica — pasar Number para evitar ambigüedad con ceros líderes
       const digits = q.replace(/\D/g, '')
       if (digits.length > 0) {
-        const padded = digits.padEnd(11, '0')
-        const next = (BigInt(digits.padEnd(11, '9')) + 1n).toString().padStart(11, '0')
-        query = query.gte('codigo_ncm', padded).lt('codigo_ncm', next)
+        const desde = Number(digits.padEnd(11, '0'))
+        const hasta = Number(digits.padEnd(11, '9')) + 1
+        query = query.gte('codigo_ncm', desde).lt('codigo_ncm', hasta)
       }
     } else {
       query = query.ilike('descripcion', `%${q}%`)
