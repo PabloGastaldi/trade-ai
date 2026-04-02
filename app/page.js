@@ -12,9 +12,16 @@ const PLANES = [
     precioRaw: 'Gratis para siempre',
     destacado: false,
     features: [
+      '10 consultas IA/mes',
+      '10 simulaciones/mes',
+      '10 cálculos/mes',
+      '10 productos en catálogo',
+      '10 búsquedas en nomenclador',
+    ],
+    featuresOriginales: [
       '3 consultas IA/mes',
-      '1 simulación de prueba',
-      '1 cálculo de prueba',
+      '1 simulación/mes',
+      '1 cálculo/mes',
       '3 productos en catálogo',
       '5 búsquedas en nomenclador',
     ],
@@ -499,6 +506,23 @@ export default function LandingPage() {
                       </li>
                     ))}
                   </ul>
+
+                  {plan.featuresOriginales && (
+                    <div className="mt-5 p-3 bg-primary/5 border border-primary/15 rounded-xl">
+                      <p className="font-body text-[11px] font-semibold text-primary/80 mb-2">Límites ampliados — Fase Beta</p>
+                      <div className="space-y-1">
+                        {plan.featuresOriginales.map((f, fi) => (
+                          <div key={fi} className="flex items-center gap-2">
+                            <span className="font-body text-[10px] text-on-surface-variant/40 line-through">{f}</span>
+                            <span className="font-body text-[10px] text-primary/70">→ {plan.features[fi]}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="font-body text-[10px] text-on-surface-variant/40 mt-2 leading-relaxed">
+                        Válido mientras dure la versión beta.
+                      </p>
+                    </div>
+                  )}
 
                   <a
                     href={plan.href}
