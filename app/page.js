@@ -36,7 +36,7 @@ const PLANES = [
     precioRaw: null,
     destacado: true,
     features: [
-      'Consultas IA ilimitadas',
+      '100 consultas IA/mes',
       'Simulador ilimitado',
       'Calculadora ilimitada',
       'Comparador ilimitado',
