@@ -47,6 +47,7 @@ export async function POST(request) {
 
   const {
     operation_type,
+    regimen = 'general',
     product_id = null,
     ncm_code = null,
     product_description = null,
@@ -82,6 +83,7 @@ export async function POST(request) {
     .insert({
       user_id:             user.id,
       operation_type,
+      regimen,
       status,
       product_id,
       ncm_code:            ncm_code?.trim() || null,
@@ -123,15 +125,46 @@ export async function POST(request) {
       console.log('[checklist] ncm normalizado:', ncm, 'tipo:', tipoOp, 'regimen:', regimen)
       const svc = getServiceClient()
 
-      const [docRes, intRes] = await Promise.all([
-        svc.rpc('documentos_por_operacion', { p_tipo: tipoOp, p_regimen: regimen, p_ncm: ncm }),
-        svc.rpc('intervenciones_por_operacion', { p_operacion: tipoOp, p_regimen: regimen, p_ncm: ncm }),
-      ])
+      // Para courier_comercial/courier_personal: llamar también con 'courier' genérico
+      const regimenEsEspecificoCourier = regimen.startsWith('courier_')
+      const llamadas = regimenEsEspecificoCourier
+        ? [
+            svc.rpc('documentos_por_operacion', { p_tipo: tipoOp, p_regimen: regimen, p_ncm: ncm }),
+            svc.rpc('documentos_por_operacion', { p_tipo: tipoOp, p_regimen: 'courier', p_ncm: ncm }),
+            svc.rpc('intervenciones_por_operacion', { p_operacion: tipoOp, p_regimen: regimen, p_ncm: ncm }),
+            svc.rpc('intervenciones_por_operacion', { p_operacion: tipoOp, p_regimen: 'courier', p_ncm: ncm }),
+          ]
+        : [
+            svc.rpc('documentos_por_operacion', { p_tipo: tipoOp, p_regimen: regimen, p_ncm: ncm }),
+            null,
+            svc.rpc('intervenciones_por_operacion', { p_operacion: tipoOp, p_regimen: regimen, p_ncm: ncm }),
+            null,
+          ]
+
+      const [docRes, docResCourier, intRes, intResCourier] = await Promise.all(
+        llamadas.map(p => p ?? Promise.resolve({ data: [] }))
+      )
 
       console.log('[checklist] docs:', docRes.error?.message ?? docRes.data?.length, '| orgs:', intRes.error?.message ?? intRes.data?.length)
 
+      // Deduplicar por documento_nombre
+      const docNombresVistos = new Set()
+      const docsUnicos = [...(docRes.data ?? []), ...(docResCourier.data ?? [])].filter(d => {
+        if (docNombresVistos.has(d.documento_nombre)) return false
+        docNombresVistos.add(d.documento_nombre)
+        return true
+      })
+
+      // Deduplicar organismos por organismo
+      const orgNombresVistos = new Set()
+      const orgsUnicos = [...(intRes.data ?? []), ...(intResCourier.data ?? [])].filter(o => {
+        if (orgNombresVistos.has(o.organismo)) return false
+        orgNombresVistos.add(o.organismo)
+        return true
+      })
+
       const rows = []
-      for (const doc of docRes.data ?? []) {
+      for (const doc of docsUnicos) {
         rows.push({
           operation_id:      operacionId,
           document_name:     doc.documento_nombre,
@@ -140,7 +173,7 @@ export async function POST(request) {
           is_completed:      false,
         })
       }
-      for (const org of intRes.data ?? []) {
+      for (const org of orgsUnicos) {
         rows.push({
           operation_id:      operacionId,
           document_name:     `[Organismo] ${org.organismo}`,
