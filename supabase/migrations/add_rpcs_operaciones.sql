@@ -18,8 +18,8 @@ RETURNS BOOLEAN AS $$
 DECLARE
   parte TEXT;
 BEGIN
-  -- Sin NCM o patrón nulo/todos → siempre aplica
-  IF p_ncm IS NULL OR patron IS NULL OR patron = 'todos' THEN
+  -- Sin NCM o patrón nulo/vacío/nan/todos → siempre aplica
+  IF p_ncm IS NULL OR patron IS NULL OR patron = '' OR patron = 'nan' OR patron = 'todos' THEN
     RETURN TRUE;
   END IF;
 
@@ -58,7 +58,7 @@ BEGIN
   WHERE dr.tipo_operacion = p_tipo
     AND dr.regimen = p_regimen
     AND ncm_patron_matches(p_ncm, dr.ncm_patron)
-    AND (dr.pais_patron IS NULL OR dr.pais_patron = p_pais)
+    AND (dr.pais_patron IS NULL OR dr.pais_patron = '' OR dr.pais_patron = 'nan' OR dr.pais_patron = p_pais)
   ORDER BY dr.sort_order;
 END;
 $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
