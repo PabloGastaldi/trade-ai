@@ -45,6 +45,23 @@ const REGIMENES = [
   { key: 'correo_upu', label: 'Correo UPU',        desc: 'Correo Argentino' },
 ]
 
+const REGIMENES_IMPORTACION = [
+  { key: 'general',           label: 'Régimen General',    desc: 'Despacho formal a plaza' },
+  { key: 'courier_comercial', label: 'Courier Comercial',  desc: 'E-commerce · hasta USD 3.000 FOB' },
+  { key: 'courier_personal',  label: 'Courier Personal',   desc: 'Franquicia USD 400 · hasta USD 3.000 FOB' },
+  { key: 'puerta_a_puerta',   label: 'Puerta a Puerta',    desc: 'Franquicia USD 400 · hasta USD 3.000 FOB' },
+  { key: 'pef',               label: 'PEF Personal',        desc: 'Prestadores especiales' },
+  { key: 'correo_upu',        label: 'Correo UPU',          desc: 'Correo Argentino' },
+]
+
+const REGIMENES_EXPORTACION = [
+  { key: 'general',        label: 'Régimen General',  desc: 'Exportación formal' },
+  { key: 'exporta_simple', label: 'Exporta Simple',   desc: 'MiPyMEs · sin derechos · hasta USD 15.000' },
+  { key: 'courier',        label: 'Courier',           desc: 'Pequeños envíos · hasta USD 3.000' },
+]
+
+const REGIMENES_SIN_PERCEPCIONES = ['courier_comercial', 'courier_personal', 'puerta_a_puerta']
+
 function usd(n) {
   if (n === null || n === undefined) return '—'
   return 'USD ' + Number(n).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -334,6 +351,96 @@ function DesgloseImportacion({ data }) {
   )
 }
 
+function ResultadoRegimenUnico({ resultado }) {
+  const { resultado: res, regimen, ncm, valores_base, preferencia_aplicada, notas, warnings } = resultado
+  const regimenInfo = REGIMENES_IMPORTACION.find(r => r.key === regimen) ?? { label: regimen, desc: '' }
+
+  if (!res.disponible) {
+    return (
+      <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/[0.04] text-center">
+        <p className="font-body text-sm font-semibold text-on-surface-variant mb-1">{regimenInfo.label}</p>
+        <p className="font-body text-xs text-red-400">{res.motivo_no_disponible}</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {warnings?.length > 0 && (
+        <div className="bg-amber-500/10 rounded-2xl border border-amber-500/20 p-4">
+          <p className="font-body text-xs font-semibold text-amber-400 uppercase tracking-wide mb-2">Advertencias</p>
+          {warnings.map((w, i) => (
+            <p key={i} className="font-body text-xs text-amber-300/80 leading-relaxed">{w}</p>
+          ))}
+        </div>
+      )}
+
+      <div className="bg-white/[0.03] rounded-2xl border border-primary/20 p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <p className="font-body text-sm font-semibold tracking-wide text-on-surface uppercase">{regimenInfo.label}</p>
+            <p className="font-body text-[10px] text-on-surface-variant mt-0.5">{regimenInfo.desc}</p>
+          </div>
+          <Badge variant="primary">{regimen.replace(/_/g, ' ')}</Badge>
+        </div>
+
+        <p className="font-mono text-2xl text-on-surface font-semibold">{usd(res.costo_total)}</p>
+        <p className="font-body text-[10px] text-on-surface-variant/50 mt-0.5">Costo total (CIF + tributos)</p>
+
+        <div className="mt-4 pt-4 border-t border-white/[0.04] space-y-2">
+          <div className="flex justify-between">
+            <span className="font-body text-xs text-on-surface-variant">CIF base</span>
+            <span className="font-mono text-xs text-on-surface">{usd(valores_base?.cif)}</span>
+          </div>
+          {Object.entries(res.desglose ?? {}).map(([key, v]) => {
+            if (!v || (v.monto === 0 && key !== 'franquicia')) return null
+            const labels = {
+              franquicia:          'Franquicia exenta',
+              derecho_importacion: 'Derecho de importación',
+              tasa_estadistica:    'Tasa estadística',
+              iva:                 'IVA importación',
+            }
+            return (
+              <div key={key} className="flex justify-between items-start">
+                <span className="font-body text-xs text-on-surface-variant">
+                  {labels[key] ?? key}
+                  {v.alicuota ? <span className="ml-1 text-[10px] text-on-surface-variant/50">({pct(v.alicuota)})</span> : null}
+                  {v.nota ? <span className="ml-1 text-[10px] text-on-surface-variant/40"> · {v.nota}</span> : null}
+                </span>
+                <span className="font-mono text-xs text-on-surface ml-4 shrink-0">{usd(v.monto)}</span>
+              </div>
+            )
+          })}
+          <div className="pt-2 border-t border-white/[0.04] flex justify-between">
+            <span className="font-body text-xs text-on-surface font-semibold">Total tributos</span>
+            <span className="font-mono text-xs text-on-surface font-semibold">{usd(res.total_tributos)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-body text-[10px] text-on-surface-variant">Effective rate</span>
+            <span className="font-mono text-[11px] text-primary">{pct(res.effective_rate)}</span>
+          </div>
+        </div>
+
+        {preferencia_aplicada && (
+          <div className="mt-4 p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
+            <p className="font-body text-[11px] text-emerald-400">
+              Preferencia arancelaria: {preferencia_aplicada.acuerdo} ({preferencia_aplicada.porcentaje_preferencia}% pref.)
+            </p>
+          </div>
+        )}
+      </div>
+
+      {notas?.length > 0 && (
+        <div className="bg-white/[0.02] rounded-2xl border border-white/[0.04] p-4 space-y-1.5">
+          {notas.map((n, i) => (
+            <p key={i} className="font-body text-[10px] text-on-surface-variant/60 leading-relaxed">{n}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function CardRegimenImportacion({ regimen, info, data, esMejor, seleccionado, onClick }) {
   if (!data.disponible) {
     return (
@@ -460,11 +567,14 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
     seguro_internacional: '', estimarSeguro: true,
     pais_origen: initPais, condicion_iva: 'responsable_inscripto',
   })
+  const [regimen, setRegimen] = useState('general')
   const [errores, setErrores] = useState({})
   const [calculando, setCalculando] = useState(false)
   const [resultado, setResultado] = useState(null)
   const [regSeleccionado, setRegSeleccionado] = useState('general')
   const [contexto, setContexto] = useState(null)
+
+  const ocultarCondicionIva = REGIMENES_SIN_PERCEPCIONES.includes(regimen)
 
   function set(campo, valor) {
     setForm(prev => ({ ...prev, [campo]: valor }))
@@ -507,7 +617,8 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
           flete_internacional: Number(form.flete_internacional) || 0,
           seguro_internacional: seguro,
           pais_origen: paisOrigen,
-          condicion_iva: form.condicion_iva,
+          condicion_iva: ocultarCondicionIva ? 'responsable_inscripto' : form.condicion_iva,
+          regimen: regimen !== 'general' ? regimen : null,
         }),
       })
       const json = await res.json()
@@ -608,12 +719,26 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
               options={[{ value: '', label: 'Seleccionar país…' }, ...paises.map(p => ({ value: p.iso3, label: p.name_es }))]}
             />
 
+            {!ocultarCondicionIva && (
+              <CampoSelect
+                label="Condición ante IVA"
+                value={form.condicion_iva}
+                onChange={v => set('condicion_iva', v)}
+                options={CONDICIONES_IVA}
+              />
+            )}
+
             <CampoSelect
-              label="Condición ante IVA"
-              value={form.condicion_iva}
-              onChange={v => set('condicion_iva', v)}
-              options={CONDICIONES_IVA}
+              label="Régimen aduanero"
+              value={regimen}
+              onChange={v => { setRegimen(v); setResultado(null) }}
+              options={REGIMENES_IMPORTACION.map(r => ({ value: r.key, label: r.label }))}
             />
+            {regimen !== 'general' && (
+              <p className="font-body text-[10px] text-on-surface-variant/60 -mt-3">
+                {REGIMENES_IMPORTACION.find(r => r.key === regimen)?.desc}
+              </p>
+            )}
           </div>
 
           {errores._general && (
@@ -654,22 +779,27 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
 
         {resultado && (
           <>
-            <div className="space-y-4">
-              {REGIMENES.map(r => (
-                <CardRegimenImportacion
-                  key={r.key}
-                  regimen={r.key}
-                  info={r}
-                  data={resultado.regimenes?.[r.key]}
-                  esMejor={r.key === mejorOpcion}
-                  seleccionado={regSeleccionado === r.key}
-                  onClick={() => resultado.regimenes?.[r.key]?.disponible && setRegSeleccionado(r.key)}
-                />
-              ))}
-            </div>
-
-            {resultado.regimenes[regSeleccionado]?.disponible && (
-              <DesgloseImportacion data={resultado} />
+            {resultado.regimen_unico ? (
+              <ResultadoRegimenUnico resultado={resultado} />
+            ) : (
+              <>
+                <div className="space-y-4">
+                  {REGIMENES.map(r => (
+                    <CardRegimenImportacion
+                      key={r.key}
+                      regimen={r.key}
+                      info={r}
+                      data={resultado.regimenes?.[r.key]}
+                      esMejor={r.key === mejorOpcion}
+                      seleccionado={regSeleccionado === r.key}
+                      onClick={() => resultado.regimenes?.[r.key]?.disponible && setRegSeleccionado(r.key)}
+                    />
+                  ))}
+                </div>
+                {resultado.regimenes[regSeleccionado]?.disponible && (
+                  <DesgloseImportacion data={resultado} />
+                )}
+              </>
             )}
 
             {contexto && <ContextoComercialImpo contexto={contexto} />}
@@ -735,6 +865,7 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
     bonus_reintegro: false,
     pais_facturacion_diferente: false,
   })
+  const [regimenExpo, setRegimenExpo] = useState('general')
   const [errores, setErrores] = useState({})
   const [calculando, setCalculando] = useState(false)
   const [resultado, setResultado] = useState(null)
@@ -808,6 +939,7 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
           gastos_aduana_exportacion: Number(form.gastos_aduana) || null,
           bonus_reintegro: form.bonus_reintegro || false,
           pais_facturacion_diferente: form.pais_facturacion_diferente || false,
+          regimen: regimenExpo !== 'general' ? regimenExpo : null,
         }),
       })
       const json = await res.json()
@@ -880,6 +1012,18 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
               onChange={v => set('pais_destino', v)}
               options={[{ value: '', label: 'Seleccionar país…' }, ...paises.map(p => ({ value: p.iso3, label: p.name_es }))]}
             />
+
+            <CampoSelect
+              label="Régimen aduanero"
+              value={regimenExpo}
+              onChange={v => { setRegimenExpo(v); setResultado(null) }}
+              options={REGIMENES_EXPORTACION.map(r => ({ value: r.key, label: r.label }))}
+            />
+            {regimenExpo !== 'general' && (
+              <p className="font-body text-[10px] text-on-surface-variant/60 -mt-3">
+                {REGIMENES_EXPORTACION.find(r => r.key === regimenExpo)?.desc}
+              </p>
+            )}
 
             <div className="bg-white/[0.02] rounded-xl border border-white/[0.04] overflow-hidden">
               <button
@@ -1034,11 +1178,26 @@ function ContextoComercialExpo({ contexto }) {
 
 function ResultadoExportacion({ resultado: r }) {
   const incotermsMostrar = ['EXW', 'FOB', 'CFR', 'CIF', 'DDP']
+  const regimenInfo = REGIMENES_EXPORTACION.find(rx => rx.key === r.regimen)
 
   return (
     <div className="space-y-4">
+      {r.warnings?.length > 0 && (
+        <div className="bg-amber-500/10 rounded-2xl border border-amber-500/20 p-4">
+          <p className="font-body text-xs font-semibold text-amber-400 uppercase tracking-wide mb-2">Advertencias</p>
+          {r.warnings.map((w, i) => (
+            <p key={i} className="font-body text-xs text-amber-300/80 leading-relaxed">{w}</p>
+          ))}
+        </div>
+      )}
+
       <Card>
         <div className="text-center py-4">
+          {regimenInfo && regimenInfo.key !== 'general' && (
+            <div className="flex justify-center mb-3">
+              <Badge variant="primary">{regimenInfo.label}</Badge>
+            </div>
+          )}
           <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase">
             Precio {r.precio_calculado?.incoterm}
           </p>

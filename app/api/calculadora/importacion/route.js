@@ -30,6 +30,7 @@ export async function POST(request) {
     seguro_internacional = null,
     pais_origen = null,
     condicion_iva = 'responsable_inscripto',
+    regimen = null,
   } = body
 
   if (!ncm_code) return NextResponse.json({ error: 'ncm_code requerido' }, { status: 400 })
@@ -51,6 +52,7 @@ export async function POST(request) {
       seguro_internacional,
       pais_origen_iso3: pais_origen,
       condicion_iva,
+      regimen,
     })
     if (resultado.error) {
       return NextResponse.json({ ok: false, error: resultado.error }, { status: 400 })

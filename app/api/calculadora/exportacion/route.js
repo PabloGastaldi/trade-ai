@@ -39,6 +39,7 @@ export async function POST(request) {
     gastos_aduana_exportacion = null,
     bonus_reintegro = false,
     pais_facturacion_diferente = false,
+    regimen = null,
   } = body
 
   if (!ncm_code) return NextResponse.json({ error: 'ncm_code requerido' }, { status: 400 })
@@ -61,6 +62,7 @@ export async function POST(request) {
       gastos_aduana_exportacion,
       bonus_reintegro,
       pais_facturacion_diferente,
+      regimen,
     })
     await registrarCalc(supabase, user.id)
     return NextResponse.json({ ok: true, data: resultado })
