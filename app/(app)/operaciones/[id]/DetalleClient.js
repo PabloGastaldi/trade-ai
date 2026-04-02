@@ -68,18 +68,19 @@ function estadosSiguientes(status, tipo) {
 function formatFecha(fecha, conHora = false) {
   if (!fecha) return '—'
   const d = new Date(fecha)
-  const dia = String(d.getDate()).padStart(2, '0')
-  const mes = String(d.getMonth() + 1).padStart(2, '0')
-  const año = d.getFullYear()
+  const dia = String(d.getUTCDate()).padStart(2, '0')
+  const mes = String(d.getUTCMonth() + 1).padStart(2, '0')
+  const año = d.getUTCFullYear()
   if (!conHora) return `${dia}/${mes}/${año}`
-  const h = String(d.getHours()).padStart(2, '0')
-  const m = String(d.getMinutes()).padStart(2, '0')
+  const h = String(d.getUTCHours()).padStart(2, '0')
+  const m = String(d.getUTCMinutes()).padStart(2, '0')
   return `${dia}/${mes}/${año} ${h}:${m}`
 }
 
 function formatValor(op) {
   if (!op.total_value) return null
-  return `${op.currency ?? 'USD'} ${Number(op.total_value).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`
+  const n = Number(op.total_value).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  return `${op.currency ?? 'USD'} ${n}`
 }
 
 // ── Componente principal ──────────────────────────────────────────────────────
