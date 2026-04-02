@@ -166,6 +166,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
   const [erroresForm, setErroresForm] = useState({})
   const [form, setForm] = useState(FORM_VACIO)
   const [activeDragId, setActiveDragId] = useState(null)
+  const [eliminando, setEliminando] = useState({})
 
   // Precargar desde query params (ej: viene del Simulador)
   useEffect(() => {
@@ -281,15 +282,25 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
     }
   }
 
-  async function handleEliminar(op, e) {
+  async function handleEliminar(opId, e) {
     e.stopPropagation()
-    if (!confirm(`¿Eliminar la operación "${op.product_description || op.ncm_code || 'sin nombre'}"? Esta acción no se puede deshacer.`)) return
+    setEliminando(prev => ({ ...prev, [opId]: 'confirmar' }))
+  }
+
+  async function confirmarEliminar(op, e) {
+    e.stopPropagation()
+    setEliminando(prev => ({ ...prev, [op.id]: 'borrando' }))
     setOperaciones(prev => prev.filter(o => o.id !== op.id))
     const res = await fetch(`/api/operaciones/${op.id}`, { method: 'DELETE' })
     if (!res.ok) {
-      setOperaciones(prev => [op, ...prev])
-      alert('Error al eliminar la operación')
+      setOperaciones(prev => [op, ...prev.filter(o => o.id !== op.id)])
+      setEliminando(prev => ({ ...prev, [op.id]: null }))
     }
+  }
+
+  function cancelarEliminar(opId, e) {
+    e.stopPropagation()
+    setEliminando(prev => ({ ...prev, [opId]: null }))
   }
 
   async function handleDragEnd({ active, over }) {
@@ -394,7 +405,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
           <p className="font-body text-sm text-on-surface-variant">No hay operaciones que coincidan con los filtros.</p>
         </div>
       ) : vista === 'lista' ? (
-        <VistaLista operaciones={opsFiltradas} paises={paises} onRowClick={op => router.push(`/operaciones/${op.id}`)} onEliminar={handleEliminar} />
+        <VistaLista operaciones={opsFiltradas} paises={paises} onRowClick={op => router.push(`/operaciones/${op.id}`)} onEliminar={handleEliminar} onConfirmar={confirmarEliminar} onCancelar={cancelarEliminar} eliminando={eliminando} />
       ) : (
         <DndContext sensors={sensors} onDragStart={({ active }) => setActiveDragId(active.id)} onDragEnd={handleDragEnd} onDragCancel={() => setActiveDragId(null)}>
           <VistaKanban operaciones={opsFiltradas} filtroTipo={filtroTipo} paises={paises} onCardClick={op => router.push(`/operaciones/${op.id}`)} />
@@ -416,7 +427,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
   )
 }
 
-function VistaLista({ operaciones, paises, onRowClick, onEliminar }) {
+function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, onCancelar, eliminando }) {
   return (
     <div className="rounded-xl border border-white/[0.04] overflow-hidden">
       <table className="w-full">
@@ -431,11 +442,12 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar }) {
           {operaciones.map((op) => {
             const pais = paises.find(p => p.iso3 === op.counterpart_country)
             const badge = BADGE_ESTADO[op.status] ?? { variant: 'neutral', label: op.status }
+            const estadoElim = eliminando[op.id]
             return (
               <tr
                 key={op.id}
                 className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors cursor-pointer"
-                onClick={() => onRowClick(op)}
+                onClick={() => !estadoElim && onRowClick(op)}
               >
                 <td className="px-4 py-3"><Badge variant={badge.variant}>{badge.label}</Badge></td>
                 <td className="px-4 py-3">
@@ -443,8 +455,8 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar }) {
                     {op.operation_type === 'exportacion' ? 'EXPO' : 'IMPO'}
                   </Badge>
                 </td>
-                <td className="px-4 py-3">
-                  <p className="font-body text-sm text-on-surface">{op.product_description ?? '—'}</p>
+                <td className="px-4 py-3 max-w-[200px]">
+                  <p className="font-body text-sm text-on-surface truncate">{op.product_description ?? '—'}</p>
                   {op.ncm_code && <p className="font-mono text-xs text-primary mt-0.5">{op.ncm_code}</p>}
                 </td>
                 <td className="px-4 py-3">
@@ -461,14 +473,31 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar }) {
                 <td className="px-4 py-3">
                   <span className="font-body text-xs text-on-surface-variant">{fmtFecha(op.estimated_ship_date)}</span>
                 </td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={(e) => onEliminar(op, e)}
-                    className="p-1.5 rounded-lg text-on-surface-variant/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                    title="Eliminar operación"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                <td className="px-4 py-3 w-[1%] whitespace-nowrap">
+                  {estadoElim === 'confirmar' ? (
+                    <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={(e) => onConfirmar(op, e)}
+                        className="px-2 py-1 rounded-lg font-body text-xs bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors"
+                      >
+                        Eliminar
+                      </button>
+                      <button
+                        onClick={(e) => onCancelar(op.id, e)}
+                        className="px-2 py-1 rounded-lg font-body text-xs text-on-surface-variant/50 hover:text-on-surface-variant transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={(e) => onEliminar(op.id, e)}
+                      className="p-1.5 rounded-lg text-on-surface-variant/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                      title="Eliminar operación"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                 </td>
               </tr>
             )
