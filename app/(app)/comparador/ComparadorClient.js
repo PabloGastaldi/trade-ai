@@ -198,7 +198,7 @@ function DetailCard({ resultado, tipo, nombre }) {
                 {docs.criticos.map((d, i) => (
                   <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.02] rounded-lg">
                     <div className="w-1.5 h-1.5 rounded-full bg-red-400/60 shrink-0" />
-                    <span className="font-body text-xs text-on-surface-variant">{d.documento}</span>
+                    <span className="font-body text-xs text-on-surface-variant">{d.documento_nombre}</span>
                   </div>
                 ))}
               </div>

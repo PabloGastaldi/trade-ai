@@ -140,7 +140,7 @@ export async function POST(request) {
         for (const doc of docRes.data ?? []) {
           rows.push({
             operation_id:      operacionId,
-            document_name:     doc.documento,
+            document_name:     doc.documento_nombre,
             document_category: doc.documento_categoria,
             sort_order:        doc.sort_order ?? 0,
             is_completed:      false,

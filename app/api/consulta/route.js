@@ -363,7 +363,7 @@ Ejemplos:
           for (const doc of docsResult.data) {
             const cat = doc.documento_categoria ?? 'general'
             if (!porCategoria[cat]) porCategoria[cat] = []
-            porCategoria[cat].push(doc.documento + (doc.notas ? ` (${doc.notas})` : ''))
+            porCategoria[cat].push(doc.documento_nombre + (doc.notas ? ` (${doc.notas})` : ''))
           }
           const lineas = ['[DOCUMENTOS_REQUERIDOS]']
           for (const [cat, docs] of Object.entries(porCategoria)) {

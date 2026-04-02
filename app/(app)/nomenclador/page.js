@@ -299,7 +299,7 @@ function PanelDetalle({ ncm, onClose }) {
                     <div className="space-y-1">
                       {items.map((doc, i) => (
                         <div key={i} className="py-1.5 px-3 bg-white/[0.02] rounded-lg">
-                          <p className="font-body text-sm text-on-surface">{doc.documento}</p>
+                          <p className="font-body text-sm text-on-surface">{doc.documento_nombre}</p>
                           {doc.notas && <p className="font-body text-[11px] text-on-surface-variant/60 mt-0.5">{doc.notas}</p>}
                         </div>
                       ))}
