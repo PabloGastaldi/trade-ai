@@ -85,23 +85,13 @@ const FORM_VACIO = {
   notes: '',
 }
 
+// Próximamente: más regímenes cuando se carguen los documentos requeridos en la DB
 const REGIMENES_EXPORTACION = [
-  { value: 'general',        label: 'General' },
-  { value: 'courier',        label: 'Courier / envíos postales' },
-  { value: 'exporta_simple', label: 'Exporta Simple (PyMEs)' },
-  { value: 'muestras',       label: 'Muestras sin valor comercial' },
-  { value: 'temporaria',     label: 'Exportación temporaria' },
-  { value: 'rancho',         label: 'Rancho / provisiones' },
+  { value: 'general', label: 'General' },
 ]
 
 const REGIMENES_IMPORTACION = [
-  { value: 'general',           label: 'General (canal rojo/naranja/verde)' },
-  { value: 'courier_comercial', label: 'Courier comercial — DIS (empresas)' },
-  { value: 'courier_personal',  label: 'Courier personal — DSC (personas físicas)' },
-  { value: 'puerta_a_puerta',   label: 'Puerta a puerta (particular)' },
-  { value: 'muestras',          label: 'Muestras sin valor comercial' },
-  { value: 'temporaria',        label: 'Importación temporaria' },
-  { value: 'zonafranca',        label: 'Zona franca' },
+  { value: 'general', label: 'General (canal rojo/naranja/verde)' },
 ]
 
 function usd(n) {
@@ -882,72 +872,76 @@ function ModalNuevaOperacion({ form, setField, errores, productos, paises, guard
             </div>
           </div>
 
-          <div>
-            <label className="block font-body text-xs text-on-surface-variant mb-1.5">Régimen aduanero</label>
-            <select
-              className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer"
-              value={form.regimen}
-              onChange={e => setField('regimen', e.target.value)}
-            >
-              {(form.operation_type === 'importacion' ? REGIMENES_IMPORTACION : REGIMENES_EXPORTACION).map(r => (
-                <option key={r.value} value={r.value}>{r.label}</option>
-              ))}
-            </select>
-            <p className="mt-1.5 font-body text-[11px] text-on-surface-variant/60">
-              El régimen determina los documentos requeridos y los organismos que intervienen en tu operación.
-            </p>
-
-            {/* Card de restricciones */}
-            {restricciones.length > 0 && (
-              <div className="mt-3 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
-                <p className="font-body text-xs font-semibold text-amber-400 mb-2">
-                  Restricciones del régimen seleccionado
-                </p>
-                <ul className="space-y-1">
-                  {restricciones.map((r, i) => (
-                    <li key={i} className="font-body text-xs text-on-surface-variant">
-                      <span className="text-amber-400/70">•</span>{' '}
-                      <span className="font-medium text-on-surface">{r.restriccion}</span>
-                      {r.valor && <span className="text-on-surface-variant">: {r.valor}</span>}
-                      {r.notas && r.notas !== 'nan' && r.notas !== 'null' && (
-                        <span className="text-on-surface-variant/60"> — {r.notas}</span>
-                      )}
-                    </li>
+          {(() => {
+            const regimenOpts = form.operation_type === 'importacion' ? REGIMENES_IMPORTACION : REGIMENES_EXPORTACION
+            if (regimenOpts.length <= 1) return null
+            return (
+              <div>
+                <label className="block font-body text-xs text-on-surface-variant mb-1.5">Régimen aduanero</label>
+                <select
+                  className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer"
+                  value={form.regimen}
+                  onChange={e => setField('regimen', e.target.value)}
+                >
+                  {regimenOpts.map(r => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
                   ))}
-                </ul>
-              </div>
-            )}
+                </select>
+                <p className="mt-1.5 font-body text-[11px] text-on-surface-variant/60">
+                  El régimen determina los documentos requeridos y los organismos que intervienen en tu operación.
+                </p>
 
-            {/* Cards de productos permitidos/prohibidos */}
-            {productosPermitidos.length > 0 && (
-              <div className="mt-2 bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-4">
-                <p className="font-body text-xs font-semibold text-emerald-400 mb-2">
-                  Productos permitidos por este régimen
-                </p>
-                <p className="font-body text-xs text-on-surface-variant">
-                  {productosPermitidos.map(p => p.producto).join(', ')}
-                </p>
-              </div>
-            )}
+                {restricciones.length > 0 && (
+                  <div className="mt-3 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+                    <p className="font-body text-xs font-semibold text-amber-400 mb-2">
+                      Restricciones del régimen seleccionado
+                    </p>
+                    <ul className="space-y-1">
+                      {restricciones.map((r, i) => (
+                        <li key={i} className="font-body text-xs text-on-surface-variant">
+                          <span className="text-amber-400/70">•</span>{' '}
+                          <span className="font-medium text-on-surface">{r.restriccion}</span>
+                          {r.valor && <span className="text-on-surface-variant">: {r.valor}</span>}
+                          {r.notas && r.notas !== 'nan' && r.notas !== 'null' && (
+                            <span className="text-on-surface-variant/60"> — {r.notas}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-            {productosProhibidos.length > 0 && (
-              <div className="mt-2 bg-red-500/5 border border-red-500/15 rounded-xl p-4">
-                <p className="font-body text-xs font-semibold text-red-400 mb-2">
-                  Productos NO permitidos (requieren régimen general)
-                </p>
-                <ul className="space-y-1">
-                  {productosProhibidos.map((p, i) => (
-                    <li key={i} className="font-body text-xs text-on-surface-variant">
-                      <span className="text-red-400/70">•</span>{' '}
-                      <span className="font-medium text-on-surface">{p.producto}</span>
-                      {(p.motivo && p.motivo !== 'nan') && <span className="text-on-surface-variant"> — {p.motivo}</span>}
-                      {(p.organismo && p.organismo !== 'nan') && <span className="text-on-surface-variant/60"> ({p.organismo})</span>}
-                    </li>
-                  ))}
-                </ul>
+                {productosPermitidos.length > 0 && (
+                  <div className="mt-2 bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-4">
+                    <p className="font-body text-xs font-semibold text-emerald-400 mb-2">
+                      Productos permitidos por este régimen
+                    </p>
+                    <p className="font-body text-xs text-on-surface-variant">
+                      {productosPermitidos.map(p => p.producto).join(', ')}
+                    </p>
+                  </div>
+                )}
+
+                {productosProhibidos.length > 0 && (
+                  <div className="mt-2 bg-red-500/5 border border-red-500/15 rounded-xl p-4">
+                    <p className="font-body text-xs font-semibold text-red-400 mb-2">
+                      Productos NO permitidos (requieren régimen general)
+                    </p>
+                    <ul className="space-y-1">
+                      {productosProhibidos.map((p, i) => (
+                        <li key={i} className="font-body text-xs text-on-surface-variant">
+                          <span className="text-red-400/70">•</span>{' '}
+                          <span className="font-medium text-on-surface">{p.producto}</span>
+                          {(p.motivo && p.motivo !== 'nan') && <span className="text-on-surface-variant"> — {p.motivo}</span>}
+                          {(p.organismo && p.organismo !== 'nan') && <span className="text-on-surface-variant/60"> ({p.organismo})</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            )
+          })()}
 
           {productosFiltrados.length > 0 && (
             <div>
