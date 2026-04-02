@@ -50,14 +50,11 @@ const REGIMENES_IMPORTACION = [
   { key: 'courier_comercial', label: 'Courier Comercial',  desc: 'E-commerce · hasta USD 3.000 FOB' },
   { key: 'courier_personal',  label: 'Courier Personal',   desc: 'Franquicia USD 400 · hasta USD 3.000 FOB' },
   { key: 'puerta_a_puerta',   label: 'Puerta a Puerta',    desc: 'Franquicia USD 400 · hasta USD 3.000 FOB' },
-  { key: 'pef',               label: 'PEF Personal',        desc: 'Prestadores especiales' },
-  { key: 'correo_upu',        label: 'Correo UPU',          desc: 'Correo Argentino' },
 ]
 
 const REGIMENES_EXPORTACION = [
   { key: 'general',        label: 'Régimen General',  desc: 'Exportación formal' },
   { key: 'exporta_simple', label: 'Exporta Simple',   desc: 'MiPyMEs · sin derechos · hasta USD 15.000' },
-  { key: 'courier',        label: 'Courier',           desc: 'Pequeños envíos · hasta USD 3.000' },
 ]
 
 const REGIMENES_SIN_PERCEPCIONES = ['courier_comercial', 'courier_personal', 'puerta_a_puerta']
