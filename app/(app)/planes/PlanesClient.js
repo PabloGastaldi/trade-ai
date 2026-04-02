@@ -56,6 +56,17 @@ const PLAN_META = {
   empresa: { nombre: 'Empresa',   precio: 'A MEDIDA', sub: null,    precioNote: 'Consultanos' },
 }
 
+// Límites originales (pre-beta) para mostrar tachados
+const FREE_LIMITS_ORIGINALES = {
+  consulta:    '3 consultas/mes',
+  simulador:   '1 simulación/mes',
+  calculadora: '1 cálculo/mes',
+  comparador:  '1 comparación/mes',
+  operaciones: '1 operación/mes',
+  nomenclador: '5 búsquedas/mes',
+  catalogo:    '3 productos',
+}
+
 function getLimitLabel(planId, feature) {
   const limit = PLANS[planId]?.limits[feature]
   if (!limit) return null
@@ -97,6 +108,23 @@ function PlanHeader({ planId, esActual, onSuscribirse, cargando }) {
           <p className="font-body text-xs text-on-surface-variant/50 mt-1">{meta.precioNote}</p>
         )}
       </div>
+
+      {planId === 'free' && (
+        <div className="mb-4 p-3 bg-primary/5 border border-primary/15 rounded-xl">
+          <p className="font-body text-[11px] font-semibold text-primary/80 mb-1.5">Límites ampliados — Fase Beta</p>
+          <div className="space-y-1">
+            {Object.entries(FREE_LIMITS_ORIGINALES).map(([feature, labelOriginal]) => (
+              <div key={feature} className="flex items-center gap-2">
+                <span className="font-body text-[10px] text-on-surface-variant/40 line-through">{labelOriginal}</span>
+                <span className="font-body text-[10px] text-primary/70">→ {PLANS.free.limits[feature]?.label}</span>
+              </div>
+            ))}
+          </div>
+          <p className="font-body text-[10px] text-on-surface-variant/40 mt-2 leading-relaxed">
+            Válido mientras dure la versión beta. Los límites volverán a los valores originales al lanzamiento oficial.
+          </p>
+        </div>
+      )}
 
       {esActual ? (
         <button
