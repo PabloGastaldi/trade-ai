@@ -119,7 +119,6 @@ export async function POST(request) {
       const operacionId = data.id
       const normalizado = normalizarCodigoNCM(data.ncm_code)
       const ncm = normalizado?.codigoNCM ?? data.ncm_code
-      const regimen = body.regimen || 'general'
       const tipoOp = data.operation_type
 
       console.log('[checklist] ncm normalizado:', ncm, 'tipo:', tipoOp, 'regimen:', regimen)
