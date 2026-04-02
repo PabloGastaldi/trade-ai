@@ -1,14 +1,5 @@
 {
-  "mcpServers": {
-    "engram": {
-      "command": "engram",
-      "args": [
-        "mcp"
-      ]
-    }
-  },
   "disableBypassPermissionsMode": "disable",
-  "cleanupPeriodDays": 30,
   "sandbox": {
     "enabled": true,
     "filesystem": {
@@ -28,15 +19,7 @@
     "allowUnsandboxedCommands": false,
     "enableWeakerNestedSandbox": false,
     "network": {
-      "allowAllUnixSockets": false,
-      "allowedDomains": [
-        "*.supabase.co",
-        "*.pinecone.io",
-        "api.anthropic.com",
-        "*.mercadopago.com",
-        "*.vercel.app",
-        "vercel.com"
-      ]
+      "allowAllUnixSockets": false
     },
     "enableWeakerNetworkIsolation": false
   },
@@ -45,15 +28,6 @@
       "Read(./.env)",
       "Read(./.env.*)",
       "Read(./secrets/**)"
-    ],
-    "allow": [
-      "Bash(node -e \":*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(ls c:/Users/Pablo/trade-ai/app/\\\\\\(app\\\\\\)/)",
-      "Bash(node -e \"console.log\\(BigInt\\('02999999999'\\).toString\\(\\)\\)\")",
-      "Bash(node -e ':*)",
-      "Read(//mnt/c/Users/Pablo/**)"
     ]
   },
   "deniedMcpServers": [

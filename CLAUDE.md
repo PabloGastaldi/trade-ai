@@ -26,7 +26,7 @@ agentes de comercio exterior, consultores de comex.
   - Haiku recibe el presupuesto en el mensaje y responde al scope de la pregunta, no al contexto
   - Guía operativa (exportación/importación) se inyecta solo en consultas operativas (no NCM simples)
 - Markdown: react-markdown + remark-gfm (renderizado de respuestas del chat)
-- Pagos: MercadoPago Checkout Pro (SDK `mercadopago`, webhook con HMAC)
+- Pagos: MercadoPago Checkout Pro (SDK `mercadopago`, webhook con HMAC-SHA256)
 - Idioma de la app: Español (Argentina)
 - CSS: Tailwind CSS + design tokens en CSS variables
 - Iconos: Lucide React
@@ -53,62 +53,153 @@ Error:           text-red-400, bg-red-500/10
 
 ## Datasets disponibles
 
-### 1. Nomenclatura NCM — schema nuevo (cargado 2026-03-31)
-- `ncm` — 26.439 filas. PK: `codigo_ncm` (11 dígitos sin puntos, ej: `29339141000`)
+### 1. Nomenclatura NCM — schema completo (33.019 filas, todos los capítulos 01-97)
+- `ncm` — 33.019 filas. PK: `codigo_ncm` (TEXT, 11 dígitos sin puntos, ej: `29339141000`)
   Campos: `seccion`, `capitulo`, `partida`, `descripcion`
-- `aranceles_importacion` — 26.437 filas. FK → `ncm.codigo_ncm`
+- `aranceles_importacion` — 33.017 filas. FK → `ncm.codigo_ncm`
   Campos: `aec`, `die`, `dii`, `te`, `iva`, `iva_ad`, `gan`, `iibb`
-- `aranceles_exportacion` — 26.384 filas. FK → `ncm.codigo_ncm`
+- `aranceles_exportacion` — 32.950 filas. FK → `ncm.codigo_ncm`
   Campos: `derecho_exportacion`, `reintegro`
-- `acuerdos_importacion` — 1.106.272 filas. FK → `ncm.codigo_ncm`
+- `acuerdos_importacion` — 1.439.634 filas. FK → `ncm.codigo_ncm`
   Campos: `bloque`, `pais` (nombre en español), `codigo_acuerdo`, `porcentaje` (0-100, % de preferencia), `nomenclatura`, `ncm_acuerdo`
-- `acuerdos_exportacion` — 931.482 filas. Misma estructura que `acuerdos_importacion`
+- `acuerdos_exportacion` — 1.226.594 filas. Misma estructura que `acuerdos_importacion`
 - `acuerdos_generales` — 4 filas. TLC de cobertura total (sin NCM específico)
   Campos: `acuerdo_id`, `pais`, `tipo`, `notas`
-- `preferencias_arancelarias` — 52.510 filas. Tabla VIEJA (NALADISA) — NO usar en código nuevo
+- `preferencias_arancelarias` — tabla VIEJA (NALADISA) — NO usar en código nuevo
 
 **Normalización NCM:** usar siempre `normalizarCodigoNCM()` de `lib/ncm-lookup.js`.
 El campo `pais` en acuerdos es nombre en español — cruzar con `country_codes.name_es` para resolver desde ISO3.
 
 ### 2. Barreras no arancelarias — UNCTAD TRAINS
 - `ntm_measures` — 199.165 filas filtradas para Argentina
-- `country_codes` — mapeo ISO3 → nombre en español/inglés
+  Campos: `reporter`, `partner`, `hs_code` (6 dígitos), `ntm_code`, `ntm_full_coverage`, `ntm_partial_coverage`, `ntm_all`, `ntm_non_h`
+  Categorías NTM principales: A=SPS, B=TBT, C=Inspección preembarque, E=Licencias/cuotas, P=Medida de exportación
+- `ntm_measures_affecting_argentina` — barreras que terceros países aplican a productos argentinos (NO USADA AÚN)
+- `ntm_measures_applied_by_argentina` — barreras que Argentina aplica a importaciones (NO USADA AÚN)
+- `country_codes` — mapeo ISO3 → nombre en español/inglés. Campos: `iso3`, `name_es`, `name_en`
 
 ### 3. Aranceles en destino
 - `destination_tariffs` — 122.220 filas. Fuente: WITS/ITC, HS 6 dígitos, AVE%
-- Join: `ncm.codigo_ncm.slice(0,6)` → `destination_tariffs.hs_code`
+  Campos: `hs_code` (6 dígitos), `partner_iso3`, `ave_pct`, `reporting_country`, `ave_rate`, `num_tariff_lines`, `year`, `source`
+  Join: `ncm.codigo_ncm.slice(0,6)` → `destination_tariffs.hs_code`
+  **IMPORTANTE:** el simulador/api usa `partner_iso3` + `ave_pct`; calc-exportacion usa `reporting_country` + `ave_rate` — son columnas del mismo schema, no inconsistencia.
 
 ### 4. Tablas operativas
-- `documentos_requeridos` — 50 filas. Checklist de documentación por `tipo_operacion` + `regimen`. Filtros opcionales: `ncm_patron`, `pais_patron`
-- `regimen_intervenciones` — 52 filas. Organismos (SENASA, ANMAT, etc.) por operación/régimen/categoría de producto. Filtro por `ncm_patron`
+- `documentos_requeridos` — 50 filas. Checklist por `tipo_operacion` + `regimen`. Filtros opcionales: `ncm_patron`, `pais_patron`
+  Campos: `tipo_operacion`, `regimen`, `documento`, `documento_categoria`, `ncm_patron`, `pais_patron`, `sort_order`, `notas`
+- `regimen_intervenciones` — 52 filas. Organismos (SENASA, ANMAT, etc.) por operación/régimen/NCM
+  Campos: `operacion`, `regimen`, `organismo`, `estado`, `ncm_patron`, `notas`
 - `restricciones_regimenes` — 25 filas. Límites y condiciones por régimen (ej: courier USD 3.000)
+  Campos: `regimen`, `restriccion`, `valor`, `notas`
 
 ## Estructura de la base de datos
-Tablas NCM: `ncm`, `aranceles_importacion`, `aranceles_exportacion`, `acuerdos_importacion`, `acuerdos_exportacion`, `acuerdos_generales`
-Tablas operativas: `documentos_requeridos`, `regimen_intervenciones`, `restricciones_regimenes`
-Tablas auxiliares: `ntm_measures`, `country_codes`, `destination_tariffs`, `preferencias_arancelarias` (legacy)
-Tablas de app: `users_profile`, `queries_log`, `documents_registry`, `user_products`
-Tablas de mercados: `granos_bcr` — cacheado por cron diario (fetched_at, fecha_bcr, granos JSON)
 
-**IMPORTANTE — búsquedas por codigo_ncm:** El campo `codigo_ncm` es tipo NUMÉRICO en Supabase.
-`.like()` / `.ilike()` NO funcionan en columnas numéricas. Usar siempre rango `gte`/`lt` para búsqueda por prefijo:
+**Tablas NCM:** `ncm`, `aranceles_importacion`, `aranceles_exportacion`, `acuerdos_importacion`, `acuerdos_exportacion`, `acuerdos_generales`
+**Tablas NTM:** `ntm_measures`, `ntm_measures_affecting_argentina`, `ntm_measures_applied_by_argentina`
+**Tablas operativas:** `documentos_requeridos`, `regimen_intervenciones`, `restricciones_regimenes`
+**Tablas auxiliares:** `country_codes`, `destination_tariffs`, `preferencias_arancelarias` (legacy, no usar)
+**Tablas de app:** `users_profile`, `queries_log`, `documents_registry`, `user_products`, `operations`
+**Tablas de mercados:** `granos_bcr` — cacheado por cron diario (fetched_at, fecha_bcr, granos JSON)
+
+**IMPORTANTE — búsquedas por codigo_ncm:** El campo `codigo_ncm` es tipo TEXT en Supabase.
+Para búsqueda por prefijo usar rango `gte`/`lt` (ilike NO funciona sobre columnas numéricas en algunos contextos):
 ```js
-const padded = digits.padEnd(11, '0')
-const next = (BigInt(digits.padEnd(11, '9')) + 1n).toString().padStart(11, '0')
-query.gte('codigo_ncm', padded).lt('codigo_ncm', next)
+const desde = digits.padEnd(11, '0')
+const hasta = String(parseInt(digits, 10) + 1).padStart(digits.length, '0').padEnd(11, '0')
+query.gte('codigo_ncm', desde).lt('codigo_ncm', hasta)
 ```
+
+## Sistema de planes y límites
+
+### Planes disponibles: `free`, `pro`, `empresa`
+Configuración centralizada en `lib/plans-config.js` → `getPlanConfig(planId)`
+
+| Feature | Free | Pro | Empresa |
+|---|---|---|---|
+| consulta IA | 3/mes | ilimitada | ilimitada |
+| simulador | 1/mes | ilimitado | ilimitado |
+| calculadora | 1/mes | ilimitada | ilimitada |
+| comparador | 1/mes | ilimitado | ilimitado |
+| operaciones | 1/mes | ilimitadas | ilimitadas |
+| nomenclador | 5/mes | ilimitado | ilimitado |
+| catálogo | 3 total | ilimitado | ilimitado |
+| mercados | completo | completo | completo |
+
+### Control de uso
+- **`lib/usage-limiter.js`** — `verificarLimite(supabase, userId, feature)` y `registrarUso(supabase, userId, feature)`
+  Features: `simulador`, `comparador`, `nomenclador`, `operaciones`
+  Columnas en `users_profile`: `*_this_month`. RPCs atómicos: `increment_*`
+- **`lib/calc-limit.js`** — límites de calculadora (`calcs_this_month`, RPC `increment_calcs`)
+- **`/api/consulta`** — límites de chat (`queries_this_month`, RPC `increment_queries`)
+- Reset mensual on-the-fly basado en `queries_reset_date` — resetea TODOS los contadores a la vez
+- **`components/ui/UpgradePrompt.jsx`** — banner de upgrade. Props: `{ feature, limit, used }`
+
+## Herramientas y sus API Routes
+
+### Chat IA — `POST /api/consulta`
+- Flujo: autenticación → rate limit (10/min) → límite mensual → clasificación con Haiku → búsqueda paralela (NCM + preferencias + NTM + Pinecone) → inyección de guía operativa → streaming de respuesta → log en `queries_log`
+- Tablas usadas: `users_profile`, `ncm`, `aranceles_importacion/exportacion`, `acuerdos_importacion/exportacion`, `ntm_measures`, `queries_log`
+- Libs: `lib/ncm-lookup.js` (buscarNCM), `lib/ntm-lookup.js` (buscarBarrerasNTM), `lib/preferencias-lookup.js` (buscarPreferencias)
+
+### Simulador — `POST /api/simulador`
+Panorama completo de una operación: NCM + país + tipo + régimen.
+- **Tablas usadas (10 en paralelo):**
+  - `ncm`, `aranceles_importacion`, `aranceles_exportacion`
+  - `acuerdos_importacion`, `acuerdos_exportacion`, `acuerdos_generales`
+  - `documentos_requeridos`, `regimen_intervenciones`, `restricciones_regimenes`
+  - `ntm_measures`, `destination_tariffs` (solo exportación), `country_codes`
+- **Secciones del reporte:** NCM, país, aranceles, preferencias (mejor acuerdo + arancel efectivo), documentos (categorizados), organismos intervinientes, restricciones del régimen, barreras NTM, aranceles en destino, warnings
+
+### Calculadora — `lib/calc-importacion.js` y `lib/calc-exportacion.js`
+- **Importación:** CIF → derecho (DIE/DII) → tasa estadística → IVA + adicionales. Regímenes: `general`, `courier`, `pef`, `correo_upu`. Condiciones IVA: `responsable_inscripto`, `monotributista`, `consumidor_final`, `exento`. Tablas: `ncm`, `aranceles_importacion`, `acuerdos_importacion`, `country_codes`
+- **Exportación:** normaliza a EXW → FOB → CFR → CIF → DDP. Calcula derecho de exportación y reintegro. Tabla incoterms completa. Tablas: `ncm`, `aranceles_exportacion`, `destination_tariffs`, `country_codes`
+
+### Comparador — `POST /api/comparador`
+- Llama `calcularImportacion/Exportacion` en paralelo para hasta 40 países
+- Devuelve array `[{ pais_iso3, ok, data|error }]`
+- Cuenta como 1 uso del plan (no uno por país)
+
+### Nomenclador — `app/(app)/nomenclador/page.js`
+Tres secciones: búsqueda rápida (chips predefinidos), clasificador IA, panel de detalle.
+- `GET /api/nomenclador/aranceles?ncm=` → `{ importacion: {...}, exportacion: {...} }`
+  Tablas: `aranceles_importacion`, `aranceles_exportacion`
+- `GET /api/nomenclador/preferencias?ncm=` → acuerdos para ese NCM
+  Tablas: `acuerdos_importacion`, `acuerdos_exportacion`, `acuerdos_generales`
+- `POST /api/nomenclador/clasificar` → candidatos NCM + clasificación Haiku
+  Body: `{ producto, material, uso, estado, presentacion, detalles }`
+  Tablas: `ncm` (búsqueda por descripcion ilike), `aranceles_importacion`, `aranceles_exportacion`
+- `GET /api/ncm-search?q=` → autocompletado, devuelve `[{ ncm_code, description }]`
+  Tablas: `ncm`. Búsqueda numérica por rango gte/lt o textual por ilike descripcion.
+
+### Catálogo — `POST/GET/PATCH/DELETE /api/catalogo`
+- Gestión de `user_products`. Verifica que `ncm_code` exista en tabla `ncm`.
+- Límite free: 3 productos activos total (`is_active = true`)
+
+### Operaciones — `POST /api/operaciones`
+- Crea operación en tabla `operations`. Status inicial automático por tipo.
+- Validaciones: `operation_type`, `incoterm` (EXW/FCA/FAS/FOB/CFR/CIF/CPT/CIP/DAP/DPU/DDP), `currency` (USD/EUR/ARS), `transport_mode` (maritimo/aereo/terrestre/multimodal)
+- El frontend `OperacionesClient.js` lee operaciones directamente desde Supabase con sesión del usuario.
+
+### Mercados — `app/(app)/mercados/`
+- Dólar (DolarApi), inflación/PBI (ArgentinaDatos), acciones (Yahoo Finance v8/chart), granos BCR (cron diario)
+- Cron: `GET /api/cron/bcr` — `0 15 * * *` UTC (12:00 AR). Auth: `x-vercel-cron: 1` o `Bearer <CRON_SECRET>`. Guarda en `granos_bcr`.
+
+### Pagos — `POST /api/webhooks/mercadopago`
+- Validación HMAC-SHA256 (x-signature + x-request-id + timestamp). Anti-replay: ventana de 5 min.
+- Al aprobar: actualiza `plan_type`, `mp_subscription_id` en `users_profile`, resetea contadores.
+- Al rechazar/refundar: revierte a `free`, limpia `mp_subscription_id`.
 
 ## Páginas activas
 - ✅ Landing page (`app/page.js`)
 - ✅ Chat IA (`app/(app)/consulta/page.js`) — streaming, ReactMarkdown
-- ✅ Simulador (`app/(app)/simulador/SimuladorClient.js`) — POST /api/simulador, 10 queries paralelas, reporte accordion 6 secciones
-- ✅ Calculadora (`app/(app)/calculadora/CalculadoraClient.js`) — acepta ?ncm=&pais=&tipo= para precarga
-- ✅ Comparador (`app/(app)/comparador/ComparadorClient.js`) — 2-3 países, tabla lado a lado, llama /api/simulador por país
+- ✅ Simulador (`app/(app)/simulador/SimuladorClient.js`) — 10 queries paralelas, reporte accordion
+- ✅ Calculadora (`app/(app)/calculadora/CalculadoraClient.js`) — acepta `?ncm=&pais=&tipo=` para precarga
+- ✅ Comparador (`app/(app)/comparador/ComparadorClient.js`) — 2-3 países, tabla lado a lado
 - ✅ Catálogo (`app/(app)/catalogo/CatalogoClient.js`)
-- ✅ Operaciones (`app/(app)/operaciones/OperacionesClient.js`) — acepta ?ncm=&pais=&tipo= para abrir modal precargado
-- ✅ Mercados (`app/(app)/mercados/`) — DolarApi + ArgentinaDatos + Yahoo Finance + BCR (cron)
-- ✅ Nomenclador (`app/(app)/nomenclador/page.js`) — activo (sin soon)
-- ✅ Historial, Mi cuenta, Planes, Comparador, Auth pages
+- ✅ Operaciones (`app/(app)/operaciones/OperacionesClient.js`) — acepta `?ncm=&pais=&tipo=`, vista lista + Kanban (@dnd-kit)
+- ✅ Mercados (`app/(app)/mercados/`) — DolarApi + ArgentinaDatos + Yahoo Finance + BCR
+- ✅ Nomenclador (`app/(app)/nomenclador/page.js`) — búsqueda, clasificador IA, panel detalle
+- ✅ Historial, Mi cuenta, Planes, Auth pages
 - ✅ Términos y Condiciones (`app/terminos/page.js`)
 - ✅ Política de Privacidad (`app/privacidad/page.js`)
 
@@ -119,20 +210,23 @@ query.gte('codigo_ncm', padded).lt('codigo_ncm', next)
 - `DataTable.jsx` — tabla con hover
 - `Button.js` — primary/secondary/ghost/danger, loading state
 - `Input.js` — label, hint, error states
-- `NcmAutocomplete.js` — autocomplete compartido para NCM (simulador, comparador). El componente maneja su propio estado de input; `onSelect(item)` se llama solo al elegir un ítem, devuelve `{ ncm_code, description }` (mismos campos del API)
+- `NcmAutocomplete.js` — autocomplete compartido (simulador, comparador). `onSelect(item)` devuelve `{ ncm_code, description }`
+- `UpgradePrompt.jsx` — banner de límite alcanzado. Props: `{ feature, limit, used }`. Botón → `/planes`
 
-## API Routes relevantes
-- `POST /api/simulador` — panorama completo de operación: NCM + país + tipo + régimen → aranceles, preferencias, documentos, organismos, NTM, restricciones
-- `GET /api/ncm-search?q=` — búsqueda NCM, devuelve `[{ ncm_code, description }]`
-- `GET /api/cron/bcr` — scraper BCR granos, ejecutado por Vercel Cron (vercel.json: `0 15 * * *` = 12:00 AR)
+## Librerías de dominio (lib/)
+- `lib/ncm-lookup.js` — `normalizarCodigoNCM(entrada)`: normaliza a 11 dígitos, soporta formatos con/sin puntos, 8 u 11 dígitos, parciales
+- `lib/ntm-lookup.js` — `buscarBarrerasNTM(hs_code, options)`: busca en `ntm_measures`, resuelve ISO3 con `resolverISO3()`
+- `lib/preferencias-lookup.js` — `buscarPreferencias(ncm)`: consulta `acuerdos_importacion`, `acuerdos_exportacion`, `acuerdos_generales`
+- `lib/plans-config.js` — `getPlanConfig(planId)`: devuelve límites y labels por plan
+- `lib/usage-limiter.js` — `verificarLimite` / `registrarUso`: control de uso mensual genérico
+- `lib/calc-limit.js` — control de uso de calculadora (legacy, mismo patrón)
+- `lib/calc-importacion.js` — `calcularImportacion(supabase, params)`
+- `lib/calc-exportacion.js` — `calcularExportacion(params)`
+- `lib/data/medios-pago.js` — opciones de medios de pago para operaciones
 
 ## Layout responsive
-- **Desktop (≥1024px)**: Sidebar fija izquierda 250px + contenido
-- **Mobile (<768px)**: Header fijo arriba (logo + hamburguesa) + Drawer deslizable con todos los ítems
-
-## Cron Jobs (vercel.json)
-- `/api/cron/bcr` — `0 15 * * *` UTC (= 12:00 AR). Scrapea BCR, guarda en `granos_bcr`.
-  Auth: acepta header `x-vercel-cron: 1` (Vercel lo inyecta automáticamente) o `Authorization: Bearer <CRON_SECRET>`.
+- **Desktop (≥1024px):** Sidebar fija izquierda 250px + contenido
+- **Mobile (<768px):** Header fijo arriba (logo + hamburguesa) + Drawer deslizable
 
 ## Convenciones de código
 - Usar español para variables de dominio (ej: derechoImportacion)
@@ -169,6 +263,6 @@ matriculado o un profesional de comercio exterior."
 - Windows 11, PowerShell, VS Code
 - Puerto dev: 3000 (Next.js)
 - Base de datos: Supabase cloud
-- Datos locales: C:\Users\Pablo\trade-ai-data\
+- Datos locales: C:\Users\Pablo\scripts-locales\scraper-ncm\data\ (archivos JSON de NCM, aranceles, acuerdos)
 - Build: `npm run build` — verificar siempre antes de considerar un cambio listo
 - Dev: `npm run dev`

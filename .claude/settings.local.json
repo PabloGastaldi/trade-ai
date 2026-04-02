@@ -13,7 +13,27 @@
       "Bash(node -e \"const {Pinecone} = require\\(''@pinecone-database/pinecone''\\); const pc = new Pinecone\\({apiKey:''test''}\\); const idx = pc.index\\(''test''\\); console.log\\(Object.getOwnPropertyNames\\(Object.getPrototypeOf\\(idx\\)\\).filter\\(m => m.includes\\(''psert''\\) || m.includes\\(''record''\\)\\)\\)\")",
       "Bash(npm test:*)",
       "Bash(\"c:\\\\Users\\\\Pablo\\\\trade-ai\\\\Security.md\")",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(python3 -m pip install --user pipx)",
+      "Bash(python3 -m pipx ensurepath)",
+      "Bash(PYTHONIOENCODING=utf-8 PYTHONUTF8=1 C:/Users/Pablo/.local/bin/clauditor.exe scan --path \"C:/Users/Pablo/trade-ai\")",
+      "Bash(grep -r ^[[:space:]]*//.* /c/Users/Pablo/trade-ai/app/api/consulta/route.js /c/Users/Pablo/trade-ai/app/api/checkout/route.js /c/Users/Pablo/trade-ai/app/api/webhooks/mercadopago/route.js)",
+      "Bash(grep -r SUPABASE_SERVICE_ROLE_KEY /c/Users/Pablo/trade-ai --include=*.js --include=*.jsx --exclude-dir=node_modules --exclude-dir=.next)",
+      "Bash(ls -la /c/Users/Pablo/trade-ai/.env*)",
+      "Bash(grep -r ^import.*from.* /c/Users/Pablo/trade-ai/app/api/consulta/route.js)",
+      "Bash(grep \"css\" c:/Users/Pablo/trade-ai/app/\\\\\\(app\\\\\\)/layout.js c:/Users/Pablo/trade-ai/components/layout/AppHeader.js c:/Users/Pablo/trade-ai/components/chat/ChatInput.js c:/Users/Pablo/trade-ai/components/chat/ChatMessage.js c:/Users/Pablo/trade-ai/app/\\\\\\(app\\\\\\)/operaciones/[id]/DetalleClient.js)",
+      "Bash(curl -s --max-time 8 \"https://dolarapi.com/v1/dolares\")",
+      "Bash(curl -s --max-time 8 \"https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo\")",
+      "Bash(curl -s --max-time 10 \"https://query1.finance.yahoo.com/v7/finance/quote?symbols=ZS%3DF\")",
+      "Bash(curl -s --max-time 8 -L \"https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais/ultimo\")",
+      "Bash(curl -s --max-time 10 \"https://query1.finance.yahoo.com/v8/finance/quote?symbols=ZS%3DF\")",
+      "Bash(curl -s --max-time 10 -H \"User-Agent: Mozilla/5.0\" \"https://query1.finance.yahoo.com/v7/finance/quote?symbols=ZS%3DF\")",
+      "Bash(curl -s --max-time 10 -H \"User-Agent: Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36\" \"https://query2.finance.yahoo.com/v8/finance/chart/ZS=F?interval=1d&range=1d\")",
+      "WebFetch(domain:www.bcr.com.ar)",
+      "Bash(grep -rn \"from ''''ncm''''\\\\|from \"\"ncm\"\"\\\\|\\\\.from\\(''''ncm''''\\)\\\\|\\\\.from\\(\"\"ncm\"\"\\)\\\\|preferencias_arancelarias\\\\|ncm-lookup\\\\|preferencias-lookup\" --include=\"*.js\" lib/ app/)",
+      "Bash(ls \"c:\\\\Users\\\\Pablo\\\\trade-ai\\\\scripts\"/*.sql)",
+      "Bash(ls \"c:\\\\Users\\\\Pablo\\\\trade-ai\\\\data\\\\scripts\"/*.sql)",
+      "Bash(ls \"c:\\\\Users\\\\Pablo\\\\trade-ai\\\\supabase\"/*.sql)"
     ]
   }
 }

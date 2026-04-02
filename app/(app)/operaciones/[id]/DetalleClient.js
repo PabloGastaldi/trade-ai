@@ -108,7 +108,6 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
   const docsCriticos = documentos.filter(d => d.document_category === 'critico')
   const docsImportantes = documentos.filter(d => d.document_category === 'importante')
   const docsOpcionales = documentos.filter(d => d.document_category === 'opcional' || d.document_category === 'condicional')
-  const docsIntervenciones = documentos.filter(d => d.document_category === 'intervencion_obligatoria' || d.document_category === 'intervencion_opcional')
 
   // ── Cambio de estado ─────────────────────────────────────────────────────
 
@@ -540,15 +539,14 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
             ) : (
               <>
                 {[
-                  { cat: 'critico',                  docs: docsCriticos,       label: 'Críticos',                    color: styles.catCritico },
-                  { cat: 'importante',               docs: docsImportantes,    label: 'Importantes',                 color: styles.catImportante },
-                  { cat: 'opcional',                 docs: docsOpcionales,     label: 'Opcionales',                  color: styles.catOpcional },
-                  { cat: 'intervencion_obligatoria', docs: docsIntervenciones, label: 'Organismos intervinientes',   color: styles.catImportante },
+                  { cat: 'critico',    docs: docsCriticos,    label: 'Críticos',    color: styles.catCritico },
+                  { cat: 'importante', docs: docsImportantes, label: 'Importantes', color: styles.catImportante },
+                  { cat: 'opcional',   docs: docsOpcionales,  label: 'Opcionales',  color: styles.catOpcional },
                 ].map(({ cat, docs, label, color }) =>
                   docs.length > 0 ? (
                     <div key={cat} className={styles.docsGrupo}>
                       <div className={`${styles.docsGrupoHeader} ${color}`}>
-                        <span>{cat === 'critico' ? '🔴' : cat === 'intervencion_obligatoria' ? '🟡' : cat === 'importante' ? '🟡' : '🟢'} {label}</span>
+                        <span>{cat === 'critico' ? '🔴' : cat === 'importante' ? '🟡' : '🟢'} {label}</span>
                         <span className={styles.docsGrupoCount}>
                           {docs.filter(d => d.is_completed).length}/{docs.length}
                         </span>

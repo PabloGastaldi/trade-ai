@@ -110,6 +110,7 @@ export async function POST(request) {
 
     ;(async () => {
       try {
+        console.log('[operaciones] generando checklist para', operacionId, 'ncm:', ncm, 'tipo:', tipoOp, 'regimen:', regimen)
         const [docRes, intRes] = await Promise.all([
           supabase.rpc('documentos_por_operacion', {
             p_tipo: tipoOp,
@@ -123,6 +124,7 @@ export async function POST(request) {
           }),
         ])
 
+        console.log('[operaciones] docRes:', docRes.error?.message ?? `${docRes.data?.length ?? 0} docs`, '| intRes:', intRes.error?.message ?? `${intRes.data?.length ?? 0} orgs`)
         const rows = []
 
         for (const doc of docRes.data ?? []) {
@@ -138,10 +140,11 @@ export async function POST(request) {
         for (const org of intRes.data ?? []) {
           rows.push({
             operation_id:      operacionId,
-            document_name:     org.organismo,
-            document_category: org.estado === 'obligatorio' ? 'intervencion_obligatoria' : 'intervencion_opcional',
+            document_name:     `[Organismo] ${org.organismo}`,
+            document_category: org.estado === 'obligatorio' ? 'critico' : 'opcional',
             sort_order:        100,
             is_completed:      false,
+            notes:             org.notas || null,
           })
         }
 

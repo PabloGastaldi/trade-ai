@@ -1,6 +1,6 @@
 -- ============================================================
--- Migración: columnas de uso por feature en users_profile
--- Ejecutar en Supabase SQL Editor
+-- Migración: columnas de uso mensual por herramienta en users_profile
+-- Ejecutar en Supabase → SQL Editor
 -- ============================================================
 
 -- Nuevas columnas de uso mensual
@@ -11,10 +11,9 @@ ALTER TABLE users_profile
   ADD COLUMN IF NOT EXISTS operaciones_this_month integer NOT NULL DEFAULT 0;
 
 -- ────────────────────────────────────────────
--- RPCs para incremento atómico (sin race conditions)
+-- RPCs de incremento atómico (evitan race conditions)
 -- ────────────────────────────────────────────
 
--- Simulador
 CREATE OR REPLACE FUNCTION increment_simulador(user_id uuid)
 RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
   UPDATE users_profile
@@ -22,7 +21,6 @@ RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
   WHERE id = user_id;
 $$;
 
--- Comparador
 CREATE OR REPLACE FUNCTION increment_comparador(user_id uuid)
 RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
   UPDATE users_profile
@@ -30,7 +28,6 @@ RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
   WHERE id = user_id;
 $$;
 
--- Nomenclador
 CREATE OR REPLACE FUNCTION increment_nomenclador(user_id uuid)
 RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
   UPDATE users_profile
@@ -38,7 +35,6 @@ RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
   WHERE id = user_id;
 $$;
 
--- Operaciones
 CREATE OR REPLACE FUNCTION increment_operaciones(user_id uuid)
 RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
   UPDATE users_profile
@@ -47,24 +43,17 @@ RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
 $$;
 
 -- ────────────────────────────────────────────
--- Nota: los RPCs increment_queries e increment_calcs
--- ya deben existir. Si no, crearlos:
+-- Si los RPCs increment_queries e increment_calcs no existen, crearlos:
 --
 -- CREATE OR REPLACE FUNCTION increment_queries(user_id uuid)
 -- RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
---   UPDATE users_profile
---   SET queries_this_month = queries_this_month + 1
---   WHERE id = user_id;
+--   UPDATE users_profile SET queries_this_month = queries_this_month + 1 WHERE id = user_id;
 -- $$;
 --
 -- CREATE OR REPLACE FUNCTION increment_calcs(user_id uuid)
 -- RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
---   UPDATE users_profile
---   SET calcs_this_month = calcs_this_month + 1
---   WHERE id = user_id;
+--   UPDATE users_profile SET calcs_this_month = calcs_this_month + 1 WHERE id = user_id;
 -- $$;
 -- ────────────────────────────────────────────
 
--- Reset mensual: extender la función de reset on-the-fly
--- (Los routes ya manejan el reset via queries_reset_date.
---  Agregar las nuevas columnas al reset en /api/consulta y lib/calc-limit.js)
+-- Nota: el reset mensual lo manejan los routes via queries_reset_date (on-the-fly).
