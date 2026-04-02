@@ -1,8 +1,9 @@
 'use client'
 
 // Medio de pago - operaciones
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { getMedioPago } from '@/lib/data/medios-pago'
 import styles from './detalle.module.css'
 
@@ -97,6 +98,58 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
   const [notasTemp, setNotasTemp] = useState(op.notes ?? '')
   const [guardandoNotas, setGuardandoNotas] = useState(false)
   const [exportandoPDF, setExportandoPDF] = useState(false)
+  const [restricciones, setRestricciones] = useState([])
+  const [productosPermitidos, setProductosPermitidos] = useState([])
+  const [productosProhibidos, setProductosProhibidos] = useState([])
+  const [organismos, setOrganismos] = useState([])
+
+  const regimen = op.regimen || 'general'
+
+  useEffect(() => {
+    const supabase = createClient()
+    const regimenQuery = regimen.startsWith('courier_') ? [regimen, 'courier'] : [regimen]
+    const esCourier = regimen.startsWith('courier_') || regimen === 'courier'
+    const ncm = op.ncm_code
+
+    const fetches = [
+      // Restricciones
+      regimen !== 'general'
+        ? supabase.from('restricciones_regimenes').select('*').in('regimen', regimenQuery)
+        : Promise.resolve({ data: [] }),
+      // Organismos intervinientes
+      ncm
+        ? supabase
+            .from('regimen_intervenciones')
+            .select('*')
+            .eq('operacion', op.operation_type)
+            .in('regimen', regimenQuery)
+        : Promise.resolve({ data: [] }),
+    ]
+
+    if (esCourier) {
+      fetches.push(
+        supabase.from('productos_regimen').select('*').in('regimen', regimenQuery).eq('tipo', 'permitido'),
+        supabase.from('productos_regimen').select('*').in('regimen', regimenQuery).eq('tipo', 'prohibido'),
+      )
+    }
+
+    Promise.all(fetches).then(([resR, resI, resP, resPr]) => {
+      // Filtrar organismos por NCM si corresponde
+      const orgs = (resI?.data ?? []).filter(org => {
+        if (!org.ncm_patron || org.ncm_patron === 'nan' || org.ncm_patron === 'todos' || org.ncm_patron === 'null') return true
+        if (!ncm) return true
+        const capitulo = ncm.replace(/\D/g, '').slice(0, 2)
+        const patrones = org.ncm_patron.split(',').map(p => p.trim().replace('%', '').replace('.', ''))
+        return patrones.some(p => capitulo.startsWith(p.slice(0, 2)))
+      })
+      setRestricciones(resR?.data ?? [])
+      setOrganismos(orgs)
+      setProductosPermitidos(resP?.data ?? [])
+      setProductosProhibidos(resPr?.data ?? [])
+    }).catch(() => {
+      // Error silencioso
+    })
+  }, [op.id])
 
   const pais = paises.find(p => p.iso3 === op.counterpart_country)
 
@@ -522,6 +575,59 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
             )}
           </div>
 
+          {/* Régimen */}
+          {regimen !== 'general' && (
+            <div className={styles.card}>
+              <h3 className={styles.cardTitulo}>Régimen aduanero</h3>
+              <p className="font-body text-sm text-on-surface capitalize">{regimen.replace(/_/g, ' ')}</p>
+            </div>
+          )}
+
+          {/* Restricciones del régimen */}
+          {restricciones.length > 0 && (
+            <div className={styles.card}>
+              <h3 className={styles.cardTitulo}>Restricciones del régimen</h3>
+              <ul className="space-y-2">
+                {restricciones.map((r, i) => (
+                  <li key={i} className="font-body text-xs text-on-surface-variant">
+                    <span className="text-amber-400/70">•</span>{' '}
+                    <span className="font-medium text-on-surface">{r.restriccion}</span>
+                    {r.valor && <span className="text-on-surface-variant">: {r.valor}</span>}
+                    {r.notas && r.notas !== 'nan' && r.notas !== 'null' && (
+                      <span className="text-on-surface-variant/60"> — {r.notas}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Productos permitidos/prohibidos (solo courier) */}
+          {productosPermitidos.length > 0 && (
+            <div className={styles.card}>
+              <h3 className={styles.cardTitulo} style={{ color: 'rgb(52 211 153)' }}>Productos permitidos</h3>
+              <p className="font-body text-xs text-on-surface-variant">
+                {productosPermitidos.map(p => p.producto).join(', ')}
+              </p>
+            </div>
+          )}
+
+          {productosProhibidos.length > 0 && (
+            <div className={styles.card}>
+              <h3 className={styles.cardTitulo} style={{ color: 'rgb(248 113 113)' }}>Productos NO permitidos</h3>
+              <ul className="space-y-1.5">
+                {productosProhibidos.map((p, i) => (
+                  <li key={i} className="font-body text-xs text-on-surface-variant">
+                    <span className="text-red-400/70">•</span>{' '}
+                    <span className="font-medium text-on-surface">{p.producto}</span>
+                    {p.motivo && p.motivo !== 'nan' && <span> — {p.motivo}</span>}
+                    {p.organismo && p.organismo !== 'nan' && <span className="text-on-surface-variant/60"> ({p.organismo})</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Creación */}
           <p className={styles.metaDatos}>
             Operación creada el {formatFecha(op.created_at, true)}
@@ -531,7 +637,14 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
         {/* ════ COLUMNA DERECHA — Checklist ════ */}
         <div className={`${styles.colDer} ${tabMobile !== 'docs' ? styles.hideMobile : ''}`}>
           <div className={styles.card}>
-            <h3 className={styles.cardTitulo}>Checklist de documentos</h3>
+            <div className={styles.cardTituloRow}>
+              <h3 className={styles.cardTitulo}>Checklist de documentos</h3>
+              {docsTotal > 0 && (
+                <span className="font-mono text-xs text-on-surface-variant">
+                  {docsCompletos}/{docsTotal}
+                </span>
+              )}
+            </div>
 
             {documentos.length === 0 ? (
               <p className={styles.sinDatos}>
@@ -547,7 +660,7 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
                   docs.length > 0 ? (
                     <div key={cat} className={styles.docsGrupo}>
                       <div className={`${styles.docsGrupoHeader} ${color}`}>
-                        <span>{cat === 'critico' ? '🔴' : cat === 'importante' ? '🟡' : '🟢'} {label}</span>
+                        <span>{label}</span>
                         <span className={styles.docsGrupoCount}>
                           {docs.filter(d => d.is_completed).length}/{docs.length}
                         </span>
@@ -564,6 +677,52 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
                   ) : null
                 )}
               </>
+            )}
+          </div>
+
+          {/* Organismos que intervienen */}
+          <div className={styles.card}>
+            <h3 className={styles.cardTitulo}>Organismos que intervienen</h3>
+            {organismos.length === 0 ? (
+              <p className={styles.sinDatos}>
+                No se identificaron organismos con intervención obligatoria para este producto y régimen.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {organismos.map((org, i) => {
+                  const esObligatorio = org.estado === 'obligatorio'
+                  const esCondicional = org.estado === 'condicional'
+                  const esExento = org.estado === 'exento'
+                  const borderColor = esObligatorio
+                    ? 'border-red-400/50'
+                    : esCondicional
+                    ? 'border-amber-400/50'
+                    : 'border-emerald-400/50'
+                  const textEstado = esObligatorio
+                    ? 'text-red-400'
+                    : esCondicional
+                    ? 'text-amber-400'
+                    : 'text-emerald-400'
+                  return (
+                    <div key={i} className={`pl-3 border-l-2 ${borderColor}`}>
+                      <div className="flex items-center justify-between">
+                        <span className="font-body text-sm font-medium text-on-surface">{org.organismo}</span>
+                        <span className={`font-mono text-[10px] uppercase tracking-wider ${textEstado}`}>
+                          {org.estado}
+                        </span>
+                      </div>
+                      {esExento && (
+                        <p className="font-body text-xs text-emerald-400 mt-0.5">
+                          No requiere intervención en este régimen
+                        </p>
+                      )}
+                      {org.notas && org.notas !== 'nan' && org.notas !== 'null' && (
+                        <p className="font-body text-xs text-on-surface-variant mt-0.5">{org.notas}</p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             )}
           </div>
         </div>
