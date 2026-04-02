@@ -13,7 +13,7 @@
 }
 
 .titulo {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -420,7 +420,7 @@
 }
 
 .cardValor {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 1rem;
   font-weight: 700;
   color: var(--text);
@@ -499,7 +499,7 @@
 }
 
 .modalTitulo {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--text);
@@ -615,7 +615,7 @@
 }
 
 .desgloseTotalFinal td {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--text) !important;

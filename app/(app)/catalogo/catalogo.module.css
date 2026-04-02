@@ -18,7 +18,7 @@
 }
 
 .titulo {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.025em;
@@ -328,7 +328,7 @@
 }
 
 .vacioTitulo {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-dim);
@@ -387,7 +387,7 @@
 }
 
 .modalTitulo {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: -0.02em;
