@@ -111,67 +111,56 @@ export async function POST(request) {
     console.error('[operaciones] registrarUso exception:', regErr?.message)
   }
 
-  // Generar checklist automático (no bloquea la respuesta)
+  // Generar checklist automático (espera hasta 5s, no bloquea si falla)
   if (data.ncm_code && data.operation_type) {
-    const operacionId = data.id
-    const normalizado = normalizarCodigoNCM(data.ncm_code)
-    const ncm = normalizado?.codigoNCM ?? data.ncm_code
-    const regimen = body.regimen || 'general'
-    const tipoOp = data.operation_type
+    try {
+      const operacionId = data.id
+      const normalizado = normalizarCodigoNCM(data.ncm_code)
+      const ncm = normalizado?.codigoNCM ?? data.ncm_code
+      const regimen = body.regimen || 'general'
+      const tipoOp = data.operation_type
 
-    ;(async () => {
-      try {
-        console.log('[operaciones] generando checklist para', operacionId, 'ncm:', ncm, 'tipo:', tipoOp, 'regimen:', regimen)
-        const svc = getServiceClient()
-        const [docRes, intRes] = await Promise.all([
-          svc.rpc('documentos_por_operacion', {
-            p_tipo: tipoOp,
-            p_regimen: regimen,
-            p_ncm: ncm,
-          }),
-          svc.rpc('intervenciones_por_operacion', {
-            p_operacion: tipoOp,
-            p_regimen: regimen,
-            p_ncm: ncm,
-          }),
-        ])
+      console.log('[checklist] ncm normalizado:', ncm, 'tipo:', tipoOp, 'regimen:', regimen)
+      const svc = getServiceClient()
 
-        console.log('[operaciones] docRes:', docRes.error?.message ?? `${docRes.data?.length ?? 0} docs`, '| intRes:', intRes.error?.message ?? `${intRes.data?.length ?? 0} orgs`)
-        const rows = []
+      const [docRes, intRes] = await Promise.all([
+        svc.rpc('documentos_por_operacion', { p_tipo: tipoOp, p_regimen: regimen, p_ncm: ncm }),
+        svc.rpc('intervenciones_por_operacion', { p_operacion: tipoOp, p_regimen: regimen, p_ncm: ncm }),
+      ])
 
-        for (const doc of docRes.data ?? []) {
-          rows.push({
-            operation_id:      operacionId,
-            document_name:     doc.documento_nombre,
-            document_category: doc.documento_categoria,
-            sort_order:        doc.sort_order ?? 0,
-            is_completed:      false,
-          })
-        }
+      console.log('[checklist] docs:', docRes.error?.message ?? docRes.data?.length, '| orgs:', intRes.error?.message ?? intRes.data?.length)
 
-        for (const org of intRes.data ?? []) {
-          rows.push({
-            operation_id:      operacionId,
-            document_name:     `[Organismo] ${org.organismo}`,
-            document_category: org.estado === 'obligatorio' ? 'critico' : 'opcional',
-            sort_order:        100,
-            is_completed:      false,
-            notes:             org.notas || null,
-          })
-        }
-
-        if (rows.length > 0) {
-          const { error: checklistErr } = await svc
-            .from('operation_documents')
-            .insert(rows)
-          if (checklistErr) {
-            console.error('[operaciones] checklist insert error:', checklistErr.message)
-          }
-        }
-      } catch (chkErr) {
-        console.error('[operaciones] checklist generation error:', chkErr?.message)
+      const rows = []
+      for (const doc of docRes.data ?? []) {
+        rows.push({
+          operation_id:      operacionId,
+          document_name:     doc.documento_nombre,
+          document_category: doc.documento_categoria,
+          sort_order:        doc.sort_order ?? 0,
+          is_completed:      false,
+        })
       }
-    })()
+      for (const org of intRes.data ?? []) {
+        rows.push({
+          operation_id:      operacionId,
+          document_name:     `[Organismo] ${org.organismo}`,
+          document_category: org.estado === 'obligatorio' ? 'critico' : 'opcional',
+          sort_order:        100,
+          is_completed:      false,
+          notes:             org.notas || null,
+        })
+      }
+
+      if (rows.length > 0) {
+        const { error: insertErr } = await svc.from('operation_documents').insert(rows)
+        if (insertErr) console.error('[checklist] insert error:', insertErr.message)
+        else console.log('[checklist] insertados', rows.length, 'items')
+      } else {
+        console.log('[checklist] sin rows para insertar')
+      }
+    } catch (chkErr) {
+      console.error('[checklist] excepcion:', chkErr?.message)
+    }
   }
 
   return NextResponse.json({ operacion: data }, { status: 201 })
