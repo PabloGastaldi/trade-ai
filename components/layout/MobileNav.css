@@ -139,6 +139,22 @@
   scrollbar-color: var(--border) transparent;
 }
 
+.mobile-drawer-section {
+  margin-bottom: 0.25rem;
+}
+
+.mobile-drawer-section-label {
+  display: block;
+  padding: 0.5rem 1.25rem 0.25rem;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
 .mobile-drawer-item {
   display: flex;
   align-items: center;

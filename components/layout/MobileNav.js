@@ -12,18 +12,37 @@ import './MobileNav.css'
 
 const MOBILE_BREAKPOINT = 768
 
-const DRAWER_ITEMS = [
-  { label: 'Simulador',   Icon: FileSearch,    href: '/simulador' },
-  { label: 'Chat',        Icon: MessageSquare,  href: '/consulta' },
-  { label: 'Calculadora', Icon: Calculator,    href: '/calculadora' },
-  { label: 'Operaciones', Icon: Ship,          href: '/operaciones' },
-  { label: 'Catálogo',    Icon: Package,       href: '/catalogo' },
-  { label: 'Comparador',  Icon: Globe,        href: '/comparador' },
-  { label: 'Mercados',    Icon: BarChart3,    href: '/mercados' },
-  { label: 'Historial',   Icon: Clock,        href: '/historial' },
-  { label: 'Mi cuenta',   Icon: User,         href: '/cuenta' },
-  { label: 'Planes',      Icon: Star,         href: '/planes' },
-  { label: 'Nomenclador', Icon: BookOpen,     href: '/nomenclador' },
+const DRAWER_SECTIONS = [
+  {
+    items: [
+      { label: 'Simulador', Icon: FileSearch,    href: '/simulador' },
+      { label: 'Chat IA',   Icon: MessageSquare, href: '/consulta' },
+      { label: 'Historial', Icon: Clock,         href: '/historial' },
+    ],
+  },
+  {
+    label: 'Herramientas',
+    items: [
+      { label: 'Calculadora', Icon: Calculator, href: '/calculadora' },
+      { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
+      { label: 'Mercados',    Icon: BarChart3,  href: '/mercados' },
+      { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador' },
+    ],
+  },
+  {
+    label: 'Mi negocio',
+    items: [
+      { label: 'Catálogo',    Icon: Package, href: '/catalogo' },
+      { label: 'Operaciones', Icon: Ship,    href: '/operaciones' },
+    ],
+  },
+  {
+    label: 'Cuenta',
+    items: [
+      { label: 'Mi cuenta', Icon: User, href: '/cuenta' },
+      { label: 'Planes',    Icon: Star, href: '/planes' },
+    ],
+  },
 ]
 
 export default function MobileNav() {
@@ -82,23 +101,30 @@ function MobileShell() {
 
       <div className={`mobile-drawer ${drawerOpen ? 'mobile-drawer--open' : ''}`}>
         <div className="mobile-drawer-items">
-          {DRAWER_ITEMS.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`mobile-drawer-item ${isActive ? 'mobile-drawer-item--active' : ''} ${item.soon ? 'mobile-drawer-item--soon' : ''}`}
-                onClick={() => !item.soon && setDrawerOpen(false)}
-              >
-                <span className="mobile-drawer-item-icon">
-                  <item.Icon size={18} strokeWidth={1.5} />
-                </span>
-                <span className="mobile-drawer-item-label">{item.label}</span>
-                {item.soon && <span className="mobile-soon-badge">Pronto</span>}
-              </Link>
-            )
-          })}
+          {DRAWER_SECTIONS.map((section, si) => (
+            <div key={si} className="mobile-drawer-section">
+              {section.label && (
+                <span className="mobile-drawer-section-label">{section.label}</span>
+              )}
+              {section.items.map((item) => {
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`mobile-drawer-item ${isActive ? 'mobile-drawer-item--active' : ''} ${item.soon ? 'mobile-drawer-item--soon' : ''}`}
+                    onClick={() => !item.soon && setDrawerOpen(false)}
+                  >
+                    <span className="mobile-drawer-item-icon">
+                      <item.Icon size={18} strokeWidth={1.5} />
+                    </span>
+                    <span className="mobile-drawer-item-label">{item.label}</span>
+                    {item.soon && <span className="mobile-soon-badge">Pronto</span>}
+                  </Link>
+                )
+              })}
+            </div>
+          ))}
         </div>
 
         <Link href="/login" className="mobile-drawer-item" onClick={() => setDrawerOpen(false)}>
