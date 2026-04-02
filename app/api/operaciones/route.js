@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
+import { normalizarCodigoNCM } from '@/lib/ncm-lookup'
 
 function getServiceClient() {
   return createServiceClient(
@@ -113,7 +114,8 @@ export async function POST(request) {
   // Generar checklist automático (no bloquea la respuesta)
   if (data.ncm_code && data.operation_type) {
     const operacionId = data.id
-    const ncm = data.ncm_code
+    const normalizado = normalizarCodigoNCM(data.ncm_code)
+    const ncm = normalizado?.codigoNCM ?? data.ncm_code
     const regimen = body.regimen || 'general'
     const tipoOp = data.operation_type
 
