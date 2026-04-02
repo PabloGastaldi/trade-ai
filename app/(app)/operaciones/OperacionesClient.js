@@ -16,6 +16,7 @@ import PageLayout from '@/components/ui/PageLayout'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import { MEDIOS_PAGO_OPTIONS, getMedioPago } from '@/lib/data/medios-pago'
+import { Trash2 } from 'lucide-react'
 
 const ESTADOS_EXPO = [
   { key: 'expo_preparacion',    label: 'Preparación' },
@@ -280,6 +281,17 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
     }
   }
 
+  async function handleEliminar(op, e) {
+    e.stopPropagation()
+    if (!confirm(`¿Eliminar la operación "${op.product_description || op.ncm_code || 'sin nombre'}"? Esta acción no se puede deshacer.`)) return
+    setOperaciones(prev => prev.filter(o => o.id !== op.id))
+    const res = await fetch(`/api/operaciones/${op.id}`, { method: 'DELETE' })
+    if (!res.ok) {
+      setOperaciones(prev => [op, ...prev])
+      alert('Error al eliminar la operación')
+    }
+  }
+
   async function handleDragEnd({ active, over }) {
     setActiveDragId(null)
     if (!over || active.id === over.id) return
@@ -382,7 +394,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
           <p className="font-body text-sm text-on-surface-variant">No hay operaciones que coincidan con los filtros.</p>
         </div>
       ) : vista === 'lista' ? (
-        <VistaLista operaciones={opsFiltradas} paises={paises} onRowClick={op => router.push(`/operaciones/${op.id}`)} />
+        <VistaLista operaciones={opsFiltradas} paises={paises} onRowClick={op => router.push(`/operaciones/${op.id}`)} onEliminar={handleEliminar} />
       ) : (
         <DndContext sensors={sensors} onDragStart={({ active }) => setActiveDragId(active.id)} onDragEnd={handleDragEnd} onDragCancel={() => setActiveDragId(null)}>
           <VistaKanban operaciones={opsFiltradas} filtroTipo={filtroTipo} paises={paises} onCardClick={op => router.push(`/operaciones/${op.id}`)} />
@@ -404,19 +416,19 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
   )
 }
 
-function VistaLista({ operaciones, paises, onRowClick }) {
+function VistaLista({ operaciones, paises, onRowClick, onEliminar }) {
   return (
     <div className="rounded-xl border border-white/[0.04] overflow-hidden">
       <table className="w-full">
         <thead>
           <tr className="bg-surface-high">
-            {['ESTADO','TIPO','PRODUCTO','DESTINO/ORIGEN','VALOR','DOCS','FECHA'].map(h => (
+            {['ESTADO','TIPO','PRODUCTO','DESTINO/ORIGEN','VALOR','DOCS','FECHA',''].map(h => (
               <th key={h} className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-medium">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {operaciones.map((op, i) => {
+          {operaciones.map((op) => {
             const pais = paises.find(p => p.iso3 === op.counterpart_country)
             const badge = BADGE_ESTADO[op.status] ?? { variant: 'neutral', label: op.status }
             return (
@@ -448,6 +460,15 @@ function VistaLista({ operaciones, paises, onRowClick }) {
                 </td>
                 <td className="px-4 py-3">
                   <span className="font-body text-xs text-on-surface-variant">{fmtFecha(op.estimated_ship_date)}</span>
+                </td>
+                <td className="px-4 py-3">
+                  <button
+                    onClick={(e) => onEliminar(op, e)}
+                    className="p-1.5 rounded-lg text-on-surface-variant/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                    title="Eliminar operación"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </td>
               </tr>
             )

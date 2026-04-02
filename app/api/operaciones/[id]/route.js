@@ -94,3 +94,40 @@ export async function PATCH(request, { params }) {
 
   return NextResponse.json({ error: 'Nada que actualizar' }, { status: 400 })
 }
+
+// DELETE /api/operaciones/[id]
+export async function DELETE(request, { params }) {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+  }
+
+  const { id } = await params
+
+  const { data: op, error: opError } = await supabase
+    .from('operations')
+    .select('id, user_id')
+    .eq('id', id)
+    .single()
+
+  if (opError || !op) {
+    return NextResponse.json({ error: 'Operación no encontrada' }, { status: 404 })
+  }
+  if (op.user_id !== user.id) {
+    return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
+  }
+
+  const { error } = await supabase
+    .from('operations')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('[operaciones] Error al eliminar:', error.message)
+    return NextResponse.json({ error: 'Error al eliminar la operación' }, { status: 500 })
+  }
+
+  return NextResponse.json({ ok: true })
+}
