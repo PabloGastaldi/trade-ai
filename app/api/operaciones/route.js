@@ -147,7 +147,6 @@ export async function POST(request) {
           document_category: org.estado === 'obligatorio' ? 'critico' : 'opcional',
           sort_order:        100,
           is_completed:      false,
-          notes:             org.notas || null,
         })
       }
 
