@@ -7,6 +7,14 @@ import PageLayout from '@/components/ui/PageLayout'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import {
+  limpiarDescripcion,
+  esValorVacio,
+  agruparAcuerdos,
+  traducirNTM,
+  resolverNombrePais,
+  traducirNombrePais,
+} from '@/lib/utils/formato-datos'
 
 const CHIP_BUSQUEDAS = [
   { label: '0902 — Té', query: '0902' },
@@ -29,6 +37,18 @@ const PRESENTACIONES = [
   { value: 'sin_presentacion', label: 'Sin presentación específica' },
 ]
 
+// Labels descriptivos para aranceles de importación
+const LABEL_ARANCEL_IMPO = {
+  aec: { corto: 'AEC', largo: 'Arancel Externo Común' },
+  die: { corto: 'DIE', largo: 'Der. Importación Extrazona' },
+  dii: { corto: 'DII', largo: 'Der. Importación Intrazona' },
+  te:  { corto: 'TE',  largo: 'Tasa de Estadística' },
+  iva: { corto: 'IVA', largo: 'IVA' },
+  iva_ad: { corto: 'IVA Ad.', largo: 'IVA Adicional' },
+  gan: { corto: 'Gan.', largo: 'Perc. Ganancias' },
+  iibb: { corto: 'IIBB', largo: 'Perc. Ing. Brutos' },
+}
+
 function formatearNCM(codigo) {
   if (!codigo || codigo.length !== 11) return codigo ?? ''
   return `${codigo.slice(0,4)}.${codigo.slice(4,6)}.${codigo.slice(6,8)}.${codigo.slice(8)}`
@@ -38,19 +58,20 @@ function normalizarNCM(input) {
   return input.replace(/[.\s]/g, '').replace(/\D/g, '')
 }
 
-function InfoCelda({ label, value, highlight }) {
-  return (
-    <div className="bg-white/[0.02] rounded-xl p-4">
-      <p className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">{label}</p>
-      <p className={`font-mono text-lg text-on-surface mt-1 ${highlight ?? ''}`}>{value}</p>
-    </div>
-  )
-}
-
 function arancelColor(rate) {
   if (rate === 0 || rate == null) return 'text-emerald-400'
   if (rate > 15) return 'text-primary'
   return 'text-on-surface'
+}
+
+function InfoCelda({ labelCorto, labelLargo, value, highlight }) {
+  return (
+    <div className="bg-white/[0.02] rounded-xl p-4">
+      <p className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">{labelCorto}</p>
+      <p className="font-body text-[11px] text-on-surface-variant/70 mt-0.5">{labelLargo}</p>
+      <p className={`font-mono text-lg text-on-surface mt-1 ${highlight ?? ''}`}>{value}</p>
+    </div>
+  )
 }
 
 function PanelDetalle({ ncm, onClose }) {
@@ -64,10 +85,12 @@ function PanelDetalle({ ncm, onClose }) {
   const [intervenciones, setIntervenciones] = useState({ importacion: [], exportacion: [] })
   const [restricciones, setRestricciones] = useState([])
   const [ntmGlobal, setNtmGlobal] = useState({ paisesCount: 0, tiposFreq: [] })
+  const [acuerdosExpandidos, setAcuerdosExpandidos] = useState(false)
 
   useEffect(() => {
     if (!ncm) return
     setLoading(true)
+    setAcuerdosExpandidos(false)
     const supabase = createClient()
     const hs6 = ncm.codigo_ncm.substring(0, 6)
     const ncm11 = ncm.codigo_ncm.replace(/\./g, '')
@@ -83,7 +106,7 @@ function PanelDetalle({ ncm, onClose }) {
         fetch(`/api/nomenclador/aranceles?ncm=${encodeURIComponent(ncm.codigo_ncm)}`).then(r => r.json()),
         fetch(`/api/nomenclador/preferencias?ncm=${encodeURIComponent(ncm.codigo_ncm)}`).then(r => r.json()),
         supabase.from('ntm_measures').select('reporter, ntm_code, ntm_non_h').eq('hs_code', hs6).limit(100),
-        supabase.from('destination_tariffs').select('reporting_country, ave_rate, year').eq('hs_code', hs6).order('ave_rate', { ascending: false }).limit(10),
+        supabase.from('destination_tariffs').select('reporting_country, ave_rate, year').eq('hs_code', hs6).order('ave_rate', { ascending: true }).limit(30),
         supabase.rpc('documentos_por_operacion', { p_tipo: 'importacion', p_regimen: 'general', p_ncm: ncm11 }),
         supabase.rpc('documentos_por_operacion', { p_tipo: 'exportacion', p_regimen: 'general', p_ncm: ncm11 }),
         supabase.rpc('intervenciones_por_operacion', { p_operacion: 'importacion', p_regimen: 'general', p_ncm: ncm11 }),
@@ -93,15 +116,23 @@ function PanelDetalle({ ncm, onClose }) {
       ])
 
       setAranceles(arancRes.error ? null : arancRes)
+
       const prefs = prefRes.error ? [] : [
         ...(prefRes.preferencias_especificas ?? []),
         ...(prefRes.acuerdos_cobertura_total ?? []).map(a => ({
           acuerdo: a.acuerdo, pais: a.pais, porcentaje: 100, tipo: a.tipo, esCoberturaTotal: true,
         })),
       ]
-      setPreferencias(prefs)
+      setPreferencias(agruparAcuerdos(prefs))
+
       setNtm(ntmRes.data ?? [])
-      setTariffDest(tariffRes.data ?? [])
+
+      // Filtrar y ordenar aranceles en destino
+      const tariffs = (tariffRes.data ?? [])
+        .filter(t => t.ave_rate != null && t.ave_rate <= 200)
+        .sort((a, b) => a.ave_rate - b.ave_rate)
+      setTariffDest(tariffs)
+
       setDocumentos({
         importacion: docsImpoRes.data ?? [],
         exportacion: docsExpoRes.data ?? [],
@@ -112,7 +143,6 @@ function PanelDetalle({ ncm, onClose }) {
       })
       setRestricciones(restRes.data ?? [])
 
-      // NTM global: países que aplican barreras a productos argentinos
       const affRows = ntmAffectingRes.data ?? []
       const paisesUnicos = new Set(affRows.map(r => r.pais_que_aplica).filter(Boolean))
       const tiposCount = {}
@@ -131,18 +161,21 @@ function PanelDetalle({ ncm, onClose }) {
   const ai = aranceles?.importacion ?? {}
   const ae = aranceles?.exportacion ?? {}
 
+  // Agrupar NTM por país, resolviendo nombre
   const ntmPorPais = {}
   ntm.forEach(m => {
-    if (!ntmPorPais[m.reporter]) ntmPorPais[m.reporter] = []
-    if (m.ntm_code) ntmPorPais[m.reporter].push(m.ntm_code)
+    const nombrePais = resolverNombrePais(m.reporter) || m.reporter
+    if (!ntmPorPais[nombrePais]) ntmPorPais[nombrePais] = new Set()
+    if (m.ntm_code) ntmPorPais[nombrePais].add(m.ntm_code[0]) // agrupar por categoría principal
   })
-  const ntmTop = Object.entries(ntmPorPais).sort((a, b) => b[1].length - a[1].length).slice(0, 5)
+  const ntmTop = Object.entries(ntmPorPais)
+    .map(([pais, codsSet]) => [pais, Array.from(codsSet)])
+    .sort((a, b) => b[1].length - a[1].length)
+    .slice(0, 5)
 
-  function mapNtmCode(code) {
-    if (!code) return null
-    const map = { A: 'SPS', B: 'TBT', C: 'INS', E: 'LIC', P: 'EXP' }
-    return map[code.charAt(0)] ?? code.substring(0, 3)
-  }
+  const ACUERDOS_VISIBLE = 10
+  const acuerdosVisibles = acuerdosExpandidos ? preferencias : preferencias.slice(0, ACUERDOS_VISIBLE)
+  const hayMasAcuerdos = preferencias.length > ACUERDOS_VISIBLE
 
   return (
     <>
@@ -153,66 +186,95 @@ function PanelDetalle({ ncm, onClose }) {
             <svg className="w-4 h-4 text-on-surface-variant" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
           </button>
           <p className="font-mono text-2xl text-primary tracking-wide">{formatearNCM(ncm.codigo_ncm)}</p>
-          <p className="font-body text-base text-on-surface mt-2 leading-relaxed">{ncm.descripcion}</p>
+          <p className="font-body text-base text-on-surface mt-2 leading-relaxed">{limpiarDescripcion(ncm.descripcion)}</p>
           {ncm.seccion && <p className="font-body text-xs text-on-surface-variant mt-1">{ncm.seccion}{ncm.capitulo ? ` — Capítulo ${ncm.capitulo}` : ''}</p>}
+
+          {/* ── Aranceles de importación ── */}
           <div className="h-px bg-white/[0.04] my-6" />
           <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Aranceles de importación</p>
           {loading ? (
-            <div className="grid grid-cols-2 gap-3">{[0,1,2,3,4,5].map(i => <div key={i} className="h-16 bg-white/[0.03] rounded-xl animate-pulse" />)}</div>
+            <div className="grid grid-cols-2 gap-3">{[0,1,2,3,4,5].map(i => <div key={i} className="h-20 bg-white/[0.03] rounded-xl animate-pulse" />)}</div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
-              <InfoCelda label="AEC (Extrazona)" value={ai.aec != null ? `${ai.aec}%` : '—'} />
-              <InfoCelda label="DIE (Extrazona)" value={ai.die != null ? `${ai.die}%` : '—'} />
-              <InfoCelda label="DII (Intrazona)" value={ai.dii != null ? `${ai.dii}%` : '—'} />
-              <InfoCelda label="Tasa Estadística" value={ai.te != null ? `${ai.te}%` : '—'} />
-              <InfoCelda label="IVA" value={ai.iva != null ? `${ai.iva}%` : '—'} />
-              <InfoCelda label="IVA Adicional" value={ai.iva_ad != null ? `${ai.iva_ad}%` : '—'} />
-              <InfoCelda label="Ganancias" value={ai.gan != null ? `${ai.gan}%` : '—'} />
-              <InfoCelda label="Ing. Brutos" value={ai.iibb != null ? `${ai.iibb}%` : '—'} />
+              {Object.entries(LABEL_ARANCEL_IMPO).map(([campo, { corto, largo }]) => (
+                <InfoCelda key={campo} labelCorto={corto} labelLargo={largo} value={ai[campo] != null ? `${ai[campo]}%` : '—'} />
+              ))}
             </div>
           )}
+
+          {/* ── Aranceles de exportación ── */}
           <div className="h-px bg-white/[0.04] my-6" />
           <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Aranceles de exportación</p>
           {loading ? (
-            <div className="grid grid-cols-2 gap-3">{[0,1].map(i => <div key={i} className="h-16 bg-white/[0.03] rounded-xl animate-pulse" />)}</div>
+            <div className="grid grid-cols-2 gap-3">{[0,1].map(i => <div key={i} className="h-20 bg-white/[0.03] rounded-xl animate-pulse" />)}</div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
-              <InfoCelda label="D. Exportación" value={ae.derecho_exportacion != null ? `${ae.derecho_exportacion}%` : '—'} />
-              <InfoCelda label="Reintegro" value={ae.reintegro != null ? `${ae.reintegro}%` : '—'} highlight={ae.reintegro > 0 ? 'text-emerald-400' : ''} />
+              <InfoCelda labelCorto="DE" labelLargo="Derecho de Exportación" value={ae.derecho_exportacion != null ? `${ae.derecho_exportacion}%` : '—'} />
+              <InfoCelda labelCorto="Reintegro" labelLargo="Reintegro" value={ae.reintegro != null ? `${ae.reintegro}%` : '—'} highlight={ae.reintegro > 0 ? 'text-emerald-400' : ''} />
             </div>
           )}
+
+          {/* ── Acuerdos con preferencia ── */}
           <div className="h-px bg-white/[0.04] my-6" />
           <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Acuerdos con preferencia</p>
           {loading ? (
             <div className="space-y-2">{[0,1,2].map(i => <div key={i} className="h-10 bg-white/[0.03] rounded-xl animate-pulse" />)}</div>
           ) : preferencias.length > 0 ? (
             <div className="space-y-2">
-              {preferencias.slice(0, 10).map((p, i) => (
-                <div key={i} className="flex justify-between items-center py-2 px-3 bg-white/[0.02] rounded-xl">
-                  <div><p className="font-body text-sm text-on-surface">{p.acuerdo ?? 'Acuerdo'}</p><p className="font-body text-[10px] text-on-surface-variant/60">{p.pais}{p.bloque ? ` · ${p.bloque}` : ''}{p.esCoberturaTotal ? ' · Libre comercio' : ''}</p></div>
-                  <span className={`font-mono text-sm ${p.porcentaje === 100 || p.esCoberturaTotal ? 'text-emerald-400' : 'text-primary'}`}>{p.esCoberturaTotal ? 'TLC' : `${p.porcentaje ?? 0}% pref.`}</span>
+              <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-3 px-3 py-1">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">País</span>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">Acuerdo</span>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">Bloque</span>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50 text-right">Preferencia</span>
+              </div>
+              {acuerdosVisibles.map((p, i) => (
+                <div key={i} className="grid grid-cols-[1fr_auto_auto_auto] gap-x-3 items-center py-2 px-3 bg-white/[0.02] rounded-xl">
+                  <p className="font-body text-sm text-on-surface truncate">{p.pais}</p>
+                  <p className="font-mono text-xs text-on-surface-variant">{p.codigo_acuerdo ?? '—'}</p>
+                  <p className="font-body text-xs text-on-surface-variant/60">{p.bloque ?? '—'}</p>
+                  <span className={`font-mono text-sm text-right ${p.porcentaje === 100 || p.esCoberturaTotal ? 'text-emerald-400' : 'text-primary'}`}>
+                    {p.esCoberturaTotal ? 'TLC' : `${p.porcentaje ?? 0}%`}
+                    {(p.porcentaje === 100 || p.esCoberturaTotal) && ' ✓'}
+                  </span>
                 </div>
               ))}
-              {preferencias.length > 10 && <p className="font-body text-[10px] text-on-surface-variant/50 text-center pt-1">+{preferencias.length - 10} más</p>}
+              {hayMasAcuerdos && (
+                <button
+                  className="w-full text-center font-body text-xs text-on-surface-variant/60 hover:text-on-surface-variant py-2 transition-colors cursor-pointer"
+                  onClick={() => setAcuerdosExpandidos(v => !v)}
+                >
+                  {acuerdosExpandidos
+                    ? 'Ver menos'
+                    : `Ver todos (${preferencias.length} acuerdos)`}
+                </button>
+              )}
             </div>
           ) : (
             <p className="font-body text-sm text-on-surface-variant/50 italic">Sin preferencias arancelarias para esta posición</p>
           )}
+
+          {/* ── Barreras no arancelarias ── */}
           <div className="h-px bg-white/[0.04] my-6" />
           <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Barreras no arancelarias por destino</p>
           {loading ? (
             <div className="space-y-2">{[0,1,2].map(i => <div key={i} className="h-12 bg-white/[0.03] rounded-xl animate-pulse" />)}</div>
           ) : ntmTop.length > 0 ? (
             <div className="space-y-2">
-              {ntmTop.map(([pais, codigos]) => {
-                const tipos = [...new Set(codigos.map(mapNtmCode).filter(Boolean))]
-                return (
-                  <div key={pais} className="flex justify-between items-center py-2 px-3 bg-white/[0.02] rounded-xl">
-                    <div><p className="font-body text-sm text-on-surface">{pais}</p><div className="flex gap-1 mt-1">{tipos.slice(0, 4).map(t => <Badge key={t} variant="accent" className="text-[9px]">{t}</Badge>)}</div></div>
-                    <span className="font-body text-[11px] text-on-surface-variant">{codigos.length} medida{codigos.length !== 1 ? 's' : ''}</span>
+              {ntmTop.map(([pais, categorias]) => (
+                <div key={pais} className="py-2 px-3 bg-white/[0.02] rounded-xl">
+                  <div className="flex justify-between items-start">
+                    <p className="font-body text-sm text-on-surface">{pais}</p>
+                    <span className="font-body text-[11px] text-on-surface-variant ml-2 shrink-0">{categorias.length} tipo{categorias.length !== 1 ? 's' : ''}</span>
                   </div>
-                )
-              })}
+                  <ul className="mt-1 space-y-0.5">
+                    {categorias.map(cat => (
+                      <li key={cat} className="font-body text-[11px] text-on-surface-variant/80">
+                        • {traducirNTM(cat)} <span className="text-on-surface-variant/40">({cat})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           ) : (
             <p className="font-body text-sm text-on-surface-variant/50 italic">Sin datos NTM para esta posición</p>
@@ -223,34 +285,48 @@ function PanelDetalle({ ncm, onClose }) {
                 {ntmGlobal.paisesCount} país{ntmGlobal.paisesCount !== 1 ? 'es' : ''} aplica{ntmGlobal.paisesCount === 1 ? '' : 'n'} barreras a exportaciones argentinas
               </p>
               {ntmGlobal.tiposFreq.length > 0 && (
-                <div className="flex flex-wrap gap-1">
+                <ul className="space-y-0.5">
                   {ntmGlobal.tiposFreq.map(t => (
-                    <span key={t} className="font-body text-[10px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-300">{t}</span>
+                    <li key={t} className="font-body text-[11px] text-amber-300">
+                      • {traducirNTM(t)} <span className="text-amber-400/50">({t})</span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
             </div>
           )}
+
+          {/* ── Aranceles en destino ── */}
           <div className="h-px bg-white/[0.04] my-6" />
           <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Aranceles en destinos</p>
           {loading ? (
             <div className="space-y-2">{[0,1,2,3].map(i => <div key={i} className="h-9 bg-white/[0.03] rounded-xl animate-pulse" />)}</div>
           ) : tariffDest.length > 0 ? (
             <div className="space-y-1">
-              <div className="flex justify-between px-3 py-2"><span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">País</span><span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">Arancel</span></div>
-              {tariffDest.map((t, i) => (
-                <div key={i} className="flex justify-between items-center px-3 py-2 hover:bg-white/[0.02] rounded-lg transition-colors">
-                  <span className="font-body text-sm text-on-surface">{t.reporting_country}</span>
-                  <span className={`font-mono text-sm ${arancelColor(t.ave_rate)}`}>{t.ave_rate != null ? `${t.ave_rate}%` : '—'}</span>
-                </div>
-              ))}
+              <div className="flex justify-between px-3 py-2">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">País</span>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50">Arancel</span>
+              </div>
+              {tariffDest.slice(0, 15).map((t, i) => {
+                const nombrePais = traducirNombrePais(t.reporting_country)
+                const esAlto = t.ave_rate > 100
+                return (
+                  <div key={i} className="flex justify-between items-center px-3 py-2 hover:bg-white/[0.02] rounded-lg transition-colors">
+                    <span className="font-body text-sm text-on-surface">{nombrePais}</span>
+                    <span className={`font-mono text-sm ${arancelColor(t.ave_rate)}`}>
+                      {t.ave_rate != null ? `${t.ave_rate}%` : '—'}
+                      {esAlto && <span className="ml-1 text-amber-400 text-[10px]">⚠</span>}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
           ) : (
             <p className="font-body text-sm text-on-surface-variant/50 italic">Aranceles de destino no disponibles</p>
           )}
-          <div className="h-px bg-white/[0.04] my-6" />
 
           {/* ── Documentos e intervenciones ── */}
+          <div className="h-px bg-white/[0.04] my-6" />
           <p className="font-body text-xs font-semibold tracking-widest text-on-surface-variant uppercase mb-3">Documentos e intervenciones</p>
           <div className="flex gap-1 mb-4">
             {['importacion', 'exportacion'].map(t => (
@@ -274,7 +350,6 @@ function PanelDetalle({ ncm, onClose }) {
               return <p className="font-body text-sm text-on-surface-variant/50 italic">Sin datos para régimen general</p>
             }
 
-            // Agrupar documentos por categoría
             const porCategoria = {}
             for (const doc of docs) {
               const cat = doc.documento_categoria ?? 'general'
@@ -300,7 +375,8 @@ function PanelDetalle({ ncm, onClose }) {
                       {items.map((doc, i) => (
                         <div key={i} className="py-1.5 px-3 bg-white/[0.02] rounded-lg">
                           <p className="font-body text-sm text-on-surface">{doc.documento_nombre}</p>
-                          {doc.notas && <p className="font-body text-[11px] text-on-surface-variant/60 mt-0.5">{doc.notas}</p>}
+                          {!esValorVacio(doc.condicion) && <p className="font-body text-[11px] text-on-surface-variant/60 mt-0.5">{doc.condicion}</p>}
+                          {!esValorVacio(doc.notas) && <p className="font-body text-[11px] text-on-surface-variant/60 mt-0.5">{doc.notas}</p>}
                         </div>
                       ))}
                     </div>
@@ -313,7 +389,7 @@ function PanelDetalle({ ncm, onClose }) {
                       {inters.filter(o => o.estado !== 'obligatorio').map((org, i) => (
                         <div key={i} className="py-1.5 px-3 bg-white/[0.02] rounded-lg flex items-center justify-between">
                           <p className="font-body text-sm text-on-surface">{org.organismo}</p>
-                          {org.notas && <p className="font-body text-[11px] text-on-surface-variant/60">{org.notas}</p>}
+                          {!esValorVacio(org.notas) && <p className="font-body text-[11px] text-on-surface-variant/60">{org.notas}</p>}
                         </div>
                       ))}
                     </div>
@@ -330,8 +406,8 @@ function PanelDetalle({ ncm, onClose }) {
               <div className="space-y-1">
                 {restricciones.map((r, i) => (
                   <div key={i} className="py-1.5 px-3 bg-white/[0.02] rounded-lg">
-                    <p className="font-body text-sm text-on-surface">{r.restriccion}{r.valor ? `: ${r.valor}` : ''}</p>
-                    {r.notas && <p className="font-body text-[11px] text-on-surface-variant/60 mt-0.5">{r.notas}</p>}
+                    <p className="font-body text-sm text-on-surface">{r.restriccion}{!esValorVacio(r.valor) ? `: ${r.valor}` : ''}</p>
+                    {!esValorVacio(r.notas) && <p className="font-body text-[11px] text-on-surface-variant/60 mt-0.5">{r.notas}</p>}
                   </div>
                 ))}
               </div>
@@ -399,7 +475,6 @@ export default function NomencladorPage() {
     const esCodigo = digits.length >= 2 && /^\d+$/.test(digits)
     let query_sb = supabase.from('ncm').select('codigo_ncm, descripcion, capitulo, seccion', { count: 'exact' }).order('codigo_ncm').range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1)
     if (esCodigo) {
-      // codigo_ncm es texto — comparación lexicográfica con strings
       const desde = digits.padEnd(11, '0')
       const hasta = String(parseInt(digits, 10) + 1).padStart(digits.length, '0').padEnd(11, '0')
       query_sb = query_sb.gte('codigo_ncm', desde).lt('codigo_ncm', hasta)
@@ -458,7 +533,7 @@ export default function NomencladorPage() {
 
   const columns = [
     { key: 'codigo_ncm', label: 'NCM', render: (val) => <span className="font-mono text-sm text-primary">{formatearNCM(val)}</span> },
-    { key: 'descripcion', label: 'DESCRIPCIÓN', render: (val) => <span className="font-body text-sm text-on-surface line-clamp-1">{val}</span> },
+    { key: 'descripcion', label: 'DESCRIPCIÓN', render: (val) => <span className="font-body text-sm text-on-surface line-clamp-1">{limpiarDescripcion(val)}</span> },
     { key: 'capitulo', label: 'CAP.', render: (val) => <span className="font-mono text-sm text-on-surface-variant">{val ?? '—'}</span> },
     { key: 'seccion', label: 'SECCIÓN', render: (val) => <span className="font-body text-xs text-on-surface-variant">{val ?? '—'}</span> },
   ]
@@ -558,7 +633,7 @@ export default function NomencladorPage() {
                       <div className="flex items-center gap-2"><span className="font-body text-xs text-on-surface-variant">CANDIDATO {i + 1}</span><Badge variant={confianzaVariant[c.confianza] || 'neutral'}>{c.confianza?.toUpperCase()}</Badge></div>
                     </div>
                     <p className="font-mono text-xl text-primary tracking-wide">{formatearNCM(c.codigo_ncm)}</p>
-                    {c.ncm_exacto && <p className="font-body text-sm text-on-surface mt-1">{c.ncm_exacto.descripcion}</p>}
+                    {c.ncm_exacto && <p className="font-body text-sm text-on-surface mt-1">{limpiarDescripcion(c.ncm_exacto.descripcion)}</p>}
                     {c.ncm_exacto?.seccion && <p className="font-body text-xs text-on-surface-variant/60 mt-1">{c.ncm_exacto.seccion}{c.ncm_exacto.capitulo ? ` — Capítulo ${c.ncm_exacto.capitulo}` : ''}</p>}
                     <p className="font-body text-sm text-on-surface-variant/70 mt-3 italic">"{c.razonamiento}"</p>
                     {(c.aranceles_impo || c.aranceles_expo) && (
@@ -570,7 +645,7 @@ export default function NomencladorPage() {
                     {!c.ncm_exacto && c.similares && c.similares.length > 0 && (
                       <div className="mt-4 p-3 bg-white/[0.02] rounded-xl">
                         <p className="font-body text-xs text-on-surface-variant mb-2">El NCM exacto sugerido no existe. Posibles posiciones similares:</p>
-                        <div className="space-y-1">{c.similares.map((s) => (<button key={s.codigo_ncm} className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => verDetalle(s)}><span className="font-mono text-xs text-primary">{formatearNCM(s.codigo_ncm)}</span><span className="font-body text-xs text-on-surface-variant ml-2">— {s.descripcion?.slice(0, 50)}</span></button>))}</div>
+                        <div className="space-y-1">{c.similares.map((s) => (<button key={s.codigo_ncm} className="w-full text-left px-3 py-2 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => verDetalle(s)}><span className="font-mono text-xs text-primary">{formatearNCM(s.codigo_ncm)}</span><span className="font-body text-xs text-on-surface-variant ml-2">— {limpiarDescripcion(s.descripcion)?.slice(0, 50)}</span></button>))}</div>
                       </div>
                     )}
                     {(c.ncm_exacto || c.similares?.[0]) && (
