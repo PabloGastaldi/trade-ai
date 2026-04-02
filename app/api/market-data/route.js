@@ -12,6 +12,81 @@ function getServiceClient() {
   )
 }
 
+// ── BCR scraper (inline fallback) ─────────────────────────────────────────────
+
+function extractCells(html, tag) {
+  const open = `<${tag}`, close = `</${tag}>`
+  const cells = []
+  let pos = 0
+  while (pos < html.length) {
+    const start = html.indexOf(open, pos)
+    if (start === -1) break
+    const tagEnd = html.indexOf('>', start)
+    if (tagEnd === -1) break
+    const contentStart = tagEnd + 1
+    const end = html.indexOf(close, contentStart)
+    if (end === -1) break
+    const raw = html.slice(contentStart, end)
+    cells.push(raw.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim())
+    pos = end + close.length
+  }
+  return cells
+}
+
+function parseARSPrice(str) {
+  if (!str) return null
+  const clean = str.replace(/\$/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')
+  const val = parseFloat(clean)
+  return isNaN(val) ? null : val
+}
+
+async function scrapeBCRLive() {
+  try {
+    const res = await fetch(
+      'https://www.bcr.com.ar/es/mercados/mercado-de-granos/cotizaciones/cotizaciones-locales-0',
+      {
+        signal: AbortSignal.timeout(15000),
+        cache: 'no-store',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'es-AR,es;q=0.9',
+          'Referer': 'https://www.bcr.com.ar/',
+        },
+      }
+    )
+    if (!res.ok) return null
+    const html = await res.text()
+
+    const ths = extractCells(html, 'th')
+    const tds = extractCells(html, 'td')
+    const dateHeaders = ths.filter(t => /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(t))
+    const fecha = dateHeaders[0] || null
+    const CELLS_PER_GRAIN = 7
+    const granos = []
+    for (let i = 0; i < tds.length; i += CELLS_PER_GRAIN) {
+      const nameES = tds[i]
+      const price = parseARSPrice(tds[i + 2])
+      const prevPrice = parseARSPrice(tds[i + 3])
+      if (!nameES || price == null) break
+      const change = prevPrice != null ? price - prevPrice : null
+      const changePercent = prevPrice != null && prevPrice > 0 ? ((price - prevPrice) / prevPrice) * 100 : null
+      granos.push({ name: nameES, price, prevPrice, change, changePercent, unit: 'ARS/Tn' })
+    }
+    if (granos.length === 0) return null
+
+    // Guardar en DB para que el cron tenga datos la próxima vez
+    try {
+      const supabase = getServiceClient()
+      await supabase.from('granos_bcr').insert({ fecha_bcr: fecha, granos })
+    } catch { /* fire and forget */ }
+
+    return { fecha, granos, fetchedAt: new Date().toISOString() }
+  } catch {
+    return null
+  }
+}
+
 export const revalidate = 300;
 
 async function fetchJSON(url, timeout = 8000) {
@@ -32,20 +107,27 @@ async function fetchJSON(url, timeout = 8000) {
   }
 }
 
-// Lee el último registro de granos guardado por el cron /api/cron/bcr
+// Lee el último registro de granos; si no hay o es viejo (+24h) scrapea en el momento
 async function fetchGranosBCR() {
   try {
     const supabase = getServiceClient();
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('granos_bcr')
       .select('fecha_bcr, granos, fetched_at')
       .order('fetched_at', { ascending: false })
       .limit(1)
       .single();
-    if (error || !data) return null;
-    return { fecha: data.fecha_bcr, granos: data.granos, fetchedAt: data.fetched_at };
+
+    if (data) {
+      const ageMs = Date.now() - new Date(data.fetched_at).getTime()
+      const stale = ageMs > 24 * 60 * 60 * 1000
+      if (!stale) return { fecha: data.fecha_bcr, granos: data.granos, fetchedAt: data.fetched_at }
+    }
+
+    // No hay dato o es de más de 24h — scrapeamos en vivo
+    return await scrapeBCRLive()
   } catch {
-    return null;
+    return await scrapeBCRLive()
   }
 }
 
