@@ -74,8 +74,8 @@ El campo `pais` en acuerdos es nombre en español — cruzar con `country_codes.
 - `ntm_measures` — 199.165 filas filtradas para Argentina
   Campos: `reporter`, `partner`, `hs_code` (6 dígitos), `ntm_code`, `ntm_full_coverage`, `ntm_partial_coverage`, `ntm_all`, `ntm_non_h`
   Categorías NTM principales: A=SPS, B=TBT, C=Inspección preembarque, E=Licencias/cuotas, P=Medida de exportación
-- `ntm_measures_affecting_argentina` — barreras que terceros países aplican a productos argentinos (NO USADA AÚN)
-- `ntm_measures_applied_by_argentina` — barreras que Argentina aplica a importaciones (NO USADA AÚN)
+- `ntm_measures_affecting_argentina` — barreras que terceros países aplican a productos argentinos (usada en `/api/comparador`)
+- `ntm_measures_applied_by_argentina` — barreras que Argentina aplica a importaciones (usada en `/api/comparador`)
 - `country_codes` — mapeo ISO3 → nombre en español/inglés. Campos: `iso3`, `name_es`, `name_en`
 
 ### 3. Aranceles en destino
@@ -86,7 +86,7 @@ El campo `pais` en acuerdos es nombre en español — cruzar con `country_codes.
 
 ### 4. Tablas operativas
 - `documentos_requeridos` — 50 filas. Checklist por `tipo_operacion` + `regimen`. Filtros opcionales: `ncm_patron`, `pais_patron`
-  Campos: `tipo_operacion`, `regimen`, `documento`, `documento_categoria`, `ncm_patron`, `pais_patron`, `sort_order`, `notas`
+  Campos: `tipo_operacion`, `regimen`, `documento_nombre`, `documento_categoria`, `organismo_emisor`, `condicion`, `ncm_patron`, `pais_patron`, `base_legal`, `sort_order`, `notas`
 - `regimen_intervenciones` — 52 filas. Organismos (SENASA, ANMAT, etc.) por operación/régimen/NCM
   Campos: `operacion`, `regimen`, `organismo`, `estado`, `ncm_patron`, `notas`
 - `restricciones_regimenes` — 25 filas. Límites y condiciones por régimen (ej: courier USD 3.000)
@@ -150,7 +150,7 @@ Panorama completo de una operación: NCM + país + tipo + régimen.
   - `ntm_measures`, `destination_tariffs` (solo exportación), `country_codes`
 - **Secciones del reporte:** NCM, país, aranceles, preferencias (mejor acuerdo + arancel efectivo), documentos (categorizados), organismos intervinientes, restricciones del régimen, barreras NTM, aranceles en destino, warnings
 
-### Calculadora — `lib/calc-importacion.js` y `lib/calc-exportacion.js`
+### Calculadora — `lib/calculadora/calc-importacion.js` y `lib/calculadora/calc-exportacion.js`
 - **Importación:** CIF → derecho (DIE/DII) → tasa estadística → IVA + adicionales. Regímenes: `general`, `courier`, `pef`, `correo_upu`. Condiciones IVA: `responsable_inscripto`, `monotributista`, `consumidor_final`, `exento`. Tablas: `ncm`, `aranceles_importacion`, `acuerdos_importacion`, `country_codes`
 - **Exportación:** normaliza a EXW → FOB → CFR → CIF → DDP. Calcula derecho de exportación y reintegro. Tabla incoterms completa. Tablas: `ncm`, `aranceles_exportacion`, `destination_tariffs`, `country_codes`
 
@@ -161,6 +161,7 @@ Panorama completo de una operación: NCM + país + tipo + régimen.
 
 ### Nomenclador — `app/(app)/nomenclador/page.js`
 Tres secciones: búsqueda rápida (chips predefinidos), clasificador IA, panel de detalle.
+Panel de detalle extraído a `app/(app)/nomenclador/PanelDetalle.jsx`.
 - `GET /api/nomenclador/aranceles?ncm=` → `{ importacion: {...}, exportacion: {...} }`
   Tablas: `aranceles_importacion`, `aranceles_exportacion`
 - `GET /api/nomenclador/preferencias?ncm=` → acuerdos para ese NCM
@@ -210,19 +211,50 @@ Tres secciones: búsqueda rápida (chips predefinidos), clasificador IA, panel d
 - `DataTable.jsx` — tabla con hover
 - `Button.js` — primary/secondary/ghost/danger, loading state
 - `Input.js` — label, hint, error states
-- `NcmAutocomplete.js` — autocomplete compartido (simulador, comparador). `onSelect(item)` devuelve `{ ncm_code, description }`
+- `NcmAutocomplete.jsx` — autocomplete compartido (simulador, comparador, operaciones). `onSelect(item)` devuelve `{ ncm_code, description }`. Prop opcional `showDescription` para mostrar descripción debajo.
+- `Collapsible.jsx` — acordeón reutilizable (sección colapsable con animación)
 - `UpgradePrompt.jsx` — banner de límite alcanzado. Props: `{ feature, limit, used }`. Botón → `/planes`
 
 ## Librerías de dominio (lib/)
+- `lib/constants.js` — constantes centralizadas: `INCOTERMS` (11 términos ICC 2020), `CURRENCIES` (USD/EUR/ARS), `TRANSPORT_MODES`
+- `lib/api-response.js` — helpers `successResponse(data, status)` y `errorResponse(message, code, status)` para API routes
 - `lib/ncm-lookup.js` — `normalizarCodigoNCM(entrada)`: normaliza a 11 dígitos, soporta formatos con/sin puntos, 8 u 11 dígitos, parciales
 - `lib/ntm-lookup.js` — `buscarBarrerasNTM(hs_code, options)`: busca en `ntm_measures`, resuelve ISO3 con `resolverISO3()`
+- `lib/ntm-extended-lookup.js` — `buscarBarrerasExtendido(hs_code, paisISO3, tipo)`: busca en `ntm_measures_affecting_argentina` o `ntm_measures_applied_by_argentina` por tipo ('exportacion'/'importacion')
+- `lib/destination-tariffs-lookup.js` — `buscarArancelesDestino(hs_code, paisISO3)`: consulta `destination_tariffs` por HS6 + país
 - `lib/preferencias-lookup.js` — `buscarPreferencias(ncm)`: consulta `acuerdos_importacion`, `acuerdos_exportacion`, `acuerdos_generales`
 - `lib/plans-config.js` — `getPlanConfig(planId)`: devuelve límites y labels por plan
-- `lib/usage-limiter.js` — `verificarLimite` / `registrarUso`: control de uso mensual genérico
-- `lib/calc-limit.js` — control de uso de calculadora (legacy, mismo patrón)
-- `lib/calc-importacion.js` — `calcularImportacion(supabase, params)`
-- `lib/calc-exportacion.js` — `calcularExportacion(params)`
-- `lib/data/medios-pago.js` — opciones de medios de pago para operaciones
+- `lib/usage-limiter.js` — `verificarLimite(supabase, userId, feature)` / `registrarUso(supabase, userId, feature)`: control de uso mensual genérico
+- `lib/calc-limit.js` — control de uso de calculadora (legacy, mismo patrón que usage-limiter)
+- `lib/calculadora/calc-importacion.js` — `calcularImportacion(supabase, params)`
+- `lib/calculadora/calc-exportacion.js` — `calcularExportacion(params)`
+- `lib/data/medios-pago.js` — `getMedioPago(id)`: opciones de medios de pago para operaciones
+- `lib/data/paises-no-cooperantes.js` — lista de países no cooperantes para cálculos adicionales
+- `lib/rate-limit.js` — rate limiter en memoria para `/api/consulta` (10/min por usuario)
+- `lib/utils/sanitize.js` — sanitización de inputs para el chat
+- `lib/utils/formato-datos.js` — helpers de formato: `formatearNCM`, `formatMoneda`, etc.
+- `lib/utils/consulta.js` — helpers del flujo de consulta IA
+- `lib/utils/planes.js` — helpers de verificación de plan
+- `lib/pinecone-search.js` — búsqueda semántica en Pinecone para RAG
+
+## Sub-componentes extraídos (feature-level)
+
+### Calculadora (`app/(app)/calculadora/`)
+- `ResultadosImpo.jsx` — renderizado completo de resultados de importación (desglose por régimen, tabla comparativa)
+- `ResultadosExpo.jsx` — renderizado completo de resultados de exportación (cadena incoterms, reintegro)
+- `ContextoComercial.jsx` — panel unificado de contexto comercial (NTM). Prop `tipo`: `'expo'` lee `ntm_destino`, `'impo'` lee `ntm`
+
+### Operaciones (`app/(app)/operaciones/`)
+- `ModalNuevaOperacion.jsx` — modal autocontenido para crear operación. Incluye `PanelMedioPago` sub-component
+- `VistaKanban.jsx` — vista Kanban con drag-and-drop (@dnd-kit). Exporta default `VistaKanban` y named `KanbanCard` (usada para DragOverlay en el padre)
+
+### Detalle de Operación (`app/(app)/operaciones/[id]/`)
+- `DocItem.jsx` — ítem del checklist con edición de notas inline
+- `PanelMedioPagoDetalle.jsx` — panel expandible con detalle del medio de pago
+- `PrintView.jsx` — vista oculta solo para impresión/PDF (solo visible con `@media print`)
+
+### Nomenclador (`app/(app)/nomenclador/`)
+- `PanelDetalle.jsx` — panel slide-over de detalle de posición NCM. Exporta además: `formatearNCM`, `normalizarNCM`, `arancelColor`, `InfoCelda`, `LABEL_ARANCEL_IMPO`
 
 ## Layout responsive
 - **Desktop (≥1024px):** Sidebar fija izquierda 250px + contenido
