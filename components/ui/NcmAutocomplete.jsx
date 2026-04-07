@@ -2,17 +2,19 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-export default function NcmAutocomplete({ value, onSelect, error }) {
+export default function NcmAutocomplete({ value, onSelect, error, showDescription = false }) {
   const [inputVal, setInputVal] = useState(value ?? '')
   const [sugerencias, setSugerencias] = useState([])
   const [buscando, setBuscando] = useState(false)
   const [visible, setVisible] = useState(false)
+  const [descripcion, setDescripcion] = useState('')
   const debounceRef = useRef(null)
   const wrapRef = useRef(null)
 
   // Sincronizar si el padre cambia el valor (ej: reset del form)
   useEffect(() => {
     setInputVal(value ?? '')
+    if (!value) setDescripcion('')
   }, [value])
 
   useEffect(() => {
@@ -46,6 +48,7 @@ export default function NcmAutocomplete({ value, onSelect, error }) {
     setInputVal(item.ncm_code)
     setSugerencias([])
     setVisible(false)
+    if (showDescription) setDescripcion(item.description ?? '')
     onSelect(item)
   }
 
@@ -82,6 +85,9 @@ export default function NcmAutocomplete({ value, onSelect, error }) {
           </div>
         )}
       </div>
+      {showDescription && descripcion && !visible && (
+        <p className="mt-1 font-body text-[10px] text-on-surface-variant/60">{descripcion}</p>
+      )}
       {error && <p className="mt-1 font-body text-[10px] text-red-400">{error}</p>}
     </div>
   )

@@ -7,9 +7,10 @@ import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import NcmAutocomplete from '@/components/ui/NcmAutocomplete'
+import Collapsible from '@/components/ui/Collapsible'
 import { formatearNCMDisplay } from '@/lib/ncm-lookup'
 import {
-  AlertTriangle, FileText, File, ChevronDown, ChevronUp,
+  AlertTriangle, FileText, File,
   Building2, Package, Globe, ArrowRight,
 } from 'lucide-react'
 
@@ -32,29 +33,6 @@ const REGIMENES = {
 function pct(n) {
   if (n === null || n === undefined) return '—'
   return `${Number(n).toFixed(1)}%`
-}
-
-function Accordion({ title, defaultOpen = true, children, badge }) {
-  const [open, setOpen] = useState(defaultOpen)
-  return (
-    <div className="border border-white/[0.05] rounded-2xl overflow-hidden">
-      <button
-        type="button"
-        className="w-full flex items-center justify-between px-5 py-4 bg-white/[0.02] hover:bg-white/[0.03] transition-colors text-left"
-        onClick={() => setOpen(v => !v)}
-      >
-        <div className="flex items-center gap-2">
-          <span className="font-body text-sm font-semibold text-on-surface tracking-wide">{title}</span>
-          {badge}
-        </div>
-        {open
-          ? <ChevronUp size={14} className="text-on-surface-variant shrink-0" />
-          : <ChevronDown size={14} className="text-on-surface-variant shrink-0" />
-        }
-      </button>
-      {open && <div className="px-5 py-4">{children}</div>}
-    </div>
-  )
 }
 
 function ArancelRow({ label, valor, highlight, dimmed }) {
@@ -418,7 +396,7 @@ function SeccionAranceles({ resultado }) {
     const arancelEfectivo = preferencias.arancel_efectivo
 
     return (
-      <Accordion title="Aranceles y tributos">
+      <Collapsible title="Aranceles y tributos">
         <div className="space-y-1 mb-4">
           <ArancelRow label="Arancel Externo Común (AEC)" valor={pct(aranceles.aec)} />
           <ArancelRow label="Der. Importación Extrazona (DIE)" valor={pct(aranceles.die)} />
@@ -460,13 +438,13 @@ function SeccionAranceles({ resultado }) {
             No se encontraron preferencias arancelarias para {pais.nombre_es} con este NCM.
           </p>
         )}
-      </Accordion>
+      </Collapsible>
     )
   }
 
   // Exportación
   return (
-    <Accordion title="Aranceles de exportación">
+    <Collapsible title="Aranceles de exportación">
       <div className="space-y-1 mb-4">
         <ArancelRow label="Derecho de exportación" valor={pct(aranceles.derecho_exportacion)} />
         <ArancelRow
@@ -482,7 +460,7 @@ function SeccionAranceles({ resultado }) {
           </p>
         </div>
       )}
-    </Accordion>
+    </Collapsible>
   )
 }
 
@@ -498,16 +476,16 @@ function SeccionDocumentacion({ resultado }) {
 
   if (total === 0) {
     return (
-      <Accordion title="Documentación requerida" badge={badge}>
+      <Collapsible title="Documentación requerida" badge={badge}>
         <p className="font-body text-xs text-on-surface-variant/60">
           No se encontraron documentos registrados para esta operación/régimen.
         </p>
-      </Accordion>
+      </Collapsible>
     )
   }
 
   return (
-    <Accordion title="Documentación requerida" badge={badge}>
+    <Collapsible title="Documentación requerida" badge={badge}>
       {documentos.criticos.length > 0 && (
         <div className="mb-4">
           <p className="font-body text-[10px] font-semibold text-red-400 tracking-widest uppercase mb-2">Críticos</p>
@@ -526,7 +504,7 @@ function SeccionDocumentacion({ resultado }) {
           {documentos.opcionales.map(d => <DocRow key={d.id} doc={d} />)}
         </div>
       )}
-    </Accordion>
+    </Collapsible>
   )
 }
 
@@ -535,7 +513,7 @@ function SeccionOrganismos({ resultado }) {
   const total = organismos.obligatorios.length + organismos.condicionales.length
 
   return (
-    <Accordion
+    <Collapsible
       title="Organismos que intervienen"
       badge={<Badge variant={organismos.obligatorios.length > 0 ? 'error' : 'neutral'}>{total}</Badge>}
     >
@@ -551,7 +529,7 @@ function SeccionOrganismos({ resultado }) {
           {organismos.condicionales.map(o => <OrganismoRow key={o.id} org={o} />)}
         </div>
       )}
-    </Accordion>
+    </Collapsible>
   )
 }
 
@@ -566,7 +544,7 @@ function SeccionRestricciones({ resultado }) {
   }[regimen] ?? regimen
 
   return (
-    <Accordion
+    <Collapsible
       title={`Restricciones — ${regimenLabel}`}
       badge={<Badge variant="accent">{restricciones.length}</Badge>}
     >
@@ -586,7 +564,7 @@ function SeccionRestricciones({ resultado }) {
           </div>
         ))}
       </div>
-    </Accordion>
+    </Collapsible>
   )
 }
 
@@ -599,11 +577,11 @@ function SeccionNTM({ resultado }) {
 
   if (barreras_ntm.length === 0) {
     return (
-      <Accordion title={titulo}>
+      <Collapsible title={titulo}>
         <p className="font-body text-xs text-on-surface-variant/60">
           No se encontraron barreras no arancelarias registradas para este producto.
         </p>
-      </Accordion>
+      </Collapsible>
     )
   }
 
@@ -615,7 +593,7 @@ function SeccionNTM({ resultado }) {
   })
 
   return (
-    <Accordion title={titulo} badge={<Badge variant="neutral">{barreras_ntm.length}</Badge>}>
+    <Collapsible title={titulo} badge={<Badge variant="neutral">{barreras_ntm.length}</Badge>}>
       <div className="space-y-2">
         {Object.values(porTipo).map((m, i) => (
           <div key={i} className="flex items-center justify-between py-2 border-b border-white/[0.03] last:border-0">
@@ -629,7 +607,7 @@ function SeccionNTM({ resultado }) {
           </div>
         ))}
       </div>
-    </Accordion>
+    </Collapsible>
   )
 }
 
@@ -638,16 +616,16 @@ function SeccionArancelesDestino({ resultado }) {
 
   if (!aranceles_destino) {
     return (
-      <Accordion title={`Aranceles en destino — ${pais.nombre_es}`}>
+      <Collapsible title={`Aranceles en destino — ${pais.nombre_es}`}>
         <p className="font-body text-xs text-on-surface-variant/60">
           No se encontraron datos de aranceles para este producto en {pais.nombre_es}.
         </p>
-      </Accordion>
+      </Collapsible>
     )
   }
 
   return (
-    <Accordion title={`Aranceles en destino — ${pais.nombre_es}`}>
+    <Collapsible title={`Aranceles en destino — ${pais.nombre_es}`}>
       <div className="flex items-center gap-4 p-4 bg-white/[0.02] rounded-xl">
         <div>
           <p className="font-body text-xs text-on-surface-variant mb-1">
@@ -670,7 +648,7 @@ function SeccionArancelesDestino({ resultado }) {
           </div>
         )}
       </div>
-    </Accordion>
+    </Collapsible>
   )
 }
 
