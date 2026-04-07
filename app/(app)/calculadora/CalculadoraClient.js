@@ -625,7 +625,7 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
 
       // Cargar contexto comercial en paralelo (no bloquea el resultado)
       if (ncmTrimmed && paisOrigen) {
-        fetch(`/api/calculadora/contexto-impo?ncm=${encodeURIComponent(ncmTrimmed)}&pais=${encodeURIComponent(paisOrigen)}`)
+        fetch(`/api/calculadora/contexto?tipo=impo&ncm=${encodeURIComponent(ncmTrimmed)}&pais=${encodeURIComponent(paisOrigen)}`)
           .then(r => r.ok ? r.json() : null)
           .then(d => d && setContexto(d))
           .catch(() => {})
@@ -945,7 +945,7 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
 
       // Cargar contexto comercial de exportación en paralelo
       if (ncmTrimmed && paisDestino) {
-        fetch(`/api/calculadora/contexto-expo?ncm=${encodeURIComponent(ncmTrimmed)}&pais=${encodeURIComponent(paisDestino)}`)
+        fetch(`/api/calculadora/contexto?tipo=expo&ncm=${encodeURIComponent(ncmTrimmed)}&pais=${encodeURIComponent(paisDestino)}`)
           .then(r => r.ok ? r.json() : null)
           .then(d => d && setContextoExpo(d))
           .catch(() => {})
