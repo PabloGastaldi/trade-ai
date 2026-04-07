@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getPlanConfig } from '@/lib/plans-config'
+import { INCOTERMS, CURRENCIES } from '@/lib/constants'
 
 // Whitelists de validación
-const VALID_CURRENCIES = ['USD', 'EUR', 'ARS']
-const VALID_INCOTERMS  = ['EXW', 'FCA', 'FOB', 'CFR', 'CIF', 'CIP', 'DAP', 'DPU', 'DDP']
+const VALID_CURRENCIES = CURRENCIES
+const VALID_INCOTERMS  = INCOTERMS
 
 // POST /api/catalogo — inserta un producto validando el límite del plan
 export async function POST(request) {

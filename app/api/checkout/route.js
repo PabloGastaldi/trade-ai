@@ -61,8 +61,6 @@ export async function POST(request) {
       },
     })
 
-    console.log(`[checkout] Preferencia creada — plan: ${planId}, pref_id: ${resultado.id}`)
-
     return Response.json({ init_point: resultado.init_point })
   } catch (err) {
     console.error('[checkout] Error al crear preferencia:', err)

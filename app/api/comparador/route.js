@@ -5,6 +5,7 @@ import { calcularExportacion } from '@/lib/calculadora/calc-exportacion'
 import { calcularImportacion } from '@/lib/calculadora/calc-importacion'
 import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
 import { normalizarCodigoNCM } from '@/lib/ncm-lookup'
+import { INCOTERMS } from '@/lib/constants'
 
 // Obtiene cantidad de medidas NTM por país desde la tabla correspondiente
 async function fetchNtmCounts(supabase, hs6, paisesISO3, tipo) {
@@ -79,6 +80,9 @@ export async function POST(request) {
     const { precio_producto, incoterm_base = 'FOB' } = body
     if (typeof precio_producto !== 'number' || precio_producto <= 0) {
       return NextResponse.json({ error: 'precio_producto debe ser mayor a 0' }, { status: 400 })
+    }
+    if (!INCOTERMS.includes(incoterm_base)) {
+      return NextResponse.json({ error: 'incoterm_base inválido' }, { status: 400 })
     }
 
     const paisesUnicos = [...new Set(paises)].slice(0, MAX_PAISES)

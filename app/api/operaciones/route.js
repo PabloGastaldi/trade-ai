@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
 import { normalizarCodigoNCM } from '@/lib/ncm-lookup'
+import { INCOTERMS, CURRENCIES, TRANSPORT_MODES } from '@/lib/constants'
 
 function getServiceClient() {
   return createServiceClient(
@@ -13,9 +14,9 @@ function getServiceClient() {
 }
 
 const VALID_OPERATION_TYPES = ['importacion', 'exportacion']
-const VALID_INCOTERMS = ['EXW', 'FCA', 'FAS', 'FOB', 'CFR', 'CIF', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP']
-const VALID_CURRENCIES = ['USD', 'EUR', 'ARS']
-const VALID_TRANSPORT = ['maritimo', 'aereo', 'terrestre', 'multimodal']
+const VALID_INCOTERMS = INCOTERMS
+const VALID_CURRENCIES = CURRENCIES
+const VALID_TRANSPORT = TRANSPORT_MODES
 
 // POST /api/operaciones — crea una operación validando el límite del plan
 export async function POST(request) {
@@ -103,7 +104,7 @@ export async function POST(request) {
     .single()
 
   if (insertError) {
-    console.error('[operaciones] Error al insertar:', insertError.message, insertError.details, insertError.hint)
+    console.error('[operaciones] Error al insertar:', insertError.message)
     return NextResponse.json({ error: 'Error al crear la operación', detail: insertError.message }, { status: 500 })
   }
 
@@ -121,7 +122,6 @@ export async function POST(request) {
       const ncm = normalizado?.codigoNCM ?? data.ncm_code
       const tipoOp = data.operation_type
 
-      console.log('[checklist] ncm normalizado:', ncm, 'tipo:', tipoOp, 'regimen:', regimen)
       const svc = getServiceClient()
 
       // Para courier_comercial/courier_personal: llamar también con 'courier' genérico
@@ -143,8 +143,6 @@ export async function POST(request) {
       const [docRes, docResCourier, intRes, intResCourier] = await Promise.all(
         llamadas.map(p => p ?? Promise.resolve({ data: [] }))
       )
-
-      console.log('[checklist] docs:', docRes.error?.message ?? docRes.data?.length, '| orgs:', intRes.error?.message ?? intRes.data?.length)
 
       // Deduplicar por documento_nombre
       const docNombresVistos = new Set()
@@ -185,9 +183,6 @@ export async function POST(request) {
       if (rows.length > 0) {
         const { error: insertErr } = await svc.from('operation_documents').insert(rows)
         if (insertErr) console.error('[checklist] insert error:', insertErr.message)
-        else console.log('[checklist] insertados', rows.length, 'items')
-      } else {
-        console.log('[checklist] sin rows para insertar')
       }
     } catch (chkErr) {
       console.error('[checklist] excepcion:', chkErr?.message)
@@ -196,7 +191,7 @@ export async function POST(request) {
 
   return NextResponse.json({ operacion: data }, { status: 201 })
   } catch (err) {
-    console.error('[operaciones] Unhandled exception:', err?.message, err?.stack)
-    return NextResponse.json({ error: 'Error interno del servidor', detail: err?.message }, { status: 500 })
+    console.error('[operaciones] Unhandled exception:', err?.message)
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

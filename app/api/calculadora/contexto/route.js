@@ -10,6 +10,7 @@ import { normalizarCodigoNCM } from '@/lib/ncm-lookup'
 //   impo → acuerdos_importacion + ntm_measures_applied_by_argentina
 
 export async function GET(request) {
+  try {
   const supabaseUser = await createClient()
   const { data: { user }, error: authError } = await supabaseUser.auth.getUser()
   if (authError || !user) {
@@ -74,4 +75,8 @@ export async function GET(request) {
     return NextResponse.json({ acuerdos, ntm_destino: ntmRes.data ?? [] })
   }
   return NextResponse.json({ acuerdos, ntm: ntmRes.data ?? [] })
+  } catch (err) {
+    console.error('[calculadora/contexto] Error inesperado:', err?.message)
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+  }
 }
