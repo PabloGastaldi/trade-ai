@@ -233,7 +233,7 @@ export default function LandingPage() {
             </a>
             <a
               href="#herramientas"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white/[0.05] backdrop-blur-sm border border-white/[0.1] text-on-surface font-medium text-base hover:bg-white/[0.1] transition-all duration-200 no-underline"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white/[0.05] backdrop-blur-sm border border-white/[0.1] text-on-surface font-body font-medium text-base hover:bg-white/[0.1] transition-all duration-200 no-underline"
             >
               Ver herramientas
             </a>
