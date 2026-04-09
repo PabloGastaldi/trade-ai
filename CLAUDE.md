@@ -74,8 +74,11 @@ El campo `pais` en acuerdos es nombre en español — cruzar con `country_codes.
 - `ntm_measures` — 199.165 filas filtradas para Argentina
   Campos: `reporter`, `partner`, `hs_code` (6 dígitos), `ntm_code`, `ntm_full_coverage`, `ntm_partial_coverage`, `ntm_all`, `ntm_non_h`
   Categorías NTM principales: A=SPS, B=TBT, C=Inspección preembarque, E=Licencias/cuotas, P=Medida de exportación
-- `ntm_measures_affecting_argentina` — barreras que terceros países aplican a productos argentinos (usada en `/api/comparador`)
-- `ntm_measures_applied_by_argentina` — barreras que Argentina aplica a importaciones (usada en `/api/comparador`)
+- `ntm_measures_affecting_argentina` — barreras que terceros países aplican a productos argentinos
+  Columnas: `hs_code`, `pais_que_aplica`, `tipo_medida`, `ntm_code`. Usada en: `/api/comparador`, `/api/calculadora/contexto?tipo=expo`, `nomenclador/PanelDetalle.jsx`
+- `ntm_measures_applied_by_argentina` — barreras que Argentina aplica a importaciones de otros países
+  Columnas: `hs_code`, `pais_afectado`, `tipo_medida`, `ntm_code`. Usada en: `/api/comparador`, `/api/calculadora/contexto?tipo=impo`
+- `ntm_measures_summary_by_country` — resumen agregado de medidas por país/HS. Sin uso activo en el código.
 - `country_codes` — mapeo ISO3 → nombre en español/inglés. Campos: `iso3`, `name_es`, `name_en`
 
 ### 3. Aranceles en destino
@@ -95,7 +98,7 @@ El campo `pais` en acuerdos es nombre en español — cruzar con `country_codes.
 ## Estructura de la base de datos
 
 **Tablas NCM:** `ncm`, `aranceles_importacion`, `aranceles_exportacion`, `acuerdos_importacion`, `acuerdos_exportacion`, `acuerdos_generales`
-**Tablas NTM:** `ntm_measures`, `ntm_measures_affecting_argentina`, `ntm_measures_applied_by_argentina`
+**Tablas NTM:** `ntm_measures`, `ntm_measures_affecting_argentina`, `ntm_measures_applied_by_argentina`, `ntm_measures_summary_by_country` (sin uso activo)
 **Tablas operativas:** `documentos_requeridos`, `regimen_intervenciones`, `restricciones_regimenes`
 **Tablas auxiliares:** `country_codes`, `destination_tariffs`, `preferencias_arancelarias` (legacy, no usar)
 **Tablas de app:** `users_profile`, `queries_log`, `documents_registry`, `user_products`, `operations`
