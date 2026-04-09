@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getPlanConfig } from '@/lib/plans-config'
-import { INCOTERMS, CURRENCIES } from '@/lib/constants'
+import { CURRENCIES } from '@/lib/constants'
+import { normalizarCodigoNCM } from '@/lib/ncm-lookup'
 
 // Whitelists de validación
 const VALID_CURRENCIES = CURRENCIES
-const VALID_INCOTERMS  = INCOTERMS
 
 // POST /api/catalogo — inserta un producto validando el límite del plan
 export async function POST(request) {
@@ -64,28 +64,28 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Body inválido' }, { status: 400 })
   }
 
-  const { name, operation_type, ncm_code, unit_price, currency, incoterm,
-          weight_kg, default_origin, default_destination, description } = body
+  const { name, operation_type, ncm_code, unit_price, currency,
+          weight_kg, description } = body
 
   if (!name?.trim()) return NextResponse.json({ error: 'name requerido' }, { status: 400 })
   if (!ncm_code?.trim()) return NextResponse.json({ error: 'ncm_code requerido' }, { status: 400 })
   if (!unit_price || Number(unit_price) <= 0) return NextResponse.json({ error: 'unit_price inválido' }, { status: 400 })
-  if (!incoterm) return NextResponse.json({ error: 'incoterm requerido' }, { status: 400 })
   if (!['exportacion', 'importacion'].includes(operation_type)) {
     return NextResponse.json({ error: 'operation_type inválido' }, { status: 400 })
   }
   if (currency && !VALID_CURRENCIES.includes(currency)) {
     return NextResponse.json({ error: 'Moneda no válida' }, { status: 400 })
   }
-  if (!VALID_INCOTERMS.includes(incoterm)) {
-    return NextResponse.json({ error: 'Incoterm no válido' }, { status: 400 })
-  }
 
   // Verificar que el NCM existe en la tabla ncm
+  const normalizado = normalizarCodigoNCM(ncm_code.trim())
+  if (!normalizado) {
+    return NextResponse.json({ error: 'ncm_code inválido' }, { status: 400 })
+  }
   const { data: ncmRow, error: ncmError } = await supabase
     .from('ncm')
-    .select('ncm_code')
-    .eq('ncm_code', ncm_code.trim())
+    .select('codigo_ncm')
+    .eq('codigo_ncm', normalizado.codigoNCM)
     .single()
 
   if (ncmError || !ncmRow) {
@@ -99,13 +99,10 @@ export async function POST(request) {
       user_id:             user.id,
       name:                name.trim(),
       operation_type,
-      ncm_code:            ncm_code.trim(),
+      ncm_code:            normalizado.codigoNCM,
       unit_price:          Number(unit_price),
       currency:            currency ?? 'USD',
-      incoterm,
       weight_kg:           weight_kg ? Number(weight_kg) : null,
-      default_origin:      default_origin || null,
-      default_destination: default_destination || null,
       description:         description?.trim() || null,
     })
     .select()

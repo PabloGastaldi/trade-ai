@@ -6,8 +6,6 @@ import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import PageLayout from '@/components/ui/PageLayout'
 
-const INCOTERMS = ['EXW', 'FCA', 'FAS', 'FOB', 'CFR', 'CIF', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP']
-
 function formatearNCM(codigo) {
   if (!codigo || codigo.length !== 11) return codigo ?? ''
   return `${codigo.slice(0,4)}.${codigo.slice(4,6)}.${codigo.slice(6,8)}.${codigo.slice(8)}`
@@ -20,10 +18,7 @@ const FORM_VACIO = {
   ncm_descripcion_oficial: '',
   unit_price: '',
   currency: 'USD',
-  incoterm: '',
   weight_kg: '',
-  default_origin: '',
-  default_destination: '',
   description: '',
 }
 
@@ -62,10 +57,7 @@ export default function CatalogoClient({ productosIniciales, paises }) {
       ncm_descripcion_oficial: p.product_description_ncm ?? '',
       unit_price: String(p.unit_price),
       currency: p.currency,
-      incoterm: p.incoterm,
       weight_kg: p.weight_kg ? String(p.weight_kg) : '',
-      default_origin: p.default_origin ?? '',
-      default_destination: p.default_destination ?? '',
       description: p.description ?? '',
     })
     setErroresForm({})
@@ -220,27 +212,19 @@ export default function CatalogoClient({ productosIniciales, paises }) {
               </div>
 
               {/* Datos clave */}
-              <div className="mt-4 pt-4 border-t border-white/[0.04] grid grid-cols-2 gap-4">
+              <div className="mt-4 pt-4 border-t border-white/[0.04] flex items-center justify-between">
                 <div>
                   <p className="font-body text-[11px] text-on-surface-variant/50 uppercase mb-1">Precio</p>
                   <p className="font-mono text-sm text-on-surface">
                     {p.currency} {Number(p.unit_price).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
-                <div>
-                  <p className="font-body text-[11px] text-on-surface-variant/50 uppercase mb-1">Incoterm</p>
-                  <p className="font-mono text-sm text-primary font-semibold">{p.incoterm}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="font-body text-[11px] text-on-surface-variant/50 uppercase mb-1">
-                    {p.operation_type === 'exportacion' ? 'Destino' : 'Origen'}
-                  </p>
-                  <p className="font-body text-xs text-on-surface-variant">
-                    {p.operation_type === 'exportacion'
-                      ? (p.default_destination || '—')
-                      : (p.default_origin || '—')}
-                  </p>
-                </div>
+                {p.weight_kg && (
+                  <div className="text-right">
+                    <p className="font-body text-[11px] text-on-surface-variant/50 uppercase mb-1">Peso</p>
+                    <p className="font-mono text-sm text-on-surface-variant">{p.weight_kg} kg</p>
+                  </div>
+                )}
               </div>
             </Card>
           ))}
@@ -277,7 +261,6 @@ export default function CatalogoClient({ productosIniciales, paises }) {
           setForm={setForm}
           errores={erroresForm}
           setErrores={setErroresForm}
-          paises={paises}
           editando={productoEditando}
           guardando={guardando}
           onGuardar={handleGuardar}
@@ -316,7 +299,7 @@ export default function CatalogoClient({ productosIniciales, paises }) {
   )
 }
 
-function ModalProducto({ form, setForm, errores, setErrores, paises, editando, guardando, onGuardar, onCerrar }) {
+function ModalProducto({ form, setForm, errores, setErrores, editando, guardando, onGuardar, onCerrar }) {
   const [ncmSugerencias, setNcmSugerencias] = useState([])
   const [buscandoNcm, setBuscandoNcm] = useState(false)
   const [ncmDropdownVisible, setNcmDropdownVisible] = useState(false)
@@ -392,7 +375,6 @@ function ModalProducto({ form, setForm, errores, setErrores, paises, editando, g
     if (!form.ncm_code.trim()) errs.ncm_code = 'El NCM es obligatorio'
     if (!form.ncm_descripcion_oficial) errs.ncm_code = 'Seleccioná un NCM de la lista'
     if (!form.unit_price || Number(form.unit_price) <= 0) errs.unit_price = 'El precio debe ser mayor a 0'
-    if (!form.incoterm) errs.incoterm = 'El incoterm es obligatorio'
     return errs
   }
 
@@ -410,17 +392,12 @@ function ModalProducto({ form, setForm, errores, setErrores, paises, editando, g
       ncm_code: form.ncm_code,
       unit_price: Number(form.unit_price),
       currency: form.currency,
-      incoterm: form.incoterm,
       weight_kg: form.weight_kg ? Number(form.weight_kg) : null,
-      default_origin: form.default_origin || null,
-      default_destination: form.default_destination || null,
       description: form.description.trim() || null,
     }
 
     onGuardar(datos)
   }
-
-  const paisesSorted = [...paises].sort((a, b) => a.name_es.localeCompare(b.name_es))
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -544,37 +521,6 @@ function ModalProducto({ form, setForm, errores, setErrores, paises, editando, g
                 <option value="ARS">ARS</option>
               </select>
             </div>
-          </div>
-
-          {/* Incoterm */}
-          <div>
-            <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">Incoterm <span className="text-primary">*</span></label>
-            <select
-              value={form.incoterm}
-              onChange={e => set('incoterm', e.target.value)}
-              className={`w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 cursor-pointer ${errores.incoterm ? 'ring-1 ring-red-500/50' : ''}`}
-            >
-              <option value="">Seleccioná incoterm…</option>
-              {INCOTERMS.map(i => <option key={i} value={i}>{i}</option>)}
-            </select>
-            {errores.incoterm && <p className="font-body text-xs text-red-400 mt-1">{errores.incoterm}</p>}
-          </div>
-
-          {/* País */}
-          <div>
-            <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">
-              {form.operation_type === 'importacion' ? 'País de origen' : 'País de destino'} <span className="text-on-surface-variant/50 font-normal">opcional</span>
-            </label>
-            <select
-              value={form.operation_type === 'importacion' ? form.default_origin : form.default_destination}
-              onChange={e => set(form.operation_type === 'importacion' ? 'default_origin' : 'default_destination', e.target.value)}
-              className="w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 cursor-pointer"
-            >
-              <option value="">Seleccioná país…</option>
-              {paisesSorted.map(p => (
-                <option key={p.iso3} value={p.iso3}>{p.name_es}</option>
-              ))}
-            </select>
           </div>
 
           {/* Peso */}
