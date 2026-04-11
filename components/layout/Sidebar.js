@@ -13,7 +13,7 @@ import './Sidebar.css'
 const NAV_SECTIONS = [
   {
     items: [
-      { label: 'Inicio',  Icon: Home,          href: '/' },
+      { label: 'Inicio',  Icon: Home,          href: '/inicio' },
       { label: 'Chat IA', Icon: MessageSquare,  href: '/consulta' },
     ],
   },

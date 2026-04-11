@@ -53,7 +53,21 @@
       "Bash(ls c:/Users/Pablo/trade-ai/app/\\\\\\(app\\\\\\)/)",
       "Bash(node -e \"console.log\\(BigInt\\('02999999999'\\).toString\\(\\)\\)\")",
       "Bash(node -e ':*)",
-      "Read(//mnt/c/Users/Pablo/**)"
+      "Read(//mnt/c/Users/Pablo/**)",
+      "Bash(find app:*)",
+      "Bash(xargs -I{} basename {})",
+      "Bash(grep -l \"import.*\\\\.module\\\\.css\\\\|import styles\" /c/Users/Pablo/trade-ai/app/**/*.js /c/Users/Pablo/trade-ai/components/**/*.js)",
+      "Bash(rm \"c:\\\\Users\\\\Pablo\\\\trade-ai\\\\app\\\\api\\\\pagos\\\\crear-preferencia\\\\route.js\")",
+      "Bash(rmdir \"c:\\\\Users\\\\Pablo\\\\trade-ai\\\\app\\\\api\\\\pagos\\\\crear-preferencia\")",
+      "Bash(rm \"c:\\\\Users\\\\Pablo\\\\trade-ai\\\\app\\\\api\\\\pagos\\\\webhook\\\\route.js\")",
+      "Bash(rmdir \"c:\\\\Users\\\\Pablo\\\\trade-ai\\\\app\\\\api\\\\pagos\\\\webhook\")",
+      "Bash(grep -n \"^function \\\\|^export default function \\\\|^export function \\\\|^  return \\($\\\\|^  return \\(\" c:/Users/Pablo/trade-ai/app/\\\\\\(app\\\\\\)/operaciones/OperacionesClient.js)",
+      "Read(//tmp/**)",
+      "Bash(python3 -)",
+      "Bash(wc -l \"c:/Users/Pablo/trade-ai/app/\\(app\\)/operaciones/\"*.js \"c:/Users/Pablo/trade-ai/app/\\(app\\)/operaciones/\"*.jsx)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Pablo\\trade-ai\\app\\(app)\\operaciones\\[id]"
     ]
   },
   "deniedMcpServers": [

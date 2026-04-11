@@ -14,7 +14,7 @@ const MOBILE_BREAKPOINT = 768
 
 // Ítems del bottom tab bar
 const TAB_ITEMS = [
-  { label: 'Inicio',       Icon: Home,          href: '/' },
+  { label: 'Inicio',       Icon: Home,          href: '/inicio' },
   { label: 'Chat IA',      Icon: MessageSquare, href: '/consulta' },
   { label: 'Calculadora',  Icon: Calculator,    href: '/calculadora' },
   { label: 'Mercados',     Icon: BarChart3,     href: '/mercados' },
