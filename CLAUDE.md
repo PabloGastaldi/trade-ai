@@ -154,7 +154,10 @@ Panorama completo de una operación: NCM + país + tipo + régimen.
 - **Secciones del reporte:** NCM, país, aranceles, preferencias (mejor acuerdo + arancel efectivo), documentos (categorizados), organismos intervinientes, restricciones del régimen, barreras NTM, aranceles en destino, warnings
 
 ### Calculadora — `lib/calculadora/calc-importacion.js` y `lib/calculadora/calc-exportacion.js`
-- **Importación:** CIF → derecho (DIE/DII) → tasa estadística → IVA + adicionales. Regímenes: `general`, `courier`, `pef`, `correo_upu`. Condiciones IVA: `responsable_inscripto`, `monotributista`, `consumidor_final`, `exento`. Tablas: `ncm`, `aranceles_importacion`, `acuerdos_importacion`, `country_codes`
+- **Importación:** CIF → derecho (DIE/DII) → tasa estadística → IVA + adicionales. Regímenes: `general`, `courier_comercial`, `courier_personal`, `puerta_a_puerta`, `pef`, `correo_upu`. Condiciones IVA: `responsable_inscripto`, `monotributista`, `consumidor_final`, `exento`. Tablas: `ncm`, `aranceles_importacion`, `acuerdos_importacion`, `country_codes`
+  - `courier_comercial` y `courier_personal` usan aranceles reales del NCM (DIE/TE/IVA de la DB)
+  - `puerta_a_puerta` usa tasas fijas: 20% DI, 3% TE, 21% IVA
+  - Parámetro opcional `peso_kg`: si el régimen es courier y no se ingresó flete, estima flete = peso_kg × USD 15/kg
 - **Exportación:** normaliza a EXW → FOB → CFR → CIF → DDP. Calcula derecho de exportación y reintegro. Tabla incoterms completa. Tablas: `ncm`, `aranceles_exportacion`, `destination_tariffs`, `country_codes`
 
 ### Comparador — `POST /api/comparador`
@@ -171,7 +174,11 @@ Panel de detalle extraído a `app/(app)/nomenclador/PanelDetalle.jsx`.
   Tablas: `acuerdos_importacion`, `acuerdos_exportacion`, `acuerdos_generales`
 - `POST /api/nomenclador/clasificar` → candidatos NCM + clasificación Haiku
   Body: `{ producto, material, uso, estado, presentacion, detalles }`
-  Tablas: `ncm` (búsqueda por descripcion ilike), `aranceles_importacion`, `aranceles_exportacion`
+  Flujo de 3 fases:
+  1. Haiku devuelve `partidas` (array de 4 dígitos SA) + `palabras_clave` backup — NO códigos NCM completos
+  2. DB: trae TODAS las posiciones de esas partidas vía rango `gte`/`lt` (sin limit) + ilike por palabras_clave como complemento
+  3. Haiku rankea entre candidatos reales (solo puede elegir códigos de la lista recibida)
+  Tablas: `ncm` (rango por partida + ilike descripcion), `aranceles_importacion`, `aranceles_exportacion`
 - `GET /api/ncm-search?q=` → autocompletado, devuelve `[{ ncm_code, description }]`
   Tablas: `ncm`. Búsqueda numérica por rango gte/lt o textual por ilike descripcion.
 
@@ -258,6 +265,7 @@ Panel de detalle extraído a `app/(app)/nomenclador/PanelDetalle.jsx`.
 
 ### Nomenclador (`app/(app)/nomenclador/`)
 - `PanelDetalle.jsx` — panel slide-over de detalle de posición NCM. Exporta además: `formatearNCM`, `normalizarNCM`, `arancelColor`, `InfoCelda`, `LABEL_ARANCEL_IMPO`
+- Cada candidato del clasificador tiene botón "Calcular costos con este NCM →" → `router.push('/calculadora?ncm=...')`
 
 ## Layout responsive
 - **Desktop (≥1024px):** Sidebar fija izquierda 250px + contenido
