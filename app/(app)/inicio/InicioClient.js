@@ -390,10 +390,9 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
         <FadeIn delay={FADE_DELAYS[0]}>
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <h2 className="font-body text-xl font-semibold text-on-surface">
-              {saludoTexto},{' '}
               {firstName
-                ? <span style={{ background: 'linear-gradient(90deg, #F5F5F5, #DDD92A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{firstName}</span>
-                : <span>bienvenido a trade.ai</span>
+                ? <span style={{ background: 'linear-gradient(90deg, #F5F5F5 40%, #DDD92A 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{saludoTexto}, {firstName}</span>
+                : 'Bienvenido a trade.ai'
               }
             </h2>
             <div className="flex items-center gap-2">
