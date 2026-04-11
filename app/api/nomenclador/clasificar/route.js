@@ -59,16 +59,15 @@ export async function POST(request) {
     const supabase = getServiceClient()
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-    // ── FASE 1: Haiku genera palabras clave de búsqueda (NO códigos NCM) ──────
-    const systemFase1 = `Sos un experto en comercio exterior argentino. Tu tarea es generar términos de búsqueda para encontrar posiciones arancelarias NCM en una base de datos.
+    // ── FASE 1: Haiku identifica partidas probables (4 dígitos) ──────────────
+    const systemFase1 = `Sos un clasificador arancelario experto en el Sistema Armonizado y la NCM del Mercosur. Dado un producto, identificá las 2 a 4 PARTIDAS (4 dígitos) del Sistema Armonizado donde probablemente se clasifica. NO devuelvas códigos NCM completos, SOLO partidas de 4 dígitos. También devolvé 3-5 palabras clave en español para búsqueda textual como backup. Respondé SOLO con JSON válido sin texto adicional.
 
-Dado un producto, devolvé SOLO JSON válido con:
-- "palabras_clave": array de 5-10 términos en español para buscar en descripciones de la nomenclatura arancelaria (sinónimos, nombres técnicos, variaciones, nombres en singular y plural). Incluí el término más general y los más específicos.
-- "capitulos_probables": array de 1-3 números de capítulo del Sistema Armonizado donde probablemente cae el producto (solo números enteros, ej: [73, 83]).
-- "nota": texto opcional si necesitás más información del usuario para clasificar mejor.
-
-NO devuelvas ningún código NCM. Solo palabras clave y capítulos.
-Respondé SOLO con JSON válido, sin texto adicional.`
+Formato:
+{
+  "partidas": ["2204", "2205"],
+  "palabras_clave": ["vino", "tinto", "no espumoso"],
+  "nota": null
+}`
 
     const userFase1 = `Producto a clasificar:
 - Nombre: ${producto}
@@ -76,9 +75,7 @@ Respondé SOLO con JSON válido, sin texto adicional.`
 - Uso/destino: ${uso || 'No especificado'}
 - Estado/procesamiento: ${estado}
 - Presentación: ${presentacion || 'No especificada'}
-- Detalles adicionales: ${detalles || 'Ninguno'}
-
-Generá palabras clave para buscar este producto en la nomenclatura arancelaria argentina.`
+- Detalles adicionales: ${detalles || 'Ninguno'}`
 
     const respFase1 = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -88,53 +85,70 @@ Generá palabras clave para buscar este producto en la nomenclatura arancelaria 
       messages: [{ role: 'user', content: userFase1 }],
     })
 
-    let fase1 = { palabras_clave: [], capitulos_probables: [], nota: null }
+    let fase1 = { partidas: [], palabras_clave: [], nota: null }
     try {
       fase1 = JSON.parse(respFase1.content[0]?.text?.replace(/```json|```/g, '').trim() ?? '{}')
     } catch {
       // Continuar con fallback
     }
 
-    const palabrasClave = Array.isArray(fase1.palabras_clave) ? fase1.palabras_clave.filter(Boolean) : []
-    const capitulosProbables = Array.isArray(fase1.capitulos_probables) ? fase1.capitulos_probables : []
+    const partidas = Array.isArray(fase1.partidas)
+      ? fase1.partidas.filter(p => /^\d{4}$/.test(String(p)))
+      : []
+    const palabrasClave = Array.isArray(fase1.palabras_clave)
+      ? fase1.palabras_clave.filter(Boolean)
+      : []
 
-    // ── FASE 2: Buscar candidatos reales en la DB ─────────────────────────────
+    // ── FASE 2: Traer TODAS las posiciones de esas partidas desde la DB ───────
+    const vistos = new Set()
     let candidatosDB = []
 
+    if (partidas.length > 0) {
+      const partidaSets = await Promise.all(
+        partidas.map(p => {
+          const desde = p.padEnd(11, '0')
+          const hasta = String(Number(p) + 1).padStart(4, '0').padEnd(11, '0')
+          return supabase
+            .from('ncm')
+            .select('codigo_ncm, descripcion, capitulo, seccion')
+            .gte('codigo_ncm', desde)
+            .lt('codigo_ncm', hasta)
+        })
+      )
+
+      for (const { data } of partidaSets) {
+        for (const row of data ?? []) {
+          if (!vistos.has(row.codigo_ncm)) {
+            vistos.add(row.codigo_ncm)
+            candidatosDB.push(row)
+          }
+        }
+      }
+    }
+
+    // Backup: palabras_clave con ilike para cubrir posiciones fuera de las partidas
     if (palabrasClave.length > 0) {
-      const sets = await Promise.all(
+      const keywordSets = await Promise.all(
         palabrasClave.map(term =>
           supabase
             .from('ncm')
             .select('codigo_ncm, descripcion, capitulo, seccion')
             .ilike('descripcion', `%${term}%`)
-            .limit(20)
+            .limit(15)
         )
       )
 
-      const vistos = new Set()
-      const todos = []
-      for (const { data } of sets) {
+      for (const { data } of keywordSets) {
         for (const row of data ?? []) {
           if (!vistos.has(row.codigo_ncm)) {
             vistos.add(row.codigo_ncm)
-            todos.push(row)
+            candidatosDB.push(row)
           }
         }
       }
-
-      // Priorizar los que coinciden con capitulos_probables (sin excluir el resto)
-      if (capitulosProbables.length > 0) {
-        const capStrings = capitulosProbables.map(n => String(n).padStart(2, '0'))
-        const enCapitulo = todos.filter(r => capStrings.includes(String(r.capitulo).padStart(2, '0')))
-        const fuera = todos.filter(r => !capStrings.includes(String(r.capitulo).padStart(2, '0')))
-        candidatosDB = [...enCapitulo, ...fuera].slice(0, 50)
-      } else {
-        candidatosDB = todos.slice(0, 50)
-      }
     }
 
-    // Fallback: si las palabras clave no produjeron resultados, búsqueda textual directa
+    // Fallback final: búsqueda textual directa si no hay resultados
     if (candidatosDB.length === 0) {
       candidatosDB = await buscarCandidatosDB(supabase, producto, material, uso)
     }
@@ -146,38 +160,30 @@ Generá palabras clave para buscar este producto en la nomenclatura arancelaria 
       })
     }
 
-    // ── FASE 3: Haiku rankea candidatos reales ────────────────────────────────
+    // ── FASE 3: Haiku rankea entre candidatos reales ──────────────────────────
     const listaNCM = candidatosDB
-      .map(r => `${r.codigo_ncm} — ${r.descripcion}`)
+      .map(c => `${c.codigo_ncm} — ${c.descripcion}`)
       .join('\n')
 
-    const systemFase3 = `Sos un clasificador arancelario experto. Te doy una descripción de producto y una lista de posiciones NCM reales de la base de datos argentina. Elegí las 3 posiciones que mejor clasifiquen el producto.
+    const systemFase3 = `Sos un clasificador arancelario experto. Te doy una descripción de producto y una lista de posiciones NCM reales de la base de datos argentina. Elegí las 3 posiciones que mejor clasifiquen el producto. SOLO podés elegir códigos que estén en la lista proporcionada. No inventes ni modifiques códigos. Prestá especial atención a las palabras de la descripción NCM que distinguen subcategorías (espumoso vs no espumoso, crudo vs procesado, envase retail vs granel, etc). No te quedes con la primera coincidencia general — buscá la posición más específica. Respondé SOLO con JSON válido.
 
-IMPORTANTE: solo podés elegir códigos que estén en la lista. No inventes ni modifiques códigos. Copiá el codigo_ncm exactamente como aparece en la lista.
-
-Respondé SOLO con JSON válido:
+Formato:
 {
   "candidatos": [
-    {
-      "codigo_ncm": "código exacto de la lista",
-      "confianza": "alta|media|baja",
-      "razonamiento": "2-3 oraciones explicando por qué este NCM clasifica el producto."
-    }
+    { "codigo_ncm": "22042211000", "confianza": "alta", "razonamiento": "..." }
   ]
 }`
 
-    const userFase3 = `Producto:
+    const userFase3 = `Clasificá este producto:
 - Nombre: ${producto}
-- Material/materia prima: ${material || 'No especificado'}
-- Uso/destino: ${uso || 'No especificado'}
-- Estado/procesamiento: ${estado}
+- Material: ${material || 'No especificado'}
+- Uso: ${uso || 'No especificado'}
+- Estado: ${estado}
 - Presentación: ${presentacion || 'No especificada'}
-- Detalles adicionales: ${detalles || 'Ninguno'}
+- Detalles: ${detalles || 'Ninguno'}
 
-Posiciones NCM disponibles en la base de datos:
-${listaNCM}
-
-Elegí las 3 mejores posiciones para este producto.`
+Posiciones NCM disponibles:
+${listaNCM}`
 
     const respFase3 = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -198,15 +204,12 @@ Elegí las 3 mejores posiciones para este producto.`
       ? fase3.candidatos
       : candidatosDB.slice(0, 3).map(r => ({ codigo_ncm: r.codigo_ncm, confianza: 'baja', razonamiento: 'Resultado de búsqueda textual — no clasificado por IA.' }))
 
-    // ── FASE 4: Enriquecer con datos de la DB y aranceles ────────────────────
-    // Mapear candidatosDB para lookup rápido
+    // ── FASE 4: Enriquecer con aranceles ─────────────────────────────────────
     const dbMap = new Map(candidatosDB.map(r => [r.codigo_ncm, r]))
 
     const candidatosFinales = await Promise.all(
       elegidos.slice(0, 3).map(async (c) => {
-        // Validar que el código viene de la lista real
         const ncm_exacto = dbMap.get(c.codigo_ncm) ?? null
-
         const codigoAranceles = ncm_exacto?.codigo_ncm ?? null
         let aranceles_impo = null
         let aranceles_expo = null
