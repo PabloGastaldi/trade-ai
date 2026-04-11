@@ -6,25 +6,25 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
   MessageSquare, BookOpen, Calculator, Globe,
-  Package, Ship, Clock, User, Star, BarChart3, FileSearch,
+  Package, Ship, BarChart3, FileSearch, Home,
 } from 'lucide-react'
 import './Sidebar.css'
 
 const NAV_SECTIONS = [
   {
     items: [
-      { label: 'Simulador', Icon: FileSearch,   href: '/simulador' },
-      { label: 'Chat IA',   Icon: MessageSquare, href: '/consulta' },
-      { label: 'Historial', Icon: Clock,         href: '/historial' },
+      { label: 'Inicio',  Icon: Home,          href: '/' },
+      { label: 'Chat IA', Icon: MessageSquare,  href: '/consulta' },
     ],
   },
   {
     label: 'Herramientas',
     items: [
       { label: 'Calculadora', Icon: Calculator, href: '/calculadora' },
+      { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador' },
+      { label: 'Simulador',   Icon: FileSearch, href: '/simulador' },
       { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
       { label: 'Mercados',    Icon: BarChart3,  href: '/mercados' },
-      { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador' },
     ],
   },
   {
@@ -34,19 +34,29 @@ const NAV_SECTIONS = [
       { label: 'Operaciones', Icon: Ship,    href: '/operaciones' },
     ],
   },
-  {
-    label: 'Cuenta',
-    items: [
-      { label: 'Mi cuenta', Icon: User,  href: '/cuenta' },
-      { label: 'Planes',    Icon: Star,  href: '/planes', isPlan: true },
-    ],
-  },
 ]
 
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [collapsed, setCollapsed] = useState(false)
+  const [userInfo, setUserInfo] = useState({ name: '', plan: '', initial: '?' })
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || ''
+      const initial = name.charAt(0).toUpperCase() || '?'
+      setUserInfo({ name, plan: '', initial })
+
+      supabase.from('users_profile').select('plan_type').eq('id', user.id).single()
+        .then(({ data }) => {
+          const planLabels = { free: 'Free', pro: 'Pro', empresa: 'Empresa' }
+          setUserInfo(prev => ({ ...prev, plan: planLabels[data?.plan_type] || 'Free' }))
+        })
+    })
+  }, [])
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 1024px) and (min-width: 768px)')
@@ -74,7 +84,7 @@ export default function Sidebar() {
     <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}>
       {/* Logo */}
       <div className="sidebar-logo">
-        <Link href="/consulta" className="sidebar-logo-link">
+        <Link href="/" className="sidebar-logo-link">
           <span className="font-logo text-on-surface">trade</span>
           <span className="font-logo text-primary">.ai</span>
           {!collapsed && <span className="sidebar-logo-badge">Beta</span>}
@@ -128,6 +138,20 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="sidebar-footer">
+        {/* User info */}
+        <div className="sidebar-user-info">
+          <Link href="/cuenta" className="sidebar-user-link" title={collapsed ? 'Mi cuenta' : undefined}>
+            <div className="sidebar-user-avatar">
+              {userInfo.initial}
+            </div>
+            {!collapsed && (
+              <div className="sidebar-user-details">
+                <span className="sidebar-user-name">{userInfo.name}</span>
+                <span className="sidebar-user-plan">{userInfo.plan}</span>
+              </div>
+            )}
+          </Link>
+        </div>
         <button
           className="sidebar-logout-btn"
           onClick={handleLogout}

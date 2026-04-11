@@ -331,11 +331,33 @@ function CardRegimenImportacion({ regimen, info, data, esMejor, seleccionado, on
  *   regSeleccionado  — key del régimen activo
  *   setRegSeleccionado — setter
  */
-export default function ResultadosImpo({ resultado, regSeleccionado, setRegSeleccionado }) {
+function CtaSimulador({ ncmCode, paisIso3, tipo }) {
+  if (!ncmCode) return null
+  const params = new URLSearchParams({ ncm: ncmCode })
+  if (paisIso3) params.set('pais', paisIso3)
+  if (tipo) params.set('tipo', tipo)
+  return (
+    <div className="mt-4">
+      <a
+        href={`/simulador?${params.toString()}`}
+        className="flex items-center justify-center gap-2 w-full bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl px-4 py-3 font-body text-sm text-on-surface transition-all"
+      >
+        Simular operación completa con estos datos →
+      </a>
+    </div>
+  )
+}
+
+export default function ResultadosImpo({ resultado, regSeleccionado, setRegSeleccionado, paisIso3 }) {
   const mejorOpcion = resultado?.mejor_opcion ?? null
 
   if (resultado.regimen_unico) {
-    return <ResultadoRegimenUnico resultado={resultado} />
+    return (
+      <>
+        <ResultadoRegimenUnico resultado={resultado} />
+        <CtaSimulador ncmCode={resultado.ncm?.code} paisIso3={paisIso3} tipo="importacion" />
+      </>
+    )
   }
 
   return (
@@ -360,6 +382,7 @@ export default function ResultadosImpo({ resultado, regSeleccionado, setRegSelec
       {resultado.regimenes[regSeleccionado]?.disponible && (
         <DesgloseImportacion data={resultado} />
       )}
+      <CtaSimulador ncmCode={resultado.ncm?.code} paisIso3={paisIso3} tipo="importacion" />
     </>
   )
 }

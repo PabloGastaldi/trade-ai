@@ -377,7 +377,19 @@ export default function ConsultaPage() {
             </button>
           </div>
 
-          <p className="text-center font-mono text-[10px] text-on-surface-variant/30 mt-2">
+          <div className="flex gap-2 mt-2 opacity-60 hover:opacity-100 transition-opacity">
+            <a href="/calculadora" className="text-[10px] font-body text-on-surface-variant bg-white/[0.03] rounded-lg px-2.5 py-1 hover:bg-white/[0.05] transition-colors">
+              Calculadora
+            </a>
+            <a href="/nomenclador" className="text-[10px] font-body text-on-surface-variant bg-white/[0.03] rounded-lg px-2.5 py-1 hover:bg-white/[0.05] transition-colors">
+              Nomenclador
+            </a>
+            <a href="/simulador" className="text-[10px] font-body text-on-surface-variant bg-white/[0.03] rounded-lg px-2.5 py-1 hover:bg-white/[0.05] transition-colors">
+              Simulador
+            </a>
+          </div>
+
+          <p className="text-center font-mono text-[10px] text-on-surface-variant/30 mt-1">
             Enter para enviar · Shift+Enter para nueva línea
           </p>
         </div>

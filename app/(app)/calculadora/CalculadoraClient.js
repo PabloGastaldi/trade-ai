@@ -388,7 +388,7 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
 
         {resultado && (
           <>
-            <ResultadosImpo resultado={resultado} regSeleccionado={regSeleccionado} setRegSeleccionado={setRegSeleccionado} />
+            <ResultadosImpo resultado={resultado} regSeleccionado={regSeleccionado} setRegSeleccionado={setRegSeleccionado} paisIso3={form.pais_origen || null} />
             {contexto && <ContextoComercial contexto={contexto} tipo="impo" />}
           </>
         )}
@@ -662,7 +662,7 @@ function TabExportacion({ productos, paises, initNcm = '', initPais = '' }) {
 
         {resultado && (
           <div className="space-y-4">
-            <ResultadosExpo resultado={resultado} />
+            <ResultadosExpo resultado={{ ...resultado, pais_destino_iso3: form.pais_destino || null }} />
             {contextoExpo && <ContextoComercial contexto={contextoExpo} tipo="expo" />}
           </div>
         )}

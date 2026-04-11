@@ -173,6 +173,17 @@ export default function ResultadosExpo({ resultado: r }) {
           Esta información es orientativa y está respaldada por fuentes oficiales. Para operaciones concretas, consultá con un despachante de aduana matriculado o un profesional de comercio exterior.
         </p>
       </div>
+
+      {r.ncm_code && (
+        <div>
+          <a
+            href={`/simulador?ncm=${encodeURIComponent(r.ncm_code)}${r.pais_destino_iso3 ? `&pais=${encodeURIComponent(r.pais_destino_iso3)}` : ''}&tipo=exportacion`}
+            className="flex items-center justify-center gap-2 w-full bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl px-4 py-3 font-body text-sm text-on-surface transition-all"
+          >
+            Simular operación completa con estos datos →
+          </a>
+        </div>
+      )}
     </div>
   )
 }

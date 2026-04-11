@@ -4,12 +4,12 @@ import { NextResponse } from 'next/server'
 /**
  * Route Handler para el callback de OAuth y magic links.
  * Supabase redirige acá después de que el usuario autoriza con Google.
- * Intercambia el `code` por una sesión activa y redirige a /consulta.
+ * Intercambia el `code` por una sesión activa y redirige a /.
  */
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/consulta'
+  const next = searchParams.get('next') ?? '/'
 
   if (code) {
     const supabase = await createClient()

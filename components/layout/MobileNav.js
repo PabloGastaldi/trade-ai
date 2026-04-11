@@ -5,28 +5,29 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
-  MessageSquare, Calculator, Ship,
-  Package, Globe, Clock, User, Star, BookOpen, BarChart3, FileSearch, LogOut,
+  Home, MessageSquare, Calculator, BarChart3, Menu,
+  BookOpen, FileSearch, Globe, Package, Ship, User, LogOut,
 } from 'lucide-react'
 import './MobileNav.css'
 
 const MOBILE_BREAKPOINT = 768
 
-const DRAWER_SECTIONS = [
-  {
-    items: [
-      { label: 'Simulador', Icon: FileSearch,    href: '/simulador' },
-      { label: 'Chat IA',   Icon: MessageSquare, href: '/consulta' },
-      { label: 'Historial', Icon: Clock,         href: '/historial' },
-    ],
-  },
+// Ítems del bottom tab bar
+const TAB_ITEMS = [
+  { label: 'Inicio',       Icon: Home,          href: '/' },
+  { label: 'Chat IA',      Icon: MessageSquare, href: '/consulta' },
+  { label: 'Calculadora',  Icon: Calculator,    href: '/calculadora' },
+  { label: 'Mercados',     Icon: BarChart3,     href: '/mercados' },
+]
+
+// Ítems del sheet "Más"
+const MORE_SECTIONS = [
   {
     label: 'Herramientas',
     items: [
-      { label: 'Calculadora', Icon: Calculator, href: '/calculadora' },
-      { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
-      { label: 'Mercados',    Icon: BarChart3,  href: '/mercados' },
-      { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador' },
+      { label: 'Nomenclador',  Icon: BookOpen,   href: '/nomenclador' },
+      { label: 'Simulador',    Icon: FileSearch, href: '/simulador' },
+      { label: 'Comparador',   Icon: Globe,      href: '/comparador' },
     ],
   },
   {
@@ -40,7 +41,6 @@ const DRAWER_SECTIONS = [
     label: 'Cuenta',
     items: [
       { label: 'Mi cuenta', Icon: User, href: '/cuenta' },
-      { label: 'Planes',    Icon: Star, href: '/planes' },
     ],
   },
 ]
@@ -65,43 +65,68 @@ export default function MobileNav() {
 function MobileShell() {
   const pathname = usePathname()
   const router = useRouter()
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
 
   async function handleLogout() {
     const supabase = createClient()
     await supabase.auth.signOut()
-    setDrawerOpen(false)
+    setSheetOpen(false)
     router.push('/login')
     router.refresh()
   }
 
+  // "Más" está activo si la ruta actual no es ninguno de los tabs principales
+  const tabHrefs = TAB_ITEMS.map(t => t.href)
+  const moreActive = !tabHrefs.includes(pathname)
+
   return (
     <>
+      {/* Header superior — logo + nombre de página */}
       <div className="mobile-header">
-        <span className="font-logo text-lg">
-          <span className="text-on-surface">trade</span>
-          <span className="text-primary">.ai</span>
-        </span>
-        <button
-          className="mobile-header-menu"
-          onClick={() => setDrawerOpen(v => !v)}
-          aria-label="Abrir menú"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-        </button>
+        <Link href="/" className="mobile-header-logo" onClick={() => setSheetOpen(false)}>
+          <span className="font-logo text-lg">
+            <span className="text-on-surface">trade</span>
+            <span className="text-primary">.ai</span>
+          </span>
+        </Link>
       </div>
 
-      {drawerOpen && (
-        <div className="mobile-drawer-overlay" onClick={() => setDrawerOpen(false)} />
+      {/* Bottom tab bar */}
+      <nav className="mobile-tab-bar">
+        {TAB_ITEMS.map(({ label, Icon, href }) => {
+          const isActive = pathname === href
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`mobile-tab-item ${isActive ? 'mobile-tab-item--active' : ''}`}
+              onClick={() => setSheetOpen(false)}
+            >
+              <Icon size={20} strokeWidth={1.5} />
+              <span className="mobile-tab-label">{label}</span>
+            </Link>
+          )
+        })}
+        <button
+          className={`mobile-tab-item ${moreActive || sheetOpen ? 'mobile-tab-item--active' : ''}`}
+          onClick={() => setSheetOpen(v => !v)}
+          aria-label="Más opciones"
+        >
+          <Menu size={20} strokeWidth={1.5} />
+          <span className="mobile-tab-label">Más</span>
+        </button>
+      </nav>
+
+      {/* Overlay del sheet */}
+      {sheetOpen && (
+        <div className="mobile-drawer-overlay" onClick={() => setSheetOpen(false)} />
       )}
 
-      <div className={`mobile-drawer ${drawerOpen ? 'mobile-drawer--open' : ''}`}>
+      {/* Sheet "Más" — sube desde abajo */}
+      <div className={`mobile-more-sheet ${sheetOpen ? 'mobile-more-sheet--open' : ''}`}>
+        <div className="mobile-more-handle" />
         <div className="mobile-drawer-items">
-          {DRAWER_SECTIONS.map((section, si) => (
+          {MORE_SECTIONS.map((section, si) => (
             <div key={si} className="mobile-drawer-section">
               {section.label && (
                 <span className="mobile-drawer-section-label">{section.label}</span>
@@ -112,25 +137,25 @@ function MobileShell() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`mobile-drawer-item ${isActive ? 'mobile-drawer-item--active' : ''} ${item.soon ? 'mobile-drawer-item--soon' : ''}`}
-                    onClick={() => !item.soon && setDrawerOpen(false)}
+                    className={`mobile-drawer-item ${isActive ? 'mobile-drawer-item--active' : ''}`}
+                    onClick={() => setSheetOpen(false)}
                   >
                     <span className="mobile-drawer-item-icon">
                       <item.Icon size={18} strokeWidth={1.5} />
                     </span>
                     <span className="mobile-drawer-item-label">{item.label}</span>
-                    {item.soon && <span className="mobile-soon-badge">Pronto</span>}
                   </Link>
                 )
               })}
             </div>
           ))}
         </div>
-
-        <Link href="/login" className="mobile-drawer-item" onClick={() => setDrawerOpen(false)}>
-          <span className="mobile-drawer-item-icon"><LogOut size={18} strokeWidth={1.5} /></span>
-          <span className="mobile-drawer-item-label">Cerrar sesión</span>
-        </Link>
+        <div className="mobile-more-footer">
+          <button className="mobile-logout-btn" onClick={handleLogout}>
+            <LogOut size={14} strokeWidth={1.5} />
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </>
   )

@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
       return
     }
 
-    router.push('/consulta')
+    router.push('/')
     router.refresh()
   }
 
