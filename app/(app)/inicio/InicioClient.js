@@ -53,14 +53,14 @@ function TickerItem({ label, value, sub, change, highlight }) {
   const pos = change > 0
   const neg = change < 0
   return (
-    <div className={`flex-none min-w-[80px] px-3 py-2 rounded-xl transition-colors duration-200 hover:bg-white/[0.04] ${highlight ? 'border-l-2 border-primary/40 pl-3' : ''}`}>
-      <div className="font-body text-[10px] uppercase tracking-widest text-on-surface-variant/50 mb-0.5 whitespace-nowrap">
+    <div className={`flex-1 px-4 py-3 rounded-xl transition-colors duration-200 hover:bg-white/[0.04] ${highlight ? 'border-l-2 border-primary/40' : ''}`}>
+      <div className="font-body text-[10px] uppercase tracking-widest text-on-surface-variant/50 mb-1 whitespace-nowrap">
         {label}
       </div>
-      <div className="font-mono text-sm text-on-surface whitespace-nowrap">{value}</div>
-      {sub && <div className="font-mono text-[10px] text-on-surface-variant whitespace-nowrap">{sub}</div>}
+      <div className="font-mono text-base text-on-surface whitespace-nowrap">{value}</div>
+      {sub && <div className="font-mono text-[11px] text-on-surface-variant whitespace-nowrap mt-0.5">{sub}</div>}
       {change != null && (
-        <div className={`font-mono text-[10px] whitespace-nowrap ${pos ? 'text-emerald-400 drop-shadow-[0_0_4px_rgba(52,211,153,0.4)]' : neg ? 'text-red-400 drop-shadow-[0_0_4px_rgba(248,113,113,0.4)]' : 'text-on-surface-variant'}`}>
+        <div className={`font-mono text-[11px] whitespace-nowrap mt-0.5 ${pos ? 'text-emerald-400 drop-shadow-[0_0_4px_rgba(52,211,153,0.4)]' : neg ? 'text-red-400 drop-shadow-[0_0_4px_rgba(248,113,113,0.4)]' : 'text-on-surface-variant'}`}>
           {pos ? '▲' : neg ? '▼' : '—'} {Math.abs(change).toFixed(2)}%
         </div>
       )}
@@ -129,9 +129,9 @@ function MarketTicker() {
         ? <div className="px-3 py-1.5"><TickerSkeleton /></div>
         : items.length > 0
           ? (
-            <div className="flex gap-1 justify-center">
+            <div className="flex w-full">
               {items.map((item, i) => (
-                <div key={i} className="flex items-stretch">
+                <div key={i} className="flex items-stretch flex-1">
                   <TickerItem {...item} />
                   {i < items.length - 1 && (
                     <div className="w-px self-stretch bg-white/[0.06] my-2" />
