@@ -160,6 +160,7 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
     ncm_code: initNcm, valor_fob: '', flete_internacional: '',
     seguro_internacional: '', estimarSeguro: true,
     pais_origen: initPais, condicion_iva: 'responsable_inscripto',
+    peso_kg: '',
   })
   const [regimen, setRegimen] = useState('general')
   const [errores, setErrores] = useState({})
@@ -202,6 +203,7 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
     const paisOrigen = form.pais_origen || null
 
     try {
+      const esCourier = regimen === 'courier_comercial' || regimen === 'courier_personal'
       const res = await fetch('/api/calculadora/importacion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -213,6 +215,7 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
           pais_origen: paisOrigen,
           condicion_iva: ocultarCondicionIva ? 'responsable_inscripto' : form.condicion_iva,
           regimen: regimen !== 'general' ? regimen : null,
+          ...(esCourier && { peso_kg: Number(form.peso_kg) || null }),
         }),
       })
       const json = await res.json()
@@ -304,6 +307,19 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
                 disabled={form.estimarSeguro}
               />
             </div>
+
+            {(regimen === 'courier_comercial' || regimen === 'courier_personal') && (
+              <Input
+                label="Peso estimado (kg)"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                value={form.peso_kg}
+                onChange={e => set('peso_kg', e.target.value)}
+                hint="Opcional — se usa para estimar el flete courier (USD 15/kg) si no ingresaste flete"
+              />
+            )}
 
             <CampoSelect
               label="País de origen"
