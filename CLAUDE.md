@@ -202,9 +202,10 @@ Panel de detalle extraído a `app/(app)/nomenclador/PanelDetalle.jsx`.
 
 ## Páginas activas
 - ✅ Landing page (`app/page.js`)
-- ✅ Chat IA (`app/(app)/consulta/page.js`) — streaming, ReactMarkdown
-- ✅ Simulador (`app/(app)/simulador/SimuladorClient.js`) — 10 queries paralelas, reporte accordion
-- ✅ Calculadora (`app/(app)/calculadora/CalculadoraClient.js`) — acepta `?ncm=&pais=&tipo=` para precarga
+- ✅ **Inicio/Dashboard** (`app/(app)/inicio/page.js` + `InicioClient.js`) — saludo, ticker de mercado, grid herramientas, actividad reciente, Mi negocio. Ruta: `/inicio`
+- ✅ Chat IA (`app/(app)/consulta/page.js`) — streaming, ReactMarkdown, accesos rápidos debajo del input
+- ✅ Simulador (`app/(app)/simulador/SimuladorClient.js`) — 10 queries paralelas, reporte accordion, CTAs post-reporte (AccionesPostReporte)
+- ✅ Calculadora (`app/(app)/calculadora/CalculadoraClient.js`) — acepta `?ncm=&pais=&tipo=` para precarga, CTA → Simulador en resultados impo y expo
 - ✅ Comparador (`app/(app)/comparador/ComparadorClient.js`) — 2-3 países, tabla lado a lado
 - ✅ Catálogo (`app/(app)/catalogo/CatalogoClient.js`)
 - ✅ Operaciones (`app/(app)/operaciones/OperacionesClient.js`) — acepta `?ncm=&pais=&tipo=`, vista lista + Kanban (@dnd-kit)
@@ -269,7 +270,28 @@ Panel de detalle extraído a `app/(app)/nomenclador/PanelDetalle.jsx`.
 
 ## Layout responsive
 - **Desktop (≥1024px):** Sidebar fija izquierda 250px + contenido
-- **Mobile (<768px):** Header fijo arriba (logo + hamburguesa) + Drawer deslizable
+- **Mobile (<768px):** Header fijo arriba (logo) + Bottom tab bar fijo (60px) + Sheet "Más" desde abajo
+
+### Sidebar — estructura actualizada
+- Logo → `/` (landing pública)
+- Secciones: [Inicio `/inicio`, Chat IA `/consulta`] | Herramientas [Calculadora, Nomenclador, Simulador, Comparador, Mercados] | Mi negocio [Catálogo, Operaciones]
+- Footer: bloque usuario (avatar inicial, nombre, plan) + botón logout. Ya no hay sección "Cuenta" ni "Planes" en el nav.
+- Sin "Historial" en el sidebar — se accede desde Chat IA.
+
+### MobileNav — estructura actualizada
+- Bottom tab bar: Inicio, Chat IA, Calculadora, Mercados, Más
+- Sheet "Más": Nomenclador, Simulador, Comparador, Catálogo, Operaciones, Mi cuenta + logout
+- `app-layout.css` mobile: `padding-bottom: calc(60px + env(safe-area-inset-bottom))` para no quedar detrás del tab bar
+
+### Redirects post-login
+- Login email/password → `/inicio`
+- OAuth callback (Google, magic link) → `/inicio`
+- Usuario autenticado que visita `/login` o `/registro` → `/inicio`
+- Reset de contraseña exitoso → `/inicio`
+
+### Colisión de rutas Next.js — IMPORTANTE
+`app/(app)/page.js` y `app/page.js` mapean ambos a `/` porque los route groups `(app)` no generan segmento de URL.
+**El dashboard siempre debe vivir en `app/(app)/inicio/` (ruta `/inicio`), nunca en `app/(app)/page.js`.**
 
 ## Convenciones de código
 - Usar español para variables de dominio (ej: derechoImportacion)
