@@ -227,11 +227,10 @@ function ToolCard({ href, Icon, nombre, desc, cta }) {
           <span className="font-body text-sm font-semibold text-on-surface">{nombre}</span>
         </div>
         <p className="font-body text-sm text-on-surface-variant leading-snug">{desc}</p>
-        <span className="inline-flex items-center gap-1.5 mt-1 px-3 py-1.5 text-xs font-semibold tracking-wide text-primary bg-primary/[0.08] rounded-full border border-primary/[0.12] group-hover:bg-primary/[0.15] group-hover:border-primary/[0.25] transition-all duration-300">
-          {cta.replace(' →', '')}
-          <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
+        <span className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-primary/70 group-hover:text-primary transition-colors duration-300">
+          {cta}
+          <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <polyline points="9 18 15 12 9 6" />
           </svg>
         </span>
       </div>
