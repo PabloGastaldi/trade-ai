@@ -129,7 +129,7 @@ function MarketTicker() {
         ? <div className="px-3 py-1.5"><TickerSkeleton /></div>
         : items.length > 0
           ? (
-            <div className="flex gap-1">
+            <div className="flex gap-1 justify-center">
               {items.map((item, i) => (
                 <div key={i} className="flex items-stretch">
                   <TickerItem {...item} />
@@ -286,9 +286,9 @@ function ActividadReciente({ consultas }) {
             </div>
             <Link
               href="/historial"
-              className="flex-1 flex items-start gap-3 py-2.5 px-3 rounded-xl hover:bg-white/[0.04] transition-colors mb-1"
+              className="flex-1 flex items-start gap-3 py-2.5 px-3 rounded-xl hover:bg-white/[0.04] transition-colors mb-1 overflow-hidden"
             >
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 overflow-hidden">
                 <p className="font-body text-sm text-on-surface truncate">
                   {c.query_text?.slice(0, 80) || 'Consulta'}
                 </p>
