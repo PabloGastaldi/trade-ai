@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import PageLayout from '@/components/ui/PageLayout'
 import Badge from '@/components/ui/Badge'
@@ -45,6 +45,7 @@ export default function NomencladorPage() {
   const searchParams = useSearchParams()
   const PAGE_SIZE = 50
 
+  const router = useRouter()
   const [clasificarForm, setClasificarForm] = useState({ producto: '', material: '', uso: '', estado: '', presentacion: '', detalles: '' })
   const [clasificando, setClasificando] = useState(false)
   const [candidatos, setCandidatos] = useState(null)
@@ -245,8 +246,9 @@ export default function NomencladorPage() {
                       </div>
                     )}
                     {(c.ncm_exacto || c.similares?.[0]) && (
-                      <div className="mt-4">
+                      <div className="mt-4 flex flex-col gap-2">
                         <button className="w-full bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl px-4 py-2.5 font-body text-sm text-on-surface transition-all cursor-pointer" onClick={() => verDetalle(c.ncm_exacto || c.similares[0])}>Ver detalle completo →</button>
+                        <button className="w-full bg-primary/10 hover:bg-primary/20 border border-primary/20 rounded-xl px-4 py-2.5 font-body text-sm text-primary transition-all cursor-pointer" onClick={() => router.push(`/calculadora?ncm=${c.codigo_ncm}`)}>Calcular costos con este NCM →</button>
                       </div>
                     )}
                   </div>
