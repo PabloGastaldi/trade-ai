@@ -1,32 +1,24 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import PageLayout from '@/components/ui/PageLayout'
-import Badge from '@/components/ui/Badge'
 import {
-  MessageSquare, Calculator, BookOpen, FileSearch,
-  Globe, BarChart3, Package, Ship,
+  BookOpen, Calculator, FileSearch, Globe, Package, BarChart3,
+  Sparkles, ArrowRight, ChevronRight, MessageSquare,
 } from 'lucide-react'
 import { getPlanConfig } from '@/lib/plans-config'
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
-function saludo() {
-  const h = new Date().getHours()
-  if (h >= 5 && h < 12) return 'Buenos días'
-  if (h >= 12 && h < 20) return 'Buenas tardes'
-  return 'Buenas noches'
-}
-
-function fechaRelativa(iso) {
-  if (!iso) return ''
-  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
-  if (diff < 60) return 'hace un momento'
-  if (diff < 3600) return `hace ${Math.floor(diff / 60)} min`
-  if (diff < 86400) return `hace ${Math.floor(diff / 3600)}h`
-  if (diff < 172800) return 'ayer'
-  return `hace ${Math.floor(diff / 86400)} días`
+function formatRelativeDate(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const days = Math.floor(diff / 86400000)
+  if (days === 0) return 'hoy'
+  if (days === 1) return 'ayer'
+  if (days < 7) return `hace ${days} días`
+  if (days < 30) return `hace ${Math.floor(days / 7)} sem`
+  return `hace ${Math.floor(days / 30)} mes`
 }
 
 function fmtARS(v) {
@@ -34,36 +26,28 @@ function fmtARS(v) {
   return `$${Number(v).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
 }
 
+// ── Herramientas ─────────────────────────────────────────────────────────────
+
+const HERRAMIENTAS = [
+  { Icon: BookOpen,   name: 'Nomenclador', description: 'Clasificá tu producto y encontrá su posición arancelaria.',           cta: 'Clasificar',   href: '/nomenclador' },
+  { Icon: Calculator, name: 'Calculadora', description: 'Calculá costos, aranceles y tributos de importación y exportación.',  cta: 'Calcular',     href: '/calculadora' },
+  { Icon: FileSearch, name: 'Simulador',   description: 'Simulá una operación completa de comercio exterior.',                 cta: 'Simular',      href: '/simulador'   },
+  { Icon: Globe,      name: 'Comparador',  description: 'Compará condiciones arancelarias entre países.',                      cta: 'Comparar',     href: '/comparador'  },
+  { Icon: Package,    name: 'Catálogo',    description: 'Gestioná los productos de tu negocio.',                               cta: 'Ver catálogo', href: '/catalogo'    },
+  { Icon: BarChart3,  name: 'Mercados',    description: 'Cotizaciones, tipo de cambio y commodities en vivo.',                 cta: 'Ver mercados', href: '/mercados'    },
+]
+
 // ── Ticker ───────────────────────────────────────────────────────────────────
 
 function TickerSkeleton() {
   return (
-    <div className="flex gap-6 overflow-x-auto">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="flex-none min-w-[80px] space-y-1.5">
-          <div className="h-2 w-16 bg-white/[0.06] rounded animate-pulse" />
-          <div className="h-4 w-20 bg-white/[0.06] rounded animate-pulse" />
+    <div className="flex items-center gap-6">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <div className="h-2.5 w-14 bg-white/[0.06] rounded animate-pulse" />
+          <div className="h-3 w-16 bg-white/[0.06] rounded animate-pulse" />
         </div>
       ))}
-    </div>
-  )
-}
-
-function TickerItem({ label, value, sub, change, highlight }) {
-  const pos = change > 0
-  const neg = change < 0
-  return (
-    <div className={`flex-1 px-4 py-3 rounded-xl transition-colors duration-200 hover:bg-white/[0.04] ${highlight ? 'border-l-2 border-primary/40' : ''}`}>
-      <div className="font-body text-[10px] uppercase tracking-widest text-on-surface-variant/50 mb-1 whitespace-nowrap">
-        {label}
-      </div>
-      <div className="font-mono text-base text-on-surface whitespace-nowrap">{value}</div>
-      {sub && <div className="font-mono text-[11px] text-on-surface-variant whitespace-nowrap mt-0.5">{sub}</div>}
-      {change != null && (
-        <div className={`font-mono text-[11px] whitespace-nowrap mt-0.5 ${pos ? 'text-emerald-400 drop-shadow-[0_0_4px_rgba(52,211,153,0.4)]' : neg ? 'text-red-400 drop-shadow-[0_0_4px_rgba(248,113,113,0.4)]' : 'text-on-surface-variant'}`}>
-          {pos ? '▲' : neg ? '▼' : '—'} {Math.abs(change).toFixed(2)}%
-        </div>
-      )}
     </div>
   )
 }
@@ -78,274 +62,57 @@ function MarketTicker() {
       if (!res.ok) return
       setData(await res.json())
     } catch {
-      // silencioso — no romper la página si falla
+      // silencioso
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
+  useEffect(() => { fetchData() }, [fetchData])
 
   const d = data?.dolares
   const granos = data?.granos?.granos ?? []
   const rp = data?.riesgoPais
 
+  const soja = granos.find(g => g.name === 'Soja')
+  const trigo = granos.find(g => g.name === 'Trigo')
+
   const items = [
-    d?.blue && {
-      label: 'Dólar Blue',
-      value: `$${d.blue.venta?.toLocaleString('es-AR', { minimumFractionDigits: 0 })}`,
-      sub: `Compra $${d.blue.compra?.toLocaleString('es-AR', { minimumFractionDigits: 0 })}`,
-      highlight: true,
-    },
-    d?.mep && {
-      label: 'Dólar MEP',
-      value: `$${d.mep.venta?.toLocaleString('es-AR', { minimumFractionDigits: 0 })}`,
-    },
-    d?.ccl && {
-      label: 'Dólar CCL',
-      value: `$${d.ccl.venta?.toLocaleString('es-AR', { minimumFractionDigits: 0 })}`,
-    },
-    rp && {
-      label: 'Riesgo País',
-      value: rp.valor?.toLocaleString('es-AR'),
-      sub: 'puntos básicos',
-    },
-    ...granos.slice(0, 2).map(g => ({
-      label: g.name,
-      value: fmtARS(g.price),
-      sub: g.unit,
-      change: g.changePercent,
-    })),
+    d?.blue  && { label: 'Dólar Blue', value: fmtARS(d.blue.venta),  change: null },
+    d?.mep   && { label: 'Dólar MEP',  value: fmtARS(d.mep.venta),   change: null },
+    d?.ccl   && { label: 'Dólar CCL',  value: fmtARS(d.ccl.venta),   change: null },
+    rp       && { label: 'Riesgo País',value: rp.valor?.toLocaleString('es-AR'), change: null },
+    soja     && { label: 'Soja BCR',   value: fmtARS(soja.price),    change: soja.changePercent ?? null },
+    trigo    && { label: 'Trigo BCR',  value: fmtARS(trigo.price),   change: trigo.changePercent ?? null },
   ].filter(Boolean)
 
   return (
-    <div
-      className="border border-white/[0.06] rounded-2xl px-2 py-2 overflow-x-auto"
-      style={{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
-    >
-      {loading
-        ? <div className="px-3 py-1.5"><TickerSkeleton /></div>
-        : items.length > 0
-          ? (
-            <div className="flex w-full">
-              {items.map((item, i) => (
-                <div key={i} className="flex items-stretch flex-1">
-                  <TickerItem {...item} />
-                  {i < items.length - 1 && (
-                    <div className="w-px self-stretch bg-white/[0.06] my-2" />
-                  )}
-                </div>
-              ))}
-            </div>
-          )
-          : <span className="font-body text-sm text-on-surface-variant px-3">Datos de mercado no disponibles</span>
-      }
-    </div>
-  )
-}
-
-// ── Herramientas ─────────────────────────────────────────────────────────────
-
-const HERRAMIENTAS = [
-  {
-    href: '/consulta',
-    Icon: MessageSquare,
-    nombre: 'Chat IA',
-    desc: 'Consultá cualquier duda de comercio exterior con IA',
-    cta: 'Hacer una consulta →',
-  },
-  {
-    href: '/calculadora',
-    Icon: Calculator,
-    nombre: 'Calculadora',
-    desc: 'Calculá costos de importación y exportación',
-    cta: 'Calcular costos →',
-  },
-  {
-    href: '/nomenclador',
-    Icon: BookOpen,
-    nombre: 'Nomenclador',
-    desc: 'Encontrá la posición arancelaria de tu producto',
-    cta: 'Clasificar producto →',
-  },
-  {
-    href: '/simulador',
-    Icon: FileSearch,
-    nombre: 'Simulador',
-    desc: 'Simulá una operación completa de COMEX',
-    cta: 'Simular operación →',
-  },
-  {
-    href: '/comparador',
-    Icon: Globe,
-    nombre: 'Comparador',
-    desc: 'Compará condiciones arancelarias entre países',
-    cta: 'Comparar países →',
-  },
-  {
-    href: '/mercados',
-    Icon: BarChart3,
-    nombre: 'Mercados',
-    desc: 'Cotizaciones, tipo de cambio y commodities en vivo',
-    cta: 'Ver mercados →',
-  },
-]
-
-function ToolCard({ href, Icon, nombre, desc, cta }) {
-  return (
-    <Link href={href} className="group relative block">
-      {/* Glow on hover */}
-      <div className="absolute -inset-px rounded-2xl bg-primary/[0.08] opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 pointer-events-none" />
-
-      <div
-        className="relative rounded-2xl p-5 flex flex-col gap-3 transition-all duration-300"
-        style={{
-          background: 'rgba(255,255,255,0.02)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255,255,255,0.06)',
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'
-          e.currentTarget.style.transform = 'translateY(-2px)'
-          e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)'
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = 'rgba(255,255,255,0.02)'
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
-          e.currentTarget.style.transform = 'translateY(0)'
-          e.currentTarget.style.boxShadow = 'none'
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-primary/[0.08] flex items-center justify-center flex-none">
-            <Icon size={16} strokeWidth={1.5} className="text-primary" />
-          </div>
-          <span className="font-body text-sm font-semibold text-on-surface">{nombre}</span>
+    <div className="bg-white/[0.02] rounded-2xl px-6 py-4 max-w-4xl mx-auto w-full">
+      <div className="flex items-center gap-6 overflow-x-auto hide-scrollbar">
+        {/* Badge live */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+          <span className="text-[10px] font-bold tracking-widest text-on-surface-variant/40 uppercase">Market</span>
         </div>
-        <p className="font-body text-sm text-on-surface-variant leading-snug">{desc}</p>
-        <span className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-primary/70 group-hover:text-primary transition-colors duration-300">
-          {cta}
-          <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </span>
-      </div>
-    </Link>
-  )
-}
+        <div className="w-px h-4 bg-white/[0.06] shrink-0" />
 
-// ── Actividad reciente ────────────────────────────────────────────────────────
-
-function ActividadReciente({ consultas }) {
-  if (!consultas?.length) {
-    return (
-      <div
-        className="rounded-2xl p-6"
-        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
-      >
-        <h2 className="font-body text-sm font-semibold text-on-surface mb-4">Empezá tu primera operación</h2>
-        <div className="space-y-1">
-          {[
-            { n: 1, label: 'Clasificá tu producto', href: '/nomenclador' },
-            { n: 2, label: 'Calculá los costos', href: '/calculadora' },
-            { n: 3, label: 'Simulá la operación', href: '/simulador' },
-          ].map((step, idx) => (
-            <div key={step.n} className="flex items-stretch gap-3">
-              {/* Timeline */}
-              <div className="flex flex-col items-center flex-none" style={{ width: 24 }}>
-                <div className={`w-2 h-2 rounded-full flex-none mt-3.5 ${idx === 0 ? 'bg-primary' : 'bg-white/[0.1]'}`} />
-                {idx < 2 && <div className="w-px flex-1 bg-white/[0.06] mt-1" />}
+        {loading
+          ? <TickerSkeleton />
+          : items.map((item, i) => (
+            <div key={i} className="flex items-center gap-6 shrink-0">
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <span className="text-[10px] text-on-surface-variant/40 font-medium">{item.label}</span>
+                <span className="font-mono text-sm font-semibold text-on-surface">{item.value}</span>
+                {item.change != null && (
+                  <span className={`text-[10px] ${item.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {item.change >= 0 ? '▲' : '▼'} {Math.abs(item.change).toFixed(2)}%
+                  </span>
+                )}
               </div>
-              <Link
-                href={step.href}
-                className="flex-1 flex items-center gap-2 py-2.5 px-3 rounded-xl hover:bg-white/[0.04] transition-colors mb-1"
-              >
-                <span className="font-body text-sm text-on-surface-variant">{step.label} →</span>
-              </Link>
+              {i < items.length - 1 && <div className="w-px h-4 bg-white/[0.06] shrink-0" />}
             </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div
-      className="rounded-2xl p-6"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
-    >
-      <h2 className="font-body text-sm font-semibold text-on-surface mb-4">Actividad reciente</h2>
-      <div className="space-y-1">
-        {consultas.map((c, idx) => (
-          <div key={c.id} className="flex items-stretch gap-3">
-            {/* Timeline */}
-            <div className="flex flex-col items-center flex-none" style={{ width: 24 }}>
-              <div className={`w-2 h-2 rounded-full flex-none mt-3.5 ${idx === 0 ? 'bg-primary' : 'bg-white/[0.1]'}`} />
-              {idx < consultas.length - 1 && <div className="w-px flex-1 bg-white/[0.06] mt-1" />}
-            </div>
-            <Link
-              href="/historial"
-              className="flex-1 flex items-start gap-3 py-2.5 px-3 rounded-xl hover:bg-white/[0.04] transition-colors mb-1 overflow-hidden"
-            >
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <p className="font-body text-sm text-on-surface truncate">
-                  {c.query_text?.slice(0, 80) || 'Consulta'}
-                </p>
-                <span className="font-mono text-[10px] text-on-surface-variant">
-                  {fechaRelativa(c.created_at)}
-                </span>
-              </div>
-            </Link>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ── Mi negocio ────────────────────────────────────────────────────────────────
-
-function MiNegocio({ cantProductos, ultimaOperacion }) {
-  if (!cantProductos && !ultimaOperacion) return null
-
-  return (
-    <div
-      className="rounded-2xl p-5"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
-    >
-      <h2 className="font-body text-sm font-semibold text-on-surface mb-3">Mi negocio</h2>
-      <div className="flex flex-wrap gap-3">
-        {cantProductos > 0 && (
-          <Link
-            href="/catalogo"
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.07]
-                       transition-colors border border-white/[0.06]"
-          >
-            <Package size={13} strokeWidth={1.5} className="text-primary" />
-            <span className="font-body text-sm text-on-surface">
-              {cantProductos} producto{cantProductos !== 1 ? 's' : ''} en catálogo
-            </span>
-            <span className="font-mono text-[10px] text-on-surface-variant">→</span>
-          </Link>
-        )}
-        {ultimaOperacion && (
-          <Link
-            href={`/operaciones/${ultimaOperacion.id}`}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.07]
-                       transition-colors border border-white/[0.06]"
-          >
-            <Ship size={13} strokeWidth={1.5} className="text-on-surface-variant" />
-            <span className="font-body text-sm text-on-surface">
-              {ultimaOperacion.operation_type === 'importacion' ? 'Importación' : 'Exportación'}
-              {ultimaOperacion.country ? ` — ${ultimaOperacion.country}` : ''}
-            </span>
-            <span className="font-mono text-[10px] text-on-surface-variant">→</span>
-          </Link>
-        )}
+          ))
+        }
       </div>
     </div>
   )
@@ -353,93 +120,145 @@ function MiNegocio({ cantProductos, ultimaOperacion }) {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-const FADE_DELAYS = ['0ms', '80ms', '160ms', '240ms', '320ms']
+export default function InicioClient({ nombre, ultimasConsultas, cantProductos, perfil }) {
+  const router = useRouter()
+  const [query, setQuery] = useState('')
 
-function FadeIn({ delay, children }) {
-  return (
-    <div style={{ animation: 'fadeInUp 0.5s ease-out forwards', animationDelay: delay, opacity: 0 }}>
-      {children}
-    </div>
-  )
-}
-
-export default function InicioClient({ nombre, ultimasConsultas, cantProductos, ultimaOperacion, perfil }) {
   const planConfig = getPlanConfig(perfil?.plan_type)
-  const limite = planConfig?.limits?.consulta?.monthly
-  const usadas = perfil?.queries_this_month ?? 0
+  const planType = perfil?.plan_type ?? 'free'
+  const queriesUsadas = perfil?.queries_this_month ?? 0
+  const queriesLimite = planConfig?.limits?.consulta?.monthly
 
-  const firstName = nombre?.split(' ')[0]
-  const saludoTexto = saludo()
+  const esPremium = planType === 'pro' || planType === 'empresa'
+
+  function handleSubmit(e) {
+    e?.preventDefault()
+    const q = query.trim()
+    if (!q) return
+    router.push(`/consulta?q=${encodeURIComponent(q)}`)
+  }
 
   return (
-    <PageLayout title="INICIO">
-      {/* Ambient gradient orbs */}
+    <div className="relative min-h-[calc(100vh-52px)] flex flex-col justify-center px-6 py-12">
+
+      {/* Orbes ambientales */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10" aria-hidden="true">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-[120px]"
-          style={{ background: 'rgba(221,217,42,0.07)' }} />
-        <div className="absolute top-1/2 -left-40 w-80 h-80 rounded-full blur-[100px]"
-          style={{ background: 'rgba(221,217,42,0.04)' }} />
-        <div className="absolute -bottom-20 right-1/3 w-72 h-72 rounded-full blur-[80px]"
-          style={{ background: 'rgba(255,255,255,0.02)' }} />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/[0.05] rounded-full blur-[120px]" />
+        <div className="absolute top-1/3 -left-40 w-80 h-80 bg-primary/[0.03] rounded-full blur-[100px]" />
       </div>
 
-      <div className="space-y-6">
-
-        {/* Bloque 1: Saludo + plan */}
-        <FadeIn delay={FADE_DELAYS[0]}>
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <h2 className="font-body text-xl font-semibold text-on-surface">
-              {firstName
-                ? <span style={{ background: 'linear-gradient(90deg, #F5F5F5 40%, #DDD92A 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{saludoTexto}, {firstName}</span>
-                : 'Bienvenido a trade.ai'
-              }
-            </h2>
-            <div className="flex items-center gap-2">
-              <span
-                className="px-2.5 py-0.5 text-[10px] font-bold tracking-widest rounded-md border"
-                style={{
-                  background: 'rgba(221,217,42,0.15)',
-                  color: '#DDD92A',
-                  borderColor: 'rgba(221,217,42,0.25)',
-                  boxShadow: '0 0 8px rgba(221,217,42,0.1)',
-                }}
-              >
-                {(planConfig?.name ?? 'Free').toUpperCase()}
-              </span>
-              {limite != null && (
-                <span className="font-mono text-[11px] text-on-surface-variant">
-                  {usadas}/{limite} consultas
-                </span>
-              )}
-            </div>
+      {/* SECCIÓN 1: Hero */}
+      <div
+        className="relative max-w-4xl mx-auto w-full"
+        style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '0ms', opacity: 0 }}
+      >
+        {/* Badge plan premium */}
+        {esPremium && (
+          <div className="absolute -top-2 right-0">
+            <span className="bg-primary/10 text-primary text-[10px] font-bold tracking-widest border border-primary/20 rounded-full px-3 py-1">
+              {planType.toUpperCase()} · {queriesUsadas}{queriesLimite != null ? `/${queriesLimite}` : ''} consultas
+            </span>
           </div>
-        </FadeIn>
-
-        {/* Bloque 2: Ticker de mercado */}
-        <FadeIn delay={FADE_DELAYS[1]}>
-          <MarketTicker />
-        </FadeIn>
-
-        {/* Bloque 3: Grid de herramientas */}
-        <FadeIn delay={FADE_DELAYS[2]}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {HERRAMIENTAS.map(h => <ToolCard key={h.href} {...h} />)}
-          </div>
-        </FadeIn>
-
-        {/* Bloque 4: Actividad reciente / Onboarding */}
-        <FadeIn delay={FADE_DELAYS[3]}>
-          <ActividadReciente consultas={ultimasConsultas} />
-        </FadeIn>
-
-        {/* Bloque 5: Mi negocio (solo si tiene datos) */}
-        {(cantProductos > 0 || ultimaOperacion) && (
-          <FadeIn delay={FADE_DELAYS[4]}>
-            <MiNegocio cantProductos={cantProductos} ultimaOperacion={ultimaOperacion} />
-          </FadeIn>
         )}
 
+        {/* Título hero */}
+        <h1 className="font-body text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] text-center max-w-3xl mx-auto mb-8">
+          <span className="text-on-surface">¿Cómo podemos ayudarte con tu </span>
+          <span style={{ background: 'linear-gradient(90deg, #DDD92A, rgba(245,245,245,0.6))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            operación hoy?
+          </span>
+        </h1>
+
+        {/* Barra de chat */}
+        <form onSubmit={handleSubmit} className="max-w-xl mx-auto">
+          <div
+            className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-1.5 flex items-center transition-all duration-300 focus-within:border-primary/30"
+            style={{ focusWithinBoxShadow: '0 0 40px -10px rgba(221,217,42,0.12)' }}
+          >
+            <Sparkles size={18} className="ml-3 text-primary/60 shrink-0" />
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Preguntale a la IA: ¿Cuál es el arancel para...?"
+              className="bg-transparent border-none outline-none flex-1 px-3 py-3 text-sm font-body text-on-surface placeholder:text-on-surface-variant/30"
+            />
+            <button
+              type="submit"
+              className="bg-primary text-on-primary p-2.5 rounded-xl hover:scale-105 active:scale-95 transition-transform shrink-0"
+              aria-label="Enviar consulta"
+            >
+              <ArrowRight size={18} />
+            </button>
+          </div>
+        </form>
       </div>
-    </PageLayout>
+
+      {/* SECCIÓN 2: Grid de herramientas */}
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-12 gap-x-10 max-w-4xl mx-auto mt-16 px-4 w-full"
+        style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '150ms', opacity: 0 }}
+      >
+        {HERRAMIENTAS.map(tool => (
+          <Link key={tool.href} href={tool.href} className="group flex items-start gap-4 relative">
+            {/* Línea decorativa izquierda */}
+            <div className="absolute -left-4 top-0 w-px h-full bg-gradient-to-b from-primary/20 to-transparent group-hover:from-primary/60 transition-all duration-500" />
+
+            <tool.Icon
+              size={28}
+              strokeWidth={1.5}
+              className="text-on-surface-variant/30 group-hover:text-primary group-hover:scale-110 transition-all duration-300 shrink-0 mt-0.5"
+            />
+
+            <div>
+              <h3 className="text-lg font-semibold tracking-tight text-on-surface mb-1">{tool.name}</h3>
+              <p className="text-sm text-on-surface-variant/60 leading-snug max-w-[220px]">{tool.description}</p>
+              <div className="mt-2.5 flex items-center gap-1.5 text-[10px] font-bold text-primary tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {tool.cta}
+                <ChevronRight size={12} />
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* SECCIÓN 3: Ticker */}
+      <div
+        className="mt-20 w-full"
+        style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '300ms', opacity: 0 }}
+      >
+        <MarketTicker />
+      </div>
+
+      {/* SECCIÓN 4: Actividad reciente */}
+      {ultimasConsultas?.length > 0 && (
+        <div
+          className="mt-12 max-w-4xl mx-auto w-full px-4"
+          style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '400ms', opacity: 0 }}
+        >
+          <p className="text-xs font-semibold tracking-widest text-on-surface-variant/40 uppercase mb-4">
+            Actividad reciente
+          </p>
+          <div>
+            {ultimasConsultas.slice(0, 3).map(c => (
+              <Link
+                key={c.id}
+                href="/historial"
+                className="flex items-center gap-3 py-2.5 group"
+              >
+                <MessageSquare size={14} className="text-on-surface-variant/20 group-hover:text-primary/60 transition-colors shrink-0" />
+                <span className="text-sm text-on-surface-variant/50 group-hover:text-on-surface/80 transition-colors truncate max-w-md">
+                  {c.query_text?.slice(0, 80)}
+                </span>
+                <span className="text-[10px] text-on-surface-variant/20 ml-auto shrink-0">
+                  {formatRelativeDate(c.created_at)}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+    </div>
   )
 }
