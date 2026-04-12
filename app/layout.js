@@ -23,7 +23,7 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata = {
-  icons: { icon: '/favicon.png' },
+  icons: { icon: '/favicon.ico' },
   title: 'trade.ai — Inteligencia para el comercio exterior',
   description:
     'Consultá aranceles, normativa y documentos de comercio exterior argentino con inteligencia artificial. Respuestas respaldadas por fuentes oficiales.',
