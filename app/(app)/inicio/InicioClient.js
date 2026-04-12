@@ -126,11 +126,12 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
   return (
     <div className="relative min-h-[calc(100vh-52px)] flex flex-col justify-center px-6 py-12">
 
-      {/* Orbes ambientales */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10" aria-hidden="true">
+      {/* Orbes ambientales — solo desktop */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10 hidden md:block" aria-hidden="true">
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-[120px]" style={{ background: 'rgba(221,217,42,0.12)' }} />
         <div className="absolute top-1/2 -left-40 w-80 h-80 rounded-full blur-[100px]" style={{ background: 'rgba(221,217,42,0.07)' }} />
         <div className="absolute -bottom-20 right-1/3 w-72 h-72 rounded-full blur-[80px]" style={{ background: 'rgba(255,255,255,0.03)' }} />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full blur-[120px]" style={{ background: 'rgba(221,217,42,0.09)' }} />
       </div>
 
       {/* SECCIÓN 1: Hero */}
