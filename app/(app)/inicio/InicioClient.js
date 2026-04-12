@@ -128,14 +128,17 @@ export default function InicioClient({ nombre }) {
 
       {/* Orbes ambientales */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10" aria-hidden="true">
+        {/* Dot grid texture */}
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1px)', backgroundSize: '26px 26px' }} />
+
         {/* Desktop */}
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-[120px] hidden md:block" style={{ background: 'rgba(221,217,42,0.12)', animation: 'orbFloat1 22s ease-in-out infinite' }} />
-        <div className="absolute top-1/2 -left-40 w-80 h-80 rounded-full blur-[100px] hidden md:block" style={{ background: 'rgba(221,217,42,0.07)', animation: 'orbFloat2 28s ease-in-out infinite', animationDelay: '-8s' }} />
-        <div className="absolute -bottom-20 right-1/3 w-72 h-72 rounded-full blur-[80px] hidden md:block" style={{ background: 'rgba(255,255,255,0.03)', animation: 'orbFloat3 18s ease-in-out infinite', animationDelay: '-4s' }} />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full blur-[120px] hidden md:block" style={{ background: 'rgba(221,217,42,0.09)', animation: 'orbFloat4 24s ease-in-out infinite', animationDelay: '-12s' }} />
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-[120px] hidden md:block" style={{ background: 'rgba(221,217,42,0.20)', animation: 'orbFloat1 22s ease-in-out infinite' }} />
+        <div className="absolute top-1/2 -left-40 w-80 h-80 rounded-full blur-[100px] hidden md:block" style={{ background: 'rgba(221,217,42,0.13)', animation: 'orbFloat2 28s ease-in-out infinite', animationDelay: '-8s' }} />
+        <div className="absolute -bottom-20 right-1/3 w-72 h-72 rounded-full blur-[80px] hidden md:block" style={{ background: 'rgba(255,255,255,0.05)', animation: 'orbFloat3 18s ease-in-out infinite', animationDelay: '-4s' }} />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full blur-[120px] hidden md:block" style={{ background: 'rgba(221,217,42,0.16)', animation: 'orbFloat4 24s ease-in-out infinite', animationDelay: '-12s' }} />
         {/* Mobile */}
-        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-[90px] md:hidden" style={{ background: 'rgba(221,217,42,0.08)', animation: 'orbFloat1 20s ease-in-out infinite' }} />
-        <div className="absolute bottom-1/3 -left-20 w-56 h-56 rounded-full blur-[80px] md:hidden" style={{ background: 'rgba(221,217,42,0.05)', animation: 'orbFloat2 26s ease-in-out infinite', animationDelay: '-6s' }} />
+        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-[90px] md:hidden" style={{ background: 'rgba(221,217,42,0.15)', animation: 'orbFloat1 20s ease-in-out infinite' }} />
+        <div className="absolute bottom-1/3 -left-20 w-56 h-56 rounded-full blur-[80px] md:hidden" style={{ background: 'rgba(221,217,42,0.10)', animation: 'orbFloat2 26s ease-in-out infinite', animationDelay: '-6s' }} />
       </div>
 
       {/* SECCIÓN 1: Hero */}
