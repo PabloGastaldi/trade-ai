@@ -127,18 +127,18 @@ export default function InicioClient({ nombre }) {
     <div className="relative min-h-[calc(100vh-52px)] flex flex-col justify-center px-6 py-12">
 
       {/* Orbes ambientales */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10" aria-hidden="true">
+      <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
         {/* Dot grid texture */}
-        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1px)', backgroundSize: '26px 26px' }} />
+        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
         {/* Desktop */}
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-[120px] hidden md:block" style={{ background: 'rgba(221,217,42,0.20)', animation: 'orbFloat1 22s ease-in-out infinite' }} />
-        <div className="absolute top-1/2 -left-40 w-80 h-80 rounded-full blur-[100px] hidden md:block" style={{ background: 'rgba(221,217,42,0.13)', animation: 'orbFloat2 28s ease-in-out infinite', animationDelay: '-8s' }} />
-        <div className="absolute -bottom-20 right-1/3 w-72 h-72 rounded-full blur-[80px] hidden md:block" style={{ background: 'rgba(255,255,255,0.05)', animation: 'orbFloat3 18s ease-in-out infinite', animationDelay: '-4s' }} />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full blur-[120px] hidden md:block" style={{ background: 'rgba(221,217,42,0.16)', animation: 'orbFloat4 24s ease-in-out infinite', animationDelay: '-12s' }} />
+        <div className="absolute rounded-full hidden md:block" style={{ width: '600px', height: '600px', top: '-200px', right: '-200px', background: 'radial-gradient(circle, rgba(221,217,42,0.18) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'orbFloat1 22s ease-in-out infinite' }} />
+        <div className="absolute rounded-full hidden md:block" style={{ width: '500px', height: '500px', top: '30%', left: '-200px', background: 'radial-gradient(circle, rgba(221,217,42,0.12) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'orbFloat2 28s ease-in-out infinite', animationDelay: '-8s' }} />
+        <div className="absolute rounded-full hidden md:block" style={{ width: '450px', height: '450px', bottom: '-100px', left: '-150px', background: 'radial-gradient(circle, rgba(221,217,42,0.14) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'orbFloat4 24s ease-in-out infinite', animationDelay: '-12s' }} />
+        <div className="absolute rounded-full hidden md:block" style={{ width: '350px', height: '350px', bottom: '10%', right: '20%', background: 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)', filter: 'blur(30px)', animation: 'orbFloat3 18s ease-in-out infinite', animationDelay: '-4s' }} />
         {/* Mobile */}
-        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-[90px] md:hidden" style={{ background: 'rgba(221,217,42,0.15)', animation: 'orbFloat1 20s ease-in-out infinite' }} />
-        <div className="absolute bottom-1/3 -left-20 w-56 h-56 rounded-full blur-[80px] md:hidden" style={{ background: 'rgba(221,217,42,0.10)', animation: 'orbFloat2 26s ease-in-out infinite', animationDelay: '-6s' }} />
+        <div className="absolute rounded-full md:hidden" style={{ width: '350px', height: '350px', top: '-100px', right: '-100px', background: 'radial-gradient(circle, rgba(221,217,42,0.14) 0%, transparent 70%)', filter: 'blur(30px)', animation: 'orbFloat1 20s ease-in-out infinite' }} />
+        <div className="absolute rounded-full md:hidden" style={{ width: '300px', height: '300px', bottom: '20%', left: '-100px', background: 'radial-gradient(circle, rgba(221,217,42,0.09) 0%, transparent 70%)', filter: 'blur(30px)', animation: 'orbFloat2 26s ease-in-out infinite', animationDelay: '-6s' }} />
       </div>
 
       {/* SECCIÓN 1: Hero */}
