@@ -10,7 +10,7 @@
   height: 52px;
   background: #111013;
   border-bottom: 1px solid var(--border);
-  z-index: 199;
+  z-index: 301;
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
@@ -50,7 +50,7 @@
 .mobile-drawer-overlay {
   position: fixed;
   inset: 0;
-  z-index: 199;
+  z-index: 299;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(2px);
 }
@@ -248,7 +248,7 @@
   height: 60px;
   background: #111013;
   border-top: 1px solid var(--border);
-  z-index: 199;
+  z-index: 301;
   align-items: stretch;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -285,18 +285,19 @@
 /* ── Sheet "Más" ──────────────────────────────── */
 .mobile-more-sheet {
   position: fixed;
-  bottom: 60px; /* encima del tab bar */
+  bottom: 0;
   left: 0;
   right: 0;
-  z-index: 200;
+  z-index: 300;
   background: #111013;
   border-top: 1px solid var(--border);
   border-radius: 16px 16px 0 0;
   transform: translateY(100%);
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  max-height: 70vh;
+  max-height: 75vh;
   display: flex;
   flex-direction: column;
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
 }
 
 .mobile-more-sheet--open {
