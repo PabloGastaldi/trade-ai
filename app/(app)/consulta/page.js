@@ -179,6 +179,16 @@ export default function ConsultaPage() {
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'
   }, [inputTexto])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const initialQuery = params.get('q')
+    if (!initialQuery) return
+    window.history.replaceState({}, '', '/consulta')
+    setTimeout(() => {
+      enviarConsulta(initialQuery.trim())
+    }, 100)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   async function enviarConsulta(texto) {
     if (!texto.trim() || cargando) return
 
