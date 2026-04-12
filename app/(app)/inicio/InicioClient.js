@@ -76,7 +76,7 @@ function MarketTicker() {
   ].filter(Boolean)
 
   return (
-    <div className="bg-white/[0.02] rounded-2xl px-6 py-4 max-w-4xl mx-auto w-full">
+    <div className="bg-white/[0.02] rounded-2xl px-6 py-4 max-w-5xl mx-auto w-full">
       <div className="flex items-center gap-6 overflow-x-auto hide-scrollbar">
         {/* Badge live */}
         <div className="flex items-center gap-1.5 shrink-0">
@@ -121,13 +121,16 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
     router.push(`/consulta?q=${encodeURIComponent(q)}`)
   }
 
+  const firstName = nombre?.split(' ')[0]
+
   return (
     <div className="relative min-h-[calc(100vh-52px)] flex flex-col justify-center px-6 py-12">
 
       {/* Orbes ambientales */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10" aria-hidden="true">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/[0.05] rounded-full blur-[120px]" />
-        <div className="absolute top-1/3 -left-40 w-80 h-80 bg-primary/[0.03] rounded-full blur-[100px]" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/[0.07] rounded-full blur-[120px]" />
+        <div className="absolute top-1/2 -left-40 w-80 h-80 bg-primary/[0.04] rounded-full blur-[100px]" />
+        <div className="absolute -bottom-20 right-1/3 w-72 h-72 bg-white/[0.02] rounded-full blur-[80px]" />
       </div>
 
       {/* SECCIÓN 1: Hero */}
@@ -136,8 +139,13 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
         style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '0ms', opacity: 0 }}
       >
 
+        {/* Bienvenida decorativa */}
+        <p className="hidden md:block text-center font-mono text-xs tracking-[0.2em] text-on-surface-variant/30 uppercase mb-4">
+          {firstName ? `Bienvenido al centro de operaciones, ${firstName}` : 'Bienvenido al centro de operaciones'}
+        </p>
+
         {/* Título hero */}
-        <h1 className="font-body text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] text-center max-w-3xl mx-auto mb-8">
+        <h1 className="font-body text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] text-center max-w-3xl mx-auto mb-10">
           <span className="text-on-surface">¿Cómo podemos ayudarte con tu </span>
           <span style={{ background: 'linear-gradient(90deg, #DDD92A, rgba(245,245,245,0.6))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
             operación hoy?
@@ -145,7 +153,7 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
         </h1>
 
         {/* Barra de chat */}
-        <form onSubmit={handleSubmit} className="max-w-xl mx-auto">
+        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
           <div
             className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-1.5 flex items-center transition-all duration-300 focus-within:border-primary/30"
             style={{ focusWithinBoxShadow: '0 0 40px -10px rgba(221,217,42,0.12)' }}
@@ -171,7 +179,7 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
 
       {/* SECCIÓN 2: Grid de herramientas */}
       <div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-12 gap-x-10 max-w-4xl mx-auto mt-16 px-4 w-full"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-14 gap-x-14 max-w-5xl mx-auto mt-20 px-8 w-full"
         style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '150ms', opacity: 0 }}
       >
         {HERRAMIENTAS.map(tool => (
@@ -180,14 +188,14 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
             <div className="absolute -left-4 top-0 w-px h-full bg-gradient-to-b from-primary/20 to-transparent group-hover:from-primary/60 transition-all duration-500" />
 
             <tool.Icon
-              size={28}
+              size={32}
               strokeWidth={1.5}
               className="text-on-surface-variant/30 group-hover:text-primary group-hover:scale-110 transition-all duration-300 shrink-0 mt-0.5"
             />
 
             <div>
-              <h3 className="text-lg font-semibold tracking-tight text-on-surface mb-1">{tool.name}</h3>
-              <p className="text-sm text-on-surface-variant/60 leading-snug max-w-[220px]">{tool.description}</p>
+              <h3 className="text-xl font-semibold tracking-tight text-on-surface mb-1.5">{tool.name}</h3>
+              <p className="text-sm text-on-surface-variant/60 leading-snug max-w-[240px]">{tool.description}</p>
               <div className="mt-2.5 flex items-center gap-1.5 text-[10px] font-bold text-primary tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 {tool.cta}
                 <ChevronRight size={12} />
@@ -199,7 +207,7 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
 
       {/* SECCIÓN 3: Ticker */}
       <div
-        className="mt-20 w-full"
+        className="mt-24 w-full"
         style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '300ms', opacity: 0 }}
       >
         <MarketTicker />
