@@ -5,21 +5,12 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   BookOpen, Calculator, FileSearch, Globe, Package, BarChart3,
-  Sparkles, ArrowRight, ChevronRight, MessageSquare,
+  Sparkles, ArrowRight, ChevronRight,
 } from 'lucide-react'
 import { getPlanConfig } from '@/lib/plans-config'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatRelativeDate(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const days = Math.floor(diff / 86400000)
-  if (days === 0) return 'hoy'
-  if (days === 1) return 'ayer'
-  if (days < 7) return `hace ${days} días`
-  if (days < 30) return `hace ${Math.floor(days / 7)} sem`
-  return `hace ${Math.floor(days / 30)} mes`
-}
 
 function fmtARS(v) {
   if (v == null) return '—'
@@ -230,34 +221,6 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
         <MarketTicker />
       </div>
 
-      {/* SECCIÓN 4: Actividad reciente */}
-      {ultimasConsultas?.length > 0 && (
-        <div
-          className="mt-12 max-w-4xl mx-auto w-full px-4"
-          style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '400ms', opacity: 0 }}
-        >
-          <p className="text-xs font-semibold tracking-widest text-on-surface-variant/40 uppercase mb-4">
-            Actividad reciente
-          </p>
-          <div>
-            {ultimasConsultas.slice(0, 3).map(c => (
-              <Link
-                key={c.id}
-                href="/historial"
-                className="flex items-center gap-3 py-2.5 group"
-              >
-                <MessageSquare size={14} className="text-on-surface-variant/20 group-hover:text-primary/60 transition-colors shrink-0" />
-                <span className="text-sm text-on-surface-variant/50 group-hover:text-on-surface/80 transition-colors truncate max-w-md">
-                  {c.query_text?.slice(0, 80)}
-                </span>
-                <span className="text-[10px] text-on-surface-variant/20 ml-auto shrink-0">
-                  {formatRelativeDate(c.created_at)}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
 
     </div>
   )
