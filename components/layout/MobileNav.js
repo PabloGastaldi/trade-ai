@@ -6,28 +6,36 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import {
   Home, MessageSquare, Calculator, BarChart3, Menu,
-  BookOpen, FileSearch, Globe, Package, Ship, User, LogOut,
+  BookOpen, FileSearch, Globe, Package, Ship, LogOut,
 } from 'lucide-react'
 import './MobileNav.css'
 
 const MOBILE_BREAKPOINT = 768
 
-// Ítems del bottom tab bar
+// Bottom tab bar — 4 accesos directos + Más
 const TAB_ITEMS = [
-  { label: 'Inicio',       Icon: Home,          href: '/inicio' },
-  { label: 'Chat IA',      Icon: MessageSquare, href: '/consulta' },
-  { label: 'Calculadora',  Icon: Calculator,    href: '/calculadora' },
-  { label: 'Mercados',     Icon: BarChart3,     href: '/mercados' },
+  { label: 'Inicio',      Icon: Home,          href: '/inicio' },
+  { label: 'Chat IA',     Icon: MessageSquare, href: '/consulta' },
+  { label: 'Calculadora', Icon: Calculator,    href: '/calculadora' },
+  { label: 'Mercados',    Icon: BarChart3,     href: '/mercados' },
 ]
 
-// Ítems del sheet "Más"
-const MORE_SECTIONS = [
+// Misma estructura que el Sidebar
+const NAV_SECTIONS = [
+  {
+    items: [
+      { label: 'Inicio',  Icon: Home,          href: '/inicio' },
+      { label: 'Chat IA', Icon: MessageSquare, href: '/consulta' },
+    ],
+  },
   {
     label: 'Herramientas',
     items: [
-      { label: 'Nomenclador',  Icon: BookOpen,   href: '/nomenclador' },
-      { label: 'Simulador',    Icon: FileSearch, href: '/simulador' },
-      { label: 'Comparador',   Icon: Globe,      href: '/comparador' },
+      { label: 'Calculadora', Icon: Calculator, href: '/calculadora' },
+      { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador' },
+      { label: 'Simulador',   Icon: FileSearch, href: '/simulador' },
+      { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
+      { label: 'Mercados',    Icon: BarChart3,  href: '/mercados' },
     ],
   },
   {
@@ -35,12 +43,6 @@ const MORE_SECTIONS = [
     items: [
       { label: 'Catálogo',    Icon: Package, href: '/catalogo' },
       { label: 'Operaciones', Icon: Ship,    href: '/operaciones' },
-    ],
-  },
-  {
-    label: 'Cuenta',
-    items: [
-      { label: 'Mi cuenta', Icon: User, href: '/cuenta' },
     ],
   },
 ]
@@ -66,6 +68,23 @@ function MobileShell() {
   const pathname = usePathname()
   const router = useRouter()
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [userInfo, setUserInfo] = useState({ name: '', plan: '', initial: '?' })
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || ''
+      const initial = name.charAt(0).toUpperCase() || '?'
+      setUserInfo({ name, plan: '', initial })
+
+      supabase.from('users_profile').select('plan_type').eq('id', user.id).single()
+        .then(({ data }) => {
+          const planLabels = { free: 'Free', pro: 'Pro', empresa: 'Empresa' }
+          setUserInfo(prev => ({ ...prev, plan: planLabels[data?.plan_type] || 'Free' }))
+        })
+    })
+  }, [])
 
   async function handleLogout() {
     const supabase = createClient()
@@ -75,13 +94,12 @@ function MobileShell() {
     router.refresh()
   }
 
-  // "Más" está activo si la ruta actual no es ninguno de los tabs principales
   const tabHrefs = TAB_ITEMS.map(t => t.href)
   const moreActive = !tabHrefs.includes(pathname)
 
   return (
     <>
-      {/* Header superior — logo + nombre de página */}
+      {/* Header superior */}
       <div className="mobile-header">
         <Link href="/" className="mobile-header-logo" onClick={() => setSheetOpen(false)}>
           <span className="font-logo text-lg">
@@ -117,16 +135,17 @@ function MobileShell() {
         </button>
       </nav>
 
-      {/* Overlay del sheet */}
+      {/* Overlay */}
       {sheetOpen && (
         <div className="mobile-drawer-overlay" onClick={() => setSheetOpen(false)} />
       )}
 
-      {/* Sheet "Más" — sube desde abajo */}
+      {/* Sheet — replica el sidebar */}
       <div className={`mobile-more-sheet ${sheetOpen ? 'mobile-more-sheet--open' : ''}`}>
         <div className="mobile-more-handle" />
+
         <div className="mobile-drawer-items">
-          {MORE_SECTIONS.map((section, si) => (
+          {NAV_SECTIONS.map((section, si) => (
             <div key={si} className="mobile-drawer-section">
               {section.label && (
                 <span className="mobile-drawer-section-label">{section.label}</span>
@@ -141,7 +160,7 @@ function MobileShell() {
                     onClick={() => setSheetOpen(false)}
                   >
                     <span className="mobile-drawer-item-icon">
-                      <item.Icon size={18} strokeWidth={1.5} />
+                      <item.Icon size={16} strokeWidth={1.5} />
                     </span>
                     <span className="mobile-drawer-item-label">{item.label}</span>
                   </Link>
@@ -150,7 +169,20 @@ function MobileShell() {
             </div>
           ))}
         </div>
+
+        {/* Footer igual al sidebar: avatar + nombre + plan + logout */}
         <div className="mobile-more-footer">
+          <Link
+            href="/cuenta"
+            className="mobile-sheet-user"
+            onClick={() => setSheetOpen(false)}
+          >
+            <div className="mobile-sheet-avatar">{userInfo.initial}</div>
+            <div className="mobile-sheet-user-info">
+              <span className="mobile-sheet-user-name">{userInfo.name}</span>
+              <span className="mobile-sheet-user-plan">{userInfo.plan}</span>
+            </div>
+          </Link>
           <button className="mobile-logout-btn" onClick={handleLogout}>
             <LogOut size={14} strokeWidth={1.5} />
             Cerrar sesión
