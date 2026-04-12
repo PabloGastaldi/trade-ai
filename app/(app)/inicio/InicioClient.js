@@ -128,17 +128,35 @@ export default function InicioClient({ nombre }) {
 
       {/* Orbes ambientales */}
       <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
-        {/* Dot grid texture */}
+        {/* Dot grid */}
         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
 
-        {/* Desktop */}
-        <div className="absolute rounded-full hidden md:block" style={{ width: '600px', height: '600px', top: '-200px', right: '-200px', background: 'radial-gradient(circle, rgba(221,217,42,0.18) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'orbFloat1 22s ease-in-out infinite' }} />
-        <div className="absolute rounded-full hidden md:block" style={{ width: '500px', height: '500px', top: '30%', left: '-200px', background: 'radial-gradient(circle, rgba(221,217,42,0.12) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'orbFloat2 28s ease-in-out infinite', animationDelay: '-8s' }} />
-        <div className="absolute rounded-full hidden md:block" style={{ width: '450px', height: '450px', bottom: '-100px', left: '-150px', background: 'radial-gradient(circle, rgba(221,217,42,0.14) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'orbFloat4 24s ease-in-out infinite', animationDelay: '-12s' }} />
-        <div className="absolute rounded-full hidden md:block" style={{ width: '350px', height: '350px', bottom: '10%', right: '20%', background: 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)', filter: 'blur(30px)', animation: 'orbFloat3 18s ease-in-out infinite', animationDelay: '-4s' }} />
-        {/* Mobile */}
-        <div className="absolute rounded-full md:hidden" style={{ width: '350px', height: '350px', top: '-100px', right: '-100px', background: 'radial-gradient(circle, rgba(221,217,42,0.14) 0%, transparent 70%)', filter: 'blur(30px)', animation: 'orbFloat1 20s ease-in-out infinite' }} />
-        <div className="absolute rounded-full md:hidden" style={{ width: '300px', height: '300px', bottom: '20%', left: '-100px', background: 'radial-gradient(circle, rgba(221,217,42,0.09) 0%, transparent 70%)', filter: 'blur(30px)', animation: 'orbFloat2 26s ease-in-out infinite', animationDelay: '-6s' }} />
+        {/* Cada orbe: wrapper anima la posición, hijo tiene el blur */}
+        {/* Desktop orbe 1 — arriba derecha */}
+        <div className="absolute hidden md:block" style={{ width: '500px', height: '500px', top: '-150px', right: '-150px', animation: 'orbFloat1 22s ease-in-out infinite' }}>
+          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(221,217,42,0.15)', filter: 'blur(80px)' }} />
+        </div>
+        {/* Desktop orbe 2 — medio izquierda */}
+        <div className="absolute hidden md:block" style={{ width: '420px', height: '420px', top: '25%', left: '-150px', animation: 'orbFloat2 28s ease-in-out infinite', animationDelay: '-8s' }}>
+          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(221,217,42,0.10)', filter: 'blur(80px)' }} />
+        </div>
+        {/* Desktop orbe 3 — abajo izquierda */}
+        <div className="absolute hidden md:block" style={{ width: '480px', height: '480px', bottom: '-120px', left: '-120px', animation: 'orbFloat4 24s ease-in-out infinite', animationDelay: '-12s' }}>
+          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(221,217,42,0.12)', filter: 'blur(80px)' }} />
+        </div>
+        {/* Desktop orbe 4 — abajo derecha */}
+        <div className="absolute hidden md:block" style={{ width: '300px', height: '300px', bottom: '5%', right: '15%', animation: 'orbFloat3 18s ease-in-out infinite', animationDelay: '-4s' }}>
+          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(255,255,255,0.04)', filter: 'blur(60px)' }} />
+        </div>
+
+        {/* Mobile orbe 1 — arriba derecha */}
+        <div className="absolute md:hidden" style={{ width: '300px', height: '300px', top: '-80px', right: '-80px', animation: 'orbFloat1 20s ease-in-out infinite' }}>
+          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(221,217,42,0.12)', filter: 'blur(60px)' }} />
+        </div>
+        {/* Mobile orbe 2 — abajo izquierda */}
+        <div className="absolute md:hidden" style={{ width: '260px', height: '260px', bottom: '20%', left: '-80px', animation: 'orbFloat2 26s ease-in-out infinite', animationDelay: '-6s' }}>
+          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(221,217,42,0.08)', filter: 'blur(60px)' }} />
+        </div>
       </div>
 
       {/* SECCIÓN 1: Hero */}
