@@ -7,8 +7,6 @@ import {
   BookOpen, Calculator, FileSearch, Globe, Package, BarChart3,
   Sparkles, ArrowRight, ChevronRight,
 } from 'lucide-react'
-import { getPlanConfig } from '@/lib/plans-config'
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 
@@ -115,12 +113,6 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
   const router = useRouter()
   const [query, setQuery] = useState('')
 
-  const planConfig = getPlanConfig(perfil?.plan_type)
-  const planType = perfil?.plan_type ?? 'free'
-  const queriesUsadas = perfil?.queries_this_month ?? 0
-  const queriesLimite = planConfig?.limits?.consulta?.monthly
-
-  const esPremium = planType === 'pro' || planType === 'empresa'
 
   function handleSubmit(e) {
     e?.preventDefault()
@@ -143,14 +135,6 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
         className="relative max-w-4xl mx-auto w-full"
         style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '0ms', opacity: 0 }}
       >
-        {/* Badge plan premium */}
-        {esPremium && (
-          <div className="absolute -top-2 right-0">
-            <span className="bg-primary/10 text-primary text-[10px] font-bold tracking-widest border border-primary/20 rounded-full px-3 py-1">
-              {planType.toUpperCase()} · {queriesUsadas}{queriesLimite != null ? `/${queriesLimite}` : ''} consultas
-            </span>
-          </div>
-        )}
 
         {/* Título hero */}
         <h1 className="font-body text-4xl md:text-5xl font-bold tracking-tight leading-[1.1] text-center max-w-3xl mx-auto mb-8">
