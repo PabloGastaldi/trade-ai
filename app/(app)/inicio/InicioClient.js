@@ -109,7 +109,7 @@ function MarketTicker() {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export default function InicioClient({ nombre, ultimasConsultas, cantProductos, perfil }) {
+export default function InicioClient({ nombre }) {
   const router = useRouter()
   const [query, setQuery] = useState('')
 
@@ -126,12 +126,16 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
   return (
     <div className="relative min-h-[calc(100vh-52px)] flex flex-col justify-center px-6 py-12">
 
-      {/* Orbes ambientales — solo desktop */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10 hidden md:block" aria-hidden="true">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-[120px]" style={{ background: 'rgba(221,217,42,0.12)' }} />
-        <div className="absolute top-1/2 -left-40 w-80 h-80 rounded-full blur-[100px]" style={{ background: 'rgba(221,217,42,0.07)' }} />
-        <div className="absolute -bottom-20 right-1/3 w-72 h-72 rounded-full blur-[80px]" style={{ background: 'rgba(255,255,255,0.03)' }} />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full blur-[120px]" style={{ background: 'rgba(221,217,42,0.09)' }} />
+      {/* Orbes ambientales */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10" aria-hidden="true">
+        {/* Desktop */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-[120px] hidden md:block" style={{ background: 'rgba(221,217,42,0.12)' }} />
+        <div className="absolute top-1/2 -left-40 w-80 h-80 rounded-full blur-[100px] hidden md:block" style={{ background: 'rgba(221,217,42,0.07)' }} />
+        <div className="absolute -bottom-20 right-1/3 w-72 h-72 rounded-full blur-[80px] hidden md:block" style={{ background: 'rgba(255,255,255,0.03)' }} />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full blur-[120px] hidden md:block" style={{ background: 'rgba(221,217,42,0.09)' }} />
+        {/* Mobile */}
+        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-[90px] md:hidden" style={{ background: 'rgba(221,217,42,0.08)' }} />
+        <div className="absolute bottom-1/3 -left-20 w-56 h-56 rounded-full blur-[80px] md:hidden" style={{ background: 'rgba(221,217,42,0.05)' }} />
       </div>
 
       {/* SECCIÓN 1: Hero */}
@@ -141,7 +145,7 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
       >
 
         {/* Bienvenida decorativa */}
-        <p className="hidden md:block text-center font-body text-sm text-on-surface-variant/30 mb-4">
+        <p className="text-center font-body text-sm text-on-surface-variant/30 mb-4">
           {firstName ? `Bienvenido al centro de operaciones, ${firstName}` : 'Bienvenido al centro de operaciones'}
         </p>
 
