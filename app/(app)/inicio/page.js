@@ -12,7 +12,7 @@ export default async function InicioPage() {
 
   if (!user) redirect('/login')
 
-  const nombre = user.user_metadata?.full_name || user.user_metadata?.name || null
+  const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || null
 
   // Últimas consultas — queries_log
   const { data: ultimasConsultas } = await supabase
