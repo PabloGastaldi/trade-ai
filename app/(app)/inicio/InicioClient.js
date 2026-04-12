@@ -128,9 +128,9 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
 
       {/* Orbes ambientales */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10" aria-hidden="true">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/[0.07] rounded-full blur-[120px]" />
-        <div className="absolute top-1/2 -left-40 w-80 h-80 bg-primary/[0.04] rounded-full blur-[100px]" />
-        <div className="absolute -bottom-20 right-1/3 w-72 h-72 bg-white/[0.02] rounded-full blur-[80px]" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full blur-[120px]" style={{ background: 'rgba(221,217,42,0.12)' }} />
+        <div className="absolute top-1/2 -left-40 w-80 h-80 rounded-full blur-[100px]" style={{ background: 'rgba(221,217,42,0.07)' }} />
+        <div className="absolute -bottom-20 right-1/3 w-72 h-72 rounded-full blur-[80px]" style={{ background: 'rgba(255,255,255,0.03)' }} />
       </div>
 
       {/* SECCIÓN 1: Hero */}
