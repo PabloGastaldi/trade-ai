@@ -81,7 +81,7 @@ function MarketTicker() {
         {/* Badge live */}
         <div className="flex items-center gap-1.5 shrink-0">
           <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-[10px] font-bold tracking-widest text-on-surface-variant/40 uppercase">Market</span>
+          <span className="text-[10px] font-body font-medium text-on-surface-variant/40 uppercase tracking-widest">Market</span>
         </div>
         <div className="w-px h-4 bg-white/[0.06] shrink-0" />
 
@@ -90,10 +90,10 @@ function MarketTicker() {
           : items.map((item, i) => (
             <div key={i} className="flex items-center gap-6 shrink-0">
               <div className="flex items-center gap-2 whitespace-nowrap">
-                <span className="text-[10px] text-on-surface-variant/40 font-medium">{item.label}</span>
-                <span className="font-mono text-sm font-semibold text-on-surface">{item.value}</span>
+                <span className="text-[10px] text-on-surface-variant/40 font-body font-medium">{item.label}</span>
+                <span className="font-body text-sm font-semibold text-on-surface">{item.value}</span>
                 {item.change != null && (
-                  <span className={`text-[10px] ${item.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span className={`text-[10px] font-body ${item.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                     {item.change >= 0 ? '▲' : '▼'} {Math.abs(item.change).toFixed(2)}%
                   </span>
                 )}
@@ -141,7 +141,7 @@ export default function InicioClient({ nombre, ultimasConsultas, cantProductos, 
       >
 
         {/* Bienvenida decorativa */}
-        <p className="hidden md:block text-center font-mono text-xs tracking-[0.2em] text-on-surface-variant/30 uppercase mb-4">
+        <p className="hidden md:block text-center font-body text-sm text-on-surface-variant/30 mb-4">
           {firstName ? `Bienvenido al centro de operaciones, ${firstName}` : 'Bienvenido al centro de operaciones'}
         </p>
 
