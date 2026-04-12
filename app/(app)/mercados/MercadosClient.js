@@ -86,13 +86,13 @@ function ChangeIndicator({ value, size = 'sm' }) {
 
   if (zero) {
     return (
-      <span className={`inline-flex items-center gap-0.5 ${sz} font-mono text-on-surface-variant`}>
+      <span className={`inline-flex items-center gap-0.5 ${sz} font-body text-on-surface-variant`}>
         <Minus size={iconSz} /> 0.00%
       </span>
     );
   }
   return (
-    <span className={`inline-flex items-center gap-0.5 ${sz} font-mono ${pos ? 'text-emerald-400' : 'text-red-400'}`}>
+    <span className={`inline-flex items-center gap-0.5 ${sz} font-body ${pos ? 'text-emerald-400' : 'text-red-400'}`}>
       {pos ? <TrendingUp size={iconSz} /> : <TrendingDown size={iconSz} />}
       {fmtPct(value)}
     </span>
@@ -129,11 +129,11 @@ function DolarRow({ label, data, highlight = false }) {
       <div className="flex items-center gap-4">
         <div className="text-right">
           <span className="font-body text-[10px] text-on-surface-variant block">Compra</span>
-          <span className="font-mono text-sm text-on-surface">{fmtARS(data.compra)}</span>
+          <span className="font-body text-sm text-on-surface">{fmtARS(data.compra)}</span>
         </div>
         <div className="text-right">
           <span className="font-body text-[10px] text-on-surface-variant block">Venta</span>
-          <span className={`font-mono text-sm ${highlight ? 'text-primary' : 'text-on-surface'}`}>
+          <span className={`font-body text-sm ${highlight ? 'text-primary' : 'text-on-surface'}`}>
             {fmtARS(data.venta)}
           </span>
         </div>
@@ -151,11 +151,11 @@ function CommodityItem({ commodity }) {
       <div className="flex items-center gap-2">
         <span className="font-body text-sm text-on-surface">{commodity.displayName}</span>
         {commodity.unit && (
-          <span className="font-mono text-[10px] text-on-surface-variant">{commodity.unit}</span>
+          <span className="font-body text-[10px] text-on-surface-variant">{commodity.unit}</span>
         )}
       </div>
       <div className="flex items-center gap-3">
-        <span className="font-mono text-sm text-on-surface">{fmtUSD(commodity.price)}</span>
+        <span className="font-body text-sm text-on-surface">{fmtUSD(commodity.price)}</span>
         <ChangeIndicator value={commodity.changePercent} />
       </div>
     </div>
@@ -170,10 +170,10 @@ function GrainRow({ grain }) {
     <div className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
       <div className="flex items-center gap-2">
         <span className="font-body text-sm text-on-surface">{grain.name}</span>
-        <span className="font-mono text-[10px] text-on-surface-variant">{grain.unit}</span>
+        <span className="font-body text-[10px] text-on-surface-variant">{grain.unit}</span>
       </div>
       <div className="flex items-center gap-3">
-        <span className="font-mono text-sm text-on-surface">{fmtARSCompact(grain.price)}</span>
+        <span className="font-body text-sm text-on-surface">{fmtARSCompact(grain.price)}</span>
         <ChangeIndicator value={grain.changePercent} />
       </div>
     </div>
@@ -196,8 +196,8 @@ function StatBox({ label, value, unit, variant = 'default' }) {
         {label}
       </span>
       <div className="flex items-baseline gap-1">
-        <span className={`font-mono text-xl ${colors[variant]}`}>{value}</span>
-        {unit && <span className="font-mono text-[10px] text-on-surface-variant">{unit}</span>}
+        <span className={`font-body text-xl ${colors[variant]}`}>{value}</span>
+        {unit && <span className="font-body text-[10px] text-on-surface-variant">{unit}</span>}
       </div>
     </div>
   );
@@ -256,7 +256,7 @@ export default function MercadosClient() {
     <PageLayout title="MERCADOS" subtitle="Datos financieros para comercio exterior">
       <div className="flex justify-between items-center mb-4">
         {lastUpdate && (
-          <span className="font-mono text-[10px] text-on-surface-variant">
+          <span className="font-body text-[10px] text-on-surface-variant">
             Actualizado {timeAgo(lastUpdate)}
           </span>
         )}
@@ -363,7 +363,7 @@ export default function MercadosClient() {
             <div key={idx.symbol} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
               <span className="font-body text-sm text-on-surface">{idx.displayName}</span>
               <div className="flex items-center gap-3">
-                <span className="font-mono text-sm text-on-surface">{fmtNum(idx.price, 0)}</span>
+                <span className="font-body text-sm text-on-surface">{fmtNum(idx.price, 0)}</span>
                 <ChangeIndicator value={idx.changePercent} />
               </div>
             </div>
@@ -377,7 +377,7 @@ export default function MercadosClient() {
                 <div key={fx.symbol} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
                   <span className="font-body text-sm text-on-surface">{fx.displayName}</span>
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-sm text-on-surface">{fmtNum(fx.price, 4)}</span>
+                    <span className="font-body text-sm text-on-surface">{fmtNum(fx.price, 4)}</span>
                     <ChangeIndicator value={fx.changePercent} />
                   </div>
                 </div>
@@ -402,7 +402,7 @@ export default function MercadosClient() {
 
       {data?.latencyMs && (
         <div className="mt-2 text-right">
-          <span className="font-mono text-[10px] text-on-surface-variant/40">API: {data.latencyMs}ms</span>
+          <span className="font-body text-[10px] text-on-surface-variant/40">API: {data.latencyMs}ms</span>
         </div>
       )}
     </PageLayout>
