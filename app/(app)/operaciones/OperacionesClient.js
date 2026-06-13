@@ -17,17 +17,6 @@ import { Trash2 } from 'lucide-react'
 import VistaKanban, { KanbanCard } from './VistaKanban'
 import ModalNuevaOperacion from './ModalNuevaOperacion'
 
-const ESTADOS_EXPO = [
-  { key: 'expo_preparacion',    label: 'Preparación' },
-  { key: 'expo_documentacion',  label: 'Documentación' },
-  { key: 'expo_docs_completos', label: 'Docs completos' },
-  { key: 'expo_oficializado',   label: 'Oficializado' },
-  { key: 'expo_verificacion',   label: 'Verificación' },
-  { key: 'expo_embarcado',      label: 'Embarcado' },
-  { key: 'expo_cobro_pendiente',label: 'Cobro pendiente' },
-  { key: 'expo_cerrada',        label: 'Cerrada' },
-]
-
 const ESTADOS_IMPO = [
   { key: 'impo_orden_compra',    label: 'Orden de compra' },
   { key: 'impo_en_transito',     label: 'En tránsito' },
@@ -41,14 +30,6 @@ const ESTADOS_IMPO = [
 ]
 
 const BADGE_ESTADO = {
-  expo_preparacion:     { variant: 'neutral',  label: 'En preparación' },
-  expo_documentacion:   { variant: 'accent',    label: 'Documentación' },
-  expo_docs_completos:   { variant: 'accent',    label: 'Docs completos' },
-  expo_oficializado:     { variant: 'primary',   label: 'Oficializado' },
-  expo_verificacion:     { variant: 'accent',    label: 'Verificación' },
-  expo_embarcado:        { variant: 'success',   label: 'Embarcado' },
-  expo_cobro_pendiente: { variant: 'accent',    label: 'Cobro pendiente' },
-  expo_cerrada:         { variant: 'neutral',   label: 'Cerrada' },
   impo_orden_compra:     { variant: 'neutral',  label: 'Orden de compra' },
   impo_en_transito:      { variant: 'accent',   label: 'En tránsito' },
   impo_arribada:         { variant: 'accent',   label: 'Arribada' },
@@ -61,7 +42,7 @@ const BADGE_ESTADO = {
 }
 
 const FORM_VACIO = {
-  operation_type: 'exportacion',
+  operation_type: 'importacion',
   regimen: 'general',
   product_id: '',
   ncm_code: '',
@@ -152,7 +133,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
   const router = useRouter()
   const [operaciones, setOperaciones] = useState(operacionesIniciales)
   const [vista, setVista] = useState('lista')
-  const [filtroTipo, setFiltroTipo] = useState('todos')
+  const [filtroTipo] = useState('importacion')
   const [filtroEstado, setFiltroEstado] = useState('todos')
   const [busqueda, setBusqueda] = useState('')
   const [modalAbierto, setModalAbierto] = useState(false)
@@ -162,19 +143,20 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
   const [activeDragId, setActiveDragId] = useState(null)
   const [eliminando, setEliminando] = useState({})
 
-  // Precargar desde query params (ej: viene del Simulador)
+  // Precargar desde query params (ej: viene del informe de importación)
   useEffect(() => {
     if (typeof window === 'undefined') return
     const params = new URLSearchParams(window.location.search)
     const ncm  = params.get('ncm')
     const pais = params.get('pais')
-    const tipo = params.get('tipo')
-    if (ncm || pais || tipo) {
+    const desc = params.get('desc')
+    if (ncm || pais) {
       setForm({
         ...FORM_VACIO,
         ncm_code: ncm ?? '',
         counterpart_country: pais ?? '',
-        operation_type: (tipo === 'importacion' || tipo === 'exportacion') ? tipo : 'exportacion',
+        product_description: desc ?? '',
+        operation_type: 'importacion',
       })
       setModalAbierto(true)
     }
@@ -184,11 +166,10 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   )
 
-  const opsActivas = operaciones.filter(op => op.status !== 'expo_cerrada' && op.status !== 'impo_cerrada')
+  const opsActivas = operaciones.filter(op => op.status !== 'impo_cerrada')
 
   const opsFiltradas = operaciones
     .filter(op => {
-      if (filtroTipo !== 'todos' && op.operation_type !== filtroTipo) return false
       if (filtroEstado !== 'todos' && op.status !== filtroEstado) return false
       if (busqueda.trim()) {
         const q = busqueda.toLowerCase()
@@ -219,13 +200,11 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
     setForm(prev => ({
       ...prev, product_id: prod.id,
       ncm_code: prod.ncm_code ?? prev.ncm_code,
-      operation_type: prod.operation_type ?? prev.operation_type,
+      operation_type: 'importacion',
       incoterm: prod.incoterm ?? prev.incoterm,
       currency: prod.currency ?? prev.currency,
       total_value: prod.unit_price ? String(prod.unit_price) : prev.total_value,
-      counterpart_country: (prod.operation_type === 'exportacion'
-        ? prod.default_destination
-        : prod.default_origin) ?? prev.counterpart_country,
+      counterpart_country: prod.default_origin ?? prev.counterpart_country,
     }))
   }
 
@@ -312,10 +291,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
     if (!op) return
     const nuevoStatus = over.id
     if (op.status === nuevoStatus) return
-    const compatible =
-      (op.operation_type === 'exportacion' && nuevoStatus.startsWith('expo_')) ||
-      (op.operation_type === 'importacion' && nuevoStatus.startsWith('impo_'))
-    if (!compatible) return
+    if (!nuevoStatus.startsWith('impo_')) return
     setOperaciones(prev => prev.map(o => o.id === op.id ? { ...o, status: nuevoStatus } : o))
     const supabase = createClient()
     const { error } = await supabase.from('operations').update({ status: nuevoStatus }).eq('id', op.id)
@@ -325,37 +301,16 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
   const activeDragOp = activeDragId ? operaciones.find(o => o.id === activeDragId) : null
 
   return (
-    <PageLayout title="OPERACIONES" subtitle="Gestioná tus exportaciones e importaciones">
+    <PageLayout title="OPERACIONES" subtitle="Gestioná tus importaciones">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex bg-white/[0.02] rounded-xl p-1">
-            {[['todos','Todas'],['exportacion','Exportación'],['importacion','Importación']].map(([v, l]) => (
-              <button
-                key={v}
-                onClick={() => setFiltroTipo(v)}
-                className={`px-4 py-1.5 rounded-lg font-body text-xs transition-all ${
-                  filtroTipo === v
-                    ? 'bg-white/[0.06] text-on-surface'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-
           <select
             className="bg-surface-highest rounded-xl px-4 py-2 text-sm font-body text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer"
             value={filtroEstado}
             onChange={e => setFiltroEstado(e.target.value)}
           >
             <option value="todos">Todos los estados</option>
-            <optgroup label="Exportación">
-              {ESTADOS_EXPO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
-            </optgroup>
-            <optgroup label="Importación">
-              {ESTADOS_IMPO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
-            </optgroup>
+            {ESTADOS_IMPO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
           </select>
         </div>
 
@@ -435,7 +390,7 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, 
       <table className="w-full">
         <thead>
           <tr className="bg-surface-high">
-            {['ESTADO','TIPO','PRODUCTO','DESTINO/ORIGEN','VALOR','DOCS','FECHA',''].map(h => (
+            {['ESTADO','PRODUCTO','ORIGEN','VALOR','DOCS','FECHA',''].map(h => (
               <th key={h} className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-medium">{h}</th>
             ))}
           </tr>
@@ -452,11 +407,6 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, 
                 onClick={() => !estadoElim && onRowClick(op)}
               >
                 <td className="px-4 py-3"><Badge variant={badge.variant}>{badge.label}</Badge></td>
-                <td className="px-4 py-3">
-                  <Badge variant={op.operation_type === 'exportacion' ? 'primary' : 'accent'}>
-                    {op.operation_type === 'exportacion' ? 'EXPO' : 'IMPO'}
-                  </Badge>
-                </td>
                 <td className="px-4 py-3 max-w-[200px]">
                   <p className="font-body text-sm text-on-surface truncate">{op.product_description ?? '—'}</p>
                   {op.ncm_code && <p className="font-mono text-xs text-primary mt-0.5">{op.ncm_code}</p>}

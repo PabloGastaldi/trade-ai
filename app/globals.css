@@ -112,3 +112,56 @@ h1, h2, h3, h4, h5, h6 {
   35%       { transform: translate(-30px, -35px) scale(0.95); }
   70%       { transform: translate(20px, 25px) scale(1.07); }
 }
+
+/* ── Importar: transición entre pasos ───────────────────────────────────── */
+
+@keyframes stepEnterForward {
+  from { opacity: 0; transform: translateX(28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes stepEnterBack {
+  from { opacity: 0; transform: translateX(-28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.step-enter-forward {
+  animation: stepEnterForward 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.step-enter-back {
+  animation: stepEnterBack 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* ── Importar: revelado escalonado del informe ──────────────────────────── */
+
+@keyframes reportCardReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.report-card {
+  animation: reportCardReveal 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.report-card-1 { animation-delay: 0ms; }
+.report-card-2 { animation-delay: 120ms; }
+.report-card-3 { animation-delay: 220ms; }
+.report-card-actions { animation-delay: 320ms; }
+
+/* ── Reducción de movimiento: desactiva todas las animaciones de importar ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .step-enter-forward,
+  .step-enter-back {
+    animation: none;
+  }
+
+  .report-card,
+  .report-card-1,
+  .report-card-2,
+  .report-card-3,
+  .report-card-actions {
+    animation: none;
+  }
+}

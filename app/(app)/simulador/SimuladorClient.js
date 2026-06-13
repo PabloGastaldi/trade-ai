@@ -21,13 +21,6 @@ const REGIMENES = {
     { key: 'puerta_a_puerta', label: 'Puerta a puerta' },
     { key: 'muestras',      label: 'Muestras sin valor comercial' },
   ],
-  exportacion: [
-    { key: 'general',       label: 'Régimen general' },
-    { key: 'courier',       label: 'Courier' },
-    { key: 'exporta_simple', label: 'Exporta simple' },
-    { key: 'muestras',      label: 'Muestras sin valor comercial' },
-    { key: 'rancho',        label: 'Rancho (provisiones de a bordo)' },
-  ],
 }
 
 function pct(n) {
@@ -100,7 +93,7 @@ export default function SimuladorClient({ paises }) {
   const [ncmInput, setNcmInput] = useState('')
   const [ncmSeleccionado, setNcmSeleccionado] = useState(null)
   const [paisIso3, setPaisIso3] = useState('')
-  const [tipoOperacion, setTipoOperacion] = useState('importacion')
+  const tipoOperacion = 'importacion'
   const [regimen, setRegimen] = useState('general')
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
@@ -123,13 +116,6 @@ export default function SimuladorClient({ paises }) {
         .catch(() => {})
     }
   }, [])
-
-  // When tipo changes, reset regimen to 'general'
-  function handleTipoChange(tipo) {
-    setTipoOperacion(tipo)
-    setRegimen('general')
-    setResultado(null)
-  }
 
   function handleNcmSelect(item) {
     setNcmInput(item.ncm_code || '')
@@ -226,32 +212,6 @@ export default function SimuladorClient({ paises }) {
               {errors.pais && <p className="mt-1 font-body text-[10px] text-red-400">{errors.pais}</p>}
             </div>
 
-            {/* Tipo de operación */}
-            <div>
-              <label className="block font-body text-xs text-on-surface-variant mb-1.5">
-                Tipo de operación
-              </label>
-              <div className="flex bg-white/[0.02] rounded-xl p-1">
-                {[
-                  { key: 'importacion', label: 'IMPORTACIÓN' },
-                  { key: 'exportacion', label: 'EXPORTACIÓN' },
-                ].map(t => (
-                  <button
-                    key={t.key}
-                    type="button"
-                    onClick={() => handleTipoChange(t.key)}
-                    className={`flex-1 px-4 py-2 font-body text-xs font-semibold tracking-wide rounded-lg transition-all duration-150 ${
-                      tipoOperacion === t.key
-                        ? 'bg-white/[0.06] text-on-surface'
-                        : 'text-on-surface-variant hover:text-on-surface cursor-pointer'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Régimen */}
             <div className="lg:col-span-2">
               <label className="block font-body text-xs text-on-surface-variant mb-1.5">
@@ -330,11 +290,6 @@ export default function SimuladorClient({ paises }) {
 
           {/* Sección 5: Barreras NTM */}
           <SeccionNTM resultado={resultado} />
-
-          {/* Sección 6: Aranceles en destino (expo) */}
-          {resultado.tipo_operacion === 'exportacion' && (
-            <SeccionArancelesDestino resultado={resultado} />
-          )}
 
           {/* Acciones */}
           <AccionesPostReporte resultado={resultado} />
@@ -441,27 +396,6 @@ function SeccionAranceles({ resultado }) {
       </Collapsible>
     )
   }
-
-  // Exportación
-  return (
-    <Collapsible title="Aranceles de exportación">
-      <div className="space-y-1 mb-4">
-        <ArancelRow label="Derecho de exportación" valor={pct(aranceles.derecho_exportacion)} />
-        <ArancelRow
-          label="Reintegro"
-          valor={<span className="text-emerald-400">{pct(aranceles.reintegro)}</span>}
-        />
-      </div>
-      {preferencias.acuerdos.length > 0 && (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-          <p className="font-body text-xs font-semibold text-emerald-400">
-            Preferencia en destino: {preferencias.acuerdos[0].porcentaje}%
-            {' '}({preferencias.acuerdos[0].codigo_acuerdo} — {preferencias.acuerdos[0].bloque})
-          </p>
-        </div>
-      )}
-    </Collapsible>
-  )
 }
 
 function SeccionDocumentacion({ resultado }) {
@@ -606,47 +540,6 @@ function SeccionNTM({ resultado }) {
             <Badge variant="neutral">{m.cobertura}</Badge>
           </div>
         ))}
-      </div>
-    </Collapsible>
-  )
-}
-
-function SeccionArancelesDestino({ resultado }) {
-  const { aranceles_destino, pais, preferencias } = resultado
-
-  if (!aranceles_destino) {
-    return (
-      <Collapsible title={`Aranceles en destino — ${pais.nombre_es}`}>
-        <p className="font-body text-xs text-on-surface-variant/60">
-          No se encontraron datos de aranceles para este producto en {pais.nombre_es}.
-        </p>
-      </Collapsible>
-    )
-  }
-
-  return (
-    <Collapsible title={`Aranceles en destino — ${pais.nombre_es}`}>
-      <div className="flex items-center gap-4 p-4 bg-white/[0.02] rounded-xl">
-        <div>
-          <p className="font-body text-xs text-on-surface-variant mb-1">
-            {pais.nombre_es} cobra por este producto:
-          </p>
-          <p className="font-mono text-2xl text-on-surface font-semibold">
-            {pct(aranceles_destino.ave_pct)}
-          </p>
-          {aranceles_destino.fuente && (
-            <p className="font-body text-[10px] text-on-surface-variant/50 mt-1">Fuente: {aranceles_destino.fuente}</p>
-          )}
-        </div>
-        {preferencias.acuerdos.length > 0 && (
-          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-            <p className="font-body text-[10px] text-emerald-400 font-semibold">Con acuerdo</p>
-            <p className="font-mono text-lg text-emerald-400">
-              {pct(aranceles_destino.ave_pct * (1 - preferencias.acuerdos[0].porcentaje / 100))}
-            </p>
-            <p className="font-body text-[10px] text-emerald-400/60">{preferencias.acuerdos[0].codigo_acuerdo}</p>
-          </div>
-        )}
       </div>
     </Collapsible>
   )

@@ -3,17 +3,6 @@
 import { useDroppable, useDraggable } from '@dnd-kit/core'
 import Badge from '@/components/ui/Badge'
 
-const ESTADOS_EXPO = [
-  { key: 'expo_preparacion',    label: 'Preparación' },
-  { key: 'expo_documentacion',  label: 'Documentación' },
-  { key: 'expo_docs_completos', label: 'Docs completos' },
-  { key: 'expo_oficializado',   label: 'Oficializado' },
-  { key: 'expo_verificacion',   label: 'Verificación' },
-  { key: 'expo_embarcado',      label: 'Embarcado' },
-  { key: 'expo_cobro_pendiente',label: 'Cobro pendiente' },
-  { key: 'expo_cerrada',        label: 'Cerrada' },
-]
-
 const ESTADOS_IMPO = [
   { key: 'impo_orden_compra',    label: 'Orden de compra' },
   { key: 'impo_en_transito',     label: 'En tránsito' },
@@ -27,14 +16,6 @@ const ESTADOS_IMPO = [
 ]
 
 const BADGE_ESTADO = {
-  expo_preparacion:     { variant: 'neutral',  label: 'En preparación' },
-  expo_documentacion:   { variant: 'accent',    label: 'Documentación' },
-  expo_docs_completos:   { variant: 'accent',    label: 'Docs completos' },
-  expo_oficializado:     { variant: 'primary',   label: 'Oficializado' },
-  expo_verificacion:     { variant: 'accent',    label: 'Verificación' },
-  expo_embarcado:        { variant: 'success',   label: 'Embarcado' },
-  expo_cobro_pendiente: { variant: 'accent',    label: 'Cobro pendiente' },
-  expo_cerrada:         { variant: 'neutral',   label: 'Cerrada' },
   impo_orden_compra:     { variant: 'neutral',  label: 'Orden de compra' },
   impo_en_transito:      { variant: 'accent',   label: 'En tránsito' },
   impo_arribada:         { variant: 'accent',   label: 'Arribada' },
@@ -81,9 +62,6 @@ function KanbanCard({ op, paises, onClickCard, overlay }) {
       onClick={e => { if (!overlay && onClickCard) onClickCard(op) }}
     >
       <div className="flex items-start justify-between mb-2">
-        <Badge variant={op.operation_type === 'exportacion' ? 'primary' : 'accent'} className="text-[10px]">
-          {op.operation_type === 'exportacion' ? 'EXPO' : 'IMPO'}
-        </Badge>
         <Badge variant={badge.variant} className="text-[10px]">{badge.label}</Badge>
       </div>
       <p className="font-body text-sm text-on-surface font-medium mt-2 leading-snug">
@@ -125,7 +103,7 @@ function KanbanColumna({ estado, operaciones, paises, onCardClick }) {
  * Vista Kanban de operaciones con drag-and-drop.
  * Props:
  *   operaciones  — array de operaciones
- *   filtroTipo   — 'exportacion' | 'importacion' | 'todos'
+ *   filtroTipo   — 'importacion' (único tipo soportado)
  *   paises       — array de { iso3, name_es }
  *   onCardClick  — callback al hacer click en una tarjeta
  *   dragOverlay  — op que se está arrastrando (para DragOverlay externo)
@@ -134,15 +112,7 @@ function KanbanColumna({ estado, operaciones, paises, onCardClick }) {
 export { KanbanCard }
 
 export default function VistaKanban({ operaciones, filtroTipo, paises, onCardClick }) {
-  const estadosVisibles = filtroTipo === 'importacion'
-    ? ESTADOS_IMPO
-    : filtroTipo === 'exportacion'
-    ? ESTADOS_EXPO
-    : [...ESTADOS_EXPO, ...ESTADOS_IMPO]
-
-  const columnas = filtroTipo === 'todos'
-    ? estadosVisibles.filter(est => operaciones.some(op => op.status === est.key))
-    : estadosVisibles
+  const columnas = ESTADOS_IMPO
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">

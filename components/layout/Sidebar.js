@@ -4,34 +4,16 @@ import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import {
-  MessageSquare, BookOpen, Calculator, Globe,
-  Package, Ship, BarChart3, FileSearch, Home,
-} from 'lucide-react'
+import { MessageSquare, Package, Ship } from 'lucide-react'
 import './Sidebar.css'
 
+// Navegación import-first: una acción primaria (el recorrido) + secundarios.
 const NAV_SECTIONS = [
   {
     items: [
-      { label: 'Inicio',  Icon: Home,          href: '/inicio' },
-      { label: 'Chat IA', Icon: MessageSquare,  href: '/consulta' },
-    ],
-  },
-  {
-    label: 'Herramientas',
-    items: [
-      { label: 'Calculadora', Icon: Calculator, href: '/calculadora' },
-      { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador' },
-      { label: 'Simulador',   Icon: FileSearch, href: '/simulador' },
-      { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
-      { label: 'Mercados',    Icon: BarChart3,  href: '/mercados' },
-    ],
-  },
-  {
-    label: 'Mi negocio',
-    items: [
-      { label: 'Catálogo',    Icon: Package, href: '/catalogo' },
-      { label: 'Operaciones', Icon: Ship,    href: '/operaciones' },
+      { label: 'Nueva importación', Icon: Ship,          href: '/importar', primary: true },
+      { label: 'Mis operaciones',   Icon: Package,        href: '/operaciones' },
+      { label: 'Chat IA',           Icon: MessageSquare,  href: '/consulta' },
     ],
   },
 ]
@@ -109,13 +91,13 @@ export default function Sidebar() {
               <span className="sidebar-section-label">{section.label}</span>
             )}
             {section.items.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
               const Icon = item.Icon
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`sidebar-link ${isActive ? 'sidebar-link--active' : ''} ${item.soon ? 'sidebar-link--soon' : ''}`}
+                  className={`sidebar-link ${isActive ? 'sidebar-link--active' : ''} ${item.primary ? 'sidebar-link--primary' : ''}`}
                   title={collapsed ? item.label : undefined}
                 >
                   <span className="sidebar-link-icon">

@@ -3,20 +3,16 @@
 import Badge from '@/components/ui/Badge'
 
 /**
- * Bloque de contexto comercial post-cálculo: acuerdos + barreras NTM.
+ * Bloque de contexto comercial post-cálculo: acuerdos + barreras NTM de importación.
  * Props:
- *   contexto — objeto devuelto por /api/calculadora/contexto
- *   tipo     — 'impo' | 'expo'
- *
- * Para impo: { acuerdos, ntm }
- * Para expo: { acuerdos, ntm_destino }
+ *   contexto — objeto { acuerdos, ntm } devuelto por /api/calculadora/contexto
  */
-export default function ContextoComercial({ contexto, tipo }) {
+export default function ContextoComercial({ contexto }) {
   const acuerdos = contexto?.acuerdos ?? []
-  const ntm = tipo === 'expo' ? (contexto?.ntm_destino ?? []) : (contexto?.ntm ?? [])
+  const ntm = contexto?.ntm ?? []
 
-  const tituloAcuerdos = tipo === 'expo' ? 'Acuerdos de exportación' : 'Acuerdos disponibles'
-  const tituloNTM = tipo === 'expo' ? 'Barreras en destino' : 'Barreras no arancelarias aplicables'
+  const tituloAcuerdos = 'Acuerdos disponibles'
+  const tituloNTM = 'Barreras no arancelarias aplicables'
 
   if (acuerdos.length === 0 && ntm.length === 0) return null
 

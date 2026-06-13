@@ -3,11 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { normalizarCodigoNCM } from '@/lib/ncm-lookup'
 
-// GET /api/calculadora/contexto?tipo=expo|impo&ncm=&pais=
-// Devuelve acuerdos comerciales + barreras NTM para enriquecer el resultado
-// de la calculadora. El parámetro `tipo` selecciona la dirección:
-//   expo → acuerdos_exportacion + ntm_measures_affecting_argentina
-//   impo → acuerdos_importacion + ntm_measures_applied_by_argentina
+// GET /api/calculadora/contexto?ncm=&pais=
+// Devuelve acuerdos comerciales + barreras NTM de importación para enriquecer el
+// resultado de la calculadora:
+//   acuerdos_importacion + ntm_measures_applied_by_argentina
 
 export async function GET(request) {
   try {
@@ -18,17 +17,10 @@ export async function GET(request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const tipo = searchParams.get('tipo')
   const ncmRaw = searchParams.get('ncm')
   const paisISO3 = searchParams.get('pais')
 
-  if (tipo !== 'expo' && tipo !== 'impo') {
-    return NextResponse.json({ error: 'Parámetro tipo inválido. Usar expo o impo.' }, { status: 400 })
-  }
-
-  const vacio = tipo === 'expo'
-    ? { acuerdos: [], ntm_destino: [] }
-    : { acuerdos: [], ntm: [] }
+  const vacio = { acuerdos: [], ntm: [] }
 
   if (!ncmRaw || !paisISO3) return NextResponse.json(vacio)
 
@@ -45,24 +37,20 @@ export async function GET(request) {
     { auth: { persistSession: false, autoRefreshToken: false } }
   )
 
-  const ntmTable = tipo === 'expo' ? 'ntm_measures_affecting_argentina' : 'ntm_measures_applied_by_argentina'
-  const ntmFilter = tipo === 'expo' ? 'pais_que_aplica' : 'pais_afectado'
-  const acuerdosTable = tipo === 'expo' ? 'acuerdos_exportacion' : 'acuerdos_importacion'
-
   const [countryRes, ntmRes] = await Promise.all([
     supabase.from('country_codes').select('name_es').eq('iso3', paisUpper).single(),
     supabase
-      .from(ntmTable)
+      .from('ntm_measures_applied_by_argentina')
       .select('ntm_code, tipo_medida, cobertura')
       .eq('hs_code', hs6)
-      .eq(ntmFilter, paisUpper)
+      .eq('pais_afectado', paisUpper)
       .limit(20),
   ])
 
   let acuerdos = []
   if (countryRes.data) {
     const { data } = await supabase
-      .from(acuerdosTable)
+      .from('acuerdos_importacion')
       .select('bloque, pais, codigo_acuerdo, porcentaje')
       .eq('codigo_ncm', ncm11)
       .ilike('pais', `%${countryRes.data.name_es}%`)
@@ -71,9 +59,6 @@ export async function GET(request) {
     acuerdos = data ?? []
   }
 
-  if (tipo === 'expo') {
-    return NextResponse.json({ acuerdos, ntm_destino: ntmRes.data ?? [] })
-  }
   return NextResponse.json({ acuerdos, ntm: ntmRes.data ?? [] })
   } catch (err) {
     console.error('[calculadora/contexto] Error inesperado:', err?.message)

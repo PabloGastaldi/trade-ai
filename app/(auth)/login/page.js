@@ -50,7 +50,7 @@ export default function LoginPage() {
     }
 
     router.refresh()
-    router.push('/inicio')
+    router.push('/importar')
   }
 
   async function handleGoogle() {

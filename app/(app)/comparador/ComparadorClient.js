@@ -58,13 +58,6 @@ const REGIMENES = {
     { key: 'puerta_a_puerta', label: 'Puerta a puerta' },
     { key: 'muestras',        label: 'Muestras' },
   ],
-  exportacion: [
-    { key: 'general',        label: 'General' },
-    { key: 'courier',        label: 'Courier' },
-    { key: 'exporta_simple', label: 'Exporta simple' },
-    { key: 'muestras',       label: 'Muestras' },
-    { key: 'rancho',         label: 'Rancho' },
-  ],
 }
 
 function fmt(n, tipo) {
@@ -153,28 +146,6 @@ function DetailCard({ resultado, tipo, nombre }) {
             </div>
           )}
 
-          {tipo === 'exportacion' && data.aranceles_destino && (
-            <div className="pt-3">
-              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Arancel en destino</p>
-              <div className="flex justify-between px-3 py-2 bg-white/[0.02] rounded-lg">
-                <span className="font-mono text-[10px] text-on-surface-variant/50">HS {data.aranceles_destino.hs_code}</span>
-                <span className="font-mono text-sm text-on-surface">{data.aranceles_destino.ave_pct}% AVE</span>
-              </div>
-              {aranceles.derecho_exportacion !== null && aranceles.derecho_exportacion !== undefined && (
-                <div className="flex justify-between px-3 py-2 bg-white/[0.02] rounded-lg mt-1">
-                  <span className="font-mono text-[10px] text-on-surface-variant/50">Derecho exportación</span>
-                  <span className="font-mono text-xs text-on-surface">{aranceles.derecho_exportacion}%</span>
-                </div>
-              )}
-              {aranceles.reintegro !== null && aranceles.reintegro !== undefined && aranceles.reintegro > 0 && (
-                <div className="flex justify-between px-3 py-2 bg-emerald-500/5 border border-emerald-500/15 rounded-lg mt-1">
-                  <span className="font-mono text-[10px] text-emerald-400/60">Reintegro</span>
-                  <span className="font-mono text-xs text-emerald-400">{aranceles.reintegro}%</span>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Organismos */}
           {(organismos.obligatorios?.length > 0 || organismos.condicionales?.length > 0) && (
             <div>
@@ -240,7 +211,7 @@ function DetailCard({ resultado, tipo, nombre }) {
 
 export default function ComparadorClient({ paises }) {
   const searchParams = useSearchParams()
-  const [tipo, setTipo] = useState('importacion')
+  const tipo = 'importacion'
   const [regimen, setRegimen] = useState('general')
   const [ncmItem, setNcmItem] = useState(null)
   const [ncmError, setNcmError] = useState('')
@@ -270,12 +241,6 @@ export default function ComparadorClient({ paises }) {
   }, [])
 
   const regimenLabel = REGIMENES[tipo].find(r => r.key === regimen)?.label ?? regimen
-
-  function handleTipoChange(t) {
-    setTipo(t)
-    setRegimen('general')
-    setResultados(null)
-  }
 
   function setPais(idx, val) {
     setPaisesSeleccionados(prev => {
@@ -341,13 +306,9 @@ export default function ComparadorClient({ paises }) {
       // Calcular métrica por país
       const withMetrica = raw.map(r => {
         if (!r.ok) return { ...r, metrica: null }
-        if (tipo === 'importacion') {
-          const ae = r.data?.preferencias?.arancel_efectivo
-          const base = r.data?.aranceles?.arancel_base
-          return { ...r, metrica: ae ?? base ?? null }
-        } else {
-          return { ...r, metrica: r.data?.aranceles_destino?.ave_pct ?? null }
-        }
+        const ae = r.data?.preferencias?.arancel_efectivo
+        const base = r.data?.aranceles?.arancel_base
+        return { ...r, metrica: ae ?? base ?? null }
       })
 
       // Marcar mejor y peor
@@ -382,21 +343,6 @@ export default function ComparadorClient({ paises }) {
 
         {/* Formulario */}
         <Card className="mb-6">
-          {/* Tipo de operación */}
-          <div className="flex bg-white/[0.04] rounded-xl p-1 gap-1 w-fit mb-5">
-            {['importacion', 'exportacion'].map(t => (
-              <button
-                key={t}
-                className={`px-5 py-2 rounded-lg font-body text-sm transition-all cursor-pointer ${
-                  tipo === t ? 'bg-primary-intense text-on-primary' : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-                onClick={() => handleTipoChange(t)}
-              >
-                {t === 'importacion' ? 'Importación' : 'Exportación'}
-              </button>
-            ))}
-          </div>
-
           {/* NCM + régimen */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
             <div>
@@ -607,33 +553,6 @@ export default function ComparadorClient({ paises }) {
                         </>
                       )}
 
-                      {tipo === 'exportacion' && (
-                        <>
-                          <SectionRow
-                            label="Derecho expo."
-                            values={resultados}
-                            renderCell={r => <span className="font-mono text-xs text-on-surface-variant">{r.data?.aranceles?.derecho_exportacion ?? '—'}%</span>}
-                          />
-                          <SectionRow
-                            label="Reintegro"
-                            values={resultados}
-                            renderCell={r => {
-                              const v = r.data?.aranceles?.reintegro
-                              return v > 0
-                                ? <span className="font-mono text-xs text-emerald-400">{v}%</span>
-                                : <span className="font-mono text-xs text-on-surface-variant/30">—</span>
-                            }}
-                          />
-                          <SectionRow
-                            label="Preferencia"
-                            values={resultados}
-                            renderCell={r => r.data?.preferencias?.tiene_preferencia
-                              ? <span className="font-body text-xs text-emerald-400">{r.data.preferencias.acuerdos?.[0]?.bloque ?? 'Sí'}</span>
-                              : <span className="font-mono text-xs text-on-surface-variant/30">No</span>
-                            }
-                          />
-                        </>
-                      )}
 
                       <SectionRow
                         label="Organismos"
@@ -734,13 +653,6 @@ export default function ComparadorClient({ paises }) {
                             <span className="font-mono text-xs text-on-surface">{val}%</span>
                           </div>
                         ) : null)}
-
-                        {tipo === 'exportacion' && r.data?.aranceles?.reintegro > 0 && (
-                          <div className="flex justify-between px-3 py-1.5 bg-emerald-500/5 border border-emerald-500/15 rounded-lg">
-                            <span className="font-mono text-[10px] text-emerald-400/60">Reintegro</span>
-                            <span className="font-mono text-xs text-emerald-400">{r.data.aranceles.reintegro}%</span>
-                          </div>
-                        )}
 
                         {r.data?.preferencias?.tiene_preferencia && (
                           <div className="px-3 py-2 bg-emerald-500/5 border border-emerald-500/15 rounded-xl">

@@ -4,13 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { MEDIOS_PAGO_OPTIONS, getMedioPago } from '@/lib/data/medios-pago'
 
-const LABEL_TIPO = { exportacion: 'EXPORTACIÓN', importacion: 'IMPORTACIÓN' }
 const INCOTERMS = ['EXW','FCA','FAS','FOB','CFR','CIF','CPT','CIP','DAP','DPU','DDP']
 const MODOS = ['maritimo','aereo','terrestre']
-
-const REGIMENES_EXPORTACION = [
-  { value: 'general', label: 'General' },
-]
 
 const REGIMENES_IMPORTACION = [
   { value: 'general', label: 'General (canal rojo/naranja/verde)' },
@@ -261,28 +256,8 @@ export default function ModalNuevaOperacion({ form, setField, errores, productos
         </div>
 
         <form onSubmit={onGuardar} noValidate className="p-6 space-y-5">
-          <div>
-            <label className="block font-body text-xs text-on-surface-variant mb-2">Tipo de operación <span className="text-red-400">*</span></label>
-            <div className="flex bg-white/[0.02] rounded-xl p-1">
-              {['exportacion','importacion'].map(t => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setField('operation_type', t)}
-                  className={`flex-1 py-2 rounded-lg font-body text-sm font-medium transition-all ${
-                    form.operation_type === t
-                      ? 'bg-white/[0.06] text-on-surface'
-                      : 'text-on-surface-variant hover:text-on-surface'
-                  }`}
-                >
-                  {LABEL_TIPO[t]}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {(() => {
-            const regimenOpts = form.operation_type === 'importacion' ? REGIMENES_IMPORTACION : REGIMENES_EXPORTACION
+            const regimenOpts = REGIMENES_IMPORTACION
             if (regimenOpts.length <= 1) return null
             return (
               <div>
@@ -406,7 +381,7 @@ export default function ModalNuevaOperacion({ form, setField, errores, productos
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block font-body text-xs text-on-surface-variant mb-1.5">
-                {form.operation_type === 'exportacion' ? 'País de destino' : 'País de origen'} <span className="text-red-400">*</span>
+                País de origen <span className="text-red-400">*</span>
               </label>
               <select
                 className={`w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border ${errores.counterpart_country ? 'border-red-500/50' : 'border-transparent focus:border-primary/30'} outline-none cursor-pointer`}
@@ -445,7 +420,7 @@ export default function ModalNuevaOperacion({ form, setField, errores, productos
 
           <div>
             <label className="block font-body text-xs text-on-surface-variant mb-1.5">
-              {form.operation_type === 'exportacion' ? 'Importador' : 'Exportador'}
+              Exportador
             </label>
             <input
               className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none"

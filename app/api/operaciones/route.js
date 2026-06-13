@@ -13,7 +13,7 @@ function getServiceClient() {
   )
 }
 
-const VALID_OPERATION_TYPES = ['importacion', 'exportacion']
+const VALID_OPERATION_TYPES = ['importacion']
 const VALID_INCOTERMS = INCOTERMS
 const VALID_CURRENCIES = CURRENCIES
 const VALID_TRANSPORT = TRANSPORT_MODES
@@ -77,7 +77,7 @@ export async function POST(request) {
     return NextResponse.json({ error: 'transport_mode inválido' }, { status: 400 })
   }
 
-  const status = operation_type === 'exportacion' ? 'expo_preparacion' : 'impo_orden_compra'
+  const status = 'impo_orden_compra'
 
   const { data, error: insertError } = await supabase
     .from('operations')

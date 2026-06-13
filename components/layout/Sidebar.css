@@ -154,6 +154,31 @@
   pointer-events: none;
 }
 
+/* Acción primaria: la puerta principal del producto (Nueva importación) */
+.sidebar-link--primary {
+  margin: 0.25rem 0.5rem 0.75rem;
+  padding: 0.625rem 0.875rem;
+  background: #DDD92A;
+  color: #1A191C;
+  border-left-color: transparent;
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+.sidebar-link--primary:hover {
+  background: #EAE151;
+  color: #1A191C;
+}
+
+.sidebar-link--primary.sidebar-link--active {
+  color: #1A191C;
+  background: #DDD92A;
+}
+
+.sidebar-link--primary .sidebar-link-icon svg {
+  color: #1A191C;
+}
+
 .sidebar-link-icon {
   flex-shrink: 0;
   width: 20px;
