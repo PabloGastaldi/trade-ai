@@ -95,7 +95,7 @@ function FadeSection({ children, className = '', delay = 0 }) {
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ease-out ${className}`}
+      className={`transition-all duration-700 ease-out motion-reduce:transition-none ${className}`}
       style={{
         opacity: inView ? 1 : 0,
         transform: inView ? 'translateY(0)' : 'translateY(30px)',
@@ -118,12 +118,12 @@ export default function LandingPage() {
   return (
     <div className="bg-surface text-on-surface font-body">
 
-      {/* ─── 1. HEADER — pill flotante ─── */}
-      <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-3xl px-4">
-        <div className="flex items-center justify-between gap-3 px-5 py-2.5 rounded-full bg-surface/60 backdrop-blur-2xl border border-white/[0.06] shadow-lg shadow-black/20">
+      {/* ─── 1. HEADER — cream bar with hairline ─── */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-md border-b border-hairline">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 px-5 py-3">
           {/* Logo */}
           <a href="/" className="flex items-center no-underline flex-shrink-0">
-            <span className="font-logo text-lg"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span>
+            <span className="font-logo text-lg font-semibold"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span>
           </a>
 
           {/* Desktop nav */}
@@ -135,7 +135,7 @@ export default function LandingPage() {
               <a
                 key={item.label}
                 href={item.href}
-                className="px-3.5 py-1.5 rounded-full text-sm text-on-surface-variant hover:text-on-surface transition-colors duration-150 no-underline"
+                className="px-3.5 py-1.5 rounded-md text-sm text-on-surface-variant hover:text-on-surface transition-colors duration-150 no-underline"
               >
                 {item.label}
               </a>
@@ -146,13 +146,13 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-2">
             <a
               href="/login"
-              className="px-4 py-2 rounded-lg text-sm text-on-surface-variant hover:text-on-surface transition-colors duration-150 no-underline"
+              className="px-4 py-2 rounded-md text-sm text-on-surface-variant hover:text-on-surface transition-colors duration-150 no-underline"
             >
               Iniciar sesión
             </a>
             <a
               href="/registro"
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-on-primary bg-primary-intense hover:bg-primary hover:shadow-[0_0_20px_rgba(221,217,42,0.25)] transition-all duration-150 no-underline"
+              className="px-4 py-2 rounded-md text-sm font-medium text-on-primary bg-primary hover:bg-primary-intense transition-colors duration-150 no-underline"
             >
               Empezar gratis
             </a>
@@ -160,7 +160,7 @@ export default function LandingPage() {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface transition-colors"
+            className="md:hidden p-1.5 rounded-md text-on-surface-variant hover:text-on-surface transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Menu"
           >
@@ -170,8 +170,8 @@ export default function LandingPage() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden mt-2 p-4 rounded-2xl bg-surface/90 backdrop-blur-2xl border border-white/[0.06] shadow-xl">
-            <nav className="flex flex-col gap-1 mb-4">
+          <div className="md:hidden px-5 pb-4 bg-surface border-t border-hairline">
+            <nav className="flex flex-col gap-1 mb-4 pt-3">
               {[
                 { label: 'Herramientas', href: '#herramientas' },
                 { label: 'Precios', href: '#precios' },
@@ -180,17 +180,17 @@ export default function LandingPage() {
                   key={item.label}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="px-3 py-2 rounded-xl text-sm text-on-surface-variant hover:text-on-surface hover:bg-white/[0.04] transition-colors no-underline"
+                  className="px-3 py-2 rounded-md text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-high transition-colors no-underline"
                 >
                   {item.label}
                 </a>
               ))}
             </nav>
             <div className="flex flex-col gap-2">
-              <a href="/login" className="px-4 py-2.5 rounded-xl text-sm text-center text-on-surface-variant border border-white/[0.08] hover:text-on-surface transition-colors no-underline">
+              <a href="/login" className="px-4 py-2.5 rounded-md text-sm text-center text-on-surface border border-hairline hover:bg-surface-high transition-colors no-underline">
                 Iniciar sesión
               </a>
-              <a href="/registro" className="px-4 py-2.5 rounded-xl text-sm text-center font-semibold text-on-primary bg-primary-intense no-underline">
+              <a href="/registro" className="px-4 py-2.5 rounded-md text-sm text-center font-medium text-on-primary bg-primary no-underline">
                 Empezar gratis
               </a>
             </div>
@@ -199,32 +199,29 @@ export default function LandingPage() {
       </header>
 
       {/* ─── HERO ─── */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-24 pb-16 overflow-hidden">
-        {/* Atmospheric glow */}
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute inset-0" style={{
-            background: 'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(221,217,42,0.04) 0%, transparent 70%)',
-          }} />
-        </div>
+      <section className="relative flex flex-col items-center justify-center px-4 pt-40 pb-24 overflow-hidden">
+        <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto">
 
-        <div className="relative z-10 flex flex-col items-center text-center max-w-5xl mx-auto">
-
+          <p className="font-body text-sm font-medium text-on-surface-variant mb-5">
+            Comercio exterior para PYMEs argentinas
+          </p>
 
           {/* Title */}
-          <h1 className="font-logo text-[clamp(5rem,15vw,14rem)] leading-none text-on-surface opacity-0 animate-[fadeInUp_0.8s_0.2s_ease_forwards]">
-            <span>trade</span><span className="text-primary">.ai</span>
+          <h1 className="font-display font-medium text-[clamp(2.5rem,7vw,4.5rem)] leading-[1.05] tracking-[-1.5px] text-on-surface motion-safe:opacity-0 motion-safe:animate-[fadeInUp_0.8s_0.1s_ease_forwards]">
+            Importá con la certeza de un despachante, en minutos.
           </h1>
 
           {/* Subtitle */}
-          <p className="font-body text-xl md:text-2xl text-on-surface-variant font-light tracking-wide mt-10 mb-4 max-w-xl opacity-0 animate-[fadeInUp_0.8s_0.4s_ease_forwards]">
-            Donde el comercio se vuelve inteligente.
+          <p className="font-body text-lg text-on-surface-variant mt-6 mb-10 max-w-xl motion-safe:opacity-0 motion-safe:animate-[fadeInUp_0.8s_0.25s_ease_forwards]">
+            Describí tu producto, elegí el origen, y trade.ai te dice cuánto sale puesto en Argentina,
+            qué necesitás para importarlo legalmente, y si conviene según el país.
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-10 opacity-0 animate-[fadeInUp_0.8s_0.6s_ease_forwards]">
+          <div className="flex flex-wrap items-center justify-center gap-4 motion-safe:opacity-0 motion-safe:animate-[fadeInUp_0.8s_0.4s_ease_forwards]">
             <a
               href="/registro"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary-intense text-on-primary font-semibold text-base hover:shadow-[0_0_30px_rgba(221,217,42,0.25)] transition-all duration-200 no-underline"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-md bg-primary text-on-primary font-medium text-base hover:bg-primary-intense transition-colors duration-150 no-underline"
             >
               Empezar gratis
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
@@ -233,152 +230,138 @@ export default function LandingPage() {
             </a>
             <a
               href="#herramientas"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white/[0.05] backdrop-blur-sm border border-white/[0.1] text-on-surface font-body font-medium text-base hover:bg-white/[0.1] transition-all duration-200 no-underline"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-md bg-surface-1 border border-hairline text-on-surface font-body font-medium text-base hover:bg-surface-high transition-colors duration-150 no-underline"
             >
-              Ver herramientas
+              Ver cómo funciona
             </a>
           </div>
 
           {/* Scroll indicator */}
-          <div className="mt-20 opacity-30 animate-bounce">
-            <ChevronDown size={24} className="text-on-surface-variant" />
+          <div className="mt-16 text-ink-tertiary motion-safe:animate-bounce">
+            <ChevronDown size={22} />
           </div>
         </div>
       </section>
 
       {/* ─── QUÉ ES TRADE.AI ─── */}
-      <section className="py-32 px-4 bg-surface">
-        <div className="max-w-5xl mx-auto text-center">
+      <section className="py-24 px-4 bg-surface">
+        <div className="max-w-3xl mx-auto text-center">
           <FadeSection>
-            <h2 className="font-display text-5xl md:text-6xl tracking-wider text-on-surface">
-              UNA PLATAFORMA.
-              <br />
-              TODO EL COMERCIO EXTERIOR.
+            <p className="font-body text-sm font-medium text-primary mb-4">Cómo funciona</p>
+            <h2 className="font-display font-medium text-3xl md:text-4xl tracking-[-0.8px] text-on-surface">
+              Un solo recorrido, de la idea al costo final.
             </h2>
-            <p className="font-body text-lg text-on-surface-variant mt-8 max-w-2xl mx-auto leading-relaxed">
-              Gestioná operaciones de exportación e importación de principio a fin.
-              Calculá costos, controlá documentación, y consultá normativa con un
-              asistente de IA especializado en comercio exterior argentino.
+            <p className="font-body text-lg text-on-surface-variant mt-6 leading-relaxed">
+              Describís tu producto en lenguaje natural, elegís el origen, y el sistema responde
+              las tres preguntas que importan: cuánto sale puesto en Argentina, qué necesitás
+              para importarlo legalmente, y si conviene según el origen.
             </p>
           </FadeSection>
         </div>
       </section>
 
-      {/* ─── HERRAMIENTAS — Bento Grid ─── */}
-      <section id="herramientas" className="py-24 px-4 bg-surface-low">
+      {/* ─── HERRAMIENTAS — feature cards on cream ─── */}
+      <section id="herramientas" className="py-24 px-4 bg-surface">
         <div className="max-w-6xl mx-auto">
           <FadeSection>
-            <h2 className="font-display text-5xl md:text-6xl tracking-wider text-on-surface mb-16">
-              HERRAMIENTAS
+            <p className="font-body text-sm font-medium text-primary mb-4">El producto</p>
+            <h2 className="font-display font-medium text-3xl md:text-4xl tracking-[-0.8px] text-on-surface mb-16">
+              Dos capas de valor
             </h2>
           </FadeSection>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-            {/* Card 1 — Chat IA (col-span-2) */}
-            <FadeSection className="md:col-span-2 group" delay={0}>
-              <div className="relative h-full p-8 rounded-2xl bg-white/[0.03] backdrop-blur-sm border border-white/[0.04] hover:bg-white/[0.06] hover:scale-[1.01] transition-all duration-300">
-                <span className="font-mono text-xs tracking-widest uppercase text-primary mb-4 block">
-                  ASISTENTE IA
+            {/* Card 1 — Recorrido guiado (col-span-2) */}
+            <FadeSection className="md:col-span-2" delay={0}>
+              <div className="relative h-full p-8 rounded-lg bg-surface-1 border border-hairline">
+                <span className="font-body text-sm font-medium text-on-surface-variant mb-4 block">
+                  Recorrido operativo
                 </span>
-                <h3 className="font-body text-2xl font-semibold text-on-surface mb-3">
-                  Chat con IA especializado
+                <h3 className="font-body text-2xl font-medium tracking-[-0.3px] text-on-surface mb-3">
+                  Producto → Origen → Costo
                 </h3>
                 <p className="font-body text-sm text-on-surface-variant leading-relaxed mb-6 max-w-lg">
-                  Consultá sobre aranceles, documentación y normativa en lenguaje natural.
-                  Respuestas con fuentes oficiales citadas.
+                  Tres pasos guiados que generan un informe de importación completo.
+                  El informe se convierte en una operación gestionable con checklist y vista Kanban.
                 </p>
 
-                {/* Chat mockup */}
-                <div className="bg-surface/80 rounded-xl p-5 border border-white/[0.04] max-w-md">
+                {/* Mockup */}
+                <div className="bg-surface rounded-md p-5 border border-hairline-soft max-w-md">
                   <p className="font-body text-sm text-on-surface-variant italic">
-                    "¿Puedo exportar galletas de chocolate a Chile?"
+                    "Notebook 14 pulgadas con SSD, desde China"
                   </p>
                   <p className="font-body text-sm text-on-surface mt-3">
-                    Sí, con arancel 0% gracias al ACE-35. NCM 1905.31.00. Necesitás habilitación INAL y certificado de origen.
+                    NCM 8471.30.12. Costo puesto en Argentina: USD 1.213. Necesitás factura comercial y certificado de origen.
                   </p>
                   <span className="font-mono text-[10px] text-primary mt-3 block">trade.ai</span>
                 </div>
               </div>
             </FadeSection>
 
-            {/* Card 2 — Calculadora */}
-            <FadeSection className="group" delay={100}>
-              <div className="relative h-full p-8 rounded-2xl bg-white/[0.03] backdrop-blur-sm border border-white/[0.04] hover:bg-white/[0.06] hover:scale-[1.01] transition-all duration-300 flex flex-col">
-                <span className="font-mono text-xs tracking-widest uppercase text-primary mb-4 block">
-                  CALCULADORA
+            {/* Card 2 — Copiloto IA */}
+            <FadeSection delay={100}>
+              <div className="relative h-full p-8 rounded-lg bg-surface-1 border border-hairline flex flex-col">
+                <span className="font-body text-sm font-medium text-on-surface-variant mb-4 block">
+                  Copiloto IA
                 </span>
-                <h3 className="font-body text-xl font-semibold text-on-surface mb-2">
-                  Calculá costos de importación y exportación
+                <h3 className="font-body text-xl font-medium tracking-[-0.2px] text-on-surface mb-2">
+                  Consultas contextuales
                 </h3>
                 <p className="font-body text-sm text-on-surface-variant leading-relaxed mb-6 flex-1">
-                  Compará regímenes: general, courier, PEF. Encontrá la opción más económica.
+                  El copiloto entiende el informe activo y responde en lenguaje natural sobre
+                  aranceles, NCM, acuerdos comerciales y documentación aduanera.
                 </p>
 
-                {/* Calc mockup */}
-                <div className="bg-surface/80 rounded-xl p-4 border border-white/[0.04] space-y-2">
-                  {[
-                    { label: 'Régimen General', val: '$1,986', dim: true },
-                    { label: 'Courier', val: '$1,607', dim: true },
-                    { label: 'PEF Personal', val: '$1,607', best: true },
-                  ].map((row, i) => (
-                    <div key={i} className="flex justify-between items-center font-mono text-sm">
-                      <span className={row.dim ? 'text-on-surface-variant' : 'text-on-surface'}>
-                        {row.label}
-                      </span>
-                      <span className={row.best ? 'text-primary font-semibold' : 'text-on-surface-variant'}>
-                        {row.val}
-                        {row.best && <span className="ml-2 text-[10px] tracking-wide">✓ MEJOR</span>}
-                      </span>
-                    </div>
-                  ))}
+                <div className="bg-surface rounded-md p-4 border border-hairline-soft">
+                  <p className="font-body text-xs text-on-surface-variant">
+                    "¿Necesito habilitación SENASA para esto?"
+                  </p>
+                  <p className="font-mono text-[10px] text-primary mt-2">Respuesta con fuentes oficiales</p>
                 </div>
               </div>
             </FadeSection>
 
-            {/* Card 3 — Comparador */}
-            <FadeSection className="group" delay={150}>
-              <div className="relative h-full p-8 rounded-2xl bg-white/[0.03] backdrop-blur-sm border border-white/[0.04] hover:bg-white/[0.06] hover:scale-[1.01] transition-all duration-300 flex flex-col">
-                <span className="font-mono text-xs tracking-widest uppercase text-primary mb-4 block">
-                  COMPARADOR
+            {/* Card 3 — Cobertura de datos */}
+            <FadeSection delay={150}>
+              <div className="relative h-full p-8 rounded-lg bg-surface-1 border border-hairline flex flex-col">
+                <span className="font-body text-sm font-medium text-on-surface-variant mb-4 block">
+                  Datos oficiales
                 </span>
-                <h3 className="font-body text-xl font-semibold text-on-surface mb-2">
-                  21 países, un solo clic
+                <h3 className="font-body text-xl font-medium tracking-[-0.2px] text-on-surface mb-2">
+                  33.000+ posiciones NCM
                 </h3>
-                <p className="font-body text-sm text-on-surface-variant leading-relaxed mb-6 flex-1">
-                  Compará aranceles y costos entre destinos.
+                <p className="font-body text-sm text-on-surface-variant leading-relaxed flex-1">
+                  Aranceles, preferencias arancelarias y barreras no arancelarias, actualizados
+                  desde fuentes oficiales argentinas y de UNCTAD.
                 </p>
 
-                {/* Country flags mockup */}
-                <div className="flex items-center gap-4 font-mono text-sm">
+                <div className="flex items-center gap-4 font-mono text-sm mt-6">
                   {[
-                    { flag: 'US', price: '$1,608' },
-                    { flag: 'BR', price: '$2,062' },
-                    { flag: 'CN', price: '$1,213' },
+                    { label: 'MERCOSUR', },
+                    { label: 'ACE' },
                   ].map((c) => (
-                    <div key={c.flag} className="flex items-center gap-2 text-on-surface-variant">
-                      <span className="text-base">{c.flag}</span>
-                      <span className="text-on-surface">{c.price}</span>
-                    </div>
+                    <span key={c.label} className="px-2.5 py-1 rounded-sm bg-surface text-on-surface-variant text-xs">
+                      {c.label}
+                    </span>
                   ))}
                 </div>
               </div>
             </FadeSection>
 
             {/* Card 4 — Gestor de operaciones */}
-            <FadeSection className="group" delay={200}>
-              <div className="relative h-full p-8 rounded-2xl bg-white/[0.03] backdrop-blur-sm border border-white/[0.04] hover:bg-white/[0.06] hover:scale-[1.01] transition-all duration-300">
-                <span className="font-mono text-xs tracking-widest uppercase text-primary mb-4 block">
-                  OPERACIONES
+            <FadeSection delay={200}>
+              <div className="relative h-full p-8 rounded-lg bg-surface-1 border border-hairline">
+                <span className="font-body text-sm font-medium text-on-surface-variant mb-4 block">
+                  Operaciones
                 </span>
-                <h3 className="font-body text-xl font-semibold text-on-surface mb-2">
-                  Gestioná expo e impo
+                <h3 className="font-body text-xl font-medium tracking-[-0.2px] text-on-surface mb-2">
+                  Gestioná tus importaciones
                 </h3>
                 <p className="font-body text-sm text-on-surface-variant leading-relaxed">
-                  Checklist inteligente de documentos y alertas de vencimiento.
+                  Checklist inteligente de documentos y vista Kanban por estado de operación.
                 </p>
 
-                {/* Progress mockup */}
                 <div className="mt-6 space-y-3">
                   {[
                     { label: 'Factura comercial', done: true },
@@ -386,14 +369,14 @@ export default function LandingPage() {
                     { label: 'Habilitación SENASA', done: false },
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3 font-mono text-sm">
-                      <div className={`w-4 h-4 rounded-full border flex-shrink-0 flex items-center justify-center ${item.done ? 'border-primary bg-primary/20' : 'border-white/20'}`}>
+                      <div className={`w-4 h-4 rounded-full border flex-shrink-0 flex items-center justify-center ${item.done ? 'border-primary bg-primary/10' : 'border-hairline'}`}>
                         {item.done && (
                           <svg className="w-2.5 h-2.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                           </svg>
                         )}
                       </div>
-                      <span className={item.done ? 'text-on-surface-variant line-through opacity-50' : 'text-on-surface-variant'}>
+                      <span className={item.done ? 'text-ink-subtle line-through' : 'text-on-surface-variant'}>
                         {item.label}
                       </span>
                     </div>
@@ -402,20 +385,20 @@ export default function LandingPage() {
               </div>
             </FadeSection>
 
-            {/* Card 5 — NCM */}
-            <FadeSection className="group" delay={250}>
-              <div className="relative h-full p-8 rounded-2xl bg-white/[0.03] backdrop-blur-sm border border-white/[0.04] hover:bg-white/[0.06] hover:scale-[1.01] transition-all duration-300 overflow-hidden">
-                <span className="font-mono text-xs tracking-widest uppercase text-primary mb-4 block">
-                  NCM
+            {/* Card 5 — Deep-link tools */}
+            <FadeSection delay={250}>
+              <div className="relative h-full p-8 rounded-lg bg-surface-1 border border-hairline overflow-hidden">
+                <span className="font-body text-sm font-medium text-on-surface-variant mb-4 block">
+                  Herramientas avanzadas
                 </span>
-                <h3 className="font-body text-xl font-semibold text-on-surface mb-2">
-                  10.000+ posiciones
+                <h3 className="font-body text-xl font-medium tracking-[-0.2px] text-on-surface mb-2">
+                  Nomenclador, calculadora y comparador
                 </h3>
                 <p className="font-body text-sm text-on-surface-variant leading-relaxed">
-                  Aranceles, preferencias y organismos.
+                  Accesibles cuando necesitás más control sobre la clasificación o el cálculo.
                 </p>
                 {/* Watermark */}
-                <span className="absolute bottom-4 right-5 font-mono text-3xl text-white/[0.06] select-none pointer-events-none">
+                <span className="absolute bottom-4 right-5 font-mono text-3xl text-hairline select-none pointer-events-none">
                   8422.40.10
                 </span>
               </div>
@@ -426,20 +409,20 @@ export default function LandingPage() {
       </section>
 
       {/* ─── STATS ─── */}
-      <section className="py-20 px-4 bg-surface">
+      <section className="py-16 px-4 bg-surface border-t border-hairline">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
             {[
-              { num: '10.000+', label: 'POSICIONES NCM' },
-              { num: '100+', label: 'FUENTES OFICIALES' },
-              { num: '21', label: 'PAÍSES' },
-              { num: '24/7', label: 'DISPONIBLE' },
+              { num: '33.000+', label: 'Posiciones NCM' },
+              { num: '52.500+', label: 'Preferencias arancelarias' },
+              { num: 'MERCOSUR · ACE', label: 'Acuerdos cubiertos' },
+              { num: 'Oficiales', label: 'Datos actualizados' },
             ].map((stat, i) => (
-              <FadeSection key={i} className="flex flex-col items-center" delay={i * 80}>
-                <div className="font-display text-6xl text-on-surface tracking-wide leading-none">
+              <FadeSection key={i} className="flex flex-col items-center text-center" delay={i * 80}>
+                <div className="font-display font-medium text-2xl tracking-[-0.5px] text-on-surface leading-none">
                   {stat.num}
                 </div>
-                <div className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest mt-3">
+                <div className="font-body text-xs text-ink-subtle mt-2">
                   {stat.label}
                 </div>
               </FadeSection>
@@ -449,11 +432,12 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PLANES ─── */}
-      <section id="precios" className="py-32 px-4 bg-surface-low">
+      <section id="precios" className="py-24 px-4 bg-surface">
         <div className="max-w-5xl mx-auto">
           <FadeSection>
-            <h2 className="font-display text-5xl md:text-6xl tracking-wider text-on-surface text-center mb-4">
-              PRECIOS
+            <p className="font-body text-sm font-medium text-primary text-center mb-4">Precios</p>
+            <h2 className="font-display font-medium text-3xl md:text-4xl tracking-[-0.8px] text-on-surface text-center mb-4">
+              Elegí tu plan
             </h2>
             <p className="font-body text-on-surface-variant text-center mb-16">
               Sin compromiso. Cancelá cuando quieras.
@@ -463,43 +447,43 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
             {PLANES.map((plan, i) => (
               <FadeSection key={plan.id} delay={i * 100}>
-                <div className={`relative flex flex-col h-full p-8 rounded-2xl bg-white/[0.03] border transition-all duration-200 hover:scale-[1.02] ${
+                <div className={`relative flex flex-col h-full p-8 rounded-lg border transition-colors duration-150 ${
                   plan.destacado
-                    ? 'border-primary/30 shadow-[0_0_40px_rgba(221,217,42,0.04)]'
-                    : 'border-white/[0.04] hover:border-white/[0.08]'
+                    ? 'bg-on-surface border-on-surface text-on-primary'
+                    : 'bg-surface-1 border-hairline'
                 }`}>
 
                   {plan.destacado && (
-                    <div className="absolute -top-3 left-8 font-mono text-[10px] tracking-widest uppercase px-3 py-1 rounded-full bg-primary-intense/10 text-primary">
+                    <div className="absolute -top-3 left-8 font-body text-[10px] font-medium px-3 py-1 rounded-full bg-primary text-on-primary">
                       RECOMENDADO
                     </div>
                   )}
 
                   <div className="mb-6">
-                    <div className={`font-mono text-sm tracking-widest uppercase mb-2 ${
-                      plan.destacado ? 'text-primary' : 'text-on-surface-variant'
+                    <div className={`font-body text-sm font-medium mb-2 ${
+                      plan.destacado ? 'text-white/70' : 'text-on-surface-variant'
                     }`}>
                       {plan.nombre}
                     </div>
-                    <div className={`font-display leading-none ${
-                      plan.nombre === 'EMPRESA' ? 'text-4xl' : 'text-7xl'
-                    } text-on-surface tracking-wide`}>
+                    <div className={`font-display font-medium leading-none tracking-[-0.5px] ${
+                      plan.nombre === 'EMPRESA' ? 'text-3xl' : 'text-5xl'
+                    } ${plan.destacado ? 'text-on-primary' : 'text-on-surface'}`}>
                       {plan.precio}
                     </div>
                     {plan.sub && (
-                      <div className="font-body text-sm text-on-surface-variant mt-1">{plan.sub}</div>
+                      <div className={`font-body text-sm mt-1 ${plan.destacado ? 'text-white/70' : 'text-on-surface-variant'}`}>{plan.sub}</div>
                     )}
                     {!plan.sub && plan.precioRaw && (
-                      <div className="font-body text-sm text-on-surface-variant mt-1">{plan.precioRaw}</div>
+                      <div className={`font-body text-sm mt-1 ${plan.destacado ? 'text-white/70' : 'text-on-surface-variant'}`}>{plan.precioRaw}</div>
                     )}
                   </div>
 
-                  <div className="h-px bg-white/10 my-6" />
+                  <div className={`h-px my-6 ${plan.destacado ? 'bg-white/15' : 'bg-hairline'}`} />
 
                   <ul className="flex flex-col gap-3 flex-1">
                     {plan.features.map((f, fi) => (
-                      <li key={fi} className="flex items-start gap-3 font-body text-sm text-on-surface-variant">
-                        <svg className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                      <li key={fi} className={`flex items-start gap-3 font-body text-sm ${plan.destacado ? 'text-white/80' : 'text-on-surface-variant'}`}>
+                        <svg className={`w-4 h-4 flex-shrink-0 mt-0.5 ${plan.destacado ? 'text-primary' : 'text-primary'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                         </svg>
                         {f}
@@ -508,17 +492,17 @@ export default function LandingPage() {
                   </ul>
 
                   {plan.featuresOriginales && (
-                    <div className="mt-5 p-3 bg-primary/5 border border-primary/15 rounded-xl">
-                      <p className="font-body text-[11px] font-semibold text-primary/80 mb-2">Límites ampliados — Fase Beta</p>
+                    <div className="mt-5 p-3 bg-primary/5 border border-primary/20 rounded-md">
+                      <p className="font-body text-[11px] font-medium text-primary mb-2">Límites ampliados — Fase Beta</p>
                       <div className="space-y-1">
                         {plan.featuresOriginales.map((f, fi) => (
                           <div key={fi} className="flex items-center gap-2">
-                            <span className="font-body text-[10px] text-on-surface-variant/40 line-through">{f}</span>
-                            <span className="font-body text-[10px] text-primary/70">→ {plan.features[fi]}</span>
+                            <span className="font-body text-[10px] text-ink-tertiary line-through">{f}</span>
+                            <span className="font-body text-[10px] text-primary">→ {plan.features[fi]}</span>
                           </div>
                         ))}
                       </div>
-                      <p className="font-body text-[10px] text-on-surface-variant/40 mt-2 leading-relaxed">
+                      <p className="font-body text-[10px] text-ink-tertiary mt-2 leading-relaxed">
                         Válido mientras dure la versión beta.
                       </p>
                     </div>
@@ -526,10 +510,10 @@ export default function LandingPage() {
 
                   <a
                     href={plan.href}
-                    className={`mt-8 block text-center px-6 py-3 rounded-xl font-body text-sm transition-all duration-150 no-underline ${
+                    className={`mt-8 block text-center px-6 py-3 rounded-md font-body text-sm font-medium transition-colors duration-150 no-underline ${
                       plan.destacado
-                        ? 'bg-primary-intense text-on-primary font-semibold hover:bg-primary hover:shadow-[0_0_20px_rgba(221,217,42,0.2)]'
-                        : 'border border-white/[0.1] text-on-surface hover:bg-white/[0.05]'
+                        ? 'bg-primary text-on-primary hover:bg-primary-intense'
+                        : 'border border-hairline text-on-surface hover:bg-surface-high'
                     }`}
                   >
                     {plan.cta}
@@ -542,41 +526,43 @@ export default function LandingPage() {
       </section>
 
       {/* ─── CTA FINAL ─── */}
-      <section className="py-32 px-4 bg-surface">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-24 px-4 bg-surface">
+        <div className="max-w-3xl mx-auto">
           <FadeSection>
-            <h2 className="font-display text-7xl md:text-8xl tracking-wider text-on-surface">
-              EMPEZÁ HOY
-            </h2>
-            <p className="font-body text-lg text-on-surface-variant mt-6 mb-12">
-              La herramienta que faltaba en el comercio exterior argentino.
-            </p>
-            <a
-              href="/registro"
-              className="inline-flex items-center gap-3 px-10 py-5 rounded-xl bg-primary-intense text-on-primary font-semibold text-lg hover:shadow-[0_0_30px_rgba(221,217,42,0.25)] transition-all duration-200 no-underline"
-            >
-              Crear cuenta gratis
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-              </svg>
-            </a>
+            <div className="rounded-lg bg-surface-1 border border-hairline p-12 text-center">
+              <h2 className="font-display font-medium text-3xl md:text-4xl tracking-[-0.6px] text-on-surface">
+                Empezá hoy
+              </h2>
+              <p className="font-body text-lg text-on-surface-variant mt-4 mb-10">
+                La herramienta que faltaba para las PYMEs que importan ocasionalmente.
+              </p>
+              <a
+                href="/registro"
+                className="inline-flex items-center gap-3 px-8 py-4 rounded-md bg-primary text-on-primary font-medium text-base hover:bg-primary-intense transition-colors duration-150 no-underline"
+              >
+                Crear cuenta gratis
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+              </a>
+            </div>
           </FadeSection>
         </div>
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="py-16 px-4 bg-surface border-t border-white/[0.06]">
+      <footer className="py-16 px-4 bg-surface border-t border-hairline">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between gap-10 mb-12">
             {/* Brand */}
             <div>
               <div>
-                <span className="font-logo text-xl"><span className="text-on-surface-variant">trade</span><span className="text-primary">.ai</span></span>
+                <span className="font-logo text-xl font-semibold"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span>
               </div>
-              <p className="font-body text-sm text-on-surface-variant/60 mt-2">
-                Plataforma de comercio exterior con IA
+              <p className="font-body text-sm text-ink-subtle mt-2">
+                Comercio exterior para PYMEs argentinas
               </p>
-              <p className="font-body text-sm text-on-surface-variant/40 mt-1">
+              <p className="font-body text-sm text-ink-tertiary mt-1">
                 Hecho en Argentina
               </p>
             </div>
@@ -592,7 +578,7 @@ export default function LandingPage() {
                 <a
                   key={item.label}
                   href={item.href}
-                  className="font-body text-sm text-on-surface-variant/60 hover:text-on-surface transition-colors no-underline"
+                  className="font-body text-sm text-ink-subtle hover:text-on-surface transition-colors no-underline"
                 >
                   {item.label}
                 </a>
@@ -601,12 +587,12 @@ export default function LandingPage() {
           </div>
 
           {/* Disclaimer */}
-          <div className="border-t border-white/[0.04] pt-8 text-center">
-            <p className="font-body text-xs text-on-surface-variant/40 max-w-2xl mx-auto leading-relaxed">
+          <div className="border-t border-hairline-soft pt-8 text-center">
+            <p className="font-body text-xs text-ink-tertiary max-w-2xl mx-auto leading-relaxed">
               La información provista es orientativa y está respaldada por documentos oficiales públicos.
               No reemplaza el asesoramiento de un despachante de aduana habilitado.
             </p>
-            <p className="font-mono text-xs text-on-surface-variant/30 mt-4">
+            <p className="font-mono text-xs text-ink-tertiary mt-4">
               © {new Date().getFullYear()} trade.ai
             </p>
           </div>

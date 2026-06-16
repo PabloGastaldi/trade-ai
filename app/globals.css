@@ -2,13 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'Salin';
-  src: url('/fonts/salin-md.otf') format('opentype');
-  font-weight: 500;
-  font-display: swap;
-}
-
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -16,33 +9,46 @@
 }
 
 :root {
-  /* Core tokens */
-  --surface:           #1A191C;
-  --surface-low:        #1f1e21;
-  --surface-container: #242327;
-  --surface-high:      #2a292e;
-  --surface-highest:   #313035;
-  --primary:            #DDD92A;
-  --primary-intense:    #EAE151;
-  --on-surface:         #F5F5F5;
-  --on-surface-variant: #9E9DA0;
-  --on-primary:         #1A191C;
+  /* Core surfaces — Intercom editorial light system */
+  --surface:            #f5f1ec;
+  --surface-low:        #ffffff;
+  --surface-container:  #ffffff;
+  --surface-high:       #ebe7e1;
+  --surface-highest:    #ebe7e1;
+
+  /* Accent — Fin Orange, reserved for AI/CTA primary */
+  --primary:            #ff5600;
+  --primary-intense:    #e64e00;
+  --on-primary:         #ffffff;
+
+  /* Type tokens */
+  --on-surface:         #111111;
+  --on-surface-variant: #626260;
 
   /* Legacy aliases (used by CSS modules) */
-  --accent:             #DDD92A;
-  --accent-hover:       #EAE151;
-  --accent-dim:         rgba(221, 217, 42, 0.1);
-  --accent-dim-border:  rgba(221, 217, 42, 0.2);
-  --text:               #F5F5F5;
-  --text-muted:         #9E9DA0;
-  --text-dim:           #9E9DA0;
-  --bg:                 #1A191C;
-  --surface-2:          #2a292e;
-  --border:             rgba(255, 255, 255, 0.04);
-  --border-light:       rgba(255, 255, 255, 0.08);
+  --accent:             #ff5600;
+  --accent-hover:       #e64e00;
+  --accent-dim:         rgba(255, 86, 0, 0.10);
+  --accent-dim-border:  rgba(255, 86, 0, 0.20);
+  --text:               #111111;
+  --text-muted:         #626260;
+  --text-dim:           #7b7b78;
+  --bg:                 #f5f1ec;
+  --surface-2:          #ebe7e1;
+  --border:             #d3cec6;
+  --border-light:       #ebe7e1;
 
-  /* Fonts — variables inyectadas por next/font en <html>, no redefinir aquí */
-  --font-logo:          'Salin', sans-serif;
+  /* New Intercom vocabulary tokens */
+  --hairline:           #d3cec6;
+  --hairline-soft:      #ebe7e1;
+  --ink-subtle:         #7b7b78;
+  --ink-tertiary:       #9c9fa5;
+
+  /* Fonts — all map to Inter (injected via <link> in layout.js) */
+  --font-body:          'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display:       'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:          'JetBrains Mono', ui-monospace, monospace;
+  --font-logo:          'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
 html {
@@ -50,7 +56,7 @@ html {
 }
 
 body {
-  font-family: var(--font-body), 'Inter', sans-serif;
+  font-family: var(--font-body);
   background: var(--surface);
   color: var(--on-surface);
   -webkit-font-smoothing: antialiased;
@@ -70,7 +76,7 @@ h1, h2, h3, h4, h5, h6 {
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #313035; border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 2px; }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }

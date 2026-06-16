@@ -77,12 +77,12 @@ function fmtFechaFull(fecha) {
 }
 
 function DocsProgress({ total, completos }) {
-  if (total === 0) return <span className="font-mono text-xs text-on-surface-variant/30">—</span>
+  if (total === 0) return <span className="font-mono text-xs text-ink-tertiary">—</span>
   const pct = Math.round((completos / total) * 100)
-  const color = pct >= 80 ? 'bg-emerald-500' : pct >= 40 ? 'bg-primary' : 'bg-red-500'
+  const color = pct >= 80 ? 'bg-emerald-500' : pct >= 40 ? 'bg-amber-500' : 'bg-red-500'
   return (
     <div className="flex items-center gap-2">
-      <div className="w-10 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+      <div className="w-10 h-1.5 rounded-full bg-surface-2 overflow-hidden">
         <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
       </div>
       <span className="font-mono text-xs text-on-surface-variant">{completos}/{total}</span>
@@ -305,7 +305,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <select
-            className="bg-surface-highest rounded-xl px-4 py-2 text-sm font-body text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer"
+            className="bg-surface-1 rounded-md px-4 py-2 text-sm font-body text-on-surface border border-hairline focus:border-on-surface outline-none cursor-pointer"
             value={filtroEstado}
             onChange={e => setFiltroEstado(e.target.value)}
           >
@@ -315,17 +315,17 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 bg-white/[0.02] rounded-xl p-1">
+          <div className="flex items-center gap-1 bg-surface-1 border border-hairline rounded-md p-1">
             <button
               onClick={() => setVista('lista')}
-              className={`p-2 rounded-lg transition-colors ${vista === 'lista' ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'}`}
+              className={`p-2 rounded-md transition-colors ${vista === 'lista' ? 'bg-surface-2 text-on-surface' : 'text-ink-subtle hover:text-on-surface'}`}
               title="Vista lista"
             >
               <IconLista />
             </button>
             <button
               onClick={() => setVista('kanban')}
-              className={`p-2 rounded-lg transition-colors ${vista === 'kanban' ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'}`}
+              className={`p-2 rounded-md transition-colors ${vista === 'kanban' ? 'bg-surface-2 text-on-surface' : 'text-ink-subtle hover:text-on-surface'}`}
               title="Vista Kanban"
             >
               <IconKanban />
@@ -333,7 +333,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
           </div>
 
           <input
-            className="w-60 bg-surface-highest rounded-xl px-4 py-2 text-sm font-body text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none"
+            className="w-60 bg-surface-1 rounded-md px-4 py-2 text-sm font-body text-on-surface placeholder:text-ink-tertiary border border-hairline focus:border-on-surface outline-none"
             placeholder="Buscar operación..."
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
@@ -341,7 +341,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
 
           <button
             onClick={abrirModal}
-            className="bg-primary-intense text-on-primary px-5 py-2.5 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all"
+            className="bg-on-surface text-on-primary px-5 py-2.5 rounded-md font-body font-semibold text-sm hover:opacity-90 transition-all"
           >
             + Nueva operación
           </button>
@@ -350,10 +350,10 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
 
       {operaciones.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24">
-          <div className="text-on-surface-variant/20 mb-4"><IconBarco /></div>
+          <div className="text-ink-tertiary mb-4"><IconBarco /></div>
           <p className="font-body text-lg text-on-surface-variant">No tenés operaciones activas</p>
-          <p className="font-body text-sm text-on-surface-variant/60 mt-2">Creá tu primera operación para empezar a gestionar</p>
-          <button onClick={abrirModal} className="mt-6 bg-primary-intense text-on-primary px-6 py-3 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all">
+          <p className="font-body text-sm text-ink-subtle mt-2">Creá tu primera operación para empezar a gestionar</p>
+          <button onClick={abrirModal} className="mt-6 bg-on-surface text-on-primary px-6 py-3 rounded-md font-body font-semibold text-sm hover:opacity-90 transition-all">
             + Nueva operación
           </button>
         </div>
@@ -386,12 +386,12 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
 
 function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, onCancelar, eliminando }) {
   return (
-    <div className="rounded-xl border border-white/[0.04] overflow-hidden">
+    <div className="rounded-xl border border-hairline bg-surface-1 overflow-hidden">
       <table className="w-full">
         <thead>
-          <tr className="bg-surface-high">
+          <tr className="bg-surface-2">
             {['ESTADO','PRODUCTO','ORIGEN','VALOR','DOCS','FECHA',''].map(h => (
-              <th key={h} className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-medium">{h}</th>
+              <th key={h} className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-ink-subtle font-medium">{h}</th>
             ))}
           </tr>
         </thead>
@@ -403,13 +403,13 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, 
             return (
               <tr
                 key={op.id}
-                className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors cursor-pointer"
+                className="border-t border-hairline-soft hover:bg-surface transition-colors cursor-pointer"
                 onClick={() => !estadoElim && onRowClick(op)}
               >
                 <td className="px-4 py-3"><Badge variant={badge.variant}>{badge.label}</Badge></td>
                 <td className="px-4 py-3 max-w-[200px]">
                   <p className="font-body text-sm text-on-surface truncate">{op.product_description ?? '—'}</p>
-                  {op.ncm_code && <p className="font-mono text-xs text-primary mt-0.5">{op.ncm_code}</p>}
+                  {op.ncm_code && <p className="font-mono text-xs text-ink-muted mt-0.5">{op.ncm_code}</p>}
                 </td>
                 <td className="px-4 py-3">
                   <p className="font-body text-sm text-on-surface">{pais?.name_es ?? op.counterpart_country ?? '—'}</p>
@@ -430,13 +430,13 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, 
                     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={(e) => onConfirmar(op, e)}
-                        className="px-2 py-1 rounded-lg font-body text-xs bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors"
+                        className="px-2 py-1 rounded-md font-body text-xs bg-red-500/15 text-red-600 hover:bg-red-500/25 transition-colors"
                       >
                         Eliminar
                       </button>
                       <button
                         onClick={(e) => onCancelar(op.id, e)}
-                        className="px-2 py-1 rounded-lg font-body text-xs text-on-surface-variant/50 hover:text-on-surface-variant transition-colors"
+                        className="px-2 py-1 rounded-md font-body text-xs text-ink-subtle hover:text-on-surface transition-colors"
                       >
                         Cancelar
                       </button>
@@ -444,7 +444,7 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, 
                   ) : (
                     <button
                       onClick={(e) => onEliminar(op.id, e)}
-                      className="p-1.5 rounded-lg text-on-surface-variant/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                      className="p-1.5 rounded-md text-ink-tertiary hover:text-red-600 hover:bg-red-500/10 transition-colors"
                       title="Eliminar operación"
                     >
                       <Trash2 size={14} />

@@ -67,8 +67,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="sidebar-logo">
         <Link href="/" className="sidebar-logo-link">
-          <span className="font-logo text-on-surface">trade</span>
-          <span className="font-logo text-primary">.ai</span>
+          <span className="font-logo text-on-surface">trade<span className="text-on-surface">.ai</span></span>
           {!collapsed && <span className="sidebar-logo-badge">Beta</span>}
         </Link>
         <button
@@ -101,7 +100,7 @@ export default function Sidebar() {
                   title={collapsed ? item.label : undefined}
                 >
                   <span className="sidebar-link-icon">
-                    <Icon size={16} strokeWidth={1.5} className={isActive ? 'text-primary' : 'text-on-surface-variant'} />
+                    <Icon size={18} strokeWidth={1.7} className={isActive ? 'text-on-surface' : 'text-on-surface-variant'} />
                   </span>
                   {!collapsed && (
                     <span className="sidebar-link-label">

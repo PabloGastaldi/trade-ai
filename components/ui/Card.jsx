@@ -1,12 +1,12 @@
 const variants = {
-  default: 'bg-white/[0.03] border border-white/[0.04]',
-  highlighted: 'bg-white/[0.03] border border-primary/20',
-  glass: 'bg-white/[0.03] backdrop-blur-xl border border-white/[0.04]',
+  default: 'bg-surface-1 border border-hairline',
+  highlighted: 'bg-surface-1 border border-primary/30',
+  glass: 'bg-surface-1/80 backdrop-blur-xl border border-hairline',
 }
 
 export default function Card({ variant = 'default', className = '', children, onClick }) {
   return (
-    <div className={`rounded-2xl p-6 ${variants[variant]} ${className}`} onClick={onClick}>
+    <div className={`rounded-lg p-6 ${variants[variant]} ${className}`} onClick={onClick}>
       {children}
     </div>
   )

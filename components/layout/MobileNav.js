@@ -74,9 +74,8 @@ function MobileShell() {
       {/* Header superior */}
       <div className="mobile-header">
         <Link href="/" className="mobile-header-logo" onClick={() => setSheetOpen(false)}>
-          <span className="font-logo text-lg">
-            <span className="text-on-surface">trade</span>
-            <span className="text-primary">.ai</span>
+          <span className="font-logo text-lg font-semibold text-on-surface">
+            trade.ai
           </span>
         </Link>
       </div>

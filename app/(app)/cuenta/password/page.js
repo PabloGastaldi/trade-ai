@@ -44,7 +44,7 @@ export default function PasswordPage() {
     <div className="min-h-screen bg-surface flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <h1 className="font-body text-xl font-semibold text-on-surface text-center">
-          CAMBIAR CONTRASEÑA
+          Cambiar contraseña
         </h1>
         <p className="font-body text-sm text-on-surface-variant mt-2 mb-8 text-center">
           Ingresá tu nueva contraseña
@@ -56,7 +56,7 @@ export default function PasswordPage() {
               Contraseña actual
             </label>
             <input
-              className="w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none transition-all"
+              className="w-full bg-surface-1 rounded-md px-4 py-3 font-mono text-sm text-on-surface placeholder:text-ink-tertiary border border-hairline focus:border-on-surface outline-none transition-colors"
               type="password"
               value={actual}
               onChange={e => setActual(e.target.value)}
@@ -70,10 +70,10 @@ export default function PasswordPage() {
               Nueva contraseña
             </label>
             <input
-              className={`w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border outline-none transition-all ${
+              className={`w-full bg-surface-1 rounded-md px-4 py-3 font-mono text-sm text-on-surface placeholder:text-ink-tertiary border outline-none transition-colors ${
                 nueva.length > 0 && !nuevaMinima
-                  ? 'border-red-500/50 focus:border-red-500'
-                  : 'border-transparent focus:border-primary/30'
+                  ? 'border-red-400 focus:border-red-500'
+                  : 'border-hairline focus:border-on-surface'
               }`}
               type="password"
               value={nueva}
@@ -82,7 +82,7 @@ export default function PasswordPage() {
               autoComplete="new-password"
             />
             {nueva.length > 0 && !nuevaMinima && (
-              <p className="mt-1 font-body text-[10px] text-red-400">Mínimo 6 caracteres requeridos</p>
+              <p className="mt-1 font-body text-[10px] text-red-600">Mínimo 6 caracteres requeridos</p>
             )}
           </div>
 
@@ -91,10 +91,10 @@ export default function PasswordPage() {
               Confirmar nueva contraseña
             </label>
             <input
-              className={`w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border outline-none transition-all ${
+              className={`w-full bg-surface-1 rounded-md px-4 py-3 font-mono text-sm text-on-surface placeholder:text-ink-tertiary border outline-none transition-colors ${
                 confirmar.length > 0 && !coincide
-                  ? 'border-red-500/50 focus:border-red-500'
-                  : 'border-transparent focus:border-primary/30'
+                  ? 'border-red-400 focus:border-red-500'
+                  : 'border-hairline focus:border-on-surface'
               }`}
               type="password"
               value={confirmar}
@@ -103,29 +103,29 @@ export default function PasswordPage() {
               autoComplete="new-password"
             />
             {confirmar.length > 0 && !coincide && (
-              <p className="mt-1 font-body text-[10px] text-red-400">Las contraseñas no coinciden</p>
+              <p className="mt-1 font-body text-[10px] text-red-600">Las contraseñas no coinciden</p>
             )}
           </div>
 
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-              <p className="font-body text-xs text-red-400">{error}</p>
+            <div className="p-3 bg-red-50 border border-red-100 rounded-md">
+              <p className="font-body text-xs text-red-600">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2">
-              <svg className="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-md flex items-center gap-2">
+              <svg className="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              <p className="font-body text-xs text-emerald-400">Contraseña actualizada correctamente.</p>
+              <p className="font-body text-xs text-emerald-600">Contraseña actualizada correctamente.</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={!puedeEnviar}
-            className="w-full bg-primary-intense text-on-primary py-3 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none flex items-center justify-center gap-2 mt-2"
+            className="w-full bg-primary text-on-primary py-3 rounded-md font-body font-semibold text-sm hover:bg-primary-intense transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
           >
             {guardando ? (
               <>

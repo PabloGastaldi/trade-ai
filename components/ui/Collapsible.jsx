@@ -14,10 +14,10 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 export default function Collapsible({ title, defaultOpen = true, children, badge }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className="border border-white/[0.05] rounded-2xl overflow-hidden">
+    <div className="border border-hairline rounded-lg overflow-hidden">
       <button
         type="button"
-        className="w-full flex items-center justify-between px-5 py-4 bg-white/[0.02] hover:bg-white/[0.03] transition-colors text-left"
+        className="w-full flex items-center justify-between px-5 py-4 bg-surface-1 hover:bg-surface-high transition-colors text-left"
         onClick={() => setOpen(v => !v)}
       >
         <div className="flex items-center gap-2">

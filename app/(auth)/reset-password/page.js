@@ -7,22 +7,17 @@ import { createClient } from '@/lib/supabase/client'
 
 function LeftBrandingCard() {
   return (
-    <div className="hidden md:flex w-[500px] h-[600px] rounded-3xl bg-surface-low flex-col justify-between p-10 relative overflow-hidden shrink-0">
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse 70% 50% at 50% 30%, rgba(221,217,42,0.06) 0%, rgba(221,217,42,0.02) 40%, transparent 70%)',
-        }} />
+    <div className="hidden md:flex w-[460px] h-[560px] rounded-xl bg-on-surface text-on-primary flex-col justify-between p-10 relative overflow-hidden shrink-0">
+      <div className="relative z-10">
+        <Link href="/" className="no-underline"><span className="font-logo font-semibold"><span className="text-on-primary">trade</span><span className="text-primary">.ai</span></span></Link>
       </div>
       <div className="relative z-10">
-        <Link href="/" className="no-underline"><span className="font-logo"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span></Link>
-      </div>
-      <div className="relative z-10">
-        <h2 className="font-display text-6xl tracking-wider leading-tight text-on-surface">
-          ESTABLECÉ TU NUEVA CONTRASEÑA.
+        <h2 className="font-display font-medium text-4xl tracking-[-1px] leading-tight text-on-primary">
+          Establecé tu nueva contraseña.
         </h2>
       </div>
       <div className="relative z-10">
-        <p className="font-mono text-xs text-on-surface-variant/40">
+        <p className="font-mono text-xs text-white/40">
           © {new Date().getFullYear()} trade.ai
         </p>
       </div>
@@ -70,10 +65,10 @@ export default function ResetPasswordPage() {
 
       <div className="w-full max-w-[400px]">
         <div className="md:hidden mb-8">
-          <Link href="/" className="no-underline"><span className="font-logo text-2xl"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span></Link>
+          <Link href="/" className="no-underline"><span className="font-logo text-2xl font-semibold"><span className="text-on-surface">trade</span><span className="text-primary">.ai</span></span></Link>
         </div>
-        <h1 className="font-display text-4xl tracking-wider text-on-surface mb-2">
-          NUEVA CONTRASEÑA
+        <h1 className="font-display font-medium text-3xl tracking-[-0.8px] text-on-surface mb-2">
+          Nueva contraseña
         </h1>
         <p className="font-body text-base text-on-surface-variant mb-8">
           Elegí una contraseña nueva para tu cuenta
@@ -81,7 +76,7 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+            <div className="px-4 py-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-600">
               {error}
             </div>
           )}
@@ -95,9 +90,9 @@ export default function ResetPasswordPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="new-password"
-              className="w-full py-3 px-4 rounded-xl bg-surface-highest border-0 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
+              className="w-full py-3 px-4 rounded-md bg-surface-1 border border-hairline text-sm text-on-surface placeholder:text-ink-tertiary focus:outline-none focus:border-on-surface"
             />
-            <p className="font-mono text-[11px] text-on-surface-variant/50 mt-1.5">Mínimo 6 caracteres</p>
+            <p className="font-mono text-[11px] text-ink-subtle mt-1.5">Mínimo 6 caracteres</p>
           </div>
 
           <div>
@@ -109,14 +104,14 @@ export default function ResetPasswordPage() {
               onChange={(e) => setConfirmar(e.target.value)}
               required
               autoComplete="new-password"
-              className="w-full py-3 px-4 rounded-xl bg-surface-highest border-0 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
+              className="w-full py-3 px-4 rounded-md bg-surface-1 border border-hairline text-sm text-on-surface placeholder:text-ink-tertiary focus:outline-none focus:border-on-surface"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 rounded-xl bg-primary text-on-primary font-body font-semibold text-sm hover:bg-primary-intense hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+            className="w-full py-3.5 rounded-md bg-primary text-on-primary font-body font-medium text-sm hover:bg-primary-intense transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed mt-1"
           >
             {loading ? 'Guardando...' : 'Guardar nueva contraseña'}
           </button>

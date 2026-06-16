@@ -50,7 +50,7 @@ function Bubble({ mensaje }) {
     <div className={`flex gap-2 ${esUsuario ? 'flex-row-reverse' : 'flex-row'}`}>
       <div
         className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-[9px] font-body font-bold mt-0.5 ${
-          esUsuario ? 'bg-surface-highest text-on-surface-variant/50' : 'bg-primary text-on-primary'
+          esUsuario ? 'bg-surface-2 text-ink-subtle' : 'bg-primary text-on-primary'
         }`}
       >
         {esUsuario ? 'V' : 'AI'}
@@ -58,11 +58,11 @@ function Bubble({ mensaje }) {
 
       <div className={`flex flex-col max-w-[85%] ${esUsuario ? 'items-end' : 'items-start'}`}>
         {esError ? (
-          <p className="px-3 py-2 rounded-xl text-xs text-red-400 bg-red-500/5">
+          <p className="px-3 py-2 rounded-md text-xs text-red-600 bg-red-50">
             {mensaje.texto}
           </p>
         ) : esUsuario ? (
-          <p className="px-3 py-2 rounded-xl rounded-br-sm bg-white/[0.06] text-xs text-on-surface leading-relaxed">
+          <p className="px-3 py-2 rounded-md rounded-br-sm bg-surface-2 text-xs text-on-surface leading-relaxed">
             {mensaje.texto}
           </p>
         ) : (
@@ -84,7 +84,7 @@ function Bubble({ mensaje }) {
                   <li className="text-on-surface-variant leading-relaxed">{children}</li>
                 ),
                 code: ({ children }) => (
-                  <code className="px-1 py-0.5 rounded bg-surface-high text-primary text-[11px] font-mono">
+                  <code className="px-1 py-0.5 rounded-sm bg-surface-2 text-on-surface text-[11px] font-mono">
                     {children}
                   </code>
                 ),
@@ -102,7 +102,7 @@ function Bubble({ mensaje }) {
               <span className="inline-block w-0.5 h-3 bg-primary ml-0.5 animate-pulse align-middle" />
             )}
             {!mensaje.streaming && mensaje.texto && (
-              <p className="mt-2 pt-2 border-t border-white/[0.05] text-[10px] text-on-surface-variant/40 leading-relaxed">
+              <p className="mt-2 pt-2 border-t border-hairline-soft text-[10px] text-ink-tertiary leading-relaxed">
                 {DISCLAIMER_SHORT}
               </p>
             )}
@@ -135,7 +135,7 @@ function InputArea({ value, onChange, onSend, cargando, placeholder }) {
   }
 
   return (
-    <div className="flex items-end gap-2 bg-surface-low/80 backdrop-blur-xl border-t border-white/[0.04] rounded-2xl p-2 px-3">
+    <div className="flex items-end gap-2 bg-surface-1 border border-hairline rounded-lg p-2 px-3">
       <textarea
         ref={textareaRef}
         placeholder={placeholder}
@@ -144,17 +144,17 @@ function InputArea({ value, onChange, onSend, cargando, placeholder }) {
         onKeyDown={handleKeyDown}
         rows={1}
         disabled={cargando}
-        className="flex-1 bg-transparent border-0 resize-none outline-none text-xs text-on-surface placeholder:text-on-surface-variant/40 py-1.5 max-h-24 overflow-y-auto leading-relaxed"
+        className="flex-1 bg-transparent border-0 resize-none outline-none text-xs text-on-surface placeholder:text-ink-tertiary py-1.5 max-h-24 overflow-y-auto leading-relaxed"
         style={{ minHeight: '20px' }}
       />
       <button
         onClick={onSend}
         disabled={!puedeEnviar}
         aria-label="Enviar pregunta"
-        className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150 ${
+        className={`flex-shrink-0 w-7 h-7 rounded-md flex items-center justify-center transition-all duration-150 ${
           puedeEnviar
-            ? 'bg-primary-intense text-on-primary hover:bg-primary cursor-pointer'
-            : 'bg-surface-high text-on-surface-variant/30 cursor-not-allowed'
+            ? 'bg-primary text-on-primary hover:bg-primary-intense cursor-pointer'
+            : 'bg-surface-2 text-ink-tertiary cursor-not-allowed'
         }`}
       >
         {cargando
@@ -277,24 +277,36 @@ function useCopilotChat(contextPrefix) {
  * Compartido entre el rail y la bottom-sheet.
  */
 function ChatContent({ mensajes, inputTexto, setInputTexto, cargando, enviar, placeholder, emptyText }) {
-  const bottomRef = useRef(null)
+  const scrollRef = useRef(null)
+  const pegadoAbajo = useRef(true)
+
+  function handleScroll() {
+    const el = scrollRef.current
+    if (!el) return
+    // Si el usuario scrollea hacia arriba, dejamos de auto-bajar para que pueda leer.
+    pegadoAbajo.current = el.scrollHeight - el.scrollTop - el.clientHeight < 48
+  }
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const el = scrollRef.current
+    if (el && pegadoAbajo.current) el.scrollTop = el.scrollHeight
   }, [mensajes])
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       {/* Mensajes */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 min-h-0">
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-3 py-3 space-y-3 min-h-0"
+      >
         {mensajes.length === 0 ? (
-          <p className="text-xs text-on-surface-variant/50 text-center mt-4 leading-relaxed px-2">
+          <p className="text-xs text-ink-subtle text-center mt-4 leading-relaxed px-2">
             {emptyText}
           </p>
         ) : (
           mensajes.map(m => <Bubble key={m.id} mensaje={m} />)
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* Input */}
@@ -335,11 +347,11 @@ export default function CopilotRail({ meta, costoTotal }) {
     <>
       {/* ─── RAIL DESKTOP (lg+) ─── */}
       <div
-        className="hidden lg:flex flex-col bg-surface-low rounded-2xl overflow-hidden"
-        style={{ height: 'fit-content', minHeight: '420px', maxHeight: '680px' }}
+        className="hidden lg:flex flex-col bg-surface-1 border border-hairline rounded-lg overflow-hidden"
+        style={{ height: 'min(680px, calc(100vh - 3rem))' }}
       >
         {/* Header */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.04] flex-shrink-0">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-hairline flex-shrink-0">
           <MessageCircle size={14} className="text-primary" />
           <span className="font-body text-xs font-semibold text-on-surface">Copiloto IA</span>
         </div>
@@ -352,11 +364,11 @@ export default function CopilotRail({ meta, costoTotal }) {
         />
       </div>
 
-      {/* ─── BOTÓN FLOTANTE MOBILE (hasta lg) ─── */}
+      {/* ─── BOTÓN FLOTANTE MOBILE (hasta lg) — naranja: es la acción de IA ─── */}
       <button
         onClick={() => setSheetAbierto(true)}
         aria-label="Abrir copiloto de IA"
-        className="lg:hidden fixed bottom-[76px] right-4 z-40 w-12 h-12 rounded-full bg-primary-intense text-on-primary flex items-center justify-center shadow-lg transition-transform hover:scale-105 cursor-pointer"
+        className="lg:hidden fixed bottom-[76px] right-4 z-40 w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
       >
         <MessageCircle size={20} />
       </button>
@@ -366,12 +378,12 @@ export default function CopilotRail({ meta, costoTotal }) {
         <>
           {/* Overlay */}
           <div
-            className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            className="lg:hidden fixed inset-0 z-40 bg-on-surface/40"
             onClick={() => setSheetAbierto(false)}
           />
 
           {/* Sheet */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-surface-low rounded-t-2xl overflow-hidden"
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-surface-1 border-t border-hairline rounded-t-xl overflow-hidden"
             style={{ height: '65vh', paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
             {/* Handle + header */}
@@ -383,12 +395,12 @@ export default function CopilotRail({ meta, costoTotal }) {
               <button
                 onClick={() => setSheetAbierto(false)}
                 aria-label="Cerrar copiloto"
-                className="w-7 h-7 rounded-lg bg-white/[0.05] flex items-center justify-center hover:bg-white/[0.08] transition-colors cursor-pointer"
+                className="w-7 h-7 rounded-md bg-surface-2 flex items-center justify-center hover:bg-hairline transition-colors cursor-pointer"
               >
                 <X size={14} className="text-on-surface-variant" />
               </button>
             </div>
-            <div className="h-px bg-white/[0.04] flex-shrink-0" />
+            <div className="h-px bg-hairline flex-shrink-0" />
 
             {/* Chat */}
             <div className="flex-1 min-h-0">

@@ -393,21 +393,21 @@
 }
 
 .catCritico {
-  background: rgba(239, 68, 68, 0.07);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.15);
+  background: rgba(220, 38, 38, 0.07);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.18);
 }
 
 .catImportante {
-  background: rgba(251, 191, 36, 0.07);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.15);
+  background: rgba(217, 119, 6, 0.08);
+  color: #92400e;
+  border: 1px solid rgba(217, 119, 6, 0.2);
 }
 
 .catOpcional {
-  background: rgba(74, 222, 128, 0.07);
-  color: #4ade80;
-  border: 1px solid rgba(74, 222, 128, 0.15);
+  background: rgba(5, 150, 105, 0.07);
+  color: #047857;
+  border: 1px solid rgba(5, 150, 105, 0.18);
 }
 
 .docsGrupoCount {
@@ -427,7 +427,7 @@
 .docItem:hover { background: var(--surface-2); }
 
 .docItemCriticoPendiente {
-  border-left: 2px solid rgba(239, 68, 68, 0.4);
+  border-left: 2px solid rgba(220, 38, 38, 0.45);
   padding-left: 0.6rem;
 }
 
@@ -480,13 +480,13 @@
 .docFechaCompleto {
   font-family: var(--font-body);
   font-size: 0.72rem;
-  color: #4ade80;
+  color: #047857;
 }
 
 .docVencimiento {
   font-family: var(--font-body);
   font-size: 0.72rem;
-  color: #fbbf24;
+  color: #92400e;
 }
 
 .docNotaBtn {

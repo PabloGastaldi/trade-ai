@@ -12,7 +12,7 @@ function Checkbox({ checked, onChange }) {
       className={`w-5 h-5 rounded-md border shrink-0 flex items-center justify-center transition-all cursor-pointer ${
         checked
           ? 'bg-primary border-primary'
-          : 'bg-surface-highest border-white/[0.15] hover:border-white/[0.3]'
+          : 'bg-surface border-hairline hover:border-on-surface-variant'
       }`}
     >
       {checked && (
@@ -69,7 +69,7 @@ function ProductoSelector({ productos, onSelect, operationType }) {
   const filtrados = productos.filter(p => !operationType || p.operation_type === operationType)
   if (filtrados.length === 0) {
     return (
-      <div className="mb-4 p-3 bg-white/[0.02] rounded-xl border border-white/[0.04]">
+      <div className="mb-4 p-3 bg-surface rounded-md border border-hairline">
         <p className="font-body text-xs text-on-surface-variant">
           No tenés productos en tu catálogo.{' '}
           <a href="/catalogo" className="text-primary hover:underline">Cargalos acá →</a>
@@ -81,10 +81,10 @@ function ProductoSelector({ productos, onSelect, operationType }) {
   return (
     <div className="mb-5">
       <label className="block font-body text-xs text-on-surface-variant mb-1.5">
-        Producto del catálogo <span className="text-[10px] text-on-surface-variant/50">(opcional)</span>
+        Producto del catálogo <span className="text-[10px] text-ink-subtle">(opcional)</span>
       </label>
       <select
-        className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent outline-none focus:border-primary/40 transition-all cursor-pointer"
+        className="w-full bg-surface rounded-md px-4 py-3 font-body text-sm text-on-surface border border-hairline outline-none focus:border-on-surface transition-all cursor-pointer"
         defaultValue=""
         onChange={e => {
           const p = filtrados.find(x => x.id === e.target.value)
@@ -107,7 +107,7 @@ function CampoSelect({ label, value, onChange, options, className = '' }) {
     <div className={className}>
       <label className="block font-body text-xs text-on-surface-variant mb-1.5">{label}</label>
       <select
-        className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent outline-none focus:border-primary/40 transition-all cursor-pointer"
+        className="w-full bg-surface rounded-md px-4 py-3 font-body text-sm text-on-surface border border-hairline outline-none focus:border-on-surface transition-all cursor-pointer"
         value={value}
         onChange={e => onChange(e.target.value)}
       >
@@ -213,7 +213,7 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
           <div className="space-y-5">
             <div>
               <label className="block font-body text-xs text-on-surface-variant mb-1.5">
-                NCM <span className="text-[10px] text-on-surface-variant/50">(obligatorio)</span>
+                NCM <span className="text-[10px] text-ink-subtle">(obligatorio)</span>
               </label>
               <NcmAutocomplete
                 value={form.ncm_code}
@@ -248,7 +248,7 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
               <div className="flex items-center justify-between mb-1.5">
                 <label className="font-body text-xs text-on-surface-variant">Seguro internacional (USD)</label>
                 <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${form.estimarSeguro ? 'bg-primary-intense border-primary-intense' : 'border-white/20'}`}>
+                  <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${form.estimarSeguro ? 'bg-primary-intense border-primary-intense' : 'border-hairline'}`}>
                     {form.estimarSeguro && (
                       <svg className="w-2.5 h-2.5 text-on-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                         <polyline points="20 6 9 17 4 12" />
@@ -259,8 +259,8 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
                 </label>
               </div>
               <input
-                className={`w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border border-transparent outline-none transition-all ${
-                  form.estimarSeguro ? 'opacity-40 cursor-not-allowed' : 'focus:border-primary/40'
+                className={`w-full bg-surface rounded-md px-4 py-3 font-mono text-sm text-on-surface placeholder:text-ink-tertiary border border-hairline outline-none transition-all ${
+                  form.estimarSeguro ? 'opacity-40 cursor-not-allowed' : 'focus:border-on-surface'
                 }`}
                 type="number"
                 min="0"
@@ -308,15 +308,15 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
               options={REGIMENES_IMPORTACION.map(r => ({ value: r.key, label: r.label }))}
             />
             {regimen !== 'general' && (
-              <p className="font-body text-[10px] text-on-surface-variant/60 -mt-3">
+              <p className="font-body text-[10px] text-ink-subtle -mt-3">
                 {REGIMENES_IMPORTACION.find(r => r.key === regimen)?.desc}
               </p>
             )}
           </div>
 
           {errores._general && (
-            <div className="mt-4 p-3 bg-red-500/10 rounded-xl border border-red-500/10">
-              <p className="font-body text-xs text-red-400">{errores._general}</p>
+            <div className="mt-4 p-3 bg-red-50 rounded-md border border-red-100">
+              <p className="font-body text-xs text-red-600">{errores._general}</p>
             </div>
           )}
 
@@ -328,25 +328,25 @@ function TabImportacion({ productos, paises, initNcm = '', initPais = '' }) {
 
       <div className="space-y-4">
         {!resultado && !calculando && (
-          <div className="flex flex-col items-center justify-center h-64 bg-white/[0.02] rounded-2xl border border-white/[0.04]">
-            <svg className="w-10 h-10 text-on-surface-variant/20 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <div className="flex flex-col items-center justify-center h-64 bg-surface rounded-lg border border-hairline">
+            <svg className="w-10 h-10 text-ink-tertiary mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
               <rect x="4" y="2" width="16" height="20" rx="2" />
               <line x1="8" y1="6" x2="16" y2="6" />
               <line x1="8" y1="10" x2="16" y2="10" />
               <line x1="8" y1="14" x2="12" y2="14" />
             </svg>
-            <p className="font-body text-sm text-on-surface-variant/40 text-center">Completá los datos y hacé clic en Calcular</p>
+            <p className="font-body text-sm text-ink-tertiary text-center">Completá los datos y hacé clic en Calcular</p>
           </div>
         )}
 
         {calculando && (
-          <div className="flex flex-col items-center justify-center h-64 bg-white/[0.02] rounded-2xl border border-white/[0.04]">
+          <div className="flex flex-col items-center justify-center h-64 bg-surface rounded-lg border border-hairline">
             <div className="flex gap-1.5 mb-4">
               {[0,1,2].map(i => (
                 <div key={i} className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: `${i * 150}ms` }} />
               ))}
             </div>
-            <p className="font-body text-sm text-on-surface-variant/50">Calculando…</p>
+            <p className="font-body text-sm text-ink-subtle">Calculando…</p>
           </div>
         )}
 

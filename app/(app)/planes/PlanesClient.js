@@ -12,7 +12,7 @@ import { PLANS } from '@/lib/plans-config'
 // ────────────────────────────────────────────
 function CheckIcon() {
   return (
-    <svg className="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <svg className="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
       <polyline points="20 6 9 17 4 12" />
     </svg>
   )
@@ -20,7 +20,7 @@ function CheckIcon() {
 
 function DashIcon() {
   return (
-    <svg className="w-4 h-4 text-on-surface-variant/30 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <svg className="w-4 h-4 text-ink-tertiary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
       <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
   )
@@ -85,10 +85,10 @@ function PlanHeader({ planId, esActual, onSuscribirse, cargando }) {
   const isEmpresa = planId === 'empresa'
 
   return (
-    <div className={`relative rounded-2xl p-5 flex flex-col h-full ${
+    <div className={`relative rounded-lg p-5 flex flex-col h-full ${
       isPro
-        ? 'bg-white/[0.04] border border-primary/25'
-        : 'bg-white/[0.02] border border-white/[0.06]'
+        ? 'bg-on-surface border border-on-surface'
+        : 'bg-surface-1 border border-hairline'
     }`}>
       {isPro && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -101,26 +101,26 @@ function PlanHeader({ planId, esActual, onSuscribirse, cargando }) {
           {meta.nombre}
         </p>
         <div className="mt-3">
-          <span className="font-mono text-4xl font-bold text-on-surface">{meta.precio}</span>
-          {meta.sub && <span className="font-body text-xs text-on-surface-variant ml-1">{meta.sub}</span>}
+          <span className={`font-mono text-4xl font-bold ${isPro ? 'text-on-primary' : 'text-on-surface'}`}>{meta.precio}</span>
+          {meta.sub && <span className={`font-body text-xs ml-1 ${isPro ? 'text-on-primary/70' : 'text-on-surface-variant'}`}>{meta.sub}</span>}
         </div>
         {meta.precioNote && (
-          <p className="font-body text-xs text-on-surface-variant/50 mt-1">{meta.precioNote}</p>
+          <p className={`font-body text-xs mt-1 ${isPro ? 'text-on-primary/60' : 'text-ink-subtle'}`}>{meta.precioNote}</p>
         )}
       </div>
 
       {planId === 'free' && (
-        <div className="mb-4 p-3 bg-primary/5 border border-primary/15 rounded-xl">
-          <p className="font-body text-[11px] font-semibold text-primary/80 mb-1.5">Límites ampliados — Fase Beta</p>
+        <div className="mb-4 p-3 bg-primary/5 border border-primary/15 rounded-md">
+          <p className="font-body text-[11px] font-semibold text-primary mb-1.5">Límites ampliados — Fase Beta</p>
           <div className="space-y-1">
             {Object.entries(FREE_LIMITS_ORIGINALES).map(([feature, labelOriginal]) => (
               <div key={feature} className="flex items-center gap-2">
-                <span className="font-body text-[10px] text-on-surface-variant/40 line-through">{labelOriginal}</span>
-                <span className="font-body text-[10px] text-primary/70">→ {PLANS.free.limits[feature]?.label}</span>
+                <span className="font-body text-[10px] text-ink-tertiary line-through">{labelOriginal}</span>
+                <span className="font-body text-[10px] text-primary">→ {PLANS.free.limits[feature]?.label}</span>
               </div>
             ))}
           </div>
-          <p className="font-body text-[10px] text-on-surface-variant/40 mt-2 leading-relaxed">
+          <p className="font-body text-[10px] text-ink-tertiary mt-2 leading-relaxed">
             Válido mientras dure la versión beta. Los límites volverán a los valores originales al lanzamiento oficial.
           </p>
         </div>
@@ -129,20 +129,36 @@ function PlanHeader({ planId, esActual, onSuscribirse, cargando }) {
       {esActual ? (
         <button
           disabled
-          className="w-full py-2.5 rounded-xl font-body font-semibold text-sm bg-white/[0.04] text-on-surface-variant/40 cursor-not-allowed"
+          className={`w-full py-2.5 rounded-md font-body font-semibold text-sm cursor-not-allowed ${
+            isPro ? 'bg-on-primary/10 text-on-primary/40' : 'bg-surface-2 text-ink-tertiary'
+          }`}
         >
           Plan actual
         </button>
       ) : isEmpresa ? (
         <a
           href="mailto:tradeaicomex@gmail.com?subject=Consulta%20Plan%20Empresa%20%E2%80%94%20trade.ai"
-          className="block w-full py-2.5 rounded-xl font-body font-semibold text-sm text-center bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.08] text-on-surface transition-all"
+          className="block w-full py-2.5 rounded-md font-body font-semibold text-sm text-center bg-surface-1 hover:bg-surface-high border border-hairline text-on-surface transition-colors"
         >
           Contactar
         </a>
+      ) : isPro ? (
+        <button
+          onClick={() => onSuscribirse(planId)}
+          disabled={cargando === planId}
+          className="w-full py-2.5 rounded-md font-body font-semibold text-sm bg-on-primary text-on-surface hover:bg-on-primary/90 transition-colors disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
+        >
+          {cargando === planId && (
+            <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+          )}
+          Suscribirme
+        </button>
       ) : (
         <Button
-          variant={isPro ? 'primary' : 'secondary'}
+          variant="secondary"
           className="w-full"
           loading={cargando === planId}
           onClick={() => onSuscribirse(planId)}
@@ -163,7 +179,7 @@ function TablaComparativa() {
       <table className="w-full text-sm">
         <thead>
           <tr>
-            <th className="text-left py-3 px-4 font-body text-on-surface-variant/60 font-normal w-40">Funcionalidad</th>
+            <th className="text-left py-3 px-4 font-body text-ink-subtle font-normal w-40">Funcionalidad</th>
             {PLANES_ORDER.map(planId => (
               <th key={planId} className={`text-center py-3 px-4 font-body font-semibold text-xs tracking-widest uppercase ${planId === 'pro' ? 'text-primary' : 'text-on-surface-variant'}`}>
                 {PLAN_META[planId].nombre}
@@ -178,7 +194,7 @@ function TablaComparativa() {
               <Fragment key={grupo}>
                 <tr>
                   <td colSpan={4} className="pt-5 pb-1 px-4">
-                    <span className="font-body text-xs font-semibold tracking-wider uppercase text-on-surface-variant/50">
+                    <span className="font-body text-xs font-semibold tracking-wider uppercase text-ink-subtle">
                       {grupo}
                     </span>
                   </td>
@@ -186,7 +202,7 @@ function TablaComparativa() {
                 {filas.map((fila, i) => (
                   <tr
                     key={fila.feature}
-                    className={`${i % 2 === 0 ? 'bg-white/[0.015]' : ''} hover:bg-white/[0.025] transition-colors`}
+                    className={`${i % 2 === 0 ? 'bg-surface' : ''} hover:bg-surface-high transition-colors`}
                   >
                     <td className="py-3 px-4 font-body text-on-surface-variant">{fila.label}</td>
                     {PLANES_ORDER.map(planId => {
@@ -217,13 +233,13 @@ function TablaComparativa() {
           {/* Extras Empresa */}
           <tr>
             <td colSpan={4} className="pt-5 pb-1 px-4">
-              <span className="font-body text-xs font-semibold tracking-wider uppercase text-on-surface-variant/50">
+              <span className="font-body text-xs font-semibold tracking-wider uppercase text-ink-subtle">
                 Solo Empresa
               </span>
             </td>
           </tr>
           {EMPRESA_EXTRAS.map((extra, i) => (
-            <tr key={extra} className={i % 2 === 0 ? 'bg-white/[0.015]' : ''}>
+            <tr key={extra} className={i % 2 === 0 ? 'bg-surface' : ''}>
               <td className="py-3 px-4 font-body text-on-surface-variant">{extra}</td>
               <td className="py-3 px-4 text-center"><span className="inline-flex justify-center"><DashIcon /></span></td>
               <td className="py-3 px-4 text-center"><span className="inline-flex justify-center"><DashIcon /></span></td>
@@ -285,12 +301,12 @@ export default function PlanesClient({ planActual }) {
         </div>
 
         {/* Tabla comparativa */}
-        <div className="bg-white/[0.02] border border-white/[0.04] rounded-2xl overflow-hidden">
+        <div className="bg-surface-1 border border-hairline rounded-lg overflow-hidden">
           <TablaComparativa />
         </div>
 
-        <div className="p-4 bg-white/[0.02] border border-white/[0.04] rounded-xl text-center">
-          <p className="font-body text-xs text-on-surface-variant/40 leading-relaxed">
+        <div className="p-4 bg-surface border border-hairline rounded-md text-center">
+          <p className="font-body text-xs text-ink-tertiary leading-relaxed">
             Los precios incluyen IVA. Podés cancelar tu suscripción en cualquier momento desde Mi Cuenta.
             Esta información es orientativa y está respaldada por fuentes oficiales.
           </p>

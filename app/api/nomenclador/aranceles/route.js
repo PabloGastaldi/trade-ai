@@ -22,15 +22,15 @@ export async function GET(request) {
     const supabase = getServiceClient()
     const codigoNCM = normalizado.codigoNCM
 
-    const [impoRes, expoRes] = await Promise.all([
-      supabase.from('aranceles_importacion').select('aec, die, dii, te, iva, iva_ad, gan, iibb').eq('codigo_ncm', codigoNCM).single(),
-      supabase.from('aranceles_exportacion').select('derecho_exportacion, reintegro').eq('codigo_ncm', codigoNCM).single(),
-    ])
+    const { data: impoData } = await supabase
+      .from('aranceles_importacion')
+      .select('aec, die, dii, te, iva, iva_ad, gan, iibb')
+      .eq('codigo_ncm', codigoNCM)
+      .single()
 
     return NextResponse.json({
       codigo_ncm: codigoNCM,
-      importacion: impoRes.data ?? {},
-      exportacion: expoRes.data ?? {},
+      importacion: impoData ?? {},
     })
   } catch (err) {
     console.error('[api/nomenclador/aranceles] Error:', err.message)

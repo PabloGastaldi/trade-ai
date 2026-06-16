@@ -1,6 +1,6 @@
 export default function DataTable({ columns, data, className = '' }) {
   return (
-    <div className={`overflow-x-auto rounded-xl border border-white/[0.04] ${className}`}>
+    <div className={`overflow-x-auto rounded-md border border-hairline ${className}`}>
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-surface-high">
@@ -18,7 +18,7 @@ export default function DataTable({ columns, data, className = '' }) {
           {data.map((row, i) => (
             <tr
               key={i}
-              className={`border-t border-white/[0.04] hover:bg-white/[0.04] transition-colors ${i % 2 === 1 ? 'bg-white/[0.02]' : 'bg-transparent'}`}
+              className={`border-t border-hairline-soft hover:bg-surface transition-colors ${i % 2 === 1 ? 'bg-surface/40' : 'bg-transparent'}`}
             >
               {columns.map((col) => (
                 <td
