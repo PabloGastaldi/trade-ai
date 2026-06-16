@@ -42,13 +42,13 @@ function ConsultasSkeleton() {
   return (
     <div className="space-y-3">
       {[0,1,2,3,4].map(i => (
-        <div key={i} className="bg-white/[0.03] border border-white/[0.04] rounded-2xl p-5">
+        <div key={i} className="bg-surface-1 border border-hairline rounded-lg p-5">
           <div className="flex justify-between items-start mb-3">
-            <div className="h-3 w-36 bg-white/[0.04] rounded animate-pulse" />
-            <div className="h-3 w-6 bg-white/[0.04] rounded animate-pulse" />
+            <div className="h-3 w-36 bg-surface-2 rounded animate-pulse" />
+            <div className="h-3 w-6 bg-surface-2 rounded animate-pulse" />
           </div>
-          <div className="h-4 w-4/5 bg-white/[0.04] rounded animate-pulse mb-2" />
-          <div className="h-3 w-3/5 bg-white/[0.04] rounded animate-pulse" />
+          <div className="h-4 w-4/5 bg-surface-2 rounded animate-pulse mb-2" />
+          <div className="h-3 w-3/5 bg-surface-2 rounded animate-pulse" />
         </div>
       ))}
     </div>
@@ -58,15 +58,15 @@ function ConsultasSkeleton() {
 function EstadoVacio({ busqueda }) {
   return (
     <div className="text-center py-20">
-      <div className="mx-auto w-12 h-12 mb-4 text-on-surface-variant/[0.15]">
+      <div className="mx-auto w-12 h-12 mb-4 text-ink-tertiary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
         </svg>
       </div>
-      <p className="font-body text-base font-semibold text-on-surface-variant/40 uppercase mb-2">
+      <p className="font-body text-base font-semibold text-ink-subtle uppercase mb-2">
         {busqueda ? 'Sin resultados' : 'Sin consultas aún'}
       </p>
-      <p className="font-body text-sm text-on-surface-variant/30">
+      <p className="font-body text-sm text-ink-tertiary">
         {busqueda
           ? `No encontramos consultas para "${busqueda}"`
           : 'Tus consultas aparecerán acá una vez que las realices'
@@ -95,15 +95,15 @@ function ConsultaItem({ consulta, expandido, onToggle, onBorrar, borrando }) {
 
   return (
     <Card
-      className={`cursor-pointer transition-all duration-200 hover:bg-white/[0.05] ${
-        expandido ? 'border-white/[0.08]' : ''
+      className={`cursor-pointer transition-colors duration-200 hover:bg-surface-high ${
+        expandido ? 'border-on-surface/20' : ''
       }`}
       onClick={onToggle}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
-            <span className="font-mono text-[10px] text-on-surface-variant/40">
+            <span className="font-mono text-[10px] text-ink-tertiary">
               {fecha}
             </span>
           </div>
@@ -121,7 +121,7 @@ function ConsultaItem({ consulta, expandido, onToggle, onBorrar, borrando }) {
 
         <div className="flex items-center gap-2 shrink-0">
           <button
-            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer text-on-surface-variant/40 hover:text-on-surface"
+            className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-surface-high transition-colors cursor-pointer text-ink-tertiary hover:text-on-surface"
             onClick={(e) => onBorrar(e, consulta.id)}
             disabled={borrando === consulta.id}
             title="Eliminar consulta"
@@ -139,7 +139,7 @@ function ConsultaItem({ consulta, expandido, onToggle, onBorrar, borrando }) {
             )}
           </button>
           <svg
-            className={`w-4 h-4 text-on-surface-variant/40 transition-transform duration-200 ${expandido ? 'rotate-180' : ''}`}
+            className={`w-4 h-4 text-ink-tertiary transition-transform duration-200 ${expandido ? 'rotate-180' : ''}`}
             viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
           >
             <polyline points="6 9 12 15 18 9" />
@@ -148,8 +148,8 @@ function ConsultaItem({ consulta, expandido, onToggle, onBorrar, borrando }) {
       </div>
 
       {expandido && (
-        <div className="mt-4 pt-4 border-t border-white/[0.04]" onClick={e => e.stopPropagation()}>
-          <div className="font-body text-sm text-on-surface leading-relaxed [&_h1]:font-display [&_h1]:text-lg [&_h1]:tracking-wider [&_h1]:uppercase [&_h2]:font-body [&_h2]:text-base [&_h2]:tracking-wider [&_table]:w-full [&_table]:text-sm [&_th]:text-left [&_th]:font-mono [&_th]:text-[10px] [&_th]:uppercase [&_th]:tracking-widest [&_th]:text-on-surface-variant/50 [&_th]:pb-2 [&_td]:py-1.5 [&_tr]:border-t [&_tr]:border-white/[0.04] [&_code]:font-mono [&_code]:text-xs [&_code]:bg-white/[0.06] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_ul]:space-y-1 [&_ul]:pl-4 [&_li]:text-on-surface-variant [&_p]:mb-3 [&_p:last-child]:mb-0">
+        <div className="mt-4 pt-4 border-t border-hairline" onClick={e => e.stopPropagation()}>
+          <div className="font-body text-sm text-on-surface leading-relaxed [&_h1]:font-display [&_h1]:text-lg [&_h1]:tracking-wider [&_h1]:uppercase [&_h2]:font-body [&_h2]:text-base [&_h2]:tracking-wider [&_table]:w-full [&_table]:text-sm [&_th]:text-left [&_th]:font-mono [&_th]:text-[10px] [&_th]:uppercase [&_th]:tracking-widest [&_th]:text-ink-subtle [&_th]:pb-2 [&_td]:py-1.5 [&_tr]:border-t [&_tr]:border-hairline [&_code]:font-mono [&_code]:text-xs [&_code]:bg-surface-2 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_ul]:space-y-1 [&_ul]:pl-4 [&_li]:text-on-surface-variant [&_p]:mb-3 [&_p:last-child]:mb-0">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {consulta.response_text}
             </ReactMarkdown>
@@ -164,7 +164,7 @@ function ConsultaItem({ consulta, expandido, onToggle, onBorrar, borrando }) {
           )}
 
           {consulta.sources_cited && consulta.sources_cited.length > 0 && (
-            <p className="font-mono text-[10px] text-primary/60 mt-3">
+            <p className="font-mono text-[10px] text-ink-subtle mt-3">
               Fuentes: {consulta.sources_cited.join(', ')}
             </p>
           )}
@@ -173,7 +173,7 @@ function ConsultaItem({ consulta, expandido, onToggle, onBorrar, borrando }) {
             <Button variant="ghost" size="sm" onClick={handleCopiar}>
               {copiado ? (
                 <>
-                  <svg className="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <svg className="w-3.5 h-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                   Copiado
@@ -196,8 +196,8 @@ function ConsultaItem({ consulta, expandido, onToggle, onBorrar, borrando }) {
             </a>
           </div>
 
-          <div className="mt-4 p-3 bg-primary/5 border border-primary/10 rounded-xl">
-            <p className="font-body text-[10px] text-on-surface-variant/50 leading-relaxed">
+          <div className="mt-4 p-3 bg-primary/5 border border-primary/10 rounded-md">
+            <p className="font-body text-[10px] text-ink-subtle leading-relaxed">
               Esta información es orientativa y está respaldada por fuentes oficiales.
               Para operaciones concretas, consultá con un despachante de aduana matriculado
               o un profesional de comercio exterior.
@@ -290,14 +290,14 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
         <div className="flex items-center gap-3 mb-6">
           <div className="relative flex-1 max-w-md">
             <svg
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/30 pointer-events-none"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-tertiary pointer-events-none"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
             >
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input
-              className="w-full bg-surface-highest rounded-xl pl-10 pr-4 py-2.5 text-sm font-body text-on-surface placeholder:text-on-surface-variant/40 outline-none border border-transparent focus:border-primary/30 transition-all"
+              className="w-full bg-surface-1 rounded-md pl-10 pr-4 py-2.5 text-sm font-body text-on-surface placeholder:text-ink-tertiary outline-none border border-hairline focus:border-on-surface transition-colors"
               type="text"
               placeholder="Buscar en tus consultas..."
               value={busqueda}
@@ -305,7 +305,7 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
             />
           </div>
           {total > 0 && (
-            <span className="font-mono text-xs text-on-surface-variant/40 shrink-0">
+            <span className="font-mono text-xs text-ink-tertiary shrink-0">
               {total.toLocaleString('es-AR')} consultas
             </span>
           )}
@@ -332,11 +332,11 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
 
         {consultas.length > 0 && (
           <div className="mt-6 flex items-center justify-between">
-            <span className="font-body text-xs text-on-surface-variant/40">
+            <span className="font-body text-xs text-ink-tertiary">
               Mostrando {consultas.length} de {total.toLocaleString('es-AR')} consultas
             </span>
             <button
-              className="bg-white/[0.03] border border-white/[0.04] rounded-xl px-6 py-2.5 font-body text-sm text-on-surface-variant hover:text-on-surface hover:bg-white/[0.06] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="bg-surface-1 border border-hairline rounded-md px-6 py-2.5 font-body text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-high transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               onClick={() => setPagina(p => p + 1)}
               disabled={cargando || consultas.length === 0 || (pagina + 1) * porPagina >= total}
             >
@@ -346,11 +346,11 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
         )}
 
         {confirmBorrar && (
-          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setConfirmBorrar(null)}>
-            <div className="bg-surface-low rounded-2xl p-6 max-w-sm w-full border border-white/[0.06]" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-on-surface/40 z-50 flex items-center justify-center p-4" onClick={() => setConfirmBorrar(null)}>
+            <div className="bg-surface-1 rounded-lg p-6 max-w-sm w-full border border-hairline" onClick={e => e.stopPropagation()}>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
                     <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
                   </svg>
@@ -360,19 +360,19 @@ export default function HistorialClient({ consultasIniciales, totalInicial, porP
                   <p className="font-body text-sm text-on-surface-variant">Esta acción no se puede deshacer</p>
                 </div>
               </div>
-              <p className="font-body text-sm text-on-surface-variant/80 mb-6">
+              <p className="font-body text-sm text-on-surface-variant mb-6">
                 ¿Estás seguro de que querés eliminar esta consulta del historial?
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmBorrar(null)}
-                  className="flex-1 py-2.5 rounded-xl bg-white/[0.05] text-on-surface font-body font-medium text-sm hover:bg-white/[0.08] transition-all cursor-pointer"
+                  className="flex-1 py-2.5 rounded-md bg-surface text-on-surface font-body font-medium text-sm border border-hairline hover:bg-surface-high transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={() => confirmarBorrar(confirmBorrar)}
-                  className="flex-1 py-2.5 rounded-xl bg-red-500/10 text-red-400 font-body font-medium text-sm border border-red-500/20 hover:bg-red-500/20 transition-all cursor-pointer"
+                  className="flex-1 py-2.5 rounded-md bg-red-50 text-red-600 font-body font-medium text-sm border border-red-100 hover:bg-red-100 transition-colors cursor-pointer"
                 >
                   Eliminar
                 </button>

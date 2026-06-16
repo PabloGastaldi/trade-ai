@@ -125,7 +125,7 @@ export default function CatalogoClient({ productosIniciales, paises }) {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
         {/* Buscador */}
         <div className="relative flex-1 max-w-80">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-tertiary pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
           </svg>
           <input
@@ -133,10 +133,10 @@ export default function CatalogoClient({ productosIniciales, paises }) {
             placeholder="Buscar por nombre o NCM..."
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
-            className="w-full bg-surface-highest rounded-xl pl-10 pr-4 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
+            className="w-full bg-surface-high rounded-md pl-10 pr-4 py-2.5 text-sm text-on-surface placeholder:text-ink-tertiary focus:outline-none focus:ring-1 focus:ring-primary/30"
           />
           {busqueda && (
-            <button onClick={() => setBusqueda('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-on-surface-variant/40 hover:text-on-surface-variant">
+            <button onClick={() => setBusqueda('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-ink-tertiary hover:text-on-surface-variant">
               ✕
             </button>
           )}
@@ -162,7 +162,7 @@ export default function CatalogoClient({ productosIniciales, paises }) {
         {/* Botón agregar */}
         <button
           onClick={abrirNuevo}
-          className="flex-shrink-0 bg-primary-intense text-on-primary px-5 py-2.5 rounded-xl font-body font-semibold text-sm hover:bg-primary transition-all duration-150 whitespace-nowrap"
+          className="flex-shrink-0 bg-primary-intense text-on-primary px-5 py-2.5 rounded-md font-body font-semibold text-sm hover:bg-primary transition-all duration-150 whitespace-nowrap"
         >
           + Agregar producto
         </button>
@@ -172,7 +172,7 @@ export default function CatalogoClient({ productosIniciales, paises }) {
       {productosFiltrados.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {productosFiltrados.map(p => (
-            <Card key={p.id} className="group hover:border-white/[0.08] transition-all duration-200">
+            <Card key={p.id} className="group hover:border-ink-tertiary transition-all duration-200">
               {/* Header */}
               <div className="flex items-center justify-between">
                 <Badge variant={p.operation_type === 'exportacion' ? 'primary' : 'accent'}>
@@ -181,7 +181,7 @@ export default function CatalogoClient({ productosIniciales, paises }) {
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => abrirEditar(p)}
-                    className="p-1.5 rounded-lg hover:bg-white/[0.06] text-on-surface-variant/50 hover:text-on-surface transition-all"
+                    className="p-1.5 rounded-md hover:bg-surface-high text-on-surface-variant hover:text-on-surface transition-all"
                     title="Editar"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -190,7 +190,7 @@ export default function CatalogoClient({ productosIniciales, paises }) {
                   </button>
                   <button
                     onClick={() => setModalEliminar(p)}
-                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-on-surface-variant/50 hover:text-red-400 transition-all"
+                    className="p-1.5 rounded-md hover:bg-red-500/10 text-on-surface-variant hover:text-red-600 transition-all"
                     title="Eliminar"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -212,16 +212,16 @@ export default function CatalogoClient({ productosIniciales, paises }) {
               </div>
 
               {/* Datos clave */}
-              <div className="mt-4 pt-4 border-t border-white/[0.04] flex items-center justify-between">
+              <div className="mt-4 pt-4 border-t border-hairline flex items-center justify-between">
                 <div>
-                  <p className="font-body text-[11px] text-on-surface-variant/50 uppercase mb-1">Precio</p>
+                  <p className="font-body text-[11px] text-ink-subtle uppercase mb-1">Precio</p>
                   <p className="font-mono text-sm text-on-surface">
                     {p.currency} {Number(p.unit_price).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 {p.weight_kg && (
                   <div className="text-right">
-                    <p className="font-body text-[11px] text-on-surface-variant/50 uppercase mb-1">Peso</p>
+                    <p className="font-body text-[11px] text-ink-subtle uppercase mb-1">Peso</p>
                     <p className="font-mono text-sm text-on-surface-variant">{p.weight_kg} kg</p>
                   </div>
                 )}
@@ -232,13 +232,13 @@ export default function CatalogoClient({ productosIniciales, paises }) {
       ) : (
         /* Estado vacío */
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <svg className="w-16 h-16 text-on-surface-variant/20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+          <svg className="w-16 h-16 text-ink-tertiary mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
           </svg>
           <p className="font-body text-lg text-on-surface-variant mb-2">
             {busqueda ? 'Sin resultados' : 'No tenés productos cargados'}
           </p>
-          <p className="font-body text-sm text-on-surface-variant/60 max-w-xs">
+          <p className="font-body text-sm text-ink-subtle max-w-xs">
             {busqueda
               ? `No encontramos productos con "${busqueda}"`
               : 'Agregá tu primer producto para usar la calculadora y el comparador'}
@@ -246,7 +246,7 @@ export default function CatalogoClient({ productosIniciales, paises }) {
           {!busqueda && (
             <button
               onClick={abrirNuevo}
-              className="mt-6 bg-primary-intense text-on-primary px-5 py-2.5 rounded-xl font-body font-semibold text-sm hover:bg-primary transition-all duration-150"
+              className="mt-6 bg-primary-intense text-on-primary px-5 py-2.5 rounded-md font-body font-semibold text-sm hover:bg-primary transition-all duration-150"
             >
               + Agregar producto
             </button>
@@ -271,7 +271,7 @@ export default function CatalogoClient({ productosIniciales, paises }) {
       {/* Modal confirmar eliminación */}
       {modalEliminar && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-low rounded-2xl p-8 w-full max-w-sm border border-white/[0.06] shadow-2xl">
+          <div className="bg-surface-1 rounded-lg p-8 w-full max-w-sm border border-hairline">
             <h3 className="font-body text-base font-semibold text-on-surface mb-2">
               ¿ELIMINAR PRODUCTO?
             </h3>
@@ -281,13 +281,13 @@ export default function CatalogoClient({ productosIniciales, paises }) {
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setModalEliminar(null)}
-                className="px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] font-body text-sm text-on-surface-variant hover:bg-white/[0.06] transition-all"
+                className="px-5 py-2.5 rounded-md bg-surface-1 border border-hairline font-body text-sm text-on-surface-variant hover:bg-surface-high transition-all"
               >
                 Cancelar
               </button>
               <button
                 onClick={() => handleEliminar(modalEliminar.id)}
-                className="px-5 py-2.5 rounded-xl bg-red-500/20 text-red-400 font-body text-sm font-semibold hover:bg-red-500/30 transition-all"
+                className="px-5 py-2.5 rounded-md bg-red-500/10 text-red-600 font-body text-sm font-semibold hover:bg-red-500/20 transition-all"
               >
                 Eliminar
               </button>
@@ -401,13 +401,13 @@ function ModalProducto({ form, setForm, errores, setErrores, editando, guardando
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-low rounded-2xl w-full max-w-lg border border-white/[0.06] shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface-1 rounded-lg w-full max-w-lg border border-hairline max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-0">
           <h2 className="font-body text-base font-semibold text-on-surface">
             {editando ? 'EDITAR PRODUCTO' : 'AGREGAR PRODUCTO'}
           </h2>
-          <button onClick={onCerrar} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-on-surface-variant hover:text-on-surface transition-all">
+          <button onClick={onCerrar} className="p-1.5 rounded-md hover:bg-surface-high text-on-surface-variant hover:text-on-surface transition-all">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
@@ -417,7 +417,7 @@ function ModalProducto({ form, setForm, errores, setErrores, editando, guardando
         {/* Form */}
         <form onSubmit={handleSubmit} noValidate className="p-6 flex flex-col gap-5">
           {errores._general && (
-            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+            <div className="px-4 py-3 rounded-md bg-red-500/10 border border-red-500/20 text-sm text-red-600">
               {errores._general}
             </div>
           )}
@@ -431,10 +431,10 @@ function ModalProducto({ form, setForm, errores, setErrores, editando, guardando
                   key={t}
                   type="button"
                   onClick={() => set('operation_type', t)}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-body transition-all border ${
+                  className={`flex-1 py-2.5 rounded-md text-sm font-body transition-all border ${
                     form.operation_type === t
                       ? 'bg-primary/10 text-primary border-primary/20'
-                      : 'bg-white/[0.03] text-on-surface-variant border-white/[0.06] hover:border-white/[0.1]'
+                      : 'bg-surface-1 text-on-surface-variant border-hairline hover:border-ink-tertiary'
                   }`}
                 >
                   {t === 'exportacion' ? 'Exportación' : 'Importación'}
@@ -451,9 +451,9 @@ function ModalProducto({ form, setForm, errores, setErrores, editando, guardando
               placeholder="Ej: Galletas de chocolate"
               value={form.name}
               onChange={e => set('name', e.target.value)}
-              className={`w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30 ${errores.name ? 'ring-1 ring-red-500/50' : ''}`}
+              className={`w-full bg-surface-high rounded-md px-4 py-3 text-sm text-on-surface placeholder:text-ink-tertiary focus:outline-none focus:ring-1 focus:ring-primary/30 ${errores.name ? 'ring-1 ring-red-500/50' : ''}`}
             />
-            {errores.name && <p className="font-body text-xs text-red-400 mt-1">{errores.name}</p>}
+            {errores.name && <p className="font-body text-xs text-red-600 mt-1">{errores.name}</p>}
           </div>
 
           {/* NCM */}
@@ -467,19 +467,19 @@ function ModalProducto({ form, setForm, errores, setErrores, editando, guardando
                 onChange={e => handleNcmInput(e.target.value)}
                 onFocus={() => ncmSugerencias.length > 0 && setNcmDropdownVisible(true)}
                 autoComplete="off"
-                className={`w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30 ${errores.ncm_code ? 'ring-1 ring-red-500/50' : ''}`}
+                className={`w-full bg-surface-high rounded-md px-4 py-3 text-sm text-on-surface placeholder:text-ink-tertiary focus:outline-none focus:ring-1 focus:ring-primary/30 ${errores.ncm_code ? 'ring-1 ring-red-500/50' : ''}`}
               />
               {buscandoNcm && (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-body text-xs text-on-surface-variant/50">buscando…</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-body text-xs text-ink-subtle">buscando…</span>
               )}
               {ncmDropdownVisible && (
-                <div className="absolute top-full mt-1 w-full bg-surface-high rounded-xl border border-white/[0.06] shadow-xl z-10 max-h-48 overflow-y-auto">
+                <div className="absolute top-full mt-1 w-full bg-surface-1 rounded-md border border-hairline z-10 max-h-48 overflow-y-auto">
                   {ncmSugerencias.map(s => (
                     <button
                       key={s.ncm_code}
                       type="button"
                       onClick={() => seleccionarNcm(s)}
-                      className="w-full text-left px-4 py-2.5 hover:bg-white/[0.04] border-b border-white/[0.04] last:border-b-0 transition-colors"
+                      className="w-full text-left px-4 py-2.5 hover:bg-surface-high border-b border-hairline last:border-b-0 transition-colors"
                     >
                       <span className="font-mono text-primary text-sm">{s.ncm_code}</span>
                       <span className="block font-body text-xs text-on-surface-variant mt-0.5 truncate">{s.description}</span>
@@ -489,9 +489,9 @@ function ModalProducto({ form, setForm, errores, setErrores, editando, guardando
               )}
             </div>
             {form.ncm_descripcion_oficial && !ncmDropdownVisible && (
-              <p className="font-body text-xs text-on-surface-variant/60 mt-1.5 italic">{form.ncm_descripcion_oficial}</p>
+              <p className="font-body text-xs text-ink-subtle mt-1.5 italic">{form.ncm_descripcion_oficial}</p>
             )}
-            {errores.ncm_code && <p className="font-body text-xs text-red-400 mt-1">{errores.ncm_code}</p>}
+            {errores.ncm_code && <p className="font-body text-xs text-red-600 mt-1">{errores.ncm_code}</p>}
           </div>
 
           {/* Precio + moneda */}
@@ -505,16 +505,16 @@ function ModalProducto({ form, setForm, errores, setErrores, editando, guardando
                 placeholder="0.00"
                 value={form.unit_price}
                 onChange={e => set('unit_price', e.target.value)}
-                className={`w-full bg-surface-highest rounded-xl px-4 py-3 text-sm font-mono text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30 ${errores.unit_price ? 'ring-1 ring-red-500/50' : ''}`}
+                className={`w-full bg-surface-high rounded-md px-4 py-3 text-sm font-mono text-on-surface placeholder:text-ink-tertiary focus:outline-none focus:ring-1 focus:ring-primary/30 ${errores.unit_price ? 'ring-1 ring-red-500/50' : ''}`}
               />
-              {errores.unit_price && <p className="font-body text-xs text-red-400 mt-1">{errores.unit_price}</p>}
+              {errores.unit_price && <p className="font-body text-xs text-red-600 mt-1">{errores.unit_price}</p>}
             </div>
             <div className="w-24">
               <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">Moneda</label>
               <select
                 value={form.currency}
                 onChange={e => set('currency', e.target.value)}
-                className="w-full bg-surface-highest rounded-xl px-4 py-3 text-sm font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 cursor-pointer"
+                className="w-full bg-surface-high rounded-md px-4 py-3 text-sm font-mono text-on-surface focus:outline-none focus:ring-1 focus:ring-primary/30 cursor-pointer"
               >
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
@@ -526,7 +526,7 @@ function ModalProducto({ form, setForm, errores, setErrores, editando, guardando
           {/* Peso */}
           <div>
             <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">
-              Peso por unidad (kg) <span className="text-on-surface-variant/50 font-normal">opcional</span>
+              Peso por unidad (kg) <span className="text-ink-subtle font-normal">opcional</span>
             </label>
             <input
               type="number"
@@ -535,38 +535,38 @@ function ModalProducto({ form, setForm, errores, setErrores, editando, guardando
               placeholder="Ej: 0.5"
               value={form.weight_kg}
               onChange={e => set('weight_kg', e.target.value)}
-              className="w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
+              className="w-full bg-surface-high rounded-md px-4 py-3 text-sm text-on-surface placeholder:text-ink-tertiary focus:outline-none focus:ring-1 focus:ring-primary/30"
             />
           </div>
 
           {/* Notas */}
           <div>
             <label className="block font-body text-sm font-medium text-on-surface-variant mb-1.5">
-              Notas adicionales <span className="text-on-surface-variant/50 font-normal">opcional</span>
+              Notas adicionales <span className="text-ink-subtle font-normal">opcional</span>
             </label>
             <textarea
               placeholder="Descripción libre, variedad, especificaciones..."
               rows={2}
               value={form.description}
               onChange={e => set('description', e.target.value)}
-              className="w-full bg-surface-highest rounded-xl px-4 py-3 text-sm text-on-surface placeholder:text-on-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none"
+              className="w-full bg-surface-high rounded-md px-4 py-3 text-sm text-on-surface placeholder:text-ink-tertiary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none"
             />
           </div>
 
           {/* Acciones */}
-          <div className="flex justify-end gap-3 pt-2 border-t border-white/[0.04]">
+          <div className="flex justify-end gap-3 pt-2 border-t border-hairline">
             <button
               type="button"
               onClick={onCerrar}
               disabled={guardando}
-              className="px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] font-body text-sm text-on-surface-variant hover:bg-white/[0.06] transition-all disabled:opacity-40"
+              className="px-5 py-2.5 rounded-md bg-surface-1 border border-hairline font-body text-sm text-on-surface-variant hover:bg-surface-high transition-all disabled:opacity-40"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={guardando}
-              className="px-5 py-2.5 rounded-xl bg-primary-intense text-on-primary font-body font-semibold text-sm hover:bg-primary transition-all disabled:opacity-40"
+              className="px-5 py-2.5 rounded-md bg-primary-intense text-on-primary font-body font-semibold text-sm hover:bg-primary transition-all disabled:opacity-40"
             >
               {guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Agregar producto'}
             </button>

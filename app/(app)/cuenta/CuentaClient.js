@@ -28,24 +28,24 @@ function BarraProgreso({ usadas, limite }) {
   if (limite === Infinity) {
     return (
       <div>
-        <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
-          <div className="h-full w-full bg-gradient-to-r from-primary to-primary-intense rounded-full" />
+        <div className="h-2 rounded-full bg-surface-2 overflow-hidden">
+          <div className="h-full w-full bg-primary rounded-full" />
         </div>
-        <p className="font-mono text-[10px] text-on-surface-variant/40 mt-1.5">Ilimitado</p>
+        <p className="font-mono text-[10px] text-ink-tertiary mt-1.5">Ilimitado</p>
       </div>
     )
   }
   const pct = Math.min((usadas / limite) * 100, 100)
-  const color = pct >= 90 ? 'bg-red-500' : pct >= 70 ? 'bg-primary' : 'bg-primary'
+  const color = pct >= 90 ? 'bg-red-500' : 'bg-primary'
   return (
     <div>
-      <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+      <div className="h-2 rounded-full bg-surface-2 overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-700 ${color}`}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="font-mono text-[10px] text-on-surface-variant/40 mt-1.5">
+      <p className="font-mono text-[10px] text-ink-tertiary mt-1.5">
         {pct >= 90 ? 'Límite alcanzado' : `${Math.round(pct)}% usado`}
       </p>
     </div>
@@ -54,9 +54,9 @@ function BarraProgreso({ usadas, limite }) {
 
 function StatCard({ valor, label }) {
   return (
-    <div className="bg-white/[0.02] rounded-xl p-4 text-center">
+    <div className="bg-surface border border-hairline rounded-lg p-4 text-center">
       <p className="font-mono text-2xl text-on-surface">{valor}</p>
-      <p className="font-body text-[10px] text-on-surface-variant/50 mt-1 uppercase tracking-wider">{label}</p>
+      <p className="font-body text-[10px] text-ink-subtle mt-1 uppercase tracking-wider">{label}</p>
     </div>
   )
 }
@@ -180,27 +180,27 @@ export default function CuentaClient({ user, perfil }) {
             <div>
               <label className="block font-body text-xs text-on-surface-variant mb-1.5">Email</label>
               <input
-                className="w-full bg-surface rounded-xl px-4 py-3 font-mono text-sm text-on-surface border border-transparent cursor-not-allowed opacity-60"
+                className="w-full bg-surface rounded-md px-4 py-3 font-mono text-sm text-on-surface border border-hairline cursor-not-allowed opacity-60"
                 type="email"
                 value={user.email}
                 readOnly
                 tabIndex={-1}
               />
-              <p className="mt-1 font-body text-[10px] text-on-surface-variant/60">El email no se puede modificar.</p>
+              <p className="mt-1 font-body text-[10px] text-ink-subtle">El email no se puede modificar.</p>
             </div>
 
             {errorGuardado && (
-              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-                <p className="font-body text-xs text-red-400">{errorGuardado}</p>
+              <div className="p-3 bg-red-50 border border-red-100 rounded-md">
+                <p className="font-body text-xs text-red-600">{errorGuardado}</p>
               </div>
             )}
 
             {guardadoOk && (
-              <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-2">
-                <svg className="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-md flex items-center gap-2">
+                <svg className="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                <p className="font-body text-xs text-emerald-400">Cambios guardados correctamente.</p>
+                <p className="font-body text-xs text-emerald-600">Cambios guardados correctamente.</p>
               </div>
             )}
 
@@ -215,12 +215,12 @@ export default function CuentaClient({ user, perfil }) {
             </div>
           </form>
 
-          <div className="h-px bg-white/[0.04] my-6" />
+          <div className="h-px bg-hairline my-6" />
 
           <div className="space-y-2">
             <a
               href="/cuenta/password"
-              className="flex items-center gap-2 font-body text-sm text-primary hover:underline"
+              className="flex items-center gap-2 font-body text-sm text-on-surface hover:text-primary transition-colors"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" />
@@ -230,7 +230,7 @@ export default function CuentaClient({ user, perfil }) {
             </a>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 font-body text-sm text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+              className="flex items-center gap-2 font-body text-sm text-red-600 hover:text-red-700 transition-colors cursor-pointer"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -272,14 +272,14 @@ export default function CuentaClient({ user, perfil }) {
             </div>
             <BarraProgreso usadas={usadas} limite={limite} />
             {fechaReset && limite !== Infinity && (
-              <p className="font-mono text-[10px] text-on-surface-variant/40 mt-2">
+              <p className="font-mono text-[10px] text-ink-tertiary mt-2">
                 Se renueva el {fechaReset}
               </p>
             )}
           </div>
 
           {perfil?.plan_type !== 'empresa' && (
-            <div className="mt-5 pt-5 border-t border-white/[0.04]">
+            <div className="mt-5 pt-5 border-t border-hairline">
               {perfil?.plan_type === 'free' ? (
                 <a href="/planes" className="flex items-center gap-1.5 font-body text-sm text-primary hover:underline">
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -289,7 +289,7 @@ export default function CuentaClient({ user, perfil }) {
                   Mejorar a Pro →
                 </a>
               ) : (
-                <p className="font-body text-xs text-on-surface-variant/50">
+                <p className="font-body text-xs text-ink-subtle">
                   Tu suscripción se renueva el {fechaReset}
                 </p>
               )}
@@ -306,9 +306,9 @@ export default function CuentaClient({ user, perfil }) {
             {statsLoading ? (
               <>
                 {[0,1,2,3].map(i => (
-                  <div key={i} className="bg-white/[0.02] rounded-xl p-4 animate-pulse">
-                    <div className="h-6 w-12 bg-white/[0.04] rounded mb-2" />
-                    <div className="h-3 w-20 bg-white/[0.03] rounded" />
+                  <div key={i} className="bg-surface border border-hairline rounded-lg p-4 animate-pulse">
+                    <div className="h-6 w-12 bg-surface-2 rounded mb-2" />
+                    <div className="h-3 w-20 bg-surface-2 rounded" />
                   </div>
                 ))}
               </>

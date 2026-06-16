@@ -55,8 +55,8 @@ export default function NcmAutocomplete({ value, onSelect, error, showDescriptio
   return (
     <div ref={wrapRef}>
       <input
-        className={`w-full bg-surface-highest rounded-xl px-4 py-3 font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40 border outline-none transition-all duration-150 ${
-          error ? 'border-red-500/50' : 'border-transparent focus:border-primary/40'
+        className={`w-full bg-surface-1 rounded-md px-4 py-3 font-mono text-sm text-on-surface placeholder:text-ink-tertiary border outline-none transition-colors duration-150 ${
+          error ? 'border-red-400' : 'border-hairline focus:border-on-surface'
         }`}
         type="text"
         placeholder="Código NCM o descripción..."
@@ -67,15 +67,15 @@ export default function NcmAutocomplete({ value, onSelect, error, showDescriptio
       />
       <div className="relative">
         {buscando && (
-          <p className="mt-1 font-body text-[10px] text-on-surface-variant/50">Buscando…</p>
+          <p className="mt-1 font-body text-[10px] text-ink-subtle">Buscando…</p>
         )}
         {visible && (
-          <div className="absolute top-1 left-0 right-0 z-50 bg-surface-low rounded-xl border border-white/[0.06] shadow-xl overflow-hidden">
+          <div className="absolute top-1 left-0 right-0 z-50 bg-surface-1 rounded-md border border-hairline overflow-hidden">
             {sugerencias.map(s => (
               <button
                 key={s.ncm_code}
                 type="button"
-                className="w-full text-left px-4 py-3 hover:bg-white/[0.04] transition-colors border-b border-white/[0.03] last:border-0"
+                className="w-full text-left px-4 py-3 hover:bg-surface-high transition-colors border-b border-hairline-soft last:border-0"
                 onClick={() => handleSelect(s)}
               >
                 <span className="font-mono text-xs text-primary block">{s.ncm_code}</span>
@@ -86,9 +86,9 @@ export default function NcmAutocomplete({ value, onSelect, error, showDescriptio
         )}
       </div>
       {showDescription && descripcion && !visible && (
-        <p className="mt-1 font-body text-[10px] text-on-surface-variant/60">{descripcion}</p>
+        <p className="mt-1 font-body text-[10px] text-ink-subtle">{descripcion}</p>
       )}
-      {error && <p className="mt-1 font-body text-[10px] text-red-400">{error}</p>}
+      {error && <p className="mt-1 font-body text-[10px] text-red-600">{error}</p>}
     </div>
   )
 }

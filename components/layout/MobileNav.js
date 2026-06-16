@@ -4,48 +4,20 @@ import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import {
-  Home, MessageSquare, Calculator, BarChart3, Menu,
-  BookOpen, FileSearch, Globe, Package, Ship, LogOut,
-} from 'lucide-react'
+import { MessageSquare, Menu, Package, Ship, LogOut } from 'lucide-react'
 import './MobileNav.css'
 
 const MOBILE_BREAKPOINT = 768
 
-// Bottom tab bar — 4 accesos directos + Más
+// Bottom tab bar import-first — 3 accesos directos + Más (cuenta/sesión)
 const TAB_ITEMS = [
-  { label: 'Inicio',      Icon: Home,          href: '/inicio' },
+  { label: 'Importar',    Icon: Ship,          href: '/importar' },
+  { label: 'Operaciones', Icon: Package,       href: '/operaciones' },
   { label: 'Chat IA',     Icon: MessageSquare, href: '/consulta' },
-  { label: 'Calculadora', Icon: Calculator,    href: '/calculadora' },
-  { label: 'Mercados',    Icon: BarChart3,     href: '/mercados' },
 ]
 
-// Misma estructura que el Sidebar
-const NAV_SECTIONS = [
-  {
-    items: [
-      { label: 'Inicio',  Icon: Home,          href: '/inicio' },
-      { label: 'Chat IA', Icon: MessageSquare, href: '/consulta' },
-    ],
-  },
-  {
-    label: 'Herramientas',
-    items: [
-      { label: 'Calculadora', Icon: Calculator, href: '/calculadora' },
-      { label: 'Nomenclador', Icon: BookOpen,   href: '/nomenclador' },
-      { label: 'Simulador',   Icon: FileSearch, href: '/simulador' },
-      { label: 'Comparador',  Icon: Globe,      href: '/comparador' },
-      { label: 'Mercados',    Icon: BarChart3,  href: '/mercados' },
-    ],
-  },
-  {
-    label: 'Mi negocio',
-    items: [
-      { label: 'Catálogo',    Icon: Package, href: '/catalogo' },
-      { label: 'Operaciones', Icon: Ship,    href: '/operaciones' },
-    ],
-  },
-]
+// El sheet "Más" solo contiene cuenta y sesión (en el footer); sin grilla de herramientas.
+const NAV_SECTIONS = []
 
 export default function MobileNav() {
   const [isMobile, setIsMobile] = useState(false)
@@ -102,9 +74,8 @@ function MobileShell() {
       {/* Header superior */}
       <div className="mobile-header">
         <Link href="/" className="mobile-header-logo" onClick={() => setSheetOpen(false)}>
-          <span className="font-logo text-lg">
-            <span className="text-on-surface">trade</span>
-            <span className="text-primary">.ai</span>
+          <span className="font-logo text-lg font-semibold text-on-surface">
+            trade.ai
           </span>
         </Link>
       </div>
@@ -112,7 +83,7 @@ function MobileShell() {
       {/* Bottom tab bar */}
       <nav className="mobile-tab-bar">
         {TAB_ITEMS.map(({ label, Icon, href }) => {
-          const isActive = pathname === href
+          const isActive = pathname === href || pathname.startsWith(`${href}/`)
           return (
             <Link
               key={href}

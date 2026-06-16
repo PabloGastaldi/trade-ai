@@ -8,8 +8,8 @@
   left: 0;
   right: 0;
   height: 52px;
-  background: #111013;
-  border-bottom: 1px solid var(--border);
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--hairline);
   z-index: 301;
   align-items: center;
   justify-content: space-between;
@@ -23,7 +23,7 @@
 .mobile-header-title {
   font-family: var(--font-logo);
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.03em;
 }
 
@@ -33,17 +33,17 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--ink-muted);
   transition: color 0.15s, border-color 0.15s;
 }
 
 .mobile-header-menu:hover {
-  color: var(--text);
-  border-color: var(--border-light);
+  color: var(--on-surface);
+  border-color: var(--ink-tertiary);
 }
 
 /* ── Overlay ──────────────────────────────────── */
@@ -51,8 +51,7 @@
   position: fixed;
   inset: 0;
   z-index: 299;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(2px);
+  background: rgba(17, 17, 17, 0.32);
 }
 
 /* ── Drawer ───────────────────────────────────── */
@@ -62,8 +61,8 @@
   left: 0;
   right: 0;
   z-index: 200;
-  background: #111013;
-  border-top: 1px solid var(--border);
+  background: var(--surface-1);
+  border-top: 1px solid var(--hairline);
   border-radius: 16px 16px 0 0;
   transform: translateY(100%);
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
@@ -78,7 +77,7 @@
 
 .mobile-drawer-header {
   padding: 1.125rem 1.25rem 0.875rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--hairline-soft);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -88,13 +87,13 @@
 .mobile-drawer-title {
   font-family: var(--font-logo);
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.03em;
 }
 
-.sidebar-logo-trade { color: var(--text); }
-.sidebar-logo-dot   { color: #DDD92A; }
-.sidebar-logo-ai    { color: #DDD92A; }
+.sidebar-logo-trade { color: var(--on-surface); }
+.sidebar-logo-dot   { color: var(--on-surface); }
+.sidebar-logo-ai    { color: var(--on-surface); }
 
 .mobile-drawer-user {
   display: flex;
@@ -105,7 +104,7 @@
 .mobile-drawer-email {
   font-family: var(--font-body);
   font-size: 0.72rem;
-  color: var(--text-muted);
+  color: var(--ink-muted);
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -117,22 +116,19 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  border-radius: 3px;
+  border-radius: 4px;
   padding: 0.1rem 0.35rem;
 }
 
 .mobile-drawer-plan--free {
-  color: var(--text-muted);
+  color: var(--ink-muted);
   background: var(--surface-2);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--hairline);
 }
-.mobile-drawer-plan--pro {
-  color: #DDD92A;
-  background: rgba(221,217,42,0.1);
-}
+.mobile-drawer-plan--pro,
 .mobile-drawer-plan--empresa {
-  color: #DDD92A;
-  background: rgba(221,217,42,0.15);
+  color: var(--on-primary);
+  background: var(--primary);
 }
 
 .mobile-drawer-items {
@@ -140,7 +136,7 @@
   padding: 0.5rem 0;
   flex: 1;
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: var(--hairline) transparent;
 }
 
 .mobile-drawer-section {
@@ -153,10 +149,9 @@
   font-family: var(--font-body);
   font-size: 0.65rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
-  opacity: 0.5;
+  color: var(--ink-subtle);
 }
 
 .mobile-drawer-item {
@@ -165,7 +160,7 @@
   gap: 0.75rem;
   padding: 0.75rem 1.25rem;
   text-decoration: none;
-  color: var(--text-muted);
+  color: var(--ink-muted);
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 500;
@@ -175,12 +170,12 @@
 
 .mobile-drawer-item:hover,
 .mobile-drawer-item--active {
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  color: var(--on-surface);
+  background: var(--surface);
 }
 
 .mobile-drawer-item--active {
-  color: #DDD92A;
+  color: var(--on-surface);
 }
 
 .mobile-drawer-item--soon {
@@ -204,15 +199,15 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--ink-subtle);
   background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 3px;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
   padding: 0.1rem 0.3rem;
 }
 
 .mobile-drawer-footer {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--hairline);
   padding: 0.875rem 1.25rem;
   /* safe area para notch */
   padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
@@ -221,21 +216,26 @@
 
 .mobile-logout-btn {
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   font-family: var(--font-body);
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-muted);
-  background: transparent;
-  border: 1px solid var(--border);
+  color: var(--ink-subtle);
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
   border-radius: 8px;
   padding: 0.625rem 1rem;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
 .mobile-logout-btn:hover {
-  color: var(--text);
-  border-color: var(--border-light);
+  color: var(--on-surface);
+  border-color: var(--ink-tertiary);
+  background: var(--surface);
 }
 
 /* ── Bottom tab bar ───────────────────────────── */
@@ -246,8 +246,8 @@
   left: 0;
   right: 0;
   height: 60px;
-  background: #111013;
-  border-top: 1px solid var(--border);
+  background: var(--surface-1);
+  border-top: 1px solid var(--hairline);
   z-index: 301;
   align-items: stretch;
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -261,7 +261,7 @@
   justify-content: center;
   gap: 3px;
   text-decoration: none;
-  color: var(--text-muted);
+  color: var(--ink-muted);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -271,7 +271,7 @@
 }
 
 .mobile-tab-item--active {
-  color: #DDD92A;
+  color: var(--on-surface);
 }
 
 .mobile-tab-label {
@@ -289,8 +289,8 @@
   left: 0;
   right: 0;
   z-index: 300;
-  background: #111013;
-  border-top: 1px solid var(--border);
+  background: var(--surface-1);
+  border-top: 1px solid var(--hairline);
   border-radius: 16px 16px 0 0;
   transform: translateY(100%);
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
@@ -307,14 +307,14 @@
 .mobile-more-handle {
   width: 36px;
   height: 4px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--hairline);
   border-radius: 2px;
   margin: 10px auto 6px;
   flex-shrink: 0;
 }
 
 .mobile-more-footer {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--hairline-soft);
   padding: 0.875rem 1.25rem;
   padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px));
   flex-shrink: 0;
@@ -335,16 +335,15 @@
 .mobile-sheet-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 9999px;
+  background: var(--on-surface);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-body);
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--on-surface);
+  color: var(--on-primary);
   flex-shrink: 0;
 }
 
@@ -359,7 +358,7 @@
   font-family: var(--font-body);
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--on-surface, #F5F5F5);
+  color: var(--on-surface);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -368,7 +367,7 @@
 .mobile-sheet-user-plan {
   font-family: var(--font-body);
   font-size: 0.68rem;
-  color: var(--on-surface-variant, #9E9DA0);
+  color: var(--ink-subtle);
 }
 
 /* ── Solo visible en mobile ───────────────────── */
@@ -379,5 +378,16 @@
 
   .mobile-tab-bar {
     display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-drawer,
+  .mobile-more-sheet,
+  .mobile-tab-item,
+  .mobile-header-menu,
+  .mobile-drawer-item,
+  .mobile-logout-btn {
+    transition: none;
   }
 }

@@ -39,7 +39,7 @@ function LineaDesglose({ label, alicuota, monto, className = '' }) {
     <div className="flex justify-between items-center py-1.5">
       <span className={`font-body text-xs text-on-surface-variant ${className}`}>
         {label}
-        {alicuota ? <span className="ml-1 text-[10px] text-on-surface-variant/50">({pct(alicuota)})</span> : null}
+        {alicuota ? <span className="ml-1 text-[10px] text-ink-subtle">({pct(alicuota)})</span> : null}
       </span>
       <span className={`font-mono text-xs text-on-surface ${className}`}>{usd(monto)}</span>
     </div>
@@ -50,9 +50,9 @@ function DesgloseImportacion({ data }) {
   const [expandido, setExpandido] = useState(false)
 
   return (
-    <div className="mt-4 bg-white/[0.02] rounded-xl border border-white/[0.04] overflow-hidden">
+    <div className="mt-4 bg-surface rounded-md border border-hairline overflow-hidden">
       <button
-        className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.02] transition-colors"
+        className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-surface-high transition-colors"
         onClick={() => setExpandido(p => !p)}
       >
         <span className="font-body text-xs font-semibold tracking-wide text-on-surface-variant uppercase">Desglose completo</span>
@@ -65,9 +65,9 @@ function DesgloseImportacion({ data }) {
       </button>
 
       {expandido && (
-        <div className="px-5 pb-5 border-t border-white/[0.04]">
+        <div className="px-5 pb-5 border-t border-hairline">
           <div className="pt-4 space-y-0">
-            <p className="font-body text-[10px] font-semibold tracking-widest text-on-surface-variant/60 uppercase mb-2">Base imponible</p>
+            <p className="font-body text-[10px] font-semibold tracking-widest text-ink-subtle uppercase mb-2">Base imponible</p>
             <LineaDesglose label="FOB" monto={data.valores_base?.fob} />
             <LineaDesglose label="Flete" monto={data.valores_base?.flete} />
             <LineaDesglose label="Seguro" monto={data.valores_base?.seguro} />
@@ -75,8 +75,8 @@ function DesgloseImportacion({ data }) {
 
             {data.regimenes?.general?.desglose && (
               <>
-                <div className="h-px bg-white/[0.04] my-3" />
-                <p className="font-body text-[10px] font-semibold tracking-widest text-on-surface-variant/60 uppercase mb-2">Tributos</p>
+                <div className="h-px bg-hairline my-3" />
+                <p className="font-body text-[10px] font-semibold tracking-widest text-ink-subtle uppercase mb-2">Tributos</p>
                 {Object.entries(data.regimenes?.general?.desglose ?? {}).map(([key, v]) => {
                   if (!v || v.monto === 0) return null
                   const labels = {
@@ -92,7 +92,7 @@ function DesgloseImportacion({ data }) {
               </>
             )}
 
-            <div className="h-px bg-white/[0.04] my-3" />
+            <div className="h-px bg-hairline my-3" />
             <div className="flex justify-between items-center py-1.5">
               <span className="font-body text-xs text-on-surface font-semibold">Total tributos</span>
               <span className="font-mono text-xs text-on-surface font-semibold">{usd(data.regimenes?.general?.total_tributos)}</span>
@@ -100,8 +100,8 @@ function DesgloseImportacion({ data }) {
           </div>
 
           {data.preferencia_aplicada && (
-            <div className="mt-4 p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
-              <p className="font-body text-[11px] text-emerald-400">
+            <div className="mt-4 p-3 bg-emerald-50 rounded-md border border-emerald-100">
+              <p className="font-body text-[11px] text-emerald-600">
                 Preferencia arancelaria: {data.preferencia_aplicada.acuerdo}
               </p>
             </div>
@@ -110,7 +110,7 @@ function DesgloseImportacion({ data }) {
           {data.notas?.length > 0 && (
             <div className="mt-3 space-y-1.5">
               {data.notas.map((n, i) => (
-                <p key={i} className="font-body text-[10px] text-on-surface-variant/60 leading-relaxed">{n}</p>
+                <p key={i} className="font-body text-[10px] text-ink-subtle leading-relaxed">{n}</p>
               ))}
             </div>
           )}
@@ -126,9 +126,9 @@ function ResultadoRegimenUnico({ resultado }) {
 
   if (!res.disponible) {
     return (
-      <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/[0.04] text-center">
+      <div className="bg-surface-1 rounded-lg p-6 border border-hairline text-center">
         <p className="font-body text-sm font-semibold text-on-surface-variant mb-1">{regimenInfo.label}</p>
-        <p className="font-body text-xs text-red-400">{res.motivo_no_disponible}</p>
+        <p className="font-body text-xs text-red-600">{res.motivo_no_disponible}</p>
       </div>
     )
   }
@@ -136,15 +136,15 @@ function ResultadoRegimenUnico({ resultado }) {
   return (
     <div className="space-y-4">
       {warnings?.length > 0 && (
-        <div className="bg-amber-500/10 rounded-2xl border border-amber-500/20 p-4">
-          <p className="font-body text-xs font-semibold text-amber-400 uppercase tracking-wide mb-2">Advertencias</p>
+        <div className="bg-amber-50 rounded-lg border border-amber-100 p-4">
+          <p className="font-body text-xs font-semibold text-amber-700 uppercase tracking-wide mb-2">Advertencias</p>
           {warnings.map((w, i) => (
-            <p key={i} className="font-body text-xs text-amber-300/80 leading-relaxed">{w}</p>
+            <p key={i} className="font-body text-xs text-amber-700/80 leading-relaxed">{w}</p>
           ))}
         </div>
       )}
 
-      <div className="bg-white/[0.03] rounded-2xl border border-primary/20 p-6">
+      <div className="bg-surface-1 rounded-lg border border-primary/20 p-6">
         <div className="flex items-start justify-between mb-4">
           <div>
             <p className="font-body text-sm font-semibold tracking-wide text-on-surface uppercase">{regimenInfo.label}</p>
@@ -154,9 +154,9 @@ function ResultadoRegimenUnico({ resultado }) {
         </div>
 
         <p className="font-mono text-2xl text-on-surface font-semibold">{usd(res.costo_total)}</p>
-        <p className="font-body text-[10px] text-on-surface-variant/50 mt-0.5">Costo total (CIF + tributos)</p>
+        <p className="font-body text-[10px] text-ink-subtle mt-0.5">Costo total (CIF + tributos)</p>
 
-        <div className="mt-4 pt-4 border-t border-white/[0.04] space-y-2">
+        <div className="mt-4 pt-4 border-t border-hairline space-y-2">
           <div className="flex justify-between">
             <span className="font-body text-xs text-on-surface-variant">CIF base</span>
             <span className="font-mono text-xs text-on-surface">{usd(valores_base?.cif)}</span>
@@ -173,14 +173,14 @@ function ResultadoRegimenUnico({ resultado }) {
               <div key={key} className="flex justify-between items-start">
                 <span className="font-body text-xs text-on-surface-variant">
                   {labels[key] ?? key}
-                  {v.alicuota ? <span className="ml-1 text-[10px] text-on-surface-variant/50">({pct(v.alicuota)})</span> : null}
-                  {v.nota ? <span className="ml-1 text-[10px] text-on-surface-variant/40"> · {v.nota}</span> : null}
+                  {v.alicuota ? <span className="ml-1 text-[10px] text-ink-subtle">({pct(v.alicuota)})</span> : null}
+                  {v.nota ? <span className="ml-1 text-[10px] text-ink-tertiary"> · {v.nota}</span> : null}
                 </span>
                 <span className="font-mono text-xs text-on-surface ml-4 shrink-0">{usd(v.monto)}</span>
               </div>
             )
           })}
-          <div className="pt-2 border-t border-white/[0.04] flex justify-between">
+          <div className="pt-2 border-t border-hairline flex justify-between">
             <span className="font-body text-xs text-on-surface font-semibold">Total tributos</span>
             <span className="font-mono text-xs text-on-surface font-semibold">{usd(res.total_tributos)}</span>
           </div>
@@ -191,8 +191,8 @@ function ResultadoRegimenUnico({ resultado }) {
         </div>
 
         {preferencia_aplicada && (
-          <div className="mt-4 p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10">
-            <p className="font-body text-[11px] text-emerald-400">
+          <div className="mt-4 p-3 bg-emerald-50 rounded-md border border-emerald-100">
+            <p className="font-body text-[11px] text-emerald-600">
               Preferencia arancelaria: {preferencia_aplicada.acuerdo} ({preferencia_aplicada.porcentaje_preferencia}% pref.)
             </p>
           </div>
@@ -200,9 +200,9 @@ function ResultadoRegimenUnico({ resultado }) {
       </div>
 
       {notas?.length > 0 && (
-        <div className="bg-white/[0.02] rounded-2xl border border-white/[0.04] p-4 space-y-1.5">
+        <div className="bg-surface rounded-lg border border-hairline p-4 space-y-1.5">
           {notas.map((n, i) => (
-            <p key={i} className="font-body text-[10px] text-on-surface-variant/60 leading-relaxed">{n}</p>
+            <p key={i} className="font-body text-[10px] text-ink-subtle leading-relaxed">{n}</p>
           ))}
         </div>
       )}
@@ -214,7 +214,7 @@ function CardRegimenImportacion({ regimen, info, data, esMejor, seleccionado, on
   if (!data.disponible) {
     return (
       <div
-        className={`bg-white/[0.03] rounded-2xl p-5 border border-white/[0.04] cursor-not-allowed opacity-50 ${seleccionado ? 'ring-1 ring-primary/30' : ''}`}
+        className={`bg-surface-1 rounded-lg p-5 border border-hairline cursor-not-allowed opacity-50 ${seleccionado ? 'ring-1 ring-primary/30' : ''}`}
         onClick={onClick}
       >
         <div className="flex items-start justify-between mb-2">
@@ -224,7 +224,7 @@ function CardRegimenImportacion({ regimen, info, data, esMejor, seleccionado, on
           </div>
           <Badge variant="neutral">No disponible</Badge>
         </div>
-        <p className="font-body text-xs text-on-surface-variant/60 mt-2">{data.motivo_no_disponible}</p>
+        <p className="font-body text-xs text-ink-subtle mt-2">{data.motivo_no_disponible}</p>
       </div>
     )
   }
@@ -234,10 +234,10 @@ function CardRegimenImportacion({ regimen, info, data, esMejor, seleccionado, on
 
   return (
     <div
-      className={`bg-white/[0.03] rounded-2xl p-5 border transition-all duration-150 cursor-pointer ${
+      className={`bg-surface-1 rounded-lg p-5 border transition-all duration-150 cursor-pointer ${
         seleccionado
           ? 'border-primary/30 ring-1 ring-primary/10'
-          : 'border-white/[0.04] hover:border-white/[0.08]'
+          : 'border-hairline hover:border-on-surface-variant'
       } ${esMejor ? 'bg-primary/[0.03]' : ''}`}
       onClick={onClick}
     >
@@ -257,9 +257,9 @@ function CardRegimenImportacion({ regimen, info, data, esMejor, seleccionado, on
       </div>
 
       <p className="font-mono text-xl text-on-surface font-semibold mt-3">{usd(data.costo_total)}</p>
-      <p className="font-body text-[10px] text-on-surface-variant/50 mt-0.5">Costo total</p>
+      <p className="font-body text-[10px] text-ink-subtle mt-0.5">Costo total</p>
 
-      <div className="mt-3 pt-3 border-t border-white/[0.04] space-y-1.5">
+      <div className="mt-3 pt-3 border-t border-hairline space-y-1.5">
         <div className="flex justify-between">
           <span className="font-body text-[11px] text-on-surface-variant">FOB</span>
           <span className="font-mono text-[11px] text-on-surface">{usd(data.costo_total - data.total_tributos)}</span>
@@ -316,7 +316,7 @@ function CardRegimenImportacion({ regimen, info, data, esMejor, seleccionado, on
         )}
       </div>
 
-      <div className="mt-3 pt-3 border-t border-white/[0.04] flex justify-between items-center">
+      <div className="mt-3 pt-3 border-t border-hairline flex justify-between items-center">
         <span className="font-body text-[10px] text-on-surface-variant">Effective rate</span>
         <span className="font-mono text-[11px] text-primary">{pct(data.effective_rate)}</span>
       </div>
@@ -340,7 +340,7 @@ function CtaSimulador({ ncmCode, paisIso3, tipo }) {
     <div className="mt-4">
       <a
         href={`/simulador?${params.toString()}`}
-        className="flex items-center justify-center gap-2 w-full bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl px-4 py-3 font-body text-sm text-on-surface transition-all"
+        className="flex items-center justify-center gap-2 w-full bg-surface-1 hover:bg-surface-high border border-hairline rounded-md px-4 py-3 font-body text-sm text-on-surface transition-all"
       >
         Simular operación completa con estos datos →
       </a>

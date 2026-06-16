@@ -31,9 +31,9 @@ function ChatBubble({ mensaje, onReintentar }) {
 
   return (
     <div className={`flex gap-3 py-3 animate-[fadeIn_0.3s_ease-out] ${esUsuario ? 'flex-row-reverse' : 'flex-row'}`}>
-      <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-body font-bold ${
+      <div className={`w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 text-[10px] font-body font-bold ${
         esUsuario
-          ? 'bg-surface-highest text-on-surface-variant/50'
+          ? 'bg-surface-2 text-ink-subtle'
           : 'bg-primary text-on-primary'
       }`}>
         {esUsuario ? 'V' : 'AI'}
@@ -47,27 +47,27 @@ function ChatBubble({ mensaje, onReintentar }) {
         )}
 
         {esLimite ? (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-surface-high border border-white/[0.06] text-sm text-on-surface-variant">
+          <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-surface-high border border-hairline text-sm text-on-surface-variant">
             <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
             </svg>
             <span>{mensaje.texto}</span>
           </div>
         ) : esError ? (
-          <div className="px-4 py-3 rounded-2xl rounded-br-sm bg-white/[0.06] text-sm text-red-400">
+          <div className="px-4 py-3 rounded-lg rounded-br-sm bg-red-50 text-sm text-red-600">
             {mensaje.texto}
           </div>
         ) : esUsuario ? (
-          <div className="px-4 py-3 rounded-2xl rounded-br-sm bg-white/[0.06] text-sm text-on-surface leading-relaxed">
+          <div className="px-4 py-3 rounded-lg rounded-br-sm bg-surface-2 text-sm text-on-surface leading-relaxed">
             {mensaje.texto}
           </div>
         ) : (
-          <div className="px-4 py-3 rounded-2xl rounded-bl-sm text-sm text-on-surface">
+          <div className="px-4 py-3 rounded-lg rounded-bl-sm text-sm text-on-surface">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
                 table: ({ children }) => (
-                  <div className="overflow-x-auto my-2 rounded-xl border border-white/[0.06]">
+                  <div className="overflow-x-auto my-2 rounded-lg border border-hairline">
                     <table className="w-full text-sm">{children}</table>
                   </div>
                 ),
@@ -75,12 +75,12 @@ function ChatBubble({ mensaje, onReintentar }) {
                   <thead className="bg-surface-high">{children}</thead>
                 ),
                 th: ({ children }) => (
-                  <th className="text-left px-3 py-2 text-xs font-semibold text-primary uppercase tracking-wide border-b border-white/[0.06]">
+                  <th className="text-left px-3 py-2 text-xs font-semibold text-primary uppercase tracking-wide border-b border-hairline">
                     {children}
                   </th>
                 ),
                 td: ({ children }) => (
-                  <td className="px-3 py-2 border-b border-white/[0.04] text-on-surface-variant last:border-b-0">
+                  <td className="px-3 py-2 border-b border-hairline-soft text-on-surface-variant last:border-b-0">
                     {children}
                   </td>
                 ),
@@ -90,7 +90,7 @@ function ChatBubble({ mensaje, onReintentar }) {
                   </code>
                 ),
                 pre: ({ children }) => (
-                  <pre className="bg-surface-high rounded-xl p-4 my-2 overflow-x-auto text-xs font-mono text-on-surface-variant border border-white/[0.06]">
+                  <pre className="bg-surface-high rounded-lg p-4 my-2 overflow-x-auto text-xs font-mono text-on-surface-variant border border-hairline">
                     {children}
                   </pre>
                 ),
@@ -98,7 +98,7 @@ function ChatBubble({ mensaje, onReintentar }) {
                   <strong className="font-semibold text-on-surface">{children}</strong>
                 ),
                 h2: ({ children }) => (
-                  <h2 className="text-base font-body font-semibold text-on-surface mt-3 mb-1 pb-1 border-b border-white/[0.06] tracking-tight">
+                  <h2 className="text-base font-body font-semibold text-on-surface mt-3 mb-1 pb-1 border-b border-hairline tracking-tight">
                     {children}
                   </h2>
                 ),
@@ -124,9 +124,9 @@ function ChatBubble({ mensaje, onReintentar }) {
                 li: ({ children }) => (
                   <li className="text-on-surface-variant leading-relaxed">{children}</li>
                 ),
-                hr: () => <hr className="border-surface-high my-3" />,
+                hr: () => <hr className="border-hairline my-3" />,
                 blockquote: ({ children }) => (
-                  <blockquote className="border-l-2 border-primary/30 pl-3 my-1.5 text-on-surface-variant/80 italic">
+                  <blockquote className="border-l-2 border-primary/30 pl-3 my-1.5 text-ink-subtle italic">
                     {children}
                   </blockquote>
                 ),
@@ -143,15 +143,15 @@ function ChatBubble({ mensaje, onReintentar }) {
         {esError && onReintentar && (
           <button
             onClick={onReintentar}
-            className="mt-2 px-3 py-1.5 rounded-lg border border-white/[0.08] text-xs text-on-surface-variant hover:text-on-surface hover:border-white/[0.15] transition-all duration-150"
+            className="mt-2 px-3 py-1.5 rounded-md border border-hairline text-xs text-on-surface-variant hover:text-on-surface hover:border-on-surface/30 transition-colors duration-150"
           >
             ↻ Reintentar
           </button>
         )}
 
         {!esUsuario && !esError && !esLimite && !esStreaming && mensaje.texto && (
-          <div className="mt-3 pt-3 border-t border-white/[0.05] px-1">
-            <p className="text-[11px] text-on-surface-variant/40 leading-relaxed">
+          <div className="mt-3 pt-3 border-t border-hairline-soft px-1">
+            <p className="text-[11px] text-ink-tertiary leading-relaxed">
               {DISCLAIMER}
             </p>
           </div>
@@ -304,7 +304,7 @@ export default function ConsultaPage() {
         <div className="max-w-3xl mx-auto px-4">
           {sinMensajes ? (
             <div className="flex flex-col items-center justify-center min-h-[calc(100vh-220px)] text-center">
-              <p className="font-logo text-6xl md:text-8xl text-on-surface/[0.04] select-none pointer-events-none mb-6">
+              <p className="font-body font-semibold text-6xl md:text-8xl text-on-surface/[0.04] select-none pointer-events-none mb-6 tracking-tight">
                 trade.ai
               </p>
 
@@ -317,7 +317,7 @@ export default function ConsultaPage() {
                   <button
                     key={i}
                     onClick={() => enviarConsulta(ej)}
-                    className="px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.05] text-sm text-on-surface-variant hover:bg-white/[0.08] hover:text-on-surface transition-all duration-150 cursor-pointer"
+                    className="px-4 py-2 rounded-full bg-surface-1 border border-hairline text-sm text-on-surface-variant hover:bg-surface-high hover:text-on-surface transition-colors duration-150 cursor-pointer"
                   >
                     {ej}
                   </button>
@@ -348,7 +348,7 @@ export default function ConsultaPage() {
 
       <div className="flex-shrink-0 px-4 pb-[80px] md:pb-6 pt-2">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-end gap-2 bg-surface-low/80 backdrop-blur-xl border-t border-white/[0.04] rounded-2xl p-2 px-3">
+          <div className="flex items-end gap-2 bg-surface-1 border border-hairline rounded-lg p-2 px-3">
             <textarea
               ref={textareaRef}
               placeholder="Escribí tu consulta sobre comercio exterior..."
@@ -357,7 +357,7 @@ export default function ConsultaPage() {
               onKeyDown={handleKeyDown}
               rows={1}
               disabled={cargando}
-              className="flex-1 bg-transparent border-0 resize-none outline-none text-sm text-on-surface placeholder:text-on-surface-variant/40 py-2 max-h-40 overflow-y-auto leading-relaxed"
+              className="flex-1 bg-transparent border-0 resize-none outline-none text-sm text-on-surface placeholder:text-ink-tertiary py-2 max-h-40 overflow-y-auto leading-relaxed"
               style={{ minHeight: '24px' }}
             />
             <button
@@ -368,10 +368,10 @@ export default function ConsultaPage() {
               }}
               disabled={!puedeEnviar}
               aria-label="Enviar consulta"
-              className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-150 ${
+              className={`flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center transition-colors duration-150 ${
                 puedeEnviar
-                  ? 'bg-primary-intense text-on-primary hover:bg-primary cursor-pointer'
-                  : 'bg-surface-high text-on-surface-variant/30 cursor-not-allowed'
+                  ? 'bg-primary text-on-primary hover:bg-primary-intense cursor-pointer'
+                  : 'bg-surface-2 text-ink-tertiary cursor-not-allowed'
               }`}
             >
               {cargando ? (
@@ -388,18 +388,18 @@ export default function ConsultaPage() {
           </div>
 
           <div className="flex gap-2 mt-2 opacity-60 hover:opacity-100 transition-opacity">
-            <a href="/calculadora" className="text-[10px] font-body text-on-surface-variant bg-white/[0.03] rounded-lg px-2.5 py-1 hover:bg-white/[0.05] transition-colors">
+            <a href="/calculadora" className="text-[10px] font-body text-on-surface-variant bg-surface-1 border border-hairline rounded-md px-2.5 py-1 hover:bg-surface-high transition-colors">
               Calculadora
             </a>
-            <a href="/nomenclador" className="text-[10px] font-body text-on-surface-variant bg-white/[0.03] rounded-lg px-2.5 py-1 hover:bg-white/[0.05] transition-colors">
+            <a href="/nomenclador" className="text-[10px] font-body text-on-surface-variant bg-surface-1 border border-hairline rounded-md px-2.5 py-1 hover:bg-surface-high transition-colors">
               Nomenclador
             </a>
-            <a href="/simulador" className="text-[10px] font-body text-on-surface-variant bg-white/[0.03] rounded-lg px-2.5 py-1 hover:bg-white/[0.05] transition-colors">
+            <a href="/simulador" className="text-[10px] font-body text-on-surface-variant bg-surface-1 border border-hairline rounded-md px-2.5 py-1 hover:bg-surface-high transition-colors">
               Simulador
             </a>
           </div>
 
-          <p className="text-center font-mono text-[10px] text-on-surface-variant/30 mt-1">
+          <p className="text-center font-mono text-[10px] text-ink-tertiary mt-1">
             Enter para enviar · Shift+Enter para nueva línea
           </p>
         </div>

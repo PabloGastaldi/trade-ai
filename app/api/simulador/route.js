@@ -12,9 +12,7 @@ function getServiceClient() {
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } })
 }
 
-const REGIMENES_VALIDOS = ['general', 'courier', 'puerta_a_puerta', 'exporta_simple', 'muestras', 'rancho', 'equipaje']
-const TIPOS_VALIDOS = ['importacion', 'exportacion']
-
+const REGIMENES_VALIDOS = ['general', 'courier', 'puerta_a_puerta', 'muestras', 'equipaje']
 
 export async function POST(request) {
   // Verificar autenticación
@@ -37,14 +35,11 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Body inválido' }, { status: 400 })
   }
 
-  const { codigo_ncm: rawNcm, pais_iso3, tipo_operacion, regimen } = body
+  const { codigo_ncm: rawNcm, pais_iso3, regimen } = body
 
   // Validaciones
   if (!rawNcm) return NextResponse.json({ error: 'codigo_ncm requerido' }, { status: 400 })
   if (!pais_iso3) return NextResponse.json({ error: 'pais_iso3 requerido' }, { status: 400 })
-  if (!TIPOS_VALIDOS.includes(tipo_operacion)) {
-    return NextResponse.json({ error: 'tipo_operacion debe ser "importacion" o "exportacion"' }, { status: 400 })
-  }
   if (!REGIMENES_VALIDOS.includes(regimen)) {
     return NextResponse.json({ error: `regimen inválido: ${regimen}` }, { status: 400 })
   }
@@ -70,18 +65,16 @@ export async function POST(request) {
 
   const nombre_pais_es = countryRow.name_es
 
-  // PASO 2: Todas las queries en paralelo
+  // PASO 2: Todas las queries de importación en paralelo
   const [
     ncmResult,
     arancelesImpoResult,
-    arancelesExpoResult,
     acuerdosResult,
     acuerdosGeneralesResult,
     documentosResult,
     intervencionesResult,
     restriccionesResult,
     ntmResult,
-    destinoTariffsResult,
     ntmExtendedResult,
   ] = await Promise.all([
     // 1. Datos base NCM
@@ -90,81 +83,54 @@ export async function POST(request) {
       .eq('codigo_ncm', codigo_ncm)
       .single(),
 
-    // 2. Aranceles importación
-    tipo_operacion === 'importacion'
-      ? supabase.from('aranceles_importacion')
-          .select('aec, die, dii, te, iva, iva_ad, gan, iibb')
-          .eq('codigo_ncm', codigo_ncm)
-          .single()
-      : Promise.resolve({ data: null }),
+    // 2. Aranceles de importación
+    supabase.from('aranceles_importacion')
+      .select('aec, die, dii, te, iva, iva_ad, gan, iibb')
+      .eq('codigo_ncm', codigo_ncm)
+      .single(),
 
-    // 3. Aranceles exportación
-    tipo_operacion === 'exportacion'
-      ? supabase.from('aranceles_exportacion')
-          .select('derecho_exportacion, reintegro')
-          .eq('codigo_ncm', codigo_ncm)
-          .single()
-      : Promise.resolve({ data: null }),
-
-    // 4. Acuerdos/preferencias con ese país
-    supabase.from(tipo_operacion === 'importacion' ? 'acuerdos_importacion' : 'acuerdos_exportacion')
+    // 3. Acuerdos/preferencias de importación con ese país
+    supabase.from('acuerdos_importacion')
       .select('bloque, pais, codigo_acuerdo, porcentaje, nomenclatura, ncm_acuerdo')
       .eq('codigo_ncm', codigo_ncm)
       .ilike('pais', `%${nombre_pais_es}%`)
       .order('porcentaje', { ascending: false })
       .limit(10),
 
-    // 5. TLC generales (cobertura total, sin NCM específico)
+    // 4. TLC generales (cobertura total, sin NCM específico)
     supabase.from('acuerdos_generales')
       .select('acuerdo_id, pais, tipo, notas')
       .ilike('pais', `%${nombre_pais_es}%`),
 
-    // 6. Documentos requeridos (RPC con filtrado server-side)
+    // 5. Documentos requeridos (RPC con filtrado server-side)
     supabase.rpc('documentos_por_operacion', {
-      p_tipo: tipo_operacion,
+      p_tipo: 'importacion',
       p_regimen: regimen,
       p_ncm: codigo_ncm,
       p_pais: pais_iso3.toUpperCase(),
     }),
 
-    // 7. Organismos que intervienen (RPC con filtrado server-side)
+    // 6. Organismos que intervienen (RPC con filtrado server-side)
     supabase.rpc('intervenciones_por_operacion', {
-      p_operacion: tipo_operacion,
+      p_operacion: 'importacion',
       p_regimen: regimen,
       p_ncm: codigo_ncm,
     }),
 
-    // 8. Restricciones del régimen (RPC)
+    // 7. Restricciones del régimen (RPC)
     supabase.rpc('restricciones_por_regimen', { p_regimen: regimen }),
 
-    // 9. Barreras NTM (Argentina aplica a importaciones)
-    tipo_operacion === 'importacion'
-      ? supabase.from('ntm_measures')
-          .select('reporter, partner, ntm_code, ntm_full_coverage, ntm_partial_coverage')
-          .eq('reporter', 'ARG')
-          .eq('partner', pais_iso3.toUpperCase())
-          .eq('hs_code', codigo_ncm.slice(0, 6))
-          .eq('ntm_all', 1)
-          .limit(20)
-      : supabase.from('ntm_measures')
-          .select('reporter, partner, ntm_code, ntm_full_coverage, ntm_partial_coverage')
-          .eq('reporter', pais_iso3.toUpperCase())
-          .eq('partner', 'ARG')
-          .eq('hs_code', codigo_ncm.slice(0, 6))
-          .eq('ntm_all', 1)
-          .limit(20),
+    // 8. Barreras NTM que Argentina aplica a la importación
+    supabase.from('ntm_measures')
+      .select('reporter, partner, ntm_code, ntm_full_coverage, ntm_partial_coverage')
+      .eq('reporter', 'ARG')
+      .eq('partner', pais_iso3.toUpperCase())
+      .eq('hs_code', codigo_ncm.slice(0, 6))
+      .eq('ntm_all', 1)
+      .limit(20),
 
-    // 10. Aranceles en destino (solo exportación)
-    tipo_operacion === 'exportacion'
-      ? supabase.from('destination_tariffs')
-          .select('hs_code, partner_iso3, ave_pct, source')
-          .eq('partner_iso3', pais_iso3.toUpperCase())
-          .eq('hs_code', codigo_ncm.slice(0, 6))
-          .limit(5)
-      : Promise.resolve({ data: null }),
-
-    // 11. NTM extended (affecting/applied)
-    resumenNTMCompleto(supabase, codigo_ncm.slice(0, 6), pais_iso3.toUpperCase(), tipo_operacion)
+    // 9. NTM extended (barreras argentinas)
+    resumenNTMCompleto(supabase, codigo_ncm.slice(0, 6), pais_iso3.toUpperCase(), 'importacion')
       .catch(() => ({ barreras_en_destino: [], barreras_argentinas: [], total: 0 })),
   ])
 
@@ -174,43 +140,31 @@ export async function POST(request) {
 
   const ncm = ncmResult.data
   const ai = arancelesImpoResult.data ?? {}
-  const ae = arancelesExpoResult.data ?? {}
   const acuerdos = acuerdosResult.data ?? []
   const acuerdosGenerales = acuerdosGeneralesResult.data ?? []
-  const documentosFiltradosRPC = documentosResult.data ?? []
+  const documentosFiltrados = documentosResult.data ?? []
   const intervencionesFiltradas = intervencionesResult.data ?? []
   const restricciones = restriccionesResult.data ?? []
   const ntmMedidas = ntmResult.data ?? []
-  const destinoTariffs = destinoTariffsResult.data ?? []
   const ntmExtended = ntmExtendedResult ?? { barreras_en_destino: [], barreras_argentinas: [], total: 0 }
-
-  // RPCs ya devuelven datos filtrados por NCM, tipo y régimen
-  const documentosFiltrados = documentosFiltradosRPC
 
   // ── Calcular preferencia arancelaria ──
   const mejorAcuerdo = acuerdos.length > 0 ? acuerdos[0] : null
   const tlcGeneral = acuerdosGenerales.length > 0 ? acuerdosGenerales[0] : null
 
-  let arancelBase = 0
-  let arancelEfectivo = 0
+  const MERCOSUR = ['BRA', 'PRY', 'URY']
+  const arancelBase = MERCOSUR.includes(pais_iso3.toUpperCase())
+    ? (ai.dii ?? 0)
+    : (ai.die ?? ai.aec ?? 0)
 
-  if (tipo_operacion === 'importacion') {
-    const MERCOSUR = ['BRA', 'PRY', 'URY']
-    arancelBase = MERCOSUR.includes(pais_iso3.toUpperCase())
-      ? (ai.dii ?? 0)
-      : (ai.die ?? ai.aec ?? 0)
-
-    if (mejorAcuerdo) {
-      arancelEfectivo = arancelBase * (1 - mejorAcuerdo.porcentaje / 100)
-    } else if (tlcGeneral) {
-      arancelEfectivo = 0  // TLC de cobertura total → arancel 0
-    } else {
-      arancelEfectivo = arancelBase
-    }
+  let arancelEfectivo
+  if (mejorAcuerdo) {
+    arancelEfectivo = arancelBase * (1 - mejorAcuerdo.porcentaje / 100)
+  } else if (tlcGeneral) {
+    arancelEfectivo = 0  // TLC de cobertura total → arancel 0
+  } else {
+    arancelEfectivo = arancelBase
   }
-
-  // ── Aranceles en destino ──
-  const arancelDestino = destinoTariffs.length > 0 ? destinoTariffs[0] : null
 
   // ── Warnings ──
   const warnings = []
@@ -276,31 +230,26 @@ export async function POST(request) {
       nombre: countryRow.name_en,
       nombre_es: countryRow.name_es,
     },
-    tipo_operacion,
+    tipo_operacion: 'importacion',
     regimen,
 
-    aranceles: tipo_operacion === 'importacion'
-      ? {
-          aec:  ai.aec  ?? null,
-          die:  ai.die  ?? null,
-          dii:  ai.dii  ?? null,
-          te:   ai.te   ?? null,
-          iva:  ai.iva  ?? null,
-          iva_ad: ai.iva_ad ?? null,
-          gan:  ai.gan  ?? null,
-          iibb: ai.iibb ?? null,
-          arancel_base: arancelBase,
-        }
-      : {
-          derecho_exportacion: ae.derecho_exportacion ?? null,
-          reintegro: ae.reintegro ?? null,
-        },
+    aranceles: {
+      aec:  ai.aec  ?? null,
+      die:  ai.die  ?? null,
+      dii:  ai.dii  ?? null,
+      te:   ai.te   ?? null,
+      iva:  ai.iva  ?? null,
+      iva_ad: ai.iva_ad ?? null,
+      gan:  ai.gan  ?? null,
+      iibb: ai.iibb ?? null,
+      arancel_base: arancelBase,
+    },
 
     preferencias: {
       tiene_preferencia: mejorAcuerdo !== null || tlcGeneral !== null,
       acuerdos: acuerdos,
       mejor_preferencia: mejorAcuerdo?.porcentaje ?? null,
-      arancel_efectivo: tipo_operacion === 'importacion' ? Math.round(arancelEfectivo * 100) / 100 : null,
+      arancel_efectivo: Math.round(arancelEfectivo * 100) / 100,
       tlc_general: tlcGeneral,
     },
 
@@ -320,14 +269,6 @@ export async function POST(request) {
       barreras_argentinas: ntmExtended.barreras_argentinas,
       total: ntmExtended.total,
     },
-
-    aranceles_destino: tipo_operacion === 'exportacion' && arancelDestino
-      ? {
-          hs_code: arancelDestino.hs_code,
-          ave_pct: arancelDestino.ave_pct,
-          fuente: arancelDestino.source,
-        }
-      : null,
 
     warnings,
   }

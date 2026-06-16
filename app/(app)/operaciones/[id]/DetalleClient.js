@@ -38,17 +38,6 @@ function IconPDF() {
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
-const FLUJO_EXPO = [
-  'expo_preparacion',
-  'expo_documentacion',
-  'expo_docs_completos',
-  'expo_oficializado',
-  'expo_verificacion',
-  'expo_embarcado',
-  'expo_cobro_pendiente',
-  'expo_cerrada',
-]
-
 const FLUJO_IMPO = [
   'impo_orden_compra',
   'impo_en_transito',
@@ -62,14 +51,6 @@ const FLUJO_IMPO = [
 ]
 
 const LABEL_ESTADOS = {
-  expo_preparacion:     'Preparación',
-  expo_documentacion:   'Documentación',
-  expo_docs_completos:  'Docs completos',
-  expo_oficializado:    'Oficializado',
-  expo_verificacion:    'Verificación',
-  expo_embarcado:       'Embarcado',
-  expo_cobro_pendiente: 'Cobro pendiente',
-  expo_cerrada:         'Cerrada',
   impo_orden_compra:    'Orden de compra',
   impo_en_transito:     'En tránsito',
   impo_arribada:        'Arribada',
@@ -82,14 +63,13 @@ const LABEL_ESTADOS = {
 }
 
 /** Devuelve los estados a los que se puede avanzar desde el estado actual */
-function estadosSiguientes(status, tipo) {
-  const flujo = tipo === 'exportacion' ? FLUJO_EXPO : FLUJO_IMPO
-  const idx = flujo.indexOf(status)
+function estadosSiguientes(status) {
+  const idx = FLUJO_IMPO.indexOf(status)
   if (idx === -1) return []
   // Puede ir al siguiente, o volver al anterior (corrección)
   const siguientes = []
-  if (idx < flujo.length - 1) siguientes.push(flujo[idx + 1])
-  if (idx > 0) siguientes.push(flujo[idx - 1])
+  if (idx < FLUJO_IMPO.length - 1) siguientes.push(FLUJO_IMPO[idx + 1])
+  if (idx > 0) siguientes.push(FLUJO_IMPO[idx - 1])
   return siguientes
 }
 
@@ -306,11 +286,10 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
   // ── Abrir chat con contexto ──────────────────────────────────────────────
 
   function handleAbrirChat() {
-    const tipoProd = op.operation_type === 'exportacion' ? 'exportación' : 'importación'
     const producto = op.product_description ?? op.ncm_code ?? 'producto'
     const paisNombre = pais?.name_es ?? op.counterpart_country ?? 'el país'
     const msg = encodeURIComponent(
-      `Tengo una operación de ${tipoProd} de ${producto} (NCM ${op.ncm_code ?? 'desconocido'}) hacia ${paisNombre} ` +
+      `Tengo una operación de importación de ${producto} (NCM ${op.ncm_code ?? 'desconocido'}) desde ${paisNombre} ` +
       `con incoterm ${op.incoterm ?? 'desconocido'}. ` +
       `¿Qué documentación y requisitos especiales debo tener en cuenta?`
     )
@@ -319,7 +298,7 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
 
   // ── Render ───────────────────────────────────────────────────────────────
 
-  const siguientes = estadosSiguientes(op.status, op.operation_type)
+  const siguientes = estadosSiguientes(op.status)
 
   return (
     <div className={styles.page}>
@@ -338,15 +317,15 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
       <div className={styles.opHeader}>
         <div className={styles.opHeaderLeft}>
           <div className={styles.opTitulo}>
-            <span className={`${styles.tipoBadge} ${op.operation_type === 'exportacion' ? styles.badgeExpo : styles.badgeImpo}`}>
-              {op.operation_type === 'exportacion' ? 'Exportación' : 'Importación'}
+            <span className={`${styles.tipoBadge} ${styles.badgeImpo}`}>
+              Importación
             </span>
             <h1 className={styles.opNombre}>
               {op.product_description ?? op.ncm_code ?? 'Operación sin descripción'}
             </h1>
           </div>
           <div className={styles.opEstadoWrap}>
-            <span className={`${styles.estadoBadge} ${op.operation_type === 'exportacion' ? styles.estadoExpo : styles.estadoImpo}`}>
+            <span className={`${styles.estadoBadge} ${styles.estadoImpo}`}>
               {LABEL_ESTADOS[op.status] ?? op.status}
             </span>
             {pais && (
@@ -395,10 +374,10 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
               style={{
                 width: `${pctDocs}%`,
                 background: pctDocs === 100
-                  ? 'rgba(74,222,128,0.7)'
+                  ? 'rgba(5,150,105,0.85)'
                   : pctDocs >= 60
                   ? 'var(--accent)'
-                  : 'rgba(251,191,36,0.7)',
+                  : 'rgba(217,119,6,0.85)',
               }}
             />
           </div>
@@ -498,7 +477,7 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
             <dl className={styles.datosGrid}>
               {op.counterpart_name && (
                 <>
-                  <dt>{op.operation_type === 'exportacion' ? 'Importador' : 'Exportador'}</dt>
+                  <dt>Exportador</dt>
                   <dd>{op.counterpart_name}</dd>
                 </>
               )}
@@ -619,11 +598,11 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
               <ul className="space-y-2">
                 {restricciones.map((r, i) => (
                   <li key={i} className="font-body text-xs text-on-surface-variant">
-                    <span className="text-amber-400/70">•</span>{' '}
+                    <span className="text-amber-700/70">•</span>{' '}
                     <span className="font-medium text-on-surface">{r.restriccion}</span>
                     {r.valor && <span className="text-on-surface-variant">: {r.valor}</span>}
                     {r.notas && r.notas !== 'nan' && r.notas !== 'null' && (
-                      <span className="text-on-surface-variant/60"> — {r.notas}</span>
+                      <span className="text-ink-subtle"> — {r.notas}</span>
                     )}
                   </li>
                 ))}
@@ -634,7 +613,7 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
           {/* Productos permitidos/prohibidos (solo courier) */}
           {productosPermitidos.length > 0 && (
             <div className={styles.card}>
-              <h3 className={styles.cardTitulo} style={{ color: 'rgb(52 211 153)' }}>Productos permitidos</h3>
+              <h3 className={styles.cardTitulo} style={{ color: '#047857' }}>Productos permitidos</h3>
               <p className="font-body text-xs text-on-surface-variant">
                 {productosPermitidos.map(p => p.producto).join(', ')}
               </p>
@@ -643,14 +622,14 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
 
           {productosProhibidos.length > 0 && (
             <div className={styles.card}>
-              <h3 className={styles.cardTitulo} style={{ color: 'rgb(248 113 113)' }}>Productos NO permitidos</h3>
+              <h3 className={styles.cardTitulo} style={{ color: '#b91c1c' }}>Productos NO permitidos</h3>
               <ul className="space-y-1.5">
                 {productosProhibidos.map((p, i) => (
                   <li key={i} className="font-body text-xs text-on-surface-variant">
-                    <span className="text-red-400/70">•</span>{' '}
+                    <span className="text-red-700/70">•</span>{' '}
                     <span className="font-medium text-on-surface">{p.producto}</span>
                     {p.motivo && p.motivo !== 'nan' && <span> — {p.motivo}</span>}
-                    {p.organismo && p.organismo !== 'nan' && <span className="text-on-surface-variant/60"> ({p.organismo})</span>}
+                    {p.organismo && p.organismo !== 'nan' && <span className="text-ink-subtle"> ({p.organismo})</span>}
                   </li>
                 ))}
               </ul>
@@ -723,15 +702,15 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
                   const esCondicional = org.estado === 'condicional'
                   const esExento = org.estado === 'exento'
                   const borderColor = esObligatorio
-                    ? 'border-red-400/50'
+                    ? 'border-red-500/50'
                     : esCondicional
-                    ? 'border-amber-400/50'
-                    : 'border-emerald-400/50'
+                    ? 'border-amber-500/50'
+                    : 'border-emerald-500/50'
                   const textEstado = esObligatorio
-                    ? 'text-red-400'
+                    ? 'text-red-700'
                     : esCondicional
-                    ? 'text-amber-400'
-                    : 'text-emerald-400'
+                    ? 'text-amber-700'
+                    : 'text-emerald-700'
                   return (
                     <div key={i} className={`pl-3 border-l-2 ${borderColor}`}>
                       <div className="flex items-center justify-between">
@@ -741,7 +720,7 @@ export default function DetalleClient({ operacion: opInicial, documentosIniciale
                         </span>
                       </div>
                       {esExento && (
-                        <p className="font-body text-xs text-emerald-400 mt-0.5">
+                        <p className="font-body text-xs text-emerald-700 mt-0.5">
                           No requiere intervención en este régimen
                         </p>
                       )}

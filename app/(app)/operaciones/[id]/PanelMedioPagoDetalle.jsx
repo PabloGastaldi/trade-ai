@@ -41,15 +41,15 @@ export default function PanelMedioPagoDetalle({ medioId }) {
   if (!medio) return null
 
   const badgeColors = {
-    'muy bajo': 'bg-emerald-500/10 text-emerald-400',
-    'bajo': 'bg-emerald-500/10 text-emerald-400',
-    'medio': 'bg-amber-500/10 text-amber-400',
-    'alto': 'bg-red-500/10 text-red-400',
+    'muy bajo': 'bg-emerald-500/10 text-emerald-700',
+    'bajo': 'bg-emerald-500/10 text-emerald-700',
+    'medio': 'bg-amber-500/10 text-amber-700',
+    'alto': 'bg-red-500/10 text-red-700',
   }
-  const riesgoCls = (r) => badgeColors[r?.toLowerCase()] ?? 'bg-white/[0.06] text-on-surface-variant'
+  const riesgoCls = (r) => badgeColors[r?.toLowerCase()] ?? 'bg-surface-2 text-on-surface-variant'
 
   return (
-    <div className="mt-4 pt-4 border-t border-white/[0.04]">
+    <div className="mt-4 pt-4 border-t border-hairline-soft">
       <div className="flex items-center justify-between">
         <span className="font-body text-xs text-on-surface-variant">
           Riesgo: <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-medium ml-1 ${riesgoCls(medio.riesgo_exportador)}`}>Exp: {medio.riesgo_exportador}</span>
@@ -86,7 +86,7 @@ export default function PanelMedioPagoDetalle({ medioId }) {
               <ul className="space-y-1">
                 {medio.ventajas.map((v, i) => (
                   <li key={i} className="flex gap-2 text-sm font-body text-on-surface-variant">
-                    <span className="text-emerald-400 mt-0.5 shrink-0"><IconCheckSmall /></span>
+                    <span className="text-emerald-600 mt-0.5 shrink-0"><IconCheckSmall /></span>
                     <span>{v}</span>
                   </li>
                 ))}
@@ -97,7 +97,7 @@ export default function PanelMedioPagoDetalle({ medioId }) {
               <ul className="space-y-1">
                 {medio.desventajas.map((d, i) => (
                   <li key={i} className="flex gap-2 text-sm font-body text-on-surface-variant">
-                    <span className="text-red-400 mt-0.5 shrink-0"><IconXSmall /></span>
+                    <span className="text-red-600 mt-0.5 shrink-0"><IconXSmall /></span>
                     <span>{d}</span>
                   </li>
                 ))}
@@ -117,9 +117,9 @@ export default function PanelMedioPagoDetalle({ medioId }) {
             </ul>
           </div>
 
-          <div className="pt-2 border-t border-white/[0.04]">
-            <p className="font-body text-xs text-on-surface-variant/60">Recomendado para: {medio.recomendado_para}</p>
-            <p className="font-mono text-[10px] text-on-surface-variant/40 mt-1">Normativa: {medio.normativa}</p>
+          <div className="pt-2 border-t border-hairline-soft">
+            <p className="font-body text-xs text-ink-subtle">Recomendado para: {medio.recomendado_para}</p>
+            <p className="font-mono text-[10px] text-ink-tertiary mt-1">Normativa: {medio.normativa}</p>
           </div>
         </div>
       )}

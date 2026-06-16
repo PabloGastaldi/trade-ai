@@ -182,12 +182,6 @@
   white-space: nowrap;
 }
 
-.estadoBadgeExpo {
-  background: rgba(34, 197, 94, 0.08);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.18);
-}
-
 .estadoBadgeImpo {
   background: var(--accent-dim);
   color: var(--accent);
@@ -218,12 +212,6 @@
   composes: tipoBadge;
   font-size: 0.65rem;
   padding: 0.12rem 0.4rem;
-}
-
-.badgeExpo {
-  background: rgba(34, 197, 94, 0.1);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .badgeImpo {

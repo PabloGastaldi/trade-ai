@@ -23,7 +23,7 @@ export default function UpgradePrompt({ feature, limit, used }) {
   const isTotalLimit = feature === 'catalogo'
 
   return (
-    <div className="rounded-2xl p-5 bg-primary/5 border border-primary/30">
+    <div className="rounded-lg p-5 bg-primary/5 border border-primary/30">
       <div className="flex items-start gap-3">
         <Zap className="w-5 h-5 text-primary shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
@@ -40,7 +40,7 @@ export default function UpgradePrompt({ feature, limit, used }) {
           <div className="mt-3">
             <Link
               href="/planes"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-on-primary font-body font-semibold text-sm hover:bg-primary-intense transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-primary text-on-primary font-body font-medium text-sm hover:bg-primary-intense transition-colors"
             >
               Ver planes
             </Link>

@@ -17,17 +17,6 @@ import { Trash2 } from 'lucide-react'
 import VistaKanban, { KanbanCard } from './VistaKanban'
 import ModalNuevaOperacion from './ModalNuevaOperacion'
 
-const ESTADOS_EXPO = [
-  { key: 'expo_preparacion',    label: 'Preparación' },
-  { key: 'expo_documentacion',  label: 'Documentación' },
-  { key: 'expo_docs_completos', label: 'Docs completos' },
-  { key: 'expo_oficializado',   label: 'Oficializado' },
-  { key: 'expo_verificacion',   label: 'Verificación' },
-  { key: 'expo_embarcado',      label: 'Embarcado' },
-  { key: 'expo_cobro_pendiente',label: 'Cobro pendiente' },
-  { key: 'expo_cerrada',        label: 'Cerrada' },
-]
-
 const ESTADOS_IMPO = [
   { key: 'impo_orden_compra',    label: 'Orden de compra' },
   { key: 'impo_en_transito',     label: 'En tránsito' },
@@ -41,14 +30,6 @@ const ESTADOS_IMPO = [
 ]
 
 const BADGE_ESTADO = {
-  expo_preparacion:     { variant: 'neutral',  label: 'En preparación' },
-  expo_documentacion:   { variant: 'accent',    label: 'Documentación' },
-  expo_docs_completos:   { variant: 'accent',    label: 'Docs completos' },
-  expo_oficializado:     { variant: 'primary',   label: 'Oficializado' },
-  expo_verificacion:     { variant: 'accent',    label: 'Verificación' },
-  expo_embarcado:        { variant: 'success',   label: 'Embarcado' },
-  expo_cobro_pendiente: { variant: 'accent',    label: 'Cobro pendiente' },
-  expo_cerrada:         { variant: 'neutral',   label: 'Cerrada' },
   impo_orden_compra:     { variant: 'neutral',  label: 'Orden de compra' },
   impo_en_transito:      { variant: 'accent',   label: 'En tránsito' },
   impo_arribada:         { variant: 'accent',   label: 'Arribada' },
@@ -61,7 +42,7 @@ const BADGE_ESTADO = {
 }
 
 const FORM_VACIO = {
-  operation_type: 'exportacion',
+  operation_type: 'importacion',
   regimen: 'general',
   product_id: '',
   ncm_code: '',
@@ -96,12 +77,12 @@ function fmtFechaFull(fecha) {
 }
 
 function DocsProgress({ total, completos }) {
-  if (total === 0) return <span className="font-mono text-xs text-on-surface-variant/30">—</span>
+  if (total === 0) return <span className="font-mono text-xs text-ink-tertiary">—</span>
   const pct = Math.round((completos / total) * 100)
-  const color = pct >= 80 ? 'bg-emerald-500' : pct >= 40 ? 'bg-primary' : 'bg-red-500'
+  const color = pct >= 80 ? 'bg-emerald-500' : pct >= 40 ? 'bg-amber-500' : 'bg-red-500'
   return (
     <div className="flex items-center gap-2">
-      <div className="w-10 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+      <div className="w-10 h-1.5 rounded-full bg-surface-2 overflow-hidden">
         <div className={`h-full rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
       </div>
       <span className="font-mono text-xs text-on-surface-variant">{completos}/{total}</span>
@@ -152,7 +133,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
   const router = useRouter()
   const [operaciones, setOperaciones] = useState(operacionesIniciales)
   const [vista, setVista] = useState('lista')
-  const [filtroTipo, setFiltroTipo] = useState('todos')
+  const [filtroTipo] = useState('importacion')
   const [filtroEstado, setFiltroEstado] = useState('todos')
   const [busqueda, setBusqueda] = useState('')
   const [modalAbierto, setModalAbierto] = useState(false)
@@ -162,19 +143,20 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
   const [activeDragId, setActiveDragId] = useState(null)
   const [eliminando, setEliminando] = useState({})
 
-  // Precargar desde query params (ej: viene del Simulador)
+  // Precargar desde query params (ej: viene del informe de importación)
   useEffect(() => {
     if (typeof window === 'undefined') return
     const params = new URLSearchParams(window.location.search)
     const ncm  = params.get('ncm')
     const pais = params.get('pais')
-    const tipo = params.get('tipo')
-    if (ncm || pais || tipo) {
+    const desc = params.get('desc')
+    if (ncm || pais) {
       setForm({
         ...FORM_VACIO,
         ncm_code: ncm ?? '',
         counterpart_country: pais ?? '',
-        operation_type: (tipo === 'importacion' || tipo === 'exportacion') ? tipo : 'exportacion',
+        product_description: desc ?? '',
+        operation_type: 'importacion',
       })
       setModalAbierto(true)
     }
@@ -184,11 +166,10 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   )
 
-  const opsActivas = operaciones.filter(op => op.status !== 'expo_cerrada' && op.status !== 'impo_cerrada')
+  const opsActivas = operaciones.filter(op => op.status !== 'impo_cerrada')
 
   const opsFiltradas = operaciones
     .filter(op => {
-      if (filtroTipo !== 'todos' && op.operation_type !== filtroTipo) return false
       if (filtroEstado !== 'todos' && op.status !== filtroEstado) return false
       if (busqueda.trim()) {
         const q = busqueda.toLowerCase()
@@ -219,13 +200,11 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
     setForm(prev => ({
       ...prev, product_id: prod.id,
       ncm_code: prod.ncm_code ?? prev.ncm_code,
-      operation_type: prod.operation_type ?? prev.operation_type,
+      operation_type: 'importacion',
       incoterm: prod.incoterm ?? prev.incoterm,
       currency: prod.currency ?? prev.currency,
       total_value: prod.unit_price ? String(prod.unit_price) : prev.total_value,
-      counterpart_country: (prod.operation_type === 'exportacion'
-        ? prod.default_destination
-        : prod.default_origin) ?? prev.counterpart_country,
+      counterpart_country: prod.default_origin ?? prev.counterpart_country,
     }))
   }
 
@@ -312,10 +291,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
     if (!op) return
     const nuevoStatus = over.id
     if (op.status === nuevoStatus) return
-    const compatible =
-      (op.operation_type === 'exportacion' && nuevoStatus.startsWith('expo_')) ||
-      (op.operation_type === 'importacion' && nuevoStatus.startsWith('impo_'))
-    if (!compatible) return
+    if (!nuevoStatus.startsWith('impo_')) return
     setOperaciones(prev => prev.map(o => o.id === op.id ? { ...o, status: nuevoStatus } : o))
     const supabase = createClient()
     const { error } = await supabase.from('operations').update({ status: nuevoStatus }).eq('id', op.id)
@@ -325,52 +301,31 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
   const activeDragOp = activeDragId ? operaciones.find(o => o.id === activeDragId) : null
 
   return (
-    <PageLayout title="OPERACIONES" subtitle="Gestioná tus exportaciones e importaciones">
+    <PageLayout title="OPERACIONES" subtitle="Gestioná tus importaciones">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex bg-white/[0.02] rounded-xl p-1">
-            {[['todos','Todas'],['exportacion','Exportación'],['importacion','Importación']].map(([v, l]) => (
-              <button
-                key={v}
-                onClick={() => setFiltroTipo(v)}
-                className={`px-4 py-1.5 rounded-lg font-body text-xs transition-all ${
-                  filtroTipo === v
-                    ? 'bg-white/[0.06] text-on-surface'
-                    : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-
           <select
-            className="bg-surface-highest rounded-xl px-4 py-2 text-sm font-body text-on-surface border border-transparent focus:border-primary/30 outline-none cursor-pointer"
+            className="bg-surface-1 rounded-md px-4 py-2 text-sm font-body text-on-surface border border-hairline focus:border-on-surface outline-none cursor-pointer"
             value={filtroEstado}
             onChange={e => setFiltroEstado(e.target.value)}
           >
             <option value="todos">Todos los estados</option>
-            <optgroup label="Exportación">
-              {ESTADOS_EXPO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
-            </optgroup>
-            <optgroup label="Importación">
-              {ESTADOS_IMPO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
-            </optgroup>
+            {ESTADOS_IMPO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
           </select>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 bg-white/[0.02] rounded-xl p-1">
+          <div className="flex items-center gap-1 bg-surface-1 border border-hairline rounded-md p-1">
             <button
               onClick={() => setVista('lista')}
-              className={`p-2 rounded-lg transition-colors ${vista === 'lista' ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'}`}
+              className={`p-2 rounded-md transition-colors ${vista === 'lista' ? 'bg-surface-2 text-on-surface' : 'text-ink-subtle hover:text-on-surface'}`}
               title="Vista lista"
             >
               <IconLista />
             </button>
             <button
               onClick={() => setVista('kanban')}
-              className={`p-2 rounded-lg transition-colors ${vista === 'kanban' ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'}`}
+              className={`p-2 rounded-md transition-colors ${vista === 'kanban' ? 'bg-surface-2 text-on-surface' : 'text-ink-subtle hover:text-on-surface'}`}
               title="Vista Kanban"
             >
               <IconKanban />
@@ -378,7 +333,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
           </div>
 
           <input
-            className="w-60 bg-surface-highest rounded-xl px-4 py-2 text-sm font-body text-on-surface placeholder:text-on-surface-variant/40 border border-transparent focus:border-primary/30 outline-none"
+            className="w-60 bg-surface-1 rounded-md px-4 py-2 text-sm font-body text-on-surface placeholder:text-ink-tertiary border border-hairline focus:border-on-surface outline-none"
             placeholder="Buscar operación..."
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
@@ -386,7 +341,7 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
 
           <button
             onClick={abrirModal}
-            className="bg-primary-intense text-on-primary px-5 py-2.5 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all"
+            className="bg-on-surface text-on-primary px-5 py-2.5 rounded-md font-body font-semibold text-sm hover:opacity-90 transition-all"
           >
             + Nueva operación
           </button>
@@ -395,10 +350,10 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
 
       {operaciones.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24">
-          <div className="text-on-surface-variant/20 mb-4"><IconBarco /></div>
+          <div className="text-ink-tertiary mb-4"><IconBarco /></div>
           <p className="font-body text-lg text-on-surface-variant">No tenés operaciones activas</p>
-          <p className="font-body text-sm text-on-surface-variant/60 mt-2">Creá tu primera operación para empezar a gestionar</p>
-          <button onClick={abrirModal} className="mt-6 bg-primary-intense text-on-primary px-6 py-3 rounded-xl font-body font-semibold text-sm hover:shadow-[0_0_20px_rgba(221,217,42,0.2)] transition-all">
+          <p className="font-body text-sm text-ink-subtle mt-2">Creá tu primera operación para empezar a gestionar</p>
+          <button onClick={abrirModal} className="mt-6 bg-on-surface text-on-primary px-6 py-3 rounded-md font-body font-semibold text-sm hover:opacity-90 transition-all">
             + Nueva operación
           </button>
         </div>
@@ -431,12 +386,12 @@ export default function OperacionesClient({ operacionesIniciales, productos, pai
 
 function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, onCancelar, eliminando }) {
   return (
-    <div className="rounded-xl border border-white/[0.04] overflow-hidden">
+    <div className="rounded-xl border border-hairline bg-surface-1 overflow-hidden">
       <table className="w-full">
         <thead>
-          <tr className="bg-surface-high">
-            {['ESTADO','TIPO','PRODUCTO','DESTINO/ORIGEN','VALOR','DOCS','FECHA',''].map(h => (
-              <th key={h} className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-medium">{h}</th>
+          <tr className="bg-surface-2">
+            {['ESTADO','PRODUCTO','ORIGEN','VALOR','DOCS','FECHA',''].map(h => (
+              <th key={h} className="text-left px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-ink-subtle font-medium">{h}</th>
             ))}
           </tr>
         </thead>
@@ -448,18 +403,13 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, 
             return (
               <tr
                 key={op.id}
-                className="border-t border-white/[0.04] hover:bg-white/[0.02] transition-colors cursor-pointer"
+                className="border-t border-hairline-soft hover:bg-surface transition-colors cursor-pointer"
                 onClick={() => !estadoElim && onRowClick(op)}
               >
                 <td className="px-4 py-3"><Badge variant={badge.variant}>{badge.label}</Badge></td>
-                <td className="px-4 py-3">
-                  <Badge variant={op.operation_type === 'exportacion' ? 'primary' : 'accent'}>
-                    {op.operation_type === 'exportacion' ? 'EXPO' : 'IMPO'}
-                  </Badge>
-                </td>
                 <td className="px-4 py-3 max-w-[200px]">
                   <p className="font-body text-sm text-on-surface truncate">{op.product_description ?? '—'}</p>
-                  {op.ncm_code && <p className="font-mono text-xs text-primary mt-0.5">{op.ncm_code}</p>}
+                  {op.ncm_code && <p className="font-mono text-xs text-ink-muted mt-0.5">{op.ncm_code}</p>}
                 </td>
                 <td className="px-4 py-3">
                   <p className="font-body text-sm text-on-surface">{pais?.name_es ?? op.counterpart_country ?? '—'}</p>
@@ -480,13 +430,13 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, 
                     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={(e) => onConfirmar(op, e)}
-                        className="px-2 py-1 rounded-lg font-body text-xs bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors"
+                        className="px-2 py-1 rounded-md font-body text-xs bg-red-500/15 text-red-600 hover:bg-red-500/25 transition-colors"
                       >
                         Eliminar
                       </button>
                       <button
                         onClick={(e) => onCancelar(op.id, e)}
-                        className="px-2 py-1 rounded-lg font-body text-xs text-on-surface-variant/50 hover:text-on-surface-variant transition-colors"
+                        className="px-2 py-1 rounded-md font-body text-xs text-ink-subtle hover:text-on-surface transition-colors"
                       >
                         Cancelar
                       </button>
@@ -494,7 +444,7 @@ function VistaLista({ operaciones, paises, onRowClick, onEliminar, onConfirmar, 
                   ) : (
                     <button
                       onClick={(e) => onEliminar(op.id, e)}
-                      className="p-1.5 rounded-lg text-on-surface-variant/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                      className="p-1.5 rounded-md text-ink-tertiary hover:text-red-600 hover:bg-red-500/10 transition-colors"
                       title="Eliminar operación"
                     >
                       <Trash2 size={14} />

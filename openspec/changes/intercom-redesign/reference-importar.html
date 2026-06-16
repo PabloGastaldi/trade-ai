@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>trade.ai · Nueva importación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Intercom tokens */
+    --ink:#111111;
+    --on-primary:#ffffff;
+    --ink-muted:#626260;
+    --ink-subtle:#7b7b78;
+    --ink-tertiary:#9c9fa5;
+    --canvas:#f5f1ec;
+    --surface-1:#ffffff;
+    --surface-2:#ebe7e1;
+    --hairline:#d3cec6;
+    --hairline-soft:#ebe7e1;
+    --fin:#ff5600;
+    --fin-tint:rgba(255,86,0,.10);
+    --success:#0a9d3d;
+    --success-tint:rgba(11,223,80,.14);
+    --r-xs:4px; --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px;
+    --sans:'Inter','Saans Fallback',ui-sans-serif,system-ui,sans-serif;
+    --mono:'JetBrains Mono','SaansMono Fallback',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--canvas);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;line-height:1.5;letter-spacing:0;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{display:grid;grid-template-columns:264px 1fr;min-height:100vh}
+
+  /* ---------- SIDEBAR (white panel on cream) ---------- */
+  .sidebar{
+    background:var(--surface-1);
+    border-right:1px solid var(--hairline);
+    display:flex;flex-direction:column;padding:22px 16px;
+  }
+  .brand{display:flex;align-items:center;gap:9px;padding:4px 8px 28px}
+  .brand .logo{font-size:21px;font-weight:600;letter-spacing:-.6px;color:var(--ink)}
+  .brand .logo b{font-weight:600}
+  .tag{
+    font-size:11px;font-weight:500;color:var(--ink-muted);
+    background:var(--surface-2);border-radius:var(--r-xs);padding:3px 7px;line-height:1;
+  }
+  .nav{display:flex;flex-direction:column;gap:2px}
+  .nav a{
+    display:flex;align-items:center;gap:12px;position:relative;
+    padding:10px 12px;border-radius:var(--r-md);
+    color:var(--ink-muted);text-decoration:none;font-size:15px;font-weight:500;
+    letter-spacing:-.1px;transition:.14s;
+  }
+  .nav a svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7}
+  .nav a:hover{background:var(--canvas);color:var(--ink)}
+  .nav a.active{background:var(--surface-2);color:var(--ink)}
+  .nav a.active::before{
+    content:"";position:absolute;left:-16px;top:10px;bottom:10px;width:3px;
+    background:var(--ink);border-radius:0 3px 3px 0;
+  }
+  .nav a .dot{width:6px;height:6px;border-radius:50%;background:var(--fin);margin-left:auto}
+  .spacer{flex:1}
+  .user{
+    display:flex;align-items:center;gap:11px;padding:10px;border-radius:var(--r-lg);
+    border:1px solid var(--hairline);margin-bottom:8px;
+  }
+  .avatar{
+    width:34px;height:34px;border-radius:9999px;flex:none;background:var(--ink);
+    color:var(--on-primary);display:grid;place-items:center;font-weight:600;font-size:14px;
+  }
+  .user .meta .name{font-weight:500;font-size:14px;letter-spacing:-.1px}
+  .user .meta .plan{font-size:12px;color:var(--ink-subtle)}
+  .logout{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-md);
+    color:var(--ink-subtle);text-decoration:none;font-size:14px;transition:.14s;
+  }
+  .logout:hover{color:var(--ink);background:var(--canvas)}
+  .logout svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7}
+
+  /* ---------- MAIN (cream canvas) ---------- */
+  .main{display:flex;flex-direction:column;min-width:0}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    height:56px;padding:0 36px;border-bottom:1px solid var(--hairline);
+  }
+  .crumbs{font-size:14px;color:var(--ink-subtle)}
+  .crumbs b{color:var(--ink-muted);font-weight:500}
+  .topbar-right{display:flex;align-items:center;gap:10px}
+  .usage{font-size:13px;color:var(--ink-muted)}
+  .icon-btn{
+    width:34px;height:34px;border-radius:var(--r-md);border:1px solid var(--hairline);
+    background:var(--surface-1);display:grid;place-items:center;cursor:pointer;color:var(--ink-muted);
+  }
+  .icon-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7}
+
+  .content{max-width:1040px;width:100%;margin:0 auto;padding:56px 36px 72px}
+
+  /* hero */
+  .eyebrow{font-size:14px;font-weight:500;color:var(--ink-muted);letter-spacing:-.1px;margin-bottom:16px}
+  h1{
+    font-size:clamp(36px,5vw,52px);font-weight:500;line-height:1.06;
+    letter-spacing:-1.5px;color:var(--ink);margin-bottom:14px;
+  }
+  .lead{font-size:18px;font-weight:400;color:var(--ink-muted);max-width:560px;letter-spacing:-.1px;margin-bottom:28px}
+
+  .searchbar{display:flex;gap:10px;max-width:720px}
+  .field{
+    flex:1;display:flex;align-items:center;gap:12px;
+    background:var(--surface-1);border:1px solid var(--hairline);
+    border-radius:var(--r-md);padding:0 16px;transition:.14s;
+  }
+  .field:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px rgba(17,17,17,.06)}
+  .field svg{width:19px;height:19px;stroke:var(--ink-tertiary);fill:none;stroke-width:1.7;flex:none}
+  .field input{
+    flex:1;background:none;border:0;outline:0;color:var(--ink);
+    font-family:var(--sans);font-size:16px;padding:15px 0;letter-spacing:-.1px;
+  }
+  .field input::placeholder{color:var(--ink-tertiary)}
+  /* Fin Orange CTA — reserved for the AI action (clasificar) */
+  .btn-fin{
+    background:var(--fin);color:var(--on-primary);border:0;border-radius:var(--r-md);
+    padding:0 22px;min-height:48px;font-family:var(--sans);font-weight:500;font-size:15px;
+    cursor:pointer;display:flex;align-items:center;gap:9px;transition:.14s;white-space:nowrap;
+  }
+  .btn-fin svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.2}
+  .btn-fin:hover{filter:brightness(.95)}
+
+  .examples{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .examples .lbl{font-size:14px;color:var(--ink-subtle)}
+  .ex{
+    font-size:14px;color:var(--ink-muted);background:var(--surface-1);
+    border:1px solid var(--hairline);border-radius:var(--r-sm);padding:7px 13px;
+    cursor:pointer;transition:.14s;font-family:var(--sans);
+  }
+  .ex:hover{border-color:var(--ink-tertiary);color:var(--ink)}
+
+  /* flow — feature cards lifted onto cream */
+  .flow{margin-top:56px}
+  .flow-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
+  .flow-head h2{font-size:22px;font-weight:500;letter-spacing:-.3px}
+  .flow-head span{font-size:14px;color:var(--ink-subtle)}
+  .rail{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .step{
+    background:var(--surface-1);border:1px solid var(--hairline);
+    border-radius:var(--r-lg);padding:24px;position:relative;
+  }
+  .step.active{border-color:var(--ink)}
+  .step .num{
+    width:30px;height:30px;border-radius:var(--r-md);display:grid;place-items:center;
+    font-weight:500;font-size:14px;background:var(--surface-2);color:var(--ink-muted);margin-bottom:16px;
+  }
+  .step.active .num{background:var(--ink);color:var(--on-primary)}
+  .step .ico{position:absolute;top:24px;right:24px;color:var(--ink-tertiary)}
+  .step .ico svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6}
+  .step h3{font-size:18px;font-weight:500;letter-spacing:-.2px;margin-bottom:6px}
+  .step p{font-size:14px;color:var(--ink-muted);line-height:1.5}
+
+  /* operaciones recientes — product-mockup card (xl radius, the protagonist) */
+  .panel{margin-top:48px;background:var(--surface-1);border:1px solid var(--hairline);border-radius:var(--r-xl);overflow:hidden}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--hairline-soft)}
+  .panel-head h2{font-size:18px;font-weight:500;letter-spacing:-.2px}
+  .panel-head a{font-size:14px;color:var(--ink-muted);text-decoration:none;font-weight:500}
+  .panel-head a:hover{color:var(--ink)}
+  .row{
+    display:grid;grid-template-columns:1.6fr 1fr .9fr .9fr auto;align-items:center;gap:16px;
+    padding:16px 24px;border-bottom:1px solid var(--hairline-soft);transition:.12s;cursor:pointer;
+  }
+  .row:last-child{border-bottom:0}
+  .row:hover{background:var(--canvas)}
+  .row .prod{font-weight:500;font-size:15px;letter-spacing:-.1px}
+  .row .ncm{font-family:var(--mono);font-size:13px;color:var(--ink-muted)}
+  .row .origin{font-size:14px;color:var(--ink-muted);display:flex;align-items:center;gap:7px}
+  .badge{font-size:12px;font-weight:500;padding:4px 9px;border-radius:var(--r-sm);display:inline-block}
+  .badge.ok{background:var(--success-tint);color:var(--success)}
+  .badge.draft{background:var(--surface-2);color:var(--ink-subtle)}
+  .row .when{font-size:13px;color:var(--ink-tertiary);text-align:right}
+
+  /* data scope — quiet stat strip on cream */
+  .scope{margin-top:44px;display:flex;flex-wrap:wrap}
+  .scope .item{padding:0 28px;border-right:1px solid var(--hairline)}
+  .scope .item:first-child{padding-left:0}
+  .scope .item:last-child{border-right:0}
+  .scope .num{font-size:22px;font-weight:500;letter-spacing:-.5px;color:var(--ink)}
+  .scope .lbl{font-size:13px;color:var(--ink-subtle);margin-top:2px}
+
+  a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--fin);outline-offset:2px}
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .rail{grid-template-columns:1fr}
+    .row{grid-template-columns:1fr auto}
+    .row .ncm,.row .origin{display:none}
+    .scope .item{padding:8px 0;border-right:0;border-bottom:1px solid var(--hairline);width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="logo">trade<b>.ai</b></span>
+      <span class="tag">Beta</span>
+    </div>
+
+    <nav class="nav">
+      <a href="#" class="active">
+        <svg viewBox="0 0 24 24"><path d="M3 13l2-7h11l3 7M3 13v5h18v-5M3 13h18"/><circle cx="7" cy="18" r="1.5"/><circle cx="17" cy="18" r="1.5"/></svg>
+        Nueva importación
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg>
+        Mis operaciones
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Chat IA
+        <span class="dot" aria-hidden="true"></span>
+      </a>
+    </nav>
+
+    <div class="spacer"></div>
+
+    <div class="user">
+      <div class="avatar">P</div>
+      <div class="meta">
+        <div class="name">Pablo Gastaldi</div>
+        <div class="plan">Plan Pro</div>
+      </div>
+    </div>
+    <a href="#" class="logout">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Cerrar sesión
+    </a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="crumbs">Importaciones · <b>Nueva importación</b></div>
+      <div class="topbar-right">
+        <span class="usage">Plan Pro · 38/100 clasificaciones</span>
+        <button class="icon-btn" aria-label="Ayuda">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.5 1.5c0 1.5-2 2-2 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- HERO -->
+      <p class="eyebrow">Paso 1 de 3 · Producto</p>
+      <h1>¿Qué querés importar?</h1>
+      <p class="lead">Describilo en tus palabras. Lo clasificamos en la NCM, aplicamos las preferencias de origen y te calculamos el costo de nacionalización.</p>
+
+      <div class="searchbar">
+        <div class="field">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+          <input type="text" placeholder="Ej: notebook 14 pulgadas con SSD" aria-label="Describí el producto">
+        </div>
+        <button class="btn-fin">
+          Clasificar
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+        </button>
+      </div>
+
+      <div class="examples">
+        <span class="lbl">Probá con:</span>
+        <button class="ex">Aceite de oliva</button>
+        <button class="ex">Bomba centrífuga 2HP</button>
+        <button class="ex">Zapatillas de cuero</button>
+        <button class="ex">Resina de polietileno</button>
+      </div>
+
+      <!-- FLOW -->
+      <section class="flow">
+        <div class="flow-head">
+          <h2>Cómo funciona cada operación</h2>
+          <span>De la descripción al costo final en tres pasos</span>
+        </div>
+        <div class="rail">
+          <div class="step active">
+            <div class="num">1</div>
+            <span class="ico"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span>
+            <h3>Producto</h3>
+            <p>Describís qué traés y lo ubicamos en la posición NCM correcta, sin códigos de memoria.</p>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z"/></svg></span>
+            <h3>Origen</h3>
+            <p>Elegís el país y aplicamos las preferencias arancelarias vigentes (MERCOSUR, ACE).</p>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <span class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="13" y2="15"/></svg></span>
+            <h3>Costo</h3>
+            <p>Sumamos derechos, tasas e impuestos y te damos el costo final de nacionalización.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- OPERACIONES RECIENTES (product-mockup card) -->
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Operaciones recientes</h2>
+          <a href="#">Ver todas →</a>
+        </div>
+        <div class="row">
+          <span class="prod">Notebook ThinkPad E14</span>
+          <span class="ncm">8471.30.12</span>
+          <span class="origin">🇨🇳 China</span>
+          <span><span class="badge ok">Calculado</span></span>
+          <span class="when">hace 2 días</span>
+        </div>
+        <div class="row">
+          <span class="prod">Aceite de oliva extra virgen</span>
+          <span class="ncm">1509.20.00</span>
+          <span class="origin">🇮🇹 Italia</span>
+          <span><span class="badge ok">Calculado</span></span>
+          <span class="when">hace 5 días</span>
+        </div>
+        <div class="row">
+          <span class="prod">Bomba centrífuga 2HP</span>
+          <span class="ncm">8413.70.10</span>
+          <span class="origin">🇧🇷 Brasil</span>
+          <span><span class="badge draft">Borrador</span></span>
+          <span class="when">hace 1 semana</span>
+        </div>
+      </section>
+
+      <!-- DATA SCOPE -->
+      <div class="scope">
+        <div class="item"><div class="num">26.000+</div><div class="lbl">Posiciones NCM</div></div>
+        <div class="item"><div class="num">52.500+</div><div class="lbl">Preferencias arancelarias</div></div>
+        <div class="item"><div class="num">MERCOSUR · ACE</div><div class="lbl">Acuerdos cubiertos</div></div>
+        <div class="item"><div class="num">Oficiales</div><div class="lbl">Datos actualizados</div></div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

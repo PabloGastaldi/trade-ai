@@ -9,9 +9,9 @@ import { buscarEnPinecone } from '@/lib/pinecone-search'
 import { sanitizarPregunta } from '@/lib/utils/sanitize'
 import { RateLimiter } from '@/lib/rate-limit'
 import { SYSTEM_PROMPT } from '@/lib/prompts/system-prompt'
-import { GUIA_EXPORTACION } from '@/lib/prompts/guia-exportacion'
 import { GUIA_IMPORTACION } from '@/lib/prompts/guia-importacion'
 import { getPlanConfig } from '@/lib/plans-config'
+import { aplicarResetMensual } from '@/lib/monthly-reset'
 
 // ─────────────────────────────────────────────
 // RATE LIMITING POR USUARIO (2da capa)
@@ -133,46 +133,9 @@ export async function POST(request) {
     perfilUsuario  = perfil
     planUsuario    = perfil?.plan_type ?? 'free'
 
-    // Resetear contador si pasó la fecha de reset
-    const ahora      = new Date()
-    const fechaReset = perfil?.queries_reset_date ? new Date(perfil.queries_reset_date) : null
-
-    let consultasEsteMes = perfil?.queries_this_month ?? 0
-
-    const RESET_TODOS_CONTADORES = {
-      queries_this_month:     0,
-      calcs_this_month:       0,
-      simulador_this_month:   0,
-      comparador_this_month:  0,
-      nomenclador_this_month: 0,
-      operaciones_this_month: 0,
-    }
-
-    if (!fechaReset) {
-      // Usuario nuevo — inicializar fecha de reset a 1 mes desde hoy
-      const proximoReset = new Date(ahora)
-      proximoReset.setMonth(proximoReset.getMonth() + 1)
-
-      await supabase
-        .from('users_profile')
-        .update({ ...RESET_TODOS_CONTADORES, queries_reset_date: proximoReset.toISOString() })
-        .eq('id', userId)
-
-      consultasEsteMes = 0
-      seReinicio = true
-    } else if (ahora >= fechaReset) {
-      // Pasó el mes — resetear y avanzar fecha al próximo ciclo
-      const proximoReset = new Date(fechaReset)
-      proximoReset.setMonth(proximoReset.getMonth() + 1)
-
-      await supabase
-        .from('users_profile')
-        .update({ ...RESET_TODOS_CONTADORES, queries_reset_date: proximoReset.toISOString() })
-        .eq('id', userId)
-
-      consultasEsteMes = 0
-      seReinicio = true
-    }
+    // Reset on-the-fly si el ciclo mensual venció (fuente única de verdad)
+    seReinicio = await aplicarResetMensual(supabase, userId, perfil?.queries_reset_date)
+    const consultasEsteMes = seReinicio ? 0 : (perfil?.queries_this_month ?? 0)
 
     const planConfig = getPlanConfig(planUsuario)
     const limiteConsulta = planConfig.limits.consulta.monthly
@@ -449,9 +412,7 @@ Ejemplos:
     /c[oó]mo|pasos?|qu[eé] necesito|proceso|requisitos?|tramit|documentos?|habilitaci[oó]n|despacho|operaci[oó]n/i.test(preguntaSanitizada)
 
   let guiaOperativa = ''
-  if (esOperativa && tipoOperacion === 'exportacion') {
-    guiaOperativa = `\n\n[GUIA_OPERATIVA_EXPORTACION]\n${GUIA_EXPORTACION}`
-  } else if (esOperativa && tipoOperacion === 'importacion') {
+  if (esOperativa && tipoOperacion === 'importacion') {
     guiaOperativa = `\n\n[GUIA_OPERATIVA_IMPORTACION]\n${GUIA_IMPORTACION}`
   }
 

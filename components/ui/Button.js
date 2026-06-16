@@ -1,8 +1,11 @@
 const variants = {
-  primary: 'bg-primary-intense text-on-primary hover:shadow-[0_0_20px_rgba(221,217,42,0.2)]',
-  secondary: 'bg-white/[0.05] text-on-surface hover:bg-white/[0.08] border border-white/[0.08]',
-  ghost: 'text-on-surface-variant hover:text-on-surface hover:bg-white/[0.04]',
-  danger: 'bg-red-500/10 text-red-400 hover:bg-red-500/20',
+  // Default primary action — charcoal, per Parte C (orange reserved for AI/CTA primary)
+  primary: 'bg-on-surface text-on-primary hover:bg-on-surface/90',
+  // Explicit AI / primary CTA accent — the one orange button per viewport
+  ai: 'bg-primary text-on-primary hover:bg-primary-intense',
+  secondary: 'bg-surface-1 text-on-surface border border-hairline hover:bg-surface-high',
+  ghost: 'text-on-surface-variant hover:text-on-surface hover:bg-surface-high',
+  danger: 'bg-red-50 text-red-600 hover:bg-red-100',
 }
 
 const sizes = {
@@ -23,9 +26,9 @@ export default function Button({
   return (
     <button
       className={`
-        inline-flex items-center justify-center gap-2 rounded-xl font-body font-semibold
-        transition-all duration-150 cursor-pointer select-none
-        disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none
+        inline-flex items-center justify-center gap-2 rounded-md font-body font-medium
+        transition-colors duration-150 cursor-pointer select-none
+        disabled:opacity-40 disabled:cursor-not-allowed
         ${variants[variant]} ${sizes[size]} ${className}
       `}
       disabled={disabled || loading}

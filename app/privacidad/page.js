@@ -8,7 +8,7 @@ export default function PrivacidadPage() {
   return (
     <div className="min-h-screen bg-surface text-on-surface">
       {/* Header */}
-      <header className="border-b border-white/[0.06] px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-hairline px-6 py-4 flex items-center justify-between">
         <Link href="/" className="font-logo text-lg">
           <span className="text-on-surface">trade</span>
           <span className="text-primary">.ai</span>
@@ -20,7 +20,7 @@ export default function PrivacidadPage() {
 
       {/* Contenido */}
       <main className="max-w-3xl mx-auto px-6 py-16">
-        <p className="font-mono text-xs text-on-surface-variant/50 uppercase tracking-widest mb-3">Legal</p>
+        <p className="font-mono text-xs text-ink-subtle uppercase tracking-widest mb-3">Legal</p>
         <h1 className="font-body text-3xl font-bold text-on-surface mb-2">Política de Privacidad</h1>
         <p className="font-body text-sm text-on-surface-variant mb-12">Fecha de vigencia: 1 de abril de 2026</p>
 
@@ -84,7 +84,7 @@ export default function PrivacidadPage() {
                 ['MercadoPago', 'Procesamiento de pagos (servidores en Argentina)'],
                 ['Pinecone', 'Búsqueda vectorial para el sistema RAG (servidores en EE.UU.)'],
               ].map(([nombre, desc]) => (
-                <div key={nombre} className="flex gap-3 px-3 py-2 bg-white/[0.02] rounded-lg">
+                <div key={nombre} className="flex gap-3 px-3 py-2 bg-surface-high rounded-md">
                   <span className="font-semibold text-on-surface w-40 shrink-0">{nombre}</span>
                   <span>{desc}</span>
                 </div>
@@ -104,7 +104,7 @@ export default function PrivacidadPage() {
                 ['Datos de facturación', 'Por el plazo que exija la normativa fiscal argentina (actualmente 10 años).'],
                 ['Datos técnicos (logs)', 'Hasta 12 meses con fines de seguridad y diagnóstico.'],
               ].map(([label, desc]) => (
-                <div key={label} className="flex gap-3 px-3 py-2 bg-white/[0.02] rounded-lg">
+                <div key={label} className="flex gap-3 px-3 py-2 bg-surface-high rounded-md">
                   <span className="font-semibold text-on-surface w-48 shrink-0">{label}</span>
                   <span>{desc}</span>
                 </div>
@@ -128,7 +128,7 @@ export default function PrivacidadPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-on-surface-variant/60 text-xs">Ningún sistema es 100% seguro. Si bien tomamos precauciones razonables, no podemos garantizar la seguridad absoluta de tus datos.</p>
+            <p className="mt-3 text-ink-subtle text-xs">Ningún sistema es 100% seguro. Si bien tomamos precauciones razonables, no podemos garantizar la seguridad absoluta de tus datos.</p>
           </Section>
 
           <Section title="9. Tus derechos">
@@ -149,7 +149,7 @@ export default function PrivacidadPage() {
             <p className="mt-4">Para ejercer cualquiera de estos derechos, escribinos a{' '}
               <a href="mailto:tradeaicomex@gmail.com" className="text-primary hover:underline">tradeaicomex@gmail.com</a>.
               {' '}Responderemos dentro de los 30 días hábiles.</p>
-            <p className="mt-2 text-on-surface-variant/60 text-xs">En Argentina, la Ley 25.326 de Protección de Datos Personales y la Agencia de Acceso a la Información Pública (AAIP) regulan el tratamiento de datos personales.</p>
+            <p className="mt-2 text-ink-subtle text-xs">En Argentina, la Ley 25.326 de Protección de Datos Personales y la Agencia de Acceso a la Información Pública (AAIP) regulan el tratamiento de datos personales.</p>
           </Section>
 
           <Section title="10. Menores de edad">
@@ -170,8 +170,8 @@ export default function PrivacidadPage() {
         </div>
       </main>
 
-      <footer className="border-t border-white/[0.06] py-8 px-6 text-center">
-        <p className="font-mono text-xs text-on-surface-variant/30">
+      <footer className="border-t border-hairline py-8 px-6 text-center">
+        <p className="font-mono text-xs text-ink-tertiary">
           © 2026 trade.ai · Pablo Gastaldi ·{' '}
           <Link href="/terminos" className="hover:text-on-surface-variant transition-colors">Términos y Condiciones</Link>
         </p>
@@ -200,7 +200,7 @@ function SubSection({ label, children }) {
 
 function Callout({ children }) {
   return (
-    <div className="mt-4 px-4 py-3 bg-white/[0.03] border-l-2 border-primary/40 rounded-r-xl">
+    <div className="mt-4 px-4 py-3 bg-surface-high border-l-2 border-primary/40 rounded-r-lg">
       <p className="font-body text-sm text-on-surface-variant">{children}</p>
     </div>
   )

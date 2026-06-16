@@ -8,7 +8,7 @@ export default function TerminosPage() {
   return (
     <div className="min-h-screen bg-surface text-on-surface">
       {/* Header */}
-      <header className="border-b border-white/[0.06] px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-hairline px-6 py-4 flex items-center justify-between">
         <Link href="/" className="font-logo text-lg">
           <span className="text-on-surface">trade</span>
           <span className="text-primary">.ai</span>
@@ -20,7 +20,7 @@ export default function TerminosPage() {
 
       {/* Contenido */}
       <main className="max-w-3xl mx-auto px-6 py-16">
-        <p className="font-mono text-xs text-on-surface-variant/50 uppercase tracking-widest mb-3">Legal</p>
+        <p className="font-mono text-xs text-ink-subtle uppercase tracking-widest mb-3">Legal</p>
         <h1 className="font-body text-3xl font-bold text-on-surface mb-2">Términos y Condiciones</h1>
         <p className="font-body text-sm text-on-surface-variant mb-12">Última actualización: abril de 2026</p>
 
@@ -113,8 +113,8 @@ export default function TerminosPage() {
         </div>
       </main>
 
-      <footer className="border-t border-white/[0.06] py-8 px-6 text-center">
-        <p className="font-mono text-xs text-on-surface-variant/30">
+      <footer className="border-t border-hairline py-8 px-6 text-center">
+        <p className="font-mono text-xs text-ink-tertiary">
           © 2026 trade.ai · Pablo Gastaldi ·{' '}
           <Link href="/privacidad" className="hover:text-on-surface-variant transition-colors">Política de Privacidad</Link>
         </p>
@@ -134,7 +134,7 @@ function Section({ title, children }) {
 
 function Callout({ children }) {
   return (
-    <div className="mt-4 px-4 py-3 bg-white/[0.03] border-l-2 border-primary/40 rounded-r-xl">
+    <div className="mt-4 px-4 py-3 bg-surface-high border-l-2 border-primary/40 rounded-r-lg">
       <p className="font-body text-sm text-on-surface-variant">{children}</p>
     </div>
   )

@@ -21,13 +21,6 @@ const REGIMENES = {
     { key: 'puerta_a_puerta', label: 'Puerta a puerta' },
     { key: 'muestras',      label: 'Muestras sin valor comercial' },
   ],
-  exportacion: [
-    { key: 'general',       label: 'Régimen general' },
-    { key: 'courier',       label: 'Courier' },
-    { key: 'exporta_simple', label: 'Exporta simple' },
-    { key: 'muestras',      label: 'Muestras sin valor comercial' },
-    { key: 'rancho',        label: 'Rancho (provisiones de a bordo)' },
-  ],
 }
 
 function pct(n) {
@@ -37,7 +30,7 @@ function pct(n) {
 
 function ArancelRow({ label, valor, highlight, dimmed }) {
   return (
-    <div className={`flex justify-between items-center py-2 border-b border-white/[0.03] last:border-0 ${dimmed ? 'opacity-40' : ''}`}>
+    <div className={`flex justify-between items-center py-2 border-b border-hairline last:border-0 ${dimmed ? 'opacity-40' : ''}`}>
       <span className={`font-body text-xs ${highlight ? 'text-on-surface' : 'text-on-surface-variant'}`}>{label}</span>
       <span className={`font-mono text-xs ${highlight ? 'text-primary font-semibold' : 'text-on-surface'}`}>{valor}</span>
     </div>
@@ -47,12 +40,12 @@ function ArancelRow({ label, valor, highlight, dimmed }) {
 function DocRow({ doc }) {
   const isNan = v => !v || v === 'nan'
   const catIcon = {
-    critico:    <AlertTriangle size={12} className="text-red-400 shrink-0 mt-0.5" />,
-    importante: <FileText size={12} className="text-amber-400 shrink-0 mt-0.5" />,
+    critico:    <AlertTriangle size={12} className="text-red-600 shrink-0 mt-0.5" />,
+    importante: <FileText size={12} className="text-amber-600 shrink-0 mt-0.5" />,
   }[doc.documento_categoria] ?? <File size={12} className="text-on-surface-variant shrink-0 mt-0.5" />
 
   return (
-    <div className="flex gap-3 py-3 border-b border-white/[0.03] last:border-0">
+    <div className="flex gap-3 py-3 border-b border-hairline last:border-0">
       {catIcon}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
@@ -62,10 +55,10 @@ function DocRow({ doc }) {
           )}
         </div>
         {!isNan(doc.base_legal) && (
-          <p className="font-body text-[10px] text-on-surface-variant/60 mt-0.5">Base legal: {doc.base_legal}</p>
+          <p className="font-body text-[10px] text-ink-subtle mt-0.5">Base legal: {doc.base_legal}</p>
         )}
         {!isNan(doc.notas) && (
-          <p className="font-body text-[10px] text-on-surface-variant/60 mt-0.5">{doc.notas}</p>
+          <p className="font-body text-[10px] text-ink-subtle mt-0.5">{doc.notas}</p>
         )}
       </div>
     </div>
@@ -74,7 +67,7 @@ function DocRow({ doc }) {
 
 function OrganismoRow({ org }) {
   const isNan = v => !v || v === 'nan'
-  const borderColor = org.estado === 'obligatorio' ? 'border-red-400' : 'border-amber-400'
+  const borderColor = org.estado === 'obligatorio' ? 'border-red-600' : 'border-amber-600'
   return (
     <div className={`border-l-2 ${borderColor} pl-3 py-2 mb-2 last:mb-0`}>
       <div className="flex items-center gap-2">
@@ -87,7 +80,7 @@ function OrganismoRow({ org }) {
         <p className="font-body text-[10px] text-on-surface-variant mt-0.5 capitalize">{org.categoria_producto}</p>
       )}
       {!isNan(org.base_legal) && (
-        <p className="font-body text-[10px] text-on-surface-variant/60 mt-0.5">Base legal: {org.base_legal}</p>
+        <p className="font-body text-[10px] text-ink-subtle mt-0.5">Base legal: {org.base_legal}</p>
       )}
     </div>
   )
@@ -100,7 +93,7 @@ export default function SimuladorClient({ paises }) {
   const [ncmInput, setNcmInput] = useState('')
   const [ncmSeleccionado, setNcmSeleccionado] = useState(null)
   const [paisIso3, setPaisIso3] = useState('')
-  const [tipoOperacion, setTipoOperacion] = useState('importacion')
+  const tipoOperacion = 'importacion'
   const [regimen, setRegimen] = useState('general')
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
@@ -123,13 +116,6 @@ export default function SimuladorClient({ paises }) {
         .catch(() => {})
     }
   }, [])
-
-  // When tipo changes, reset regimen to 'general'
-  function handleTipoChange(tipo) {
-    setTipoOperacion(tipo)
-    setRegimen('general')
-    setResultado(null)
-  }
 
   function handleNcmSelect(item) {
     setNcmInput(item.ncm_code || '')
@@ -192,7 +178,7 @@ export default function SimuladorClient({ paises }) {
             {/* NCM */}
             <div className="lg:col-span-2">
               <label className="block font-body text-xs text-on-surface-variant mb-1.5">
-                Código NCM <span className="text-red-400">*</span>
+                Código NCM <span className="text-red-600">*</span>
               </label>
               <NcmAutocomplete
                 value={ncmInput}
@@ -200,7 +186,7 @@ export default function SimuladorClient({ paises }) {
                 error={errors.ncm}
               />
               {ncmSeleccionado?.description && (
-                <p className="mt-1.5 font-body text-[11px] text-on-surface-variant/70">
+                <p className="mt-1.5 font-body text-[11px] text-ink-subtle">
                   {ncmSeleccionado.description}
                 </p>
               )}
@@ -209,11 +195,11 @@ export default function SimuladorClient({ paises }) {
             {/* País */}
             <div>
               <label className="block font-body text-xs text-on-surface-variant mb-1.5">
-                País <span className="text-red-400">*</span>
+                País <span className="text-red-600">*</span>
               </label>
               <select
-                className={`w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border outline-none transition-all duration-150 cursor-pointer ${
-                  errors.pais ? 'border-red-500/50' : 'border-transparent focus:border-primary/40'
+                className={`w-full bg-surface rounded-md px-4 py-3 font-body text-sm text-on-surface border outline-none transition-all duration-150 cursor-pointer ${
+                  errors.pais ? 'border-red-400' : 'border-hairline focus:border-on-surface'
                 }`}
                 value={paisIso3}
                 onChange={e => { setPaisIso3(e.target.value); setErrors(prev => ({ ...prev, pais: null })); setResultado(null) }}
@@ -223,33 +209,7 @@ export default function SimuladorClient({ paises }) {
                   <option key={p.iso3} value={p.iso3}>{p.name_es}</option>
                 ))}
               </select>
-              {errors.pais && <p className="mt-1 font-body text-[10px] text-red-400">{errors.pais}</p>}
-            </div>
-
-            {/* Tipo de operación */}
-            <div>
-              <label className="block font-body text-xs text-on-surface-variant mb-1.5">
-                Tipo de operación
-              </label>
-              <div className="flex bg-white/[0.02] rounded-xl p-1">
-                {[
-                  { key: 'importacion', label: 'IMPORTACIÓN' },
-                  { key: 'exportacion', label: 'EXPORTACIÓN' },
-                ].map(t => (
-                  <button
-                    key={t.key}
-                    type="button"
-                    onClick={() => handleTipoChange(t.key)}
-                    className={`flex-1 px-4 py-2 font-body text-xs font-semibold tracking-wide rounded-lg transition-all duration-150 ${
-                      tipoOperacion === t.key
-                        ? 'bg-white/[0.06] text-on-surface'
-                        : 'text-on-surface-variant hover:text-on-surface cursor-pointer'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
+              {errors.pais && <p className="mt-1 font-body text-[10px] text-red-600">{errors.pais}</p>}
             </div>
 
             {/* Régimen */}
@@ -258,7 +218,7 @@ export default function SimuladorClient({ paises }) {
                 Régimen
               </label>
               <select
-                className="w-full bg-surface-highest rounded-xl px-4 py-3 font-body text-sm text-on-surface border border-transparent outline-none focus:border-primary/40 transition-all cursor-pointer"
+                className="w-full bg-surface rounded-md px-4 py-3 font-body text-sm text-on-surface border border-hairline outline-none focus:border-on-surface transition-all cursor-pointer"
                 value={regimen}
                 onChange={e => { setRegimen(e.target.value); setResultado(null) }}
               >
@@ -279,9 +239,9 @@ export default function SimuladorClient({ paises }) {
 
       {/* Error API */}
       {errorApi && (
-        <div className="mb-6 flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
-          <AlertTriangle size={16} className="text-red-400 shrink-0 mt-0.5" />
-          <p className="font-body text-sm text-red-400">{errorApi}</p>
+        <div className="mb-6 flex items-start gap-3 p-4 bg-red-50 border border-red-100 rounded-lg">
+          <AlertTriangle size={16} className="text-red-600 shrink-0 mt-0.5" />
+          <p className="font-body text-sm text-red-600">{errorApi}</p>
         </div>
       )}
 
@@ -289,7 +249,7 @@ export default function SimuladorClient({ paises }) {
       {loading && (
         <div className="space-y-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 bg-white/[0.02] rounded-2xl border border-white/[0.04] animate-pulse" />
+            <div key={i} className="h-24 bg-surface rounded-lg border border-hairline animate-pulse" />
           ))}
         </div>
       )}
@@ -304,9 +264,9 @@ export default function SimuladorClient({ paises }) {
           {resultado.warnings.length > 0 && (
             <div className="space-y-2">
               {resultado.warnings.map((w, i) => (
-                <div key={i} className="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
-                  <AlertTriangle size={14} className="text-amber-400 shrink-0 mt-0.5" />
-                  <p className="font-body text-sm text-amber-300">{w}</p>
+                <div key={i} className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-100 rounded-lg">
+                  <AlertTriangle size={14} className="text-amber-600 shrink-0 mt-0.5" />
+                  <p className="font-body text-sm text-amber-700">{w}</p>
                 </div>
               ))}
             </div>
@@ -331,11 +291,6 @@ export default function SimuladorClient({ paises }) {
           {/* Sección 5: Barreras NTM */}
           <SeccionNTM resultado={resultado} />
 
-          {/* Sección 6: Aranceles en destino (expo) */}
-          {resultado.tipo_operacion === 'exportacion' && (
-            <SeccionArancelesDestino resultado={resultado} />
-          )}
-
           {/* Acciones */}
           <AccionesPostReporte resultado={resultado} />
         </div>
@@ -359,12 +314,12 @@ function ReporteHeader({ resultado }) {
   }[regimen] ?? regimen
 
   return (
-    <div className="p-5 bg-primary/[0.06] border border-primary/20 rounded-2xl">
+    <div className="p-5 bg-primary/[0.06] border border-primary/20 rounded-lg">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="font-body text-xs font-semibold text-primary tracking-widest">{tipoLabel}</span>
-            <span className="text-on-surface-variant/30">·</span>
+            <span className="text-ink-tertiary">·</span>
             <span className="font-mono text-xs text-on-surface-variant">{ncmDisplay}</span>
           </div>
           <p className="font-body text-sm text-on-surface line-clamp-2">{ncm.descripcion}</p>
@@ -372,7 +327,7 @@ function ReporteHeader({ resultado }) {
             {tipo_operacion === 'importacion' ? 'desde' : 'hacia'} {pais.nombre_es} — {regimenLabel}
           </p>
           {ncm.seccion && (
-            <p className="font-body text-[10px] text-on-surface-variant/50 mt-0.5">
+            <p className="font-body text-[10px] text-ink-subtle mt-0.5">
               Sección {ncm.seccion} · Capítulo {ncm.capitulo}
             </p>
           )}
@@ -409,24 +364,24 @@ function SeccionAranceles({ resultado }) {
         </div>
 
         {tienePreferencia && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+          <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-md">
             {preferencias.acuerdos.length > 0 && (
               <>
-                <p className="font-body text-xs font-semibold text-emerald-400 mb-1">
+                <p className="font-body text-xs font-semibold text-emerald-600 mb-1">
                   Preferencia arancelaria: {preferencias.acuerdos[0].porcentaje}%
                   {' '}({preferencias.acuerdos[0].codigo_acuerdo} — {preferencias.acuerdos[0].bloque})
                 </p>
-                <p className="font-body text-xs text-emerald-300">
+                <p className="font-body text-xs text-emerald-700">
                   Arancel efectivo:{' '}
                   <span className="font-mono font-semibold">{pct(preferencias.arancel_efectivo)}</span>
                   {arancelOriginal > 0 && (
-                    <span className="text-emerald-300/60 ml-2 line-through font-mono">{pct(arancelOriginal)}</span>
+                    <span className="text-emerald-700/60 ml-2 line-through font-mono">{pct(arancelOriginal)}</span>
                   )}
                 </p>
               </>
             )}
             {preferencias.acuerdos.length === 0 && preferencias.tlc_general && (
-              <p className="font-body text-xs text-emerald-400">
+              <p className="font-body text-xs text-emerald-600">
                 TLC de cobertura total: {preferencias.tlc_general.acuerdo_id} — arancel efectivo: 0%
               </p>
             )}
@@ -434,34 +389,13 @@ function SeccionAranceles({ resultado }) {
         )}
 
         {!tienePreferencia && (
-          <p className="font-body text-xs text-on-surface-variant/60 mt-2">
+          <p className="font-body text-xs text-ink-subtle mt-2">
             No se encontraron preferencias arancelarias para {pais.nombre_es} con este NCM.
           </p>
         )}
       </Collapsible>
     )
   }
-
-  // Exportación
-  return (
-    <Collapsible title="Aranceles de exportación">
-      <div className="space-y-1 mb-4">
-        <ArancelRow label="Derecho de exportación" valor={pct(aranceles.derecho_exportacion)} />
-        <ArancelRow
-          label="Reintegro"
-          valor={<span className="text-emerald-400">{pct(aranceles.reintegro)}</span>}
-        />
-      </div>
-      {preferencias.acuerdos.length > 0 && (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-          <p className="font-body text-xs font-semibold text-emerald-400">
-            Preferencia en destino: {preferencias.acuerdos[0].porcentaje}%
-            {' '}({preferencias.acuerdos[0].codigo_acuerdo} — {preferencias.acuerdos[0].bloque})
-          </p>
-        </div>
-      )}
-    </Collapsible>
-  )
 }
 
 function SeccionDocumentacion({ resultado }) {
@@ -477,7 +411,7 @@ function SeccionDocumentacion({ resultado }) {
   if (total === 0) {
     return (
       <Collapsible title="Documentación requerida" badge={badge}>
-        <p className="font-body text-xs text-on-surface-variant/60">
+        <p className="font-body text-xs text-ink-subtle">
           No se encontraron documentos registrados para esta operación/régimen.
         </p>
       </Collapsible>
@@ -488,19 +422,19 @@ function SeccionDocumentacion({ resultado }) {
     <Collapsible title="Documentación requerida" badge={badge}>
       {documentos.criticos.length > 0 && (
         <div className="mb-4">
-          <p className="font-body text-[10px] font-semibold text-red-400 tracking-widest uppercase mb-2">Críticos</p>
+          <p className="font-body text-[10px] font-semibold text-red-600 tracking-widest uppercase mb-2">Críticos</p>
           {documentos.criticos.map(d => <DocRow key={d.id} doc={d} />)}
         </div>
       )}
       {documentos.importantes.length > 0 && (
         <div className="mb-4">
-          <p className="font-body text-[10px] font-semibold text-amber-400 tracking-widest uppercase mb-2">Importantes</p>
+          <p className="font-body text-[10px] font-semibold text-amber-600 tracking-widest uppercase mb-2">Importantes</p>
           {documentos.importantes.map(d => <DocRow key={d.id} doc={d} />)}
         </div>
       )}
       {documentos.opcionales.length > 0 && (
         <div>
-          <p className="font-body text-[10px] font-semibold text-on-surface-variant/50 tracking-widest uppercase mb-2">Opcionales</p>
+          <p className="font-body text-[10px] font-semibold text-ink-subtle tracking-widest uppercase mb-2">Opcionales</p>
           {documentos.opcionales.map(d => <DocRow key={d.id} doc={d} />)}
         </div>
       )}
@@ -519,13 +453,13 @@ function SeccionOrganismos({ resultado }) {
     >
       {organismos.obligatorios.length > 0 && (
         <div className="mb-4">
-          <p className="font-body text-[10px] font-semibold text-red-400 tracking-widest uppercase mb-2">Obligatorios</p>
+          <p className="font-body text-[10px] font-semibold text-red-600 tracking-widest uppercase mb-2">Obligatorios</p>
           {organismos.obligatorios.map(o => <OrganismoRow key={o.id} org={o} />)}
         </div>
       )}
       {organismos.condicionales.length > 0 && (
         <div>
-          <p className="font-body text-[10px] font-semibold text-amber-400 tracking-widest uppercase mb-2">Condicionales</p>
+          <p className="font-body text-[10px] font-semibold text-amber-600 tracking-widest uppercase mb-2">Condicionales</p>
           {organismos.condicionales.map(o => <OrganismoRow key={o.id} org={o} />)}
         </div>
       )}
@@ -550,15 +484,15 @@ function SeccionRestricciones({ resultado }) {
     >
       <div className="space-y-3">
         {restricciones.map(r => (
-          <div key={r.id} className="flex items-start gap-3 p-4 bg-amber-500/[0.07] border border-amber-500/20 rounded-xl">
-            <AlertTriangle size={13} className="text-amber-400 shrink-0 mt-0.5" />
+          <div key={r.id} className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-100 rounded-md">
+            <AlertTriangle size={13} className="text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <p className="font-body text-xs text-amber-300 font-medium">{r.restriccion}</p>
+              <p className="font-body text-xs text-amber-700 font-medium">{r.restriccion}</p>
               {r.valor && r.valor !== 'nan' && (
-                <p className="font-mono text-xs text-amber-400 mt-0.5">{r.valor}</p>
+                <p className="font-mono text-xs text-amber-700 mt-0.5">{r.valor}</p>
               )}
               {r.base_legal && r.base_legal !== 'nan' && (
-                <p className="font-body text-[10px] text-on-surface-variant/60 mt-1">Base legal: {r.base_legal}</p>
+                <p className="font-body text-[10px] text-ink-subtle mt-1">Base legal: {r.base_legal}</p>
               )}
             </div>
           </div>
@@ -578,7 +512,7 @@ function SeccionNTM({ resultado }) {
   if (barreras_ntm.length === 0) {
     return (
       <Collapsible title={titulo}>
-        <p className="font-body text-xs text-on-surface-variant/60">
+        <p className="font-body text-xs text-ink-subtle">
           No se encontraron barreras no arancelarias registradas para este producto.
         </p>
       </Collapsible>
@@ -596,57 +530,16 @@ function SeccionNTM({ resultado }) {
     <Collapsible title={titulo} badge={<Badge variant="neutral">{barreras_ntm.length}</Badge>}>
       <div className="space-y-2">
         {Object.values(porTipo).map((m, i) => (
-          <div key={i} className="flex items-center justify-between py-2 border-b border-white/[0.03] last:border-0">
+          <div key={i} className="flex items-center justify-between py-2 border-b border-hairline last:border-0">
             <div>
               <span className="font-body text-xs text-on-surface">{m.tipo}</span>
               {m.count > 1 && (
-                <span className="font-body text-[10px] text-on-surface-variant/50 ml-2">({m.count} medidas)</span>
+                <span className="font-body text-[10px] text-ink-subtle ml-2">({m.count} medidas)</span>
               )}
             </div>
             <Badge variant="neutral">{m.cobertura}</Badge>
           </div>
         ))}
-      </div>
-    </Collapsible>
-  )
-}
-
-function SeccionArancelesDestino({ resultado }) {
-  const { aranceles_destino, pais, preferencias } = resultado
-
-  if (!aranceles_destino) {
-    return (
-      <Collapsible title={`Aranceles en destino — ${pais.nombre_es}`}>
-        <p className="font-body text-xs text-on-surface-variant/60">
-          No se encontraron datos de aranceles para este producto en {pais.nombre_es}.
-        </p>
-      </Collapsible>
-    )
-  }
-
-  return (
-    <Collapsible title={`Aranceles en destino — ${pais.nombre_es}`}>
-      <div className="flex items-center gap-4 p-4 bg-white/[0.02] rounded-xl">
-        <div>
-          <p className="font-body text-xs text-on-surface-variant mb-1">
-            {pais.nombre_es} cobra por este producto:
-          </p>
-          <p className="font-mono text-2xl text-on-surface font-semibold">
-            {pct(aranceles_destino.ave_pct)}
-          </p>
-          {aranceles_destino.fuente && (
-            <p className="font-body text-[10px] text-on-surface-variant/50 mt-1">Fuente: {aranceles_destino.fuente}</p>
-          )}
-        </div>
-        {preferencias.acuerdos.length > 0 && (
-          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-            <p className="font-body text-[10px] text-emerald-400 font-semibold">Con acuerdo</p>
-            <p className="font-mono text-lg text-emerald-400">
-              {pct(aranceles_destino.ave_pct * (1 - preferencias.acuerdos[0].porcentaje / 100))}
-            </p>
-            <p className="font-body text-[10px] text-emerald-400/60">{preferencias.acuerdos[0].codigo_acuerdo}</p>
-          </div>
-        )}
       </div>
     </Collapsible>
   )
@@ -661,14 +554,14 @@ function AccionesPostReporte({ resultado }) {
     <div className="flex flex-col sm:flex-row gap-3 pt-2">
       <a
         href={calcUrl}
-        className="flex items-center justify-center gap-2 px-5 py-3 bg-primary/10 border border-primary/20 rounded-xl font-body text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
+        className="flex items-center justify-center gap-2 px-5 py-3 bg-primary/10 border border-primary/20 rounded-md font-body text-sm font-semibold text-primary hover:bg-primary/20 transition-colors"
       >
         <span>Calcular costos</span>
         <ArrowRight size={14} />
       </a>
       <a
         href={opsUrl}
-        className="flex items-center justify-center gap-2 px-5 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl font-body text-sm text-on-surface-variant hover:text-on-surface hover:bg-white/[0.05] transition-colors"
+        className="flex items-center justify-center gap-2 px-5 py-3 bg-surface-1 border border-hairline rounded-md font-body text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-high transition-colors"
       >
         <span>Nueva operación</span>
         <ArrowRight size={14} />

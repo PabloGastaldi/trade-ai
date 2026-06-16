@@ -39,7 +39,7 @@ const FLAG_URL = 'https://flagcdn.com/w40'
 
 function FlagImg({ iso3, size = 24 }) {
   const iso2 = ISO3_TO_ISO2[iso3?.toUpperCase()]
-  if (!iso2) return <span className="inline-block rounded bg-white/[0.06]" style={{ width: size, height: Math.round(size * 0.7) }} />
+  if (!iso2) return <span className="inline-block rounded bg-surface-high" style={{ width: size, height: Math.round(size * 0.7) }} />
   return (
     <img
       src={`${FLAG_URL}/${iso2}.png`}
@@ -58,13 +58,6 @@ const REGIMENES = {
     { key: 'puerta_a_puerta', label: 'Puerta a puerta' },
     { key: 'muestras',        label: 'Muestras' },
   ],
-  exportacion: [
-    { key: 'general',        label: 'General' },
-    { key: 'courier',        label: 'Courier' },
-    { key: 'exporta_simple', label: 'Exporta simple' },
-    { key: 'muestras',       label: 'Muestras' },
-    { key: 'rancho',         label: 'Rancho' },
-  ],
 }
 
 function fmt(n, tipo) {
@@ -81,8 +74,8 @@ function getBestCountry(resultados, tipo) {
 
 function SectionRow({ label, values, renderCell }) {
   return (
-    <tr className="border-b border-white/[0.03]">
-      <td className="py-2.5 pr-4 font-body text-xs text-on-surface-variant/60 whitespace-nowrap w-40 align-top">{label}</td>
+    <tr className="border-b border-hairline">
+      <td className="py-2.5 pr-4 font-body text-xs text-ink-subtle whitespace-nowrap w-40 align-top">{label}</td>
       {values.map((v, i) => (
         <td key={i} className="py-2.5 px-3 align-top">
           {renderCell(v)}
@@ -106,9 +99,9 @@ function DetailCard({ resultado, tipo, nombre }) {
   const restricciones = data.restricciones ?? []
 
   return (
-    <div className="border border-white/[0.04] rounded-xl overflow-hidden">
+    <div className="border border-hairline rounded-lg overflow-hidden">
       <button
-        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/[0.02] transition-colors cursor-pointer"
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-surface-high transition-colors cursor-pointer"
         onClick={() => setOpen(v => !v)}
       >
         <div className="flex items-center gap-2.5">
@@ -116,7 +109,7 @@ function DetailCard({ resultado, tipo, nombre }) {
           <span className="font-body text-sm font-medium text-on-surface">{nombre}</span>
         </div>
         <svg
-          className={`w-4 h-4 text-on-surface-variant/40 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-ink-tertiary transition-transform ${open ? 'rotate-180' : ''}`}
           viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
         >
           <polyline points="6 9 12 15 18 9" />
@@ -124,11 +117,11 @@ function DetailCard({ resultado, tipo, nombre }) {
       </button>
 
       {open && (
-        <div className="px-4 pb-4 space-y-4 border-t border-white/[0.04]">
+        <div className="px-4 pb-4 space-y-4 border-t border-hairline">
           {/* Aranceles */}
           {tipo === 'importacion' && (
             <div className="pt-3">
-              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Aranceles</p>
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-ink-tertiary mb-2">Aranceles</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   ['AEC', aranceles.aec],
@@ -138,38 +131,16 @@ function DetailCard({ resultado, tipo, nombre }) {
                   ['IVA', aranceles.iva],
                   ['IIBB', aranceles.iibb],
                 ].filter(([, v]) => v !== null && v !== undefined).map(([k, v]) => (
-                  <div key={k} className="flex justify-between px-3 py-1.5 bg-white/[0.02] rounded-lg">
-                    <span className="font-mono text-[10px] text-on-surface-variant/50">{k}</span>
+                  <div key={k} className="flex justify-between px-3 py-1.5 bg-surface rounded-md">
+                    <span className="font-mono text-[10px] text-ink-subtle">{k}</span>
                     <span className="font-mono text-xs text-on-surface">{v}%</span>
                   </div>
                 ))}
               </div>
               {prefs.tiene_preferencia && prefs.acuerdos?.length > 0 && (
-                <div className="mt-2 px-3 py-2 bg-emerald-500/5 border border-emerald-500/15 rounded-lg">
-                  <p className="font-mono text-[10px] text-emerald-400/60 uppercase tracking-widest mb-0.5">Preferencia arancelaria</p>
-                  <p className="font-body text-xs text-emerald-400">{prefs.acuerdos[0].bloque} — {prefs.acuerdos[0].porcentaje}% de descuento → arancel efectivo: {prefs.arancel_efectivo}%</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {tipo === 'exportacion' && data.aranceles_destino && (
-            <div className="pt-3">
-              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Arancel en destino</p>
-              <div className="flex justify-between px-3 py-2 bg-white/[0.02] rounded-lg">
-                <span className="font-mono text-[10px] text-on-surface-variant/50">HS {data.aranceles_destino.hs_code}</span>
-                <span className="font-mono text-sm text-on-surface">{data.aranceles_destino.ave_pct}% AVE</span>
-              </div>
-              {aranceles.derecho_exportacion !== null && aranceles.derecho_exportacion !== undefined && (
-                <div className="flex justify-between px-3 py-2 bg-white/[0.02] rounded-lg mt-1">
-                  <span className="font-mono text-[10px] text-on-surface-variant/50">Derecho exportación</span>
-                  <span className="font-mono text-xs text-on-surface">{aranceles.derecho_exportacion}%</span>
-                </div>
-              )}
-              {aranceles.reintegro !== null && aranceles.reintegro !== undefined && aranceles.reintegro > 0 && (
-                <div className="flex justify-between px-3 py-2 bg-emerald-500/5 border border-emerald-500/15 rounded-lg mt-1">
-                  <span className="font-mono text-[10px] text-emerald-400/60">Reintegro</span>
-                  <span className="font-mono text-xs text-emerald-400">{aranceles.reintegro}%</span>
+                <div className="mt-2 px-3 py-2 bg-emerald-50 border border-emerald-100 rounded-md">
+                  <p className="font-mono text-[10px] text-emerald-700/70 uppercase tracking-widest mb-0.5">Preferencia arancelaria</p>
+                  <p className="font-body text-xs text-emerald-600">{prefs.acuerdos[0].bloque} — {prefs.acuerdos[0].porcentaje}% de descuento → arancel efectivo: {prefs.arancel_efectivo}%</p>
                 </div>
               )}
             </div>
@@ -178,13 +149,13 @@ function DetailCard({ resultado, tipo, nombre }) {
           {/* Organismos */}
           {(organismos.obligatorios?.length > 0 || organismos.condicionales?.length > 0) && (
             <div>
-              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Organismos</p>
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-ink-tertiary mb-2">Organismos</p>
               <div className="flex flex-wrap gap-1.5">
                 {organismos.obligatorios?.map((o, i) => (
-                  <span key={i} className="font-mono text-[10px] px-2 py-1 rounded-md bg-red-500/10 text-red-400">{o.organismo}</span>
+                  <span key={i} className="font-mono text-[10px] px-2 py-1 rounded-md bg-red-50 text-red-600">{o.organismo}</span>
                 ))}
                 {organismos.condicionales?.map((o, i) => (
-                  <span key={i} className="font-mono text-[10px] px-2 py-1 rounded-md bg-white/[0.04] text-on-surface-variant">{o.organismo}</span>
+                  <span key={i} className="font-mono text-[10px] px-2 py-1 rounded-md bg-surface-high text-on-surface-variant">{o.organismo}</span>
                 ))}
               </div>
             </div>
@@ -193,11 +164,11 @@ function DetailCard({ resultado, tipo, nombre }) {
           {/* Documentos críticos */}
           {docs.criticos?.length > 0 && (
             <div>
-              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Documentos críticos</p>
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-ink-tertiary mb-2">Documentos críticos</p>
               <div className="space-y-1">
                 {docs.criticos.map((d, i) => (
-                  <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.02] rounded-lg">
-                    <div className="w-1.5 h-1.5 rounded-full bg-red-400/60 shrink-0" />
+                  <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-surface rounded-md">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
                     <span className="font-body text-xs text-on-surface-variant">{d.documento_nombre}</span>
                   </div>
                 ))}
@@ -208,13 +179,13 @@ function DetailCard({ resultado, tipo, nombre }) {
           {/* NTM */}
           {ntm.length > 0 && (
             <div>
-              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Barreras no arancelarias ({ntm.length})</p>
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-ink-tertiary mb-2">Barreras no arancelarias ({ntm.length})</p>
               <div className="flex flex-wrap gap-1.5">
                 {ntm.slice(0, 6).map((m, i) => (
-                  <span key={i} className="font-mono text-[10px] px-2 py-1 rounded-md bg-white/[0.04] text-on-surface-variant">{m.codigo}</span>
+                  <span key={i} className="font-mono text-[10px] px-2 py-1 rounded-md bg-surface-high text-on-surface-variant">{m.codigo}</span>
                 ))}
                 {ntm.length > 6 && (
-                  <span className="font-mono text-[10px] px-2 py-1 rounded-md bg-white/[0.04] text-on-surface-variant/40">+{ntm.length - 6} más</span>
+                  <span className="font-mono text-[10px] px-2 py-1 rounded-md bg-surface-high text-ink-tertiary">+{ntm.length - 6} más</span>
                 )}
               </div>
             </div>
@@ -223,9 +194,9 @@ function DetailCard({ resultado, tipo, nombre }) {
           {/* Restricciones */}
           {restricciones.filter(r => r.valor && r.valor !== 'nan').length > 0 && (
             <div>
-              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-2">Restricciones del régimen</p>
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-ink-tertiary mb-2">Restricciones del régimen</p>
               {restricciones.filter(r => r.valor && r.valor !== 'nan').map((r, i) => (
-                <div key={i} className="flex justify-between px-3 py-1.5 bg-white/[0.02] rounded-lg text-xs">
+                <div key={i} className="flex justify-between px-3 py-1.5 bg-surface rounded-md text-xs">
                   <span className="font-body text-on-surface-variant">{r.restriccion}</span>
                   <span className="font-mono text-on-surface">{r.valor}</span>
                 </div>
@@ -240,7 +211,7 @@ function DetailCard({ resultado, tipo, nombre }) {
 
 export default function ComparadorClient({ paises }) {
   const searchParams = useSearchParams()
-  const [tipo, setTipo] = useState('importacion')
+  const tipo = 'importacion'
   const [regimen, setRegimen] = useState('general')
   const [ncmItem, setNcmItem] = useState(null)
   const [ncmError, setNcmError] = useState('')
@@ -270,12 +241,6 @@ export default function ComparadorClient({ paises }) {
   }, [])
 
   const regimenLabel = REGIMENES[tipo].find(r => r.key === regimen)?.label ?? regimen
-
-  function handleTipoChange(t) {
-    setTipo(t)
-    setRegimen('general')
-    setResultados(null)
-  }
 
   function setPais(idx, val) {
     setPaisesSeleccionados(prev => {
@@ -341,13 +306,9 @@ export default function ComparadorClient({ paises }) {
       // Calcular métrica por país
       const withMetrica = raw.map(r => {
         if (!r.ok) return { ...r, metrica: null }
-        if (tipo === 'importacion') {
-          const ae = r.data?.preferencias?.arancel_efectivo
-          const base = r.data?.aranceles?.arancel_base
-          return { ...r, metrica: ae ?? base ?? null }
-        } else {
-          return { ...r, metrica: r.data?.aranceles_destino?.ave_pct ?? null }
-        }
+        const ae = r.data?.preferencias?.arancel_efectivo
+        const base = r.data?.aranceles?.arancel_base
+        return { ...r, metrica: ae ?? base ?? null }
       })
 
       // Marcar mejor y peor
@@ -382,21 +343,6 @@ export default function ComparadorClient({ paises }) {
 
         {/* Formulario */}
         <Card className="mb-6">
-          {/* Tipo de operación */}
-          <div className="flex bg-white/[0.04] rounded-xl p-1 gap-1 w-fit mb-5">
-            {['importacion', 'exportacion'].map(t => (
-              <button
-                key={t}
-                className={`px-5 py-2 rounded-lg font-body text-sm transition-all cursor-pointer ${
-                  tipo === t ? 'bg-primary-intense text-on-primary' : 'text-on-surface-variant hover:text-on-surface'
-                }`}
-                onClick={() => handleTipoChange(t)}
-              >
-                {t === 'importacion' ? 'Importación' : 'Exportación'}
-              </button>
-            ))}
-          </div>
-
           {/* NCM + régimen */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
             <div>
@@ -422,9 +368,9 @@ export default function ComparadorClient({ paises }) {
           </div>
 
           {ncmItem && (
-            <div className="mb-5 px-4 py-2.5 bg-white/[0.03] rounded-xl flex items-center gap-3">
+            <div className="mb-5 px-4 py-2.5 bg-surface-high rounded-md flex items-center gap-3">
               <span className="font-mono text-sm text-primary">{ncmItem.ncm_code}</span>
-              <span className="text-on-surface-variant/20">|</span>
+              <span className="text-ink-tertiary">|</span>
               <span className="font-body text-xs text-on-surface-variant line-clamp-1">{ncmItem.description}</span>
             </div>
           )}
@@ -436,9 +382,9 @@ export default function ComparadorClient({ paises }) {
               {paisesSeleccionados.map((iso3, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   {iso3 && <FlagImg iso3={iso3} size={22} />}
-                  {!iso3 && <span className="w-7 h-5 bg-white/[0.04] rounded inline-block shrink-0" />}
+                  {!iso3 && <span className="w-7 h-5 bg-surface-high rounded inline-block shrink-0" />}
                   <select
-                    className={`flex-1 bg-surface-highest rounded-xl px-4 py-2.5 font-body text-sm border border-transparent outline-none focus:border-primary/30 transition-all cursor-pointer ${iso3 ? 'text-on-surface' : 'text-on-surface-variant/50'}`}
+                    className={`flex-1 bg-surface-high rounded-md px-4 py-2.5 font-body text-sm border border-transparent outline-none focus:border-primary/30 transition-all cursor-pointer ${iso3 ? 'text-on-surface' : 'text-ink-subtle'}`}
                     value={iso3}
                     onChange={e => setPais(idx, e.target.value)}
                   >
@@ -450,7 +396,7 @@ export default function ComparadorClient({ paises }) {
                   {paisesSeleccionados.length > 2 && (
                     <button
                       onClick={() => removePais(idx)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface-variant/40 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                      className="w-8 h-8 flex items-center justify-center rounded-md text-ink-tertiary hover:text-red-600 hover:bg-red-500/10 transition-colors cursor-pointer"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                         <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -464,7 +410,7 @@ export default function ComparadorClient({ paises }) {
             {paisesSeleccionados.length < 3 && (
               <button
                 onClick={addPais}
-                className="mt-2 flex items-center gap-1.5 font-body text-xs text-on-surface-variant/50 hover:text-primary transition-colors cursor-pointer"
+                className="mt-2 flex items-center gap-1.5 font-body text-xs text-ink-subtle hover:text-primary transition-colors cursor-pointer"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -474,13 +420,13 @@ export default function ComparadorClient({ paises }) {
             )}
 
             {paisError && (
-              <p className="mt-2 font-body text-xs text-red-400">{paisError}</p>
+              <p className="mt-2 font-body text-xs text-red-600">{paisError}</p>
             )}
           </div>
 
           {error && (
             <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-              <p className="font-body text-xs text-red-400">{error}</p>
+              <p className="font-body text-xs text-red-600">{error}</p>
             </div>
           )}
 
@@ -492,14 +438,14 @@ export default function ComparadorClient({ paises }) {
         {/* Estado vacío */}
         {!resultados && !cargando && (
           <div className="text-center py-16">
-            <div className="mx-auto w-14 h-14 mb-4 text-on-surface-variant/[0.08]">
+            <div className="mx-auto w-14 h-14 mb-4 text-ink-tertiary">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="2" y1="12" x2="22" y2="12" />
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
               </svg>
             </div>
-            <p className="font-body text-sm text-on-surface-variant/30 uppercase tracking-wide">
+            <p className="font-body text-sm text-ink-tertiary uppercase tracking-wide">
               Seleccioná un NCM y 2 países para comparar
             </p>
           </div>
@@ -511,20 +457,20 @@ export default function ComparadorClient({ paises }) {
             {/* ── Mejor opción ── */}
             {resultados.some(r => r.esMejor) && (
               <div className="mb-5 px-4 py-3 bg-emerald-500/[0.06] border border-emerald-500/20 rounded-xl flex items-center gap-3">
-                <svg className="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <svg className="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
                 <div>
-                  <span className="font-body text-xs text-emerald-400/70 uppercase tracking-widest">Mejor opción</span>
+                  <span className="font-body text-xs text-emerald-600/70 uppercase tracking-widest">Mejor opción</span>
                   {resultados.filter(r => r.esMejor).map(r => (
-                    <p key={r.iso3} className="font-body text-sm text-emerald-400 font-medium">
+                    <p key={r.iso3} className="font-body text-sm text-emerald-600 font-medium">
                       {nombrePais(r.iso3)} —{' '}
                       {tipo === 'importacion'
                         ? `arancel efectivo ${r.metrica}%`
                         : `arancel destino ${r.metrica?.toFixed(1)}% AVE`
                       }
                       {tipo === 'importacion' && r.data?.preferencias?.tiene_preferencia && (
-                        <span className="ml-2 font-mono text-[10px] text-emerald-400/60">con preferencia arancelaria</span>
+                        <span className="ml-2 font-mono text-[10px] text-emerald-600/60">con preferencia arancelaria</span>
                       )}
                     </p>
                   ))}
@@ -538,20 +484,20 @@ export default function ComparadorClient({ paises }) {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
-                      <tr className="border-b border-white/[0.05]">
-                        <th className="py-3 pr-4 font-body text-[10px] text-on-surface-variant/40 uppercase tracking-widest w-40">Métrica</th>
+                      <tr className="border-b border-hairline">
+                        <th className="py-3 pr-4 font-body text-[10px] text-ink-tertiary uppercase tracking-widest w-40">Métrica</th>
                         {resultados.map(r => (
                           <th key={r.iso3} className="py-3 px-3">
                             <div className="flex items-center gap-2">
                               <FlagImg iso3={r.iso3} size={20} />
-                              <span className={`font-body text-sm font-medium ${r.esMejor ? 'text-emerald-400' : 'text-on-surface'}`}>
+                              <span className={`font-body text-sm font-medium ${r.esMejor ? 'text-emerald-600' : 'text-on-surface'}`}>
                                 {nombrePais(r.iso3)}
                               </span>
                               {r.esMejor && (
-                                <span className="font-mono text-[9px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">MEJOR</span>
+                                <span className="font-mono text-[9px] text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded">MEJOR</span>
                               )}
                               {r.esPeor && (
-                                <span className="font-mono text-[9px] text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">MAYOR COSTO</span>
+                                <span className="font-mono text-[9px] text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded">MAYOR COSTO</span>
                               )}
                             </div>
                           </th>
@@ -560,18 +506,18 @@ export default function ComparadorClient({ paises }) {
                     </thead>
                     <tbody>
                       {/* Métrica principal */}
-                      <tr className="border-b border-white/[0.04] bg-white/[0.01]">
-                        <td className="py-3 pr-4 font-body text-xs font-semibold text-on-surface-variant/80">
+                      <tr className="border-b border-hairline bg-surface">
+                        <td className="py-3 pr-4 font-body text-xs font-semibold text-on-surface-variant">
                           {tipo === 'importacion' ? 'Arancel efectivo' : 'Arancel destino'}
                         </td>
                         {resultados.map(r => (
                           <td key={r.iso3} className="py-3 px-3">
                             {!r.ok ? (
-                              <span className="font-mono text-xs text-red-400/60">Error</span>
+                              <span className="font-mono text-xs text-red-600">Error</span>
                             ) : r.metrica === null ? (
-                              <span className="font-mono text-xs text-on-surface-variant/30">Sin datos</span>
+                              <span className="font-mono text-xs text-ink-tertiary">Sin datos</span>
                             ) : (
-                              <span className={`font-mono text-base font-bold ${r.esMejor ? 'text-emerald-400' : r.esPeor ? 'text-red-400' : 'text-on-surface'}`}>
+                              <span className={`font-mono text-base font-bold ${r.esMejor ? 'text-emerald-600' : r.esPeor ? 'text-red-600' : 'text-on-surface'}`}>
                                 {tipo === 'importacion' ? `${r.metrica}%` : `${r.metrica?.toFixed(1)}%`}
                               </span>
                             )}
@@ -600,40 +546,13 @@ export default function ComparadorClient({ paises }) {
                             label="Preferencia"
                             values={resultados}
                             renderCell={r => r.data?.preferencias?.tiene_preferencia
-                              ? <span className="font-body text-xs text-emerald-400">{r.data.preferencias.acuerdos?.[0]?.bloque ?? 'Sí'}</span>
-                              : <span className="font-mono text-xs text-on-surface-variant/30">No</span>
+                              ? <span className="font-body text-xs text-emerald-600">{r.data.preferencias.acuerdos?.[0]?.bloque ?? 'Sí'}</span>
+                              : <span className="font-mono text-xs text-ink-tertiary">No</span>
                             }
                           />
                         </>
                       )}
 
-                      {tipo === 'exportacion' && (
-                        <>
-                          <SectionRow
-                            label="Derecho expo."
-                            values={resultados}
-                            renderCell={r => <span className="font-mono text-xs text-on-surface-variant">{r.data?.aranceles?.derecho_exportacion ?? '—'}%</span>}
-                          />
-                          <SectionRow
-                            label="Reintegro"
-                            values={resultados}
-                            renderCell={r => {
-                              const v = r.data?.aranceles?.reintegro
-                              return v > 0
-                                ? <span className="font-mono text-xs text-emerald-400">{v}%</span>
-                                : <span className="font-mono text-xs text-on-surface-variant/30">—</span>
-                            }}
-                          />
-                          <SectionRow
-                            label="Preferencia"
-                            values={resultados}
-                            renderCell={r => r.data?.preferencias?.tiene_preferencia
-                              ? <span className="font-body text-xs text-emerald-400">{r.data.preferencias.acuerdos?.[0]?.bloque ?? 'Sí'}</span>
-                              : <span className="font-mono text-xs text-on-surface-variant/30">No</span>
-                            }
-                          />
-                        </>
-                      )}
 
                       <SectionRow
                         label="Organismos"
@@ -641,8 +560,8 @@ export default function ComparadorClient({ paises }) {
                         renderCell={r => {
                           const obs = r.data?.organismos?.obligatorios ?? []
                           return obs.length > 0
-                            ? <span className="font-body text-xs text-red-400">{obs.map(o => o.organismo).join(', ')}</span>
-                            : <span className="font-mono text-xs text-on-surface-variant/30">—</span>
+                            ? <span className="font-body text-xs text-red-600">{obs.map(o => o.organismo).join(', ')}</span>
+                            : <span className="font-mono text-xs text-ink-tertiary">—</span>
                         }}
                       />
                       <SectionRow
@@ -660,8 +579,8 @@ export default function ComparadorClient({ paises }) {
                           const extTotal = r.data?.ntm_extended?.total ?? 0
                           const base = r.data?.barreras_ntm?.length ?? 0
                           const total = extTotal + base
-                          if (total === 0) return <span className="font-mono text-xs text-on-surface-variant/30">—</span>
-                          const color = total <= 2 ? 'text-emerald-400' : total <= 5 ? 'text-amber-400' : 'text-red-400'
+                          if (total === 0) return <span className="font-mono text-xs text-ink-tertiary">—</span>
+                          const color = total <= 2 ? 'text-emerald-600' : total <= 5 ? 'text-amber-600' : 'text-red-600'
                           return <span className={`font-mono text-xs ${color}`}>{total} medidas</span>
                         }}
                       />
@@ -671,8 +590,8 @@ export default function ComparadorClient({ paises }) {
                         renderCell={r => {
                           const w = r.data?.warnings ?? []
                           return w.length > 0
-                            ? <span className="font-body text-xs text-amber-400">{w.length} alerta{w.length > 1 ? 's' : ''}</span>
-                            : <span className="font-mono text-xs text-on-surface-variant/30">—</span>
+                            ? <span className="font-body text-xs text-amber-600">{w.length} alerta{w.length > 1 ? 's' : ''}</span>
+                            : <span className="font-mono text-xs text-ink-tertiary">—</span>
                         }}
                       />
                     </tbody>
@@ -683,13 +602,13 @@ export default function ComparadorClient({ paises }) {
 
             {/* ── Tabs mobile ── */}
             <div className="md:hidden mb-4">
-              <div className="flex bg-white/[0.04] rounded-xl p-1 gap-1 mb-4">
+              <div className="flex bg-surface-high rounded-md p-1 gap-1 mb-4">
                 {resultados.map((r, i) => (
                   <button
                     key={r.iso3}
                     onClick={() => setTabMobile(i)}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg font-body text-xs transition-all cursor-pointer ${
-                      tabMobile === i ? 'bg-white/[0.08] text-on-surface' : 'text-on-surface-variant/50'
+                      tabMobile === i ? 'bg-surface-1 text-on-surface' : 'text-ink-subtle'
                     }`}
                   >
                     <FlagImg iso3={r.iso3} size={16} />
@@ -704,22 +623,22 @@ export default function ComparadorClient({ paises }) {
                   <Card>
                     <div className="flex items-center gap-2 mb-4">
                       <FlagImg iso3={r.iso3} size={24} />
-                      <span className={`font-body text-base font-semibold ${r.esMejor ? 'text-emerald-400' : 'text-on-surface'}`}>
+                      <span className={`font-body text-base font-semibold ${r.esMejor ? 'text-emerald-600' : 'text-on-surface'}`}>
                         {nombrePais(r.iso3)}
                       </span>
-                      {r.esMejor && <span className="font-mono text-[9px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">MEJOR</span>}
-                      {r.esPeor && <span className="font-mono text-[9px] text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">MAYOR COSTO</span>}
+                      {r.esMejor && <span className="font-mono text-[9px] text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded">MEJOR</span>}
+                      {r.esPeor && <span className="font-mono text-[9px] text-red-600 bg-red-500/10 px-1.5 py-0.5 rounded">MAYOR COSTO</span>}
                     </div>
 
                     {!r.ok ? (
-                      <p className="font-body text-sm text-red-400">{r.error ?? 'Error al consultar'}</p>
+                      <p className="font-body text-sm text-red-600">{r.error ?? 'Error al consultar'}</p>
                     ) : (
                       <div className="space-y-3">
-                        <div className="flex justify-between px-3 py-2 bg-white/[0.03] rounded-xl">
+                        <div className="flex justify-between px-3 py-2 bg-surface-high rounded-md">
                           <span className="font-body text-xs text-on-surface-variant">
                             {tipo === 'importacion' ? 'Arancel efectivo' : 'Arancel destino'}
                           </span>
-                          <span className={`font-mono text-sm font-bold ${r.esMejor ? 'text-emerald-400' : r.esPeor ? 'text-red-400' : 'text-on-surface'}`}>
+                          <span className={`font-mono text-sm font-bold ${r.esMejor ? 'text-emerald-600' : r.esPeor ? 'text-red-600' : 'text-on-surface'}`}>
                             {r.metrica !== null ? `${tipo === 'importacion' ? r.metrica : r.metrica?.toFixed(1)}%` : 'Sin datos'}
                           </span>
                         </div>
@@ -729,23 +648,16 @@ export default function ComparadorClient({ paises }) {
                           ['DII / DIE', r.data?.aranceles?.arancel_base],
                           ['IVA', r.data?.aranceles?.iva],
                         ].map(([label, val]) => val !== null && val !== undefined ? (
-                          <div key={label} className="flex justify-between px-3 py-1.5 bg-white/[0.02] rounded-lg">
-                            <span className="font-mono text-[10px] text-on-surface-variant/50">{label}</span>
+                          <div key={label} className="flex justify-between px-3 py-1.5 bg-surface-high rounded-md">
+                            <span className="font-mono text-[10px] text-ink-subtle">{label}</span>
                             <span className="font-mono text-xs text-on-surface">{val}%</span>
                           </div>
                         ) : null)}
 
-                        {tipo === 'exportacion' && r.data?.aranceles?.reintegro > 0 && (
-                          <div className="flex justify-between px-3 py-1.5 bg-emerald-500/5 border border-emerald-500/15 rounded-lg">
-                            <span className="font-mono text-[10px] text-emerald-400/60">Reintegro</span>
-                            <span className="font-mono text-xs text-emerald-400">{r.data.aranceles.reintegro}%</span>
-                          </div>
-                        )}
-
                         {r.data?.preferencias?.tiene_preferencia && (
                           <div className="px-3 py-2 bg-emerald-500/5 border border-emerald-500/15 rounded-xl">
-                            <p className="font-mono text-[10px] text-emerald-400/60 uppercase tracking-widest mb-0.5">Preferencia</p>
-                            <p className="font-body text-xs text-emerald-400">
+                            <p className="font-mono text-[10px] text-emerald-600/60 uppercase tracking-widest mb-0.5">Preferencia</p>
+                            <p className="font-body text-xs text-emerald-600">
                               {r.data.preferencias.acuerdos?.[0]?.bloque}
                             </p>
                           </div>
@@ -753,8 +665,8 @@ export default function ComparadorClient({ paises }) {
 
                         {(r.data?.organismos?.obligatorios?.length > 0) && (
                           <div className="px-3 py-2 bg-red-500/5 border border-red-500/15 rounded-xl">
-                            <p className="font-mono text-[10px] text-red-400/60 uppercase tracking-widest mb-1">Organismos obligatorios</p>
-                            <p className="font-body text-xs text-red-400">
+                            <p className="font-mono text-[10px] text-red-600/60 uppercase tracking-widest mb-1">Organismos obligatorios</p>
+                            <p className="font-body text-xs text-red-600">
                               {r.data.organismos.obligatorios.map(o => o.organismo).join(', ')}
                             </p>
                           </div>
@@ -762,9 +674,9 @@ export default function ComparadorClient({ paises }) {
 
                         {r.data?.warnings?.length > 0 && (
                           <div className="px-3 py-2 bg-amber-500/5 border border-amber-500/15 rounded-xl">
-                            <p className="font-mono text-[10px] text-amber-400/60 uppercase tracking-widest mb-1">Alertas</p>
+                            <p className="font-mono text-[10px] text-amber-600/60 uppercase tracking-widest mb-1">Alertas</p>
                             {r.data.warnings.map((w, i) => (
-                              <p key={i} className="font-body text-xs text-amber-400">{w}</p>
+                              <p key={i} className="font-body text-xs text-amber-600">{w}</p>
                             ))}
                           </div>
                         )}
@@ -777,7 +689,7 @@ export default function ComparadorClient({ paises }) {
 
             {/* ── Detalle colapsable por país ── */}
             <div className="space-y-2 mb-6">
-              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-on-surface-variant/40 mb-3">
+              <p className="font-body text-[10px] font-semibold tracking-widest uppercase text-ink-tertiary mb-3">
                 Detalle completo por país
               </p>
               {resultados.map(r => (
@@ -790,7 +702,7 @@ export default function ComparadorClient({ paises }) {
               ))}
             </div>
 
-            <p className="font-mono text-[10px] text-on-surface-variant/20 text-center leading-relaxed">
+            <p className="font-mono text-[10px] text-ink-tertiary text-center leading-relaxed">
               Datos: ARCA (aranceles importación ARG) · WITS/ITC 2024 (aranceles destino) · UNCTAD TRAINS (NTM).
               Esta información es orientativa y está respaldada por fuentes oficiales.
               Para operaciones concretas, consultá con un despachante de aduana matriculado

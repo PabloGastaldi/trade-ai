@@ -4,14 +4,6 @@ import { getMedioPago } from '@/lib/data/medios-pago'
 import styles from './detalle.module.css'
 
 const LABEL_ESTADOS = {
-  expo_preparacion:     'Preparación',
-  expo_documentacion:   'Documentación',
-  expo_docs_completos:  'Docs completos',
-  expo_oficializado:    'Oficializado',
-  expo_verificacion:    'Verificación',
-  expo_embarcado:       'Embarcado',
-  expo_cobro_pendiente: 'Cobro pendiente',
-  expo_cerrada:         'Cerrada',
   impo_orden_compra:    'Orden de compra',
   impo_en_transito:     'En tránsito',
   impo_arribada:        'Arribada',
@@ -36,7 +28,7 @@ export default function PrintView({ op, documentos, pais, timeline }) {
   return (
     <div className={styles.printOnly}>
       <h1>trade.ai — Detalle de operación</h1>
-      <p><strong>Tipo:</strong> {op.operation_type === 'exportacion' ? 'Exportación' : 'Importación'}</p>
+      <p><strong>Tipo:</strong> Importación</p>
       <p><strong>Producto:</strong> {op.product_description ?? '—'} | NCM: {op.ncm_code ?? '—'}</p>
       <p><strong>País:</strong> {pais?.name_es ?? op.counterpart_country ?? '—'}</p>
       <p><strong>Incoterm:</strong> {op.incoterm ?? '—'} | <strong>Valor:</strong> {op.total_value ? `${op.currency} ${op.total_value}` : '—'}</p>

@@ -92,7 +92,7 @@ function ChangeIndicator({ value, size = 'sm' }) {
     );
   }
   return (
-    <span className={`inline-flex items-center gap-0.5 ${sz} font-body ${pos ? 'text-emerald-400' : 'text-red-400'}`}>
+    <span className={`inline-flex items-center gap-0.5 ${sz} font-body ${pos ? 'text-emerald-600' : 'text-red-600'}`}>
       {pos ? <TrendingUp size={iconSz} /> : <TrendingDown size={iconSz} />}
       {fmtPct(value)}
     </span>
@@ -103,7 +103,7 @@ function ChangeIndicator({ value, size = 'sm' }) {
 
 function MarketCard({ title, icon: Icon, children, className = '' }) {
   return (
-    <div className={`bg-white/[0.03] border border-white/[0.04] rounded-2xl overflow-hidden ${className}`}>
+    <div className={`bg-surface-1 border border-hairline rounded-lg overflow-hidden ${className}`}>
       <div className="px-4 pt-4 pb-2 flex items-center gap-2">
         {Icon && <Icon size={14} strokeWidth={1.5} className="text-primary" />}
         <span className="font-body text-[10px] uppercase tracking-[0.15em] text-on-surface-variant">
@@ -121,7 +121,7 @@ function DolarRow({ label, data, highlight = false }) {
   if (!data) return null;
   return (
     <div
-      className={`flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0 ${
+      className={`flex items-center justify-between py-2.5 border-b border-hairline last:border-0 ${
         highlight ? 'bg-primary/[0.06] -mx-4 px-4 rounded-lg' : ''
       }`}
     >
@@ -147,7 +147,7 @@ function DolarRow({ label, data, highlight = false }) {
 function CommodityItem({ commodity }) {
   if (!commodity) return null;
   return (
-    <div className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+    <div className="flex items-center justify-between py-2.5 border-b border-hairline last:border-0">
       <div className="flex items-center gap-2">
         <span className="font-body text-sm text-on-surface">{commodity.displayName}</span>
         {commodity.unit && (
@@ -167,7 +167,7 @@ function CommodityItem({ commodity }) {
 function GrainRow({ grain }) {
   if (!grain) return null;
   return (
-    <div className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+    <div className="flex items-center justify-between py-2.5 border-b border-hairline last:border-0">
       <div className="flex items-center gap-2">
         <span className="font-body text-sm text-on-surface">{grain.name}</span>
         <span className="font-body text-[10px] text-on-surface-variant">{grain.unit}</span>
@@ -186,9 +186,9 @@ function StatBox({ label, value, unit, variant = 'default' }) {
   const colors = {
     default: 'text-on-surface',
     primary: 'text-primary',
-    success: 'text-emerald-400',
-    warning: 'text-amber-400',
-    error: 'text-red-400',
+    success: 'text-emerald-600',
+    warning: 'text-amber-600',
+    error: 'text-red-600',
   };
   return (
     <div className="flex flex-col gap-1 py-2">
@@ -206,12 +206,12 @@ function StatBox({ label, value, unit, variant = 'default' }) {
 // ── Skeletons ───────────────────────────────────────────────────────────────
 
 function Skeleton({ className = '' }) {
-  return <div className={`animate-pulse bg-white/[0.04] rounded-lg ${className}`} />;
+  return <div className={`animate-pulse bg-surface-high rounded-md ${className}`} />;
 }
 
 function CardSkeleton() {
   return (
-    <div className="bg-white/[0.03] border border-white/[0.04] rounded-2xl p-4 space-y-3">
+    <div className="bg-surface-1 border border-hairline rounded-lg p-4 space-y-3">
       <Skeleton className="h-3 w-24" />
       <Skeleton className="h-8 w-full" />
       <Skeleton className="h-8 w-full" />
@@ -239,8 +239,8 @@ export default function MercadosClient() {
     return (
       <PageLayout title="MERCADOS" subtitle="Error al cargar datos">
         <div className="flex flex-col items-center justify-center py-12">
-          <AlertCircle size={32} className="text-red-400 mb-4" />
-          <p className="font-mono text-xs text-red-400">{error}</p>
+          <AlertCircle size={32} className="text-red-600 mb-4" />
+          <p className="font-mono text-xs text-red-600">{error}</p>
           <button onClick={refresh} className="font-body text-sm text-primary hover:underline mt-4">
             Reintentar
           </button>
@@ -263,7 +263,7 @@ export default function MercadosClient() {
         <button
           onClick={refresh}
           disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.08]
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-high hover:bg-surface-2
                      text-on-surface-variant hover:text-on-surface transition-all duration-150
                      disabled:opacity-40 disabled:cursor-not-allowed font-body text-xs"
         >
@@ -289,7 +289,7 @@ export default function MercadosClient() {
             </div>
           </div>
           {(monedas?.eur || monedas?.brl) && (
-            <div className="mt-3 pt-3 border-t border-white/[0.04]">
+            <div className="mt-3 pt-3 border-t border-hairline">
               <span className="font-body text-[10px] uppercase tracking-[0.12em] text-on-surface-variant mb-2 block">
                 Monedas regionales
               </span>
@@ -360,7 +360,7 @@ export default function MercadosClient() {
         {/* Índices y Forex */}
         <MarketCard title="Índices y forex" icon={BarChart3}>
           {indices?.length > 0 && indices.map(idx => (
-            <div key={idx.symbol} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+            <div key={idx.symbol} className="flex items-center justify-between py-2.5 border-b border-hairline last:border-0">
               <span className="font-body text-sm text-on-surface">{idx.displayName}</span>
               <div className="flex items-center gap-3">
                 <span className="font-body text-sm text-on-surface">{fmtNum(idx.price, 0)}</span>
@@ -374,7 +374,7 @@ export default function MercadosClient() {
                 Forex
               </span>
               {forex.map(fx => (
-                <div key={fx.symbol} className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+                <div key={fx.symbol} className="flex items-center justify-between py-2.5 border-b border-hairline last:border-0">
                   <span className="font-body text-sm text-on-surface">{fx.displayName}</span>
                   <div className="flex items-center gap-3">
                     <span className="font-body text-sm text-on-surface">{fmtNum(fx.price, 4)}</span>
@@ -391,7 +391,7 @@ export default function MercadosClient() {
       </div>
 
       {/* Disclaimer */}
-      <div className="mt-6 px-4 py-3 bg-primary/[0.05] border border-primary/10 rounded-xl">
+      <div className="mt-6 px-4 py-3 bg-primary/[0.05] border border-primary/10 rounded-lg">
         <p className="font-body text-[11px] text-on-surface-variant leading-relaxed">
           Los datos provienen de fuentes públicas (DolarApi, ArgentinaDatos, Bolsa de Comercio de Rosario,
           Yahoo Finance) y pueden tener demoras de hasta 15 minutos. Esta información es orientativa y está
@@ -402,7 +402,7 @@ export default function MercadosClient() {
 
       {data?.latencyMs && (
         <div className="mt-2 text-right">
-          <span className="font-body text-[10px] text-on-surface-variant/40">API: {data.latencyMs}ms</span>
+          <span className="font-body text-[10px] text-ink-tertiary">API: {data.latencyMs}ms</span>
         </div>
       )}
     </PageLayout>

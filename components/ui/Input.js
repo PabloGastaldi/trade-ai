@@ -15,22 +15,22 @@ export default function Input({
       )}
       <input
         className={`
-          w-full bg-surface-highest rounded-xl px-4 py-3
-          font-mono text-sm text-on-surface placeholder:text-on-surface-variant/40
-          border outline-none transition-all duration-150
+          w-full bg-surface-1 rounded-md px-4 py-3
+          font-mono text-sm text-on-surface placeholder:text-ink-tertiary
+          border outline-none transition-colors duration-150
           ${error
-            ? 'border-red-500/50 focus:border-red-500'
-            : 'border-transparent focus:border-primary/40'
+            ? 'border-red-400 focus:border-red-500'
+            : 'border-hairline focus:border-on-surface'
           }
           ${className}
         `}
         {...props}
       />
       {hint && !error && (
-        <p className="mt-1 font-body text-[10px] text-on-surface-variant/60">{hint}</p>
+        <p className="mt-1 font-body text-[10px] text-ink-subtle">{hint}</p>
       )}
       {error && (
-        <p className="mt-1 font-body text-[10px] text-red-400">{error}</p>
+        <p className="mt-1 font-body text-[10px] text-red-600">{error}</p>
       )}
     </div>
   )

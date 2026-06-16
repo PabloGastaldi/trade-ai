@@ -11,7 +11,7 @@ export default function PageLayout({ title, subtitle, children }) {
           </p>
         )}
       </header>
-      <div className="h-px bg-white/[0.04] my-6" />
+      <div className="h-px bg-hairline my-6" />
       {children}
     </div>
   )

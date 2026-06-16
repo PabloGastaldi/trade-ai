@@ -1,58 +1,34 @@
 'use client'
 
-import { useRouter, usePathname } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { HelpCircle } from 'lucide-react'
 import './AppHeader.css'
 
-export default function AppHeader({ user }) {
-  const router = useRouter()
-  const pathname = usePathname()
-
-  async function handleLogout() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
-  }
-
-  const navItems = [
-    { label: 'Consulta',    labelMobile: 'IA',    href: '/consulta' },
-    { label: 'Catálogo',    labelMobile: 'Cat.',  href: '/catalogo' },
-    { label: 'Calculadora', labelMobile: 'Calc.', href: '/calculadora' },
-    { label: 'Operaciones', labelMobile: 'Ops.',  href: '/operaciones' },
-    { label: 'Mi cuenta',   labelMobile: 'Cuenta',href: '/cuenta' },
-  ]
-
+/**
+ * Topbar del app shell — crema con hairline inferior, breadcrumb a la
+ * izquierda y uso de plan + botón de ayuda a la derecha (ver
+ * reference-importar.html). No contiene navegación: la navegación vive en
+ * el Sidebar / MobileNav.
+ */
+export default function AppHeader({ section, page, planLabel, usageLabel }) {
   return (
     <header className="app-header">
       <div className="app-header-inner">
-        {/* Logo */}
-        <a href="/" className="app-logo">
-          <span className="app-logo-trade">trade</span>
-          <span className="app-logo-dot">.</span>
-          <span className="app-logo-ai">ai</span>
-          <span className="app-logo-badge">Beta</span>
-        </a>
+        <div className="app-header-crumbs">
+          {section && <span>{section}</span>}
+          {section && page && <span> · </span>}
+          {page && <b>{page}</b>}
+        </div>
 
-        {/* Nav */}
-        <nav className="app-nav">
-          {navItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className={`app-nav-link ${pathname === item.href ? 'active' : ''}`}
-            >
-              <span className="app-nav-label-full">{item.label}</span>
-              <span className="app-nav-label-mobile">{item.labelMobile}</span>
-            </a>
-          ))}
-        </nav>
-
-        {/* Right */}
         <div className="app-header-right">
-          <span className="app-user-email">{user?.email}</span>
-          <button className="app-btn-logout" onClick={handleLogout}>
-            Cerrar sesión
+          {(planLabel || usageLabel) && (
+            <span className="app-header-usage">
+              {planLabel}
+              {planLabel && usageLabel && ' · '}
+              {usageLabel}
+            </span>
+          )}
+          <button className="app-header-icon-btn" aria-label="Ayuda">
+            <HelpCircle size={17} strokeWidth={1.7} />
           </button>
         </div>
       </div>

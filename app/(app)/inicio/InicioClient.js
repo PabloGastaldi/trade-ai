@@ -33,8 +33,8 @@ function TickerSkeleton() {
     <div className="flex items-center gap-6">
       {Array.from({ length: 5 }).map((_, i) => (
         <div key={i} className="flex items-center gap-2">
-          <div className="h-2.5 w-14 bg-white/[0.06] rounded animate-pulse" />
-          <div className="h-3 w-16 bg-white/[0.06] rounded animate-pulse" />
+          <div className="h-2.5 w-14 bg-surface-high rounded animate-pulse" />
+          <div className="h-3 w-16 bg-surface-high rounded animate-pulse" />
         </div>
       ))}
     </div>
@@ -76,29 +76,29 @@ function MarketTicker() {
   ].filter(Boolean)
 
   return (
-    <div className="bg-white/[0.02] rounded-2xl px-6 py-4 max-w-5xl mx-auto w-full">
+    <div className="bg-surface-1 border border-hairline rounded-lg px-6 py-4 max-w-5xl mx-auto w-full">
       <div className="flex items-center gap-6 overflow-x-auto hide-scrollbar">
         {/* Badge live */}
         <div className="flex items-center gap-1.5 shrink-0">
           <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-[10px] font-body font-medium text-on-surface-variant/40 uppercase tracking-widest">Market</span>
+          <span className="text-[10px] font-body font-medium text-ink-tertiary uppercase tracking-widest">Market</span>
         </div>
-        <div className="w-px h-4 bg-white/[0.06] shrink-0" />
+        <div className="w-px h-4 bg-hairline shrink-0" />
 
         {loading
           ? <TickerSkeleton />
           : items.map((item, i) => (
             <div key={i} className="flex items-center gap-6 shrink-0">
               <div className="flex items-center gap-2 whitespace-nowrap">
-                <span className="text-[10px] text-on-surface-variant/40 font-body font-medium">{item.label}</span>
+                <span className="text-[10px] text-ink-tertiary font-body font-medium">{item.label}</span>
                 <span className="font-body text-sm font-semibold text-on-surface">{item.value}</span>
                 {item.change != null && (
-                  <span className={`text-[10px] font-body ${item.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span className={`text-[10px] font-body ${item.change >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     {item.change >= 0 ? '▲' : '▼'} {Math.abs(item.change).toFixed(2)}%
                   </span>
                 )}
               </div>
-              {i < items.length - 1 && <div className="w-px h-4 bg-white/[0.06] shrink-0" />}
+              {i < items.length - 1 && <div className="w-px h-4 bg-hairline shrink-0" />}
             </div>
           ))
         }
@@ -126,38 +126,6 @@ export default function InicioClient({ nombre }) {
   return (
     <div className="relative min-h-[calc(100vh-52px)] flex flex-col justify-center px-6 py-12">
 
-      {/* Orbes ambientales */}
-      <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
-        {/* Dot grid */}
-        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-
-        {/* Desktop orbe 1 — arriba derecha */}
-        <div className="absolute hidden md:block" style={{ width: '500px', height: '500px', top: '-150px', right: '-150px', animation: 'orbFloat1 22s ease-in-out infinite' }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(221,217,42,0.06)', filter: 'blur(90px)' }} />
-        </div>
-        {/* Desktop orbe 2 — medio izquierda */}
-        <div className="absolute hidden md:block" style={{ width: '420px', height: '420px', top: '25%', left: '-150px', animation: 'orbFloat2 28s ease-in-out infinite', animationDelay: '-8s' }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(221,217,42,0.04)', filter: 'blur(90px)' }} />
-        </div>
-        {/* Desktop orbe 3 — abajo izquierda */}
-        <div className="absolute hidden md:block" style={{ width: '480px', height: '480px', bottom: '-120px', left: '-120px', animation: 'orbFloat4 24s ease-in-out infinite', animationDelay: '-12s' }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(221,217,42,0.05)', filter: 'blur(90px)' }} />
-        </div>
-        {/* Desktop orbe 4 — abajo derecha */}
-        <div className="absolute hidden md:block" style={{ width: '300px', height: '300px', bottom: '5%', right: '15%', animation: 'orbFloat3 18s ease-in-out infinite', animationDelay: '-4s' }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(255,255,255,0.02)', filter: 'blur(70px)' }} />
-        </div>
-
-        {/* Mobile orbe 1 — arriba derecha */}
-        <div className="absolute md:hidden" style={{ width: '300px', height: '300px', top: '-80px', right: '-80px', animation: 'orbFloat1 20s ease-in-out infinite' }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(221,217,42,0.05)', filter: 'blur(70px)' }} />
-        </div>
-        {/* Mobile orbe 2 — abajo izquierda */}
-        <div className="absolute md:hidden" style={{ width: '260px', height: '260px', bottom: '20%', left: '-80px', animation: 'orbFloat2 26s ease-in-out infinite', animationDelay: '-6s' }}>
-          <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(221,217,42,0.03)', filter: 'blur(70px)' }} />
-        </div>
-      </div>
-
       {/* SECCIÓN 1: Hero */}
       <div
         className="relative max-w-4xl mx-auto w-full"
@@ -165,14 +133,14 @@ export default function InicioClient({ nombre }) {
       >
 
         {/* Bienvenida decorativa */}
-        <p className="text-center font-body text-sm text-on-surface-variant/30 mb-4">
+        <p className="text-center font-body text-sm text-ink-tertiary mb-4">
           {firstName ? `Bienvenido al centro de operaciones, ${firstName}` : 'Bienvenido al centro de operaciones'}
         </p>
 
         {/* Título hero */}
         <h1 className="font-body text-4xl md:text-6xl font-bold tracking-tight leading-[1.1] text-center max-w-3xl mx-auto mb-10">
           <span className="text-on-surface">¿Cómo podemos ayudarte con tu </span>
-          <span style={{ background: 'linear-gradient(90deg, #DDD92A, rgba(245,245,245,0.6))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+          <span className="text-primary">
             operación hoy?
           </span>
         </h1>
@@ -180,8 +148,7 @@ export default function InicioClient({ nombre }) {
         {/* Barra de chat */}
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
           <div
-            className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-1.5 flex items-center transition-all duration-300 focus-within:border-primary/30"
-            style={{ focusWithinBoxShadow: '0 0 40px -10px rgba(221,217,42,0.12)' }}
+            className="bg-surface-1 border border-hairline rounded-lg p-1.5 flex items-center transition-all duration-300 focus-within:border-primary/30"
           >
             <Sparkles size={18} className="ml-3 text-primary/60 shrink-0" />
             <input
@@ -189,11 +156,11 @@ export default function InicioClient({ nombre }) {
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Preguntale a la IA: ¿Cuál es el arancel para...?"
-              className="bg-transparent border-none outline-none flex-1 px-3 py-3 text-sm font-body text-on-surface placeholder:text-on-surface-variant/30"
+              className="bg-transparent border-none outline-none flex-1 px-3 py-3 text-sm font-body text-on-surface placeholder:text-ink-tertiary"
             />
             <button
               type="submit"
-              className="bg-primary text-on-primary p-2.5 rounded-xl hover:scale-105 active:scale-95 transition-transform shrink-0"
+              className="bg-primary text-on-primary p-2.5 rounded-md hover:scale-105 active:scale-95 transition-transform shrink-0"
               aria-label="Enviar consulta"
             >
               <ArrowRight size={18} />
@@ -215,12 +182,12 @@ export default function InicioClient({ nombre }) {
             <tool.Icon
               size={32}
               strokeWidth={1.5}
-              className="text-on-surface-variant/30 group-hover:text-primary group-hover:scale-110 transition-all duration-300 shrink-0 mt-0.5"
+              className="text-ink-tertiary group-hover:text-primary group-hover:scale-110 transition-all duration-300 shrink-0 mt-0.5"
             />
 
             <div>
               <h3 className="text-xl font-semibold tracking-tight text-on-surface mb-1.5">{tool.name}</h3>
-              <p className="text-sm text-on-surface-variant/60 leading-snug max-w-[240px]">{tool.description}</p>
+              <p className="text-sm text-ink-subtle leading-snug max-w-[240px]">{tool.description}</p>
               <div className="mt-2.5 flex items-center gap-1.5 text-[10px] font-bold text-primary tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 {tool.cta}
                 <ChevronRight size={12} />

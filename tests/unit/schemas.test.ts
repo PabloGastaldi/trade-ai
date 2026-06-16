@@ -200,15 +200,15 @@ describe('formatearPreferencias', () => {
         {
           acuerdo: 'ACE-58',
           pais: 'Perú',
-          tipo: 'exportacion',
-          descripcion: 'Argentina otorga preferencia arancelaria a Perú bajo el acuerdo ACE-58.',
+          tipo: 'importacion',
+          descripcion: 'Perú — preferencia 100% bajo ACE-58 (ALADI)',
         },
       ],
       acuerdos_cobertura_total: [],
     })
     expect(resultado).toContain('ACE-58')
     expect(resultado).toContain('Perú')
-    expect(resultado).toContain('Argentina otorga preferencia')
+    expect(resultado).toContain('Preferencias de importación')
   })
 
   it('formatea acuerdos de cobertura total (TLC)', () => {
@@ -235,7 +235,7 @@ describe('formatearPreferencias', () => {
       ncm_code: '0402.10.10',
       tiene_preferencias: true,
       preferencias_especificas: [
-        { acuerdo: 'ACE-6', pais: 'México', tipo: 'exportacion', descripcion: '...' },
+        { acuerdo: 'ACE-6', pais: 'México', tipo: 'importacion', descripcion: '...' },
       ],
       acuerdos_cobertura_total: [],
     })

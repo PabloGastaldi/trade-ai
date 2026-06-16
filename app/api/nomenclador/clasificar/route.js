@@ -212,15 +212,14 @@ ${listaNCM}`
         const ncm_exacto = dbMap.get(c.codigo_ncm) ?? null
         const codigoAranceles = ncm_exacto?.codigo_ncm ?? null
         let aranceles_impo = null
-        let aranceles_expo = null
 
         if (codigoAranceles) {
-          const [impo, expo] = await Promise.all([
-            supabase.from('aranceles_importacion').select('die, te, iva').eq('codigo_ncm', codigoAranceles).single(),
-            supabase.from('aranceles_exportacion').select('derecho_exportacion, reintegro').eq('codigo_ncm', codigoAranceles).single(),
-          ])
-          aranceles_impo = impo.data ?? null
-          aranceles_expo = expo.data ?? null
+          const { data } = await supabase
+            .from('aranceles_importacion')
+            .select('die, te, iva')
+            .eq('codigo_ncm', codigoAranceles)
+            .single()
+          aranceles_impo = data ?? null
         }
 
         return {
@@ -230,7 +229,6 @@ ${listaNCM}`
           ncm_exacto,
           similares: null,
           aranceles_impo,
-          aranceles_expo,
         }
       })
     )

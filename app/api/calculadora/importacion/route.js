@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { calcularImportacion } from '@/lib/calculadora/calc-importacion'
-import { verificarLimiteCalc, registrarCalc } from '@/lib/calc-limit'
+import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
 
 export async function POST(request) {
   const supabaseUser = await createClient()
@@ -11,7 +11,7 @@ export async function POST(request) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
   }
 
-  const { permitido, motivo, limitAlcanzado } = await verificarLimiteCalc(supabaseUser, user.id)
+  const { permitido, motivo, limitAlcanzado } = await verificarLimite(supabaseUser, user.id, 'calculadora')
   if (!permitido) {
     return NextResponse.json({ error: motivo, limitAlcanzado }, { status: 403 })
   }
@@ -59,7 +59,7 @@ export async function POST(request) {
     if (resultado.error) {
       return NextResponse.json({ ok: false, error: resultado.error }, { status: 400 })
     }
-    await registrarCalc(supabaseUser, user.id)
+    await registrarUso(supabaseUser, user.id, 'calculadora')
     return NextResponse.json({ ok: true, data: resultado })
   } catch (err) {
     return NextResponse.json({ ok: false, error: err.message ?? 'Error de cálculo' }, { status: 400 })
