@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { calcularImportacion } from '@/lib/calculadora/calc-importacion'
+import { estimarLogistica } from '@/lib/calculadora/estimar-logistica'
 import { verificarLimite, registrarUso } from '@/lib/usage-limiter'
 
 export async function POST(request) {
@@ -32,6 +33,7 @@ export async function POST(request) {
     condicion_iva = 'responsable_inscripto',
     regimen = null,
     peso_kg = null,
+    modo = 'maritimo',
   } = body
 
   if (!ncm_code) return NextResponse.json({ error: 'ncm_code requerido' }, { status: 400 })
@@ -55,12 +57,26 @@ export async function POST(request) {
       condicion_iva,
       regimen,
       peso_kg,
+      modo,
     })
     if (resultado.error) {
       return NextResponse.json({ ok: false, error: resultado.error }, { status: 400 })
     }
+
+    // Logística post-CIF: estimación de plaza, swappable a futuro por cotización en vivo.
+    // Se omite con seguridad si falta valores_base (ej. error inesperado del motor).
+    let logistica = null
+    if (resultado.valores_base) {
+      logistica = estimarLogistica({
+        fob: valor_fob,
+        cif: resultado.valores_base.cif,
+        peso_kg,
+        modo,
+      })
+    }
+
     await registrarUso(supabaseUser, user.id, 'calculadora')
-    return NextResponse.json({ ok: true, data: resultado })
+    return NextResponse.json({ ok: true, data: { ...resultado, logistica } })
   } catch (err) {
     return NextResponse.json({ ok: false, error: err.message ?? 'Error de cálculo' }, { status: 400 })
   }

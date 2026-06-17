@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { CheckCircle2, AlertTriangle, FileText, Building2, TrendingDown, Plus, ArrowRight, Loader2, Copy } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, FileText, Building2, TrendingDown, Plus, ArrowRight, Loader2, Copy, Wallet, Clock, Ship, Plane, Truck, Receipt } from 'lucide-react'
 import { formatearNCMDisplay } from '@/lib/ncm-lookup'
 import CopilotRail from './CopilotRail'
 
@@ -14,6 +14,204 @@ const DISCLAIMER =
 function usd(n) {
   if (n === null || n === undefined || Number.isNaN(Number(n))) return '—'
   return `USD ${Math.round(Number(n)).toLocaleString('es-AR')}`
+}
+
+// Descarta valores vacíos o el string literal "nan" que llega de la DB.
+function valido(texto) {
+  return typeof texto === 'string' && texto.trim() !== '' && texto.trim().toLowerCase() !== 'nan'
+}
+
+// Plazos de recupero estimados por tributo — "plazo típico", no garantía.
+const PLAZOS_RECUPERO = {
+  iva: '1-3 meses',
+  iva_adicional: '2-6 meses',
+  percepcion_ganancias: '12-24 meses',
+  ingresos_brutos: '6-18 meses',
+}
+
+const LABELS_TRIBUTO = {
+  iva: 'IVA',
+  iva_adicional: 'IVA Adicional',
+  percepcion_ganancias: 'Percepción Ganancias',
+  ingresos_brutos: 'Percepción IIBB',
+}
+
+/**
+ * EntendeTusCostos — separa el costo total en tres baldes: producto (FOB),
+ * costo de importación no recuperable (DI + TE + flete + seguro + logística), y
+ * crédito fiscal recuperable (IVA + IVA Ad. + Ganancias + IIBB) con plazo estimado.
+ *
+ * La logística estimada (gastos portuarios, despachante, flete interno, bancarios)
+ * es costo real hundido — entra en el balde no recuperable.
+ *
+ * Se oculta sin romper si falta `desglose` (ej. resultado de régimen courier).
+ */
+function EntendeTusCostos({ desglose, valoresBase, logistica }) {
+  if (!desglose || !valoresBase) return null
+
+  const fob = Number(valoresBase.fob) || 0
+  const flete = Number(valoresBase.flete) || 0
+  const seguro = Number(valoresBase.seguro) || 0
+  const logisticaTotal = Number(logistica?.total) || 0
+
+  const derecho = desglose.derecho_importacion?.monto ?? 0
+  const tasaEst = desglose.tasa_estadistica?.monto ?? 0
+  const costoNoRecuperable = derecho + tasaEst + flete + seguro + logisticaTotal
+
+  const tributosRecuperables = ['iva', 'iva_adicional', 'percepcion_ganancias', 'ingresos_brutos']
+    .map(key => ({ key, monto: desglose[key]?.monto ?? 0 }))
+    .filter(t => t.monto > 0)
+  const creditoFiscal = tributosRecuperables.reduce((acc, t) => acc + t.monto, 0)
+
+  const costoReal = fob + costoNoRecuperable
+
+  return (
+    <div className="report-card report-card-1b bg-surface-1 border border-hairline rounded-lg p-6 mb-3">
+      <p className="font-body text-sm font-medium text-on-surface mb-4 flex items-center gap-2">
+        <Wallet size={16} className="text-on-surface-variant" /> Entendé tus costos
+      </p>
+
+      {/* Costo real — resaltado, es lo que no vuelve */}
+      <div className="px-4 py-3 bg-surface-2 rounded-md mb-3">
+        <p className="font-body text-xs text-on-surface-variant mb-1">Costo real (no recuperable)</p>
+        <p className="font-mono text-2xl text-on-surface tabular">{usd(costoReal)}</p>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 font-body text-xs text-on-surface-variant">
+          <span>Producto (FOB) <span className="font-mono text-on-surface">{usd(fob)}</span></span>
+          <span>Importación + logística <span className="font-mono text-on-surface">{usd(costoNoRecuperable)}</span></span>
+        </div>
+      </div>
+
+      {/* Crédito fiscal recuperable — desglosado por tributo con plazo */}
+      {tributosRecuperables.length > 0 && (
+        <div>
+          <p className="font-body text-xs text-on-surface-variant mb-2">
+            Crédito fiscal recuperable <span className="font-mono text-on-surface">{usd(creditoFiscal)}</span>
+          </p>
+          <ul className="space-y-1.5">
+            {tributosRecuperables.map(t => (
+              <li key={t.key} className="flex items-center justify-between gap-3 font-body text-sm text-on-surface-variant">
+                <span className="flex items-center gap-1.5">
+                  <Clock size={12} className="text-ink-tertiary shrink-0" />
+                  {LABELS_TRIBUTO[t.key]}
+                  <span className="text-ink-subtle">· plazo típico estimado {PLAZOS_RECUPERO[t.key]}</span>
+                </span>
+                <span className="font-mono text-on-surface shrink-0">{usd(t.monto)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <p className="font-body text-[11px] text-ink-subtle leading-relaxed mt-4">
+        {logistica
+          ? 'Incluye gastos portuarios, despachante, flete interno y gastos bancarios estimados — ver el desglose de logística más abajo.'
+          : 'No incluye gastos portuarios ni de despachante — los sumamos en una mejora siguiente.'}
+      </p>
+    </div>
+  )
+}
+
+/**
+ * LogisticaCard — desglose de costos logísticos post-CIF: flete + seguro internacional
+ * (ya parte del CIF) más los ítems estimados (portuarios, despachante, flete interno,
+ * bancarios). Estimación de plaza — un proveedor podrá cotizarla en vivo a futuro.
+ *
+ * Se oculta sin romper si no llega `logistica` (ej. la API no la calculó).
+ */
+function LogisticaCard({ logistica, fleteSeguro, fleteEstimado }) {
+  if (!logistica || !Array.isArray(logistica.items)) return null
+
+  return (
+    <div className="report-card report-card-1c bg-surface-1 border border-hairline rounded-lg p-6 mb-3">
+      <p className="font-body text-sm font-medium text-on-surface mb-4 flex items-center gap-2">
+        <Truck size={16} className="text-on-surface-variant" /> + Logística
+      </p>
+
+      <ul className="space-y-1.5 mb-3">
+        {fleteSeguro !== null && (
+          <li className="flex items-center justify-between gap-3 font-body text-sm text-on-surface-variant">
+            <span className="flex items-center gap-1.5">
+              Flete + seguro internacional
+              {fleteEstimado && (
+                <span className="inline-flex items-center rounded-sm bg-surface-2 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-ink-subtle">
+                  estimado
+                </span>
+              )}
+            </span>
+            <span className="font-mono text-on-surface shrink-0">{usd(fleteSeguro)}</span>
+          </li>
+        )}
+        {logistica.items.map(item => (
+          <li key={item.key} className="flex items-start justify-between gap-3 font-body text-sm text-on-surface-variant">
+            <span>
+              {item.label}
+              <span className="ml-1.5 inline-flex items-center rounded-sm bg-surface-2 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-ink-subtle">
+                estimado
+              </span>
+              {item.detalle && <span className="block text-ink-subtle mt-0.5">{item.detalle}</span>}
+            </span>
+            <span className="font-mono text-on-surface shrink-0">{usd(item.monto)}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="flex items-center justify-between px-4 py-2.5 bg-surface-2 rounded-md">
+        <span className="font-body text-xs text-on-surface-variant">Total logística (estimado)</span>
+        <span className="font-mono text-sm text-on-surface">{usd(logistica.total)}</span>
+      </div>
+
+      <p className="font-body text-[11px] text-ink-subtle leading-relaxed mt-3">
+        Logística estimada — un proveedor podrá cotizarla en vivo.
+      </p>
+    </div>
+  )
+}
+
+// Filas del desglose de tributos, en orden de presentación.
+const FILAS_TRIBUTOS = [
+  ['derecho_importacion', 'Derecho de importación (DI)'],
+  ['tasa_estadistica', 'Tasa estadística (TE)'],
+  ['iva', 'IVA'],
+  ['iva_adicional', 'IVA adicional'],
+  ['percepcion_ganancias', 'Percepción Ganancias'],
+  ['ingresos_brutos', 'Percepción IIBB'],
+]
+
+/**
+ * TributosCard — desglose por tributo (alícuota + monto) en filas legibles.
+ * Lee calc.regimenes.general.desglose. Se oculta sin romper si no hay datos.
+ */
+function TributosCard({ desglose, total }) {
+  if (!desglose) return null
+  const filas = FILAS_TRIBUTOS
+    .map(([key, label]) => ({ label, alicuota: desglose[key]?.alicuota, monto: desglose[key]?.monto ?? 0 }))
+    .filter(f => f.monto > 0)
+  if (filas.length === 0) return null
+
+  return (
+    <div className="report-card report-card-1d bg-surface-1 border border-hairline rounded-lg p-6 mb-3">
+      <p className="font-body text-sm font-medium text-on-surface mb-4 flex items-center gap-2">
+        <Receipt size={16} className="text-on-surface-variant" /> Impuestos y tasas
+      </p>
+      <ul className="divide-y divide-hairline-soft">
+        {filas.map(f => (
+          <li key={f.label} className="flex items-center justify-between gap-3 py-2.5 font-body text-sm text-on-surface">
+            <span>
+              {f.label}
+              {f.alicuota != null && <span className="text-ink-tertiary"> · {f.alicuota}%</span>}
+            </span>
+            <span className="font-mono text-sm text-on-surface shrink-0">{usd(f.monto)}</span>
+          </li>
+        ))}
+      </ul>
+      {total != null && (
+        <div className="flex items-center justify-between pt-3 mt-1 border-t border-hairline">
+          <span className="font-body text-sm font-medium text-on-surface">Total impuestos</span>
+          <span className="font-mono text-sm font-medium text-on-surface">{usd(total)}</span>
+        </div>
+      )}
+    </div>
+  )
 }
 
 /**
@@ -132,7 +330,13 @@ export default function ImportReport({ report, paises = [], onReset }) {
 
   const general = calc?.regimenes?.general ?? null
   const base = calc?.valores_base ?? {}
-  const costoTotal = general?.costo_total ?? null
+  const logistica = calc?.logistica ?? null
+  const fleteEstimado = base.flete_estimado ?? false
+  const costoSinLogistica = general?.costo_total ?? null
+  // Costo total puesto en Argentina = CIF + tributos + logística estimada.
+  const costoTotal = costoSinLogistica !== null
+    ? costoSinLogistica + (Number(logistica?.total) || 0)
+    : null
   const tributos = general?.total_tributos ?? null
   const fob = base.fob ?? Number(meta.valor) ?? 0
   const cif = base.cif ?? null
@@ -143,6 +347,7 @@ export default function ImportReport({ report, paises = [], onReset }) {
   const docsCriticos = sim?.documentos?.criticos ?? []
   const docsImportantes = sim?.documentos?.importantes ?? []
   const prefs = sim?.preferencias ?? {}
+  const desglose = general?.desglose ?? null
 
   return (
     /*
@@ -166,6 +371,13 @@ export default function ImportReport({ report, paises = [], onReset }) {
           </span>
         </div>
 
+        {/* Referencia de tránsito — estático, el flujo todavía no captura el modo */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-6 font-body text-xs text-ink-subtle">
+          <span className="flex items-center gap-1.5"><Ship size={13} /> Marítimo <span className="font-mono">30-45 días</span></span>
+          <span className="flex items-center gap-1.5"><Plane size={13} /> Aéreo <span className="font-mono">7-12 días</span></span>
+          <span className="text-ink-tertiary">· referencia de tránsito, no calculada para esta importación</span>
+        </div>
+
         {/* 1. ¿Cuánto me sale? — tarjeta con revelado escalonado */}
         <div className="report-card report-card-1 bg-surface-1 border border-hairline rounded-lg p-6 mb-3">
           <CostHero
@@ -175,6 +387,15 @@ export default function ImportReport({ report, paises = [], onReset }) {
             tributos={tributos}
           />
         </div>
+
+        {/* 1b. Entendé tus costos — separa costo real de crédito fiscal recuperable */}
+        <EntendeTusCostos desglose={desglose} valoresBase={base} logistica={logistica} />
+
+        {/* 1c. + Logística — flete/seguro internacional + ítems estimados post-CIF */}
+        <LogisticaCard logistica={logistica} fleteSeguro={fleteSeguro} fleteEstimado={fleteEstimado} />
+
+        {/* 1d. Impuestos y tasas — desglose por tributo, legible */}
+        <TributosCard desglose={desglose} total={tributos} />
 
         {/* 2. ¿Qué necesito? */}
         <div className="report-card report-card-2 bg-surface-1 border border-hairline rounded-lg p-6 mb-3">
@@ -187,10 +408,23 @@ export default function ImportReport({ report, paises = [], onReset }) {
               <CheckCircle2 size={15} /> Podés importar este producto
             </p>
             {organismos.length > 0 && (
-              <p className="flex items-start gap-2 font-body text-sm text-amber-600">
+              <div className="flex items-start gap-2 font-body text-sm text-amber-600">
                 <Building2 size={15} className="mt-0.5 shrink-0" />
-                Interviene {organismos.map(o => o.organismo).join(', ')}
-              </p>
+                <span>
+                  Interviene {organismos.map(o => o.organismo).join(', ')}
+                  {organismos.some(o => valido(o.base_legal) || valido(o.notas)) && (
+                    <span className="block mt-1 font-body text-xs text-ink-subtle">
+                      {organismos.filter(o => valido(o.base_legal) || valido(o.notas)).map((o, i) => (
+                        <span key={i} className="block">
+                          {o.organismo}
+                          {valido(o.notas) && <> — {o.notas}</>}
+                          {valido(o.base_legal) && <> (<span className="font-mono">{o.base_legal}</span>)</>}
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                </span>
+              </div>
             )}
             {restricciones.map((r, i) => (
               <p key={i} className="flex items-start gap-2 font-body text-sm text-red-600">
@@ -205,13 +439,29 @@ export default function ImportReport({ report, paises = [], onReset }) {
               <p className="font-body text-[11px] uppercase tracking-widest text-ink-subtle mb-2">Documentación</p>
               <ul className="space-y-1.5">
                 {docsCriticos.map((d, i) => (
-                  <li key={`c${i}`} className="flex items-center gap-2 font-body text-xs text-on-surface-variant">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500/60 shrink-0" /> {d.documento_nombre}
+                  <li key={`c${i}`} className="font-body text-xs text-on-surface-variant">
+                    <span className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500/60 shrink-0" /> {d.documento_nombre}
+                    </span>
+                    {(valido(d.notas) || valido(d.base_legal)) && (
+                      <span className="block ml-3.5 mt-0.5 text-ink-subtle">
+                        {valido(d.notas) && <>{d.notas}</>}
+                        {valido(d.base_legal) && <> (<span className="font-mono">{d.base_legal}</span>)</>}
+                      </span>
+                    )}
                   </li>
                 ))}
                 {docsImportantes.map((d, i) => (
-                  <li key={`i${i}`} className="flex items-center gap-2 font-body text-xs text-on-surface-variant">
-                    <span className="w-1.5 h-1.5 rounded-full bg-ink-tertiary/40 shrink-0" /> {d.documento_nombre}
+                  <li key={`i${i}`} className="font-body text-xs text-on-surface-variant">
+                    <span className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-ink-tertiary/40 shrink-0" /> {d.documento_nombre}
+                    </span>
+                    {(valido(d.notas) || valido(d.base_legal)) && (
+                      <span className="block ml-3.5 mt-0.5 text-ink-subtle">
+                        {valido(d.notas) && <>{d.notas}</>}
+                        {valido(d.base_legal) && <> (<span className="font-mono">{d.base_legal}</span>)</>}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

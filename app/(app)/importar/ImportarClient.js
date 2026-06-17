@@ -11,7 +11,7 @@ const PAISES_FRECUENTES = ['CHN', 'BRA', 'USA', 'DEU', 'ITA', 'ESP', 'MEX', 'IND
 
 const PASOS = ['Producto', 'Origen', 'Costo']
 
-const FORM_VACIO = { ncm: '', ncmDescripcion: '', origen: '', origenNombre: '', valor: '', flete: '' }
+const FORM_VACIO = { ncm: '', ncmDescripcion: '', origen: '', origenNombre: '', valor: '', flete: '', peso: '', modo: 'maritimo' }
 
 // Determina la clase de animación según la dirección de navegación.
 // Respeta prefers-reduced-motion leyendo el media query en JS.
@@ -74,6 +74,8 @@ export default function ImportarClient({ paises }) {
             flete_internacional: Number(d.flete) || 0,
             pais_origen: d.origen,
             condicion_iva: 'responsable_inscripto',
+            ...(d.peso ? { peso_kg: Number(d.peso) } : {}),
+            modo: d.modo ?? 'maritimo',
           }),
         }),
       ])
@@ -283,15 +285,14 @@ function ProductStep({ onSelect }) {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="font-body text-sm text-on-surface block">{titulo}</span>
+                    <span className="font-body text-[11px] uppercase tracking-wide text-ink-tertiary block">NCM</span>
+                    <span className="font-mono text-lg font-medium text-on-surface block leading-tight">{formatearNCMDisplay(c.codigo_ncm)}</span>
+                    <span className="font-body text-sm text-on-surface mt-1.5 block">{titulo}</span>
                     {detalle && (
                       <span className="font-body text-xs text-on-surface-variant mt-0.5 block">{detalle}</span>
                     )}
-                    <span className="font-mono text-[11px] text-ink-tertiary mt-1 block">
-                      NCM {formatearNCMDisplay(c.codigo_ncm)}
-                    </span>
                   </div>
-                  <ArrowRight size={16} className="text-ink-tertiary group-hover:text-on-surface shrink-0 transition-colors mt-0.5" />
+                  <ArrowRight size={16} className="text-ink-tertiary group-hover:text-on-surface shrink-0 transition-colors mt-1" />
                 </div>
               </button>
             )
@@ -350,6 +351,11 @@ function OriginStep({ paises, onSelect }) {
   )
 }
 
+const MODOS_ENVIO = [
+  { key: 'maritimo', label: 'Marítimo' },
+  { key: 'aereo',    label: 'Aéreo' },
+]
+
 function ValueStep({ data, patch, onSubmit, generando, error }) {
   const valido = Number(data.valor) > 0
 
@@ -377,6 +383,45 @@ function ValueStep({ data, patch, onSubmit, generando, error }) {
             className="w-full bg-surface-1 border border-hairline rounded-md px-4 py-3 font-mono text-sm text-on-surface placeholder:text-ink-tertiary focus:border-on-surface outline-none transition-colors"
           />
         </div>
+
+        <div>
+          <label className="block font-body text-xs text-on-surface-variant mb-1.5">
+            Modo de envío
+          </label>
+          <div className="flex gap-2">
+            {MODOS_ENVIO.map(m => (
+              <button
+                key={m.key}
+                type="button"
+                onClick={() => patch({ modo: m.key })}
+                className={`flex-1 py-2.5 rounded-md font-body text-sm border transition-colors cursor-pointer ${
+                  data.modo === m.key
+                    ? 'bg-surface-highest border-on-surface text-on-surface font-medium'
+                    : 'bg-surface-1 border-hairline text-on-surface-variant hover:border-ink-tertiary'
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block font-body text-xs text-on-surface-variant mb-1.5">
+            Peso total (kg) <span className="text-ink-tertiary">— opcional</span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="0.1"
+            inputMode="decimal"
+            value={data.peso}
+            onChange={e => patch({ peso: e.target.value })}
+            placeholder="Si no lo sabés, lo estimamos"
+            className="w-full bg-surface-1 border border-hairline rounded-md px-4 py-3 font-mono text-sm text-on-surface placeholder:text-ink-tertiary focus:border-on-surface outline-none transition-colors"
+          />
+        </div>
+
         <div>
           <label className="block font-body text-xs text-on-surface-variant mb-1.5">
             Flete internacional (USD) <span className="text-ink-tertiary">— opcional</span>
@@ -388,7 +433,7 @@ function ValueStep({ data, patch, onSubmit, generando, error }) {
             inputMode="decimal"
             value={data.flete}
             onChange={e => patch({ flete: e.target.value })}
-            placeholder="Si no lo sabés, lo estimamos"
+            placeholder="Si ya lo sabés, ingresalo acá"
             className="w-full bg-surface-1 border border-hairline rounded-md px-4 py-3 font-mono text-sm text-on-surface placeholder:text-ink-tertiary focus:border-on-surface outline-none transition-colors"
           />
         </div>
