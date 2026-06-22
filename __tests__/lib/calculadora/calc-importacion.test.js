@@ -145,8 +145,24 @@ describe('Courier Comercial', () => {
   })
 })
 
-describe('Courier — flete FedEx puerta a puerta', () => {
-  it('USA (zona C) 5 kg → flete ≈ USD 672.80 e incluido en el costo total', async () => {
+describe('Courier — flete consolidador puerta a puerta', () => {
+  it('China 20 kg → flete = USD 500 (25/kg, ref AeroBox) incluido en el total', async () => {
+    const result = await calcularImportacion(makeSupabase(), {
+      ...BASE_PARAMS,
+      pais_origen_iso3: 'CHN',
+      valor_fob: 2300,
+      peso_kg: 20,
+      regimen: 'courier_comercial',
+    })
+    expect(result.valores_base.flete).toBeCloseTo(500, 1)   // 25/kg × 20
+    const { cif } = result.valores_base
+    const { costo_total, total_tributos } = result.resultado
+    // El total ahora es CIF + tributos (el envío entra en el total)
+    expect(costo_total).toBeCloseTo(cif + total_tributos, 1)
+    expect(costo_total).toBeGreaterThan(2300 + total_tributos)
+  })
+
+  it('origen sin tarifa propia (USA) → usa el default 25/kg', async () => {
     const result = await calcularImportacion(makeSupabase(), {
       ...BASE_PARAMS,
       pais_origen_iso3: 'USA',
@@ -154,24 +170,7 @@ describe('Courier — flete FedEx puerta a puerta', () => {
       peso_kg: 5,
       regimen: 'courier_comercial',
     })
-    expect(result.valores_base.flete).toBeCloseTo(672.8, 1)
-    const { cif } = result.valores_base
-    const { costo_total, total_tributos } = result.resultado
-    // El total ahora es CIF + tributos (el envío entra en el total)
-    expect(costo_total).toBeCloseTo(cif + total_tributos, 1)
-    // y supera FOB + tributos (antes el envío quedaba afuera)
-    expect(costo_total).toBeGreaterThan(1000 + total_tributos)
-  })
-
-  it('China (zona G) 10 kg → flete ≈ USD 1.321.40 (tabla real)', async () => {
-    const result = await calcularImportacion(makeSupabase(), {
-      ...BASE_PARAMS,
-      pais_origen_iso3: 'CHN',
-      valor_fob: 1500,
-      peso_kg: 10,
-      regimen: 'courier_comercial',
-    })
-    expect(result.valores_base.flete).toBeCloseTo(1321.4, 1)
+    expect(result.valores_base.flete).toBeCloseTo(125, 1)   // 25/kg × 5
   })
 
   it('sin peso → estima con peso default y deja nota', async () => {
@@ -181,20 +180,9 @@ describe('Courier — flete FedEx puerta a puerta', () => {
       valor_fob: 800,
       regimen: 'courier_personal',
     })
-    expect(result.valores_base.flete).toBeGreaterThan(0)
+    expect(result.valores_base.flete).toBeCloseTo(75, 1)    // 25/kg × 3 (default)
     expect(result.valores_base.flete_estimado).toBe(true)
     expect(result.notas.some(n => n.toLowerCase().includes('courier'))).toBe(true)
-  })
-
-  it('origen no mapeado → cae a zona default sin romper', async () => {
-    const result = await calcularImportacion(makeSupabase(), {
-      ...BASE_PARAMS,
-      pais_origen_iso3: 'ZZZ',
-      valor_fob: 500,
-      peso_kg: 2,
-      regimen: 'courier_personal',
-    })
-    expect(result.valores_base.flete).toBeGreaterThan(0)
   })
 })
 
