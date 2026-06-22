@@ -11,7 +11,7 @@ const PAISES_FRECUENTES = ['CHN', 'BRA', 'USA', 'DEU', 'ITA', 'ESP', 'MEX', 'IND
 
 const PASOS = ['Producto', 'Origen', 'Costo']
 
-const FORM_VACIO = { ncm: '', ncmDescripcion: '', origen: '', origenNombre: '', valor: '', flete: '', peso: '', modo: 'maritimo' }
+const FORM_VACIO = { ncm: '', ncmDescripcion: '', origen: '', origenNombre: '', valor: '', flete: '', peso: '', modo: 'maritimo', regimen: 'courier_personal' }
 
 // Determina la clase de animación según la dirección de navegación.
 // Respeta prefers-reduced-motion leyendo el media query en JS.
@@ -63,7 +63,7 @@ export default function ImportarClient({ paises }) {
         fetch('/api/simulador', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ codigo_ncm: d.ncm, pais_iso3: d.origen, regimen: 'general' }),
+          body: JSON.stringify({ codigo_ncm: d.ncm, pais_iso3: d.origen, regimen: mapSimulador(d.regimen) }),
         }),
         fetch('/api/calculadora/importacion', {
           method: 'POST',
@@ -74,6 +74,7 @@ export default function ImportarClient({ paises }) {
             flete_internacional: Number(d.flete) || 0,
             pais_origen: d.origen,
             condicion_iva: 'responsable_inscripto',
+            regimen: d.regimen ?? null,
             ...(d.peso ? { peso_kg: Number(d.peso) } : {}),
             modo: d.modo ?? 'maritimo',
           }),
@@ -101,6 +102,7 @@ export default function ImportarClient({ paises }) {
     if (!ncm || !pais || !valor) return
     const origenNombre = paises.find(p => p.iso3 === pais)?.name_es ?? pais
     const flete = searchParams.get('flete') || ''
+    const regimen = searchParams.get('regimen') || 'courier_personal'
     ;(async () => {
       let ncmDescripcion = `NCM ${ncm}`
       try {
@@ -108,7 +110,7 @@ export default function ImportarClient({ paises }) {
         const arr = await r.json()
         if (Array.isArray(arr) && arr[0]?.description) ncmDescripcion = arr[0].description
       } catch {}
-      generar({ ncm, ncmDescripcion, origen: pais, origenNombre, valor, flete })
+      generar({ ncm, ncmDescripcion, origen: pais, origenNombre, valor, flete, regimen })
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -356,6 +358,16 @@ const MODOS_ENVIO = [
   { key: 'aereo',    label: 'Aéreo' },
 ]
 
+const OPCIONES_REGIMEN = [
+  { key: 'courier_personal',  label: 'Courier — uso personal',            help: 'Franquicia USD 400, hasta USD 3.000. La opción más común.' },
+  { key: 'courier_comercial', label: 'Courier — empresa',                 help: 'E-commerce/empresa, hasta USD 3.000. Sin franquicia.' },
+  { key: 'general',           label: 'Despacho formal (Régimen General)', help: 'Importación formal con despachante, sin tope de valor.' },
+]
+
+// Maps the UI regime key to the simulador REGIMENES_VALIDOS values.
+// Simulador accepts 'general' and 'courier', not the specific courier sub-types.
+const mapSimulador = (r) => r === 'general' ? 'general' : 'courier'
+
 function ValueStep({ data, patch, onSubmit, generando, error }) {
   const valido = Number(data.valor) > 0
 
@@ -401,6 +413,29 @@ function ValueStep({ data, patch, onSubmit, generando, error }) {
                 }`}
               >
                 {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block font-body text-xs text-on-surface-variant mb-1.5">
+            Régimen de importación
+          </label>
+          <div className="flex flex-col gap-2">
+            {OPCIONES_REGIMEN.map(op => (
+              <button
+                key={op.key}
+                type="button"
+                onClick={() => patch({ regimen: op.key })}
+                className={`w-full text-left px-4 py-3 rounded-md font-body text-sm border transition-colors cursor-pointer ${
+                  data.regimen === op.key
+                    ? 'bg-surface-highest border-on-surface text-on-surface font-medium'
+                    : 'bg-surface-1 border-hairline text-on-surface-variant hover:border-ink-tertiary'
+                }`}
+              >
+                <span className="block">{op.label}</span>
+                <span className="block font-body text-xs text-ink-subtle mt-0.5">{op.help}</span>
               </button>
             ))}
           </div>

@@ -10,6 +10,13 @@ const DISCLAIMER =
   'Esta información es orientativa y está respaldada por fuentes oficiales. Para operaciones concretas, ' +
   'consultá con un despachante de aduana matriculado o un profesional de comercio exterior.'
 
+const LABEL_REGIMEN = {
+  courier_personal:  'Courier — uso personal',
+  courier_comercial: 'Courier — empresa',
+  puerta_a_puerta:   'Courier — puerta a puerta',
+  general:           'Despacho formal (Régimen General)',
+}
+
 // Formatea un número como "USD X.XXX" redondeado al entero más cercano.
 function usd(n) {
   if (n === null || n === undefined || Number.isNaN(Number(n))) return '—'
@@ -295,6 +302,7 @@ export default function ImportReport({ report, paises = [], onReset }) {
   function copiarLink() {
     const params = new URLSearchParams({ ncm: meta.ncm, pais: meta.origen, valor: String(meta.valor) })
     if (meta.flete) params.set('flete', String(meta.flete))
+    params.set('regimen', meta.regimen ?? 'courier_personal')
     const url = `${window.location.origin}/importar?${params.toString()}`
     navigator.clipboard?.writeText(url)
       .then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 2000) })
@@ -328,16 +336,20 @@ export default function ImportReport({ report, paises = [], onReset }) {
     }
   }
 
-  const general = calc?.regimenes?.general ?? null
+  // Support both regimen_unico (single-regime flow) and the legacy multi-regime shape
+  // (comparador / origin comparison depend on calc.regimenes.general — never change that path).
+  const resultado = calc?.regimen_unico ? calc.resultado : (calc?.regimenes?.general ?? null)
+  const regimenActivo = calc?.regimen ?? null
+
   const base = calc?.valores_base ?? {}
   const logistica = calc?.logistica ?? null
   const fleteEstimado = base.flete_estimado ?? false
-  const costoSinLogistica = general?.costo_total ?? null
+  const costoSinLogistica = resultado?.costo_total ?? null
   // Costo total puesto en Argentina = CIF + tributos + logística estimada.
   const costoTotal = costoSinLogistica !== null
     ? costoSinLogistica + (Number(logistica?.total) || 0)
     : null
-  const tributos = general?.total_tributos ?? null
+  const tributos = resultado?.total_tributos ?? null
   const fob = base.fob ?? Number(meta.valor) ?? 0
   const cif = base.cif ?? null
   const fleteSeguro = cif !== null ? Math.max(0, cif - fob) : null
@@ -347,7 +359,7 @@ export default function ImportReport({ report, paises = [], onReset }) {
   const docsCriticos = sim?.documentos?.criticos ?? []
   const docsImportantes = sim?.documentos?.importantes ?? []
   const prefs = sim?.preferencias ?? {}
-  const desglose = general?.desglose ?? null
+  const desglose = resultado?.desglose ?? null
 
   return (
     /*
@@ -369,6 +381,11 @@ export default function ImportReport({ report, paises = [], onReset }) {
           <span className="font-body text-sm text-on-surface-variant">
             desde {meta.origenNombre} · <span className="font-mono">{`USD ${Number(meta.valor).toLocaleString('es-AR')}`}</span>
           </span>
+          {regimenActivo && LABEL_REGIMEN[regimenActivo] && (
+            <span className="inline-flex items-center font-body text-xs text-on-surface-variant bg-surface-2 rounded-sm px-2.5 py-1">
+              {LABEL_REGIMEN[regimenActivo]}
+            </span>
+          )}
         </div>
 
         {/* Referencia de tránsito — estático, el flujo todavía no captura el modo */}
