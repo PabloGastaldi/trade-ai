@@ -145,6 +145,59 @@ describe('Courier Comercial', () => {
   })
 })
 
+describe('Courier — flete FedEx puerta a puerta', () => {
+  it('USA (zona C) 5 kg → flete ≈ USD 672.80 e incluido en el costo total', async () => {
+    const result = await calcularImportacion(makeSupabase(), {
+      ...BASE_PARAMS,
+      pais_origen_iso3: 'USA',
+      valor_fob: 1000,
+      peso_kg: 5,
+      regimen: 'courier_comercial',
+    })
+    expect(result.valores_base.flete).toBeCloseTo(672.8, 1)
+    const { cif } = result.valores_base
+    const { costo_total, total_tributos } = result.resultado
+    // El total ahora es CIF + tributos (el envío entra en el total)
+    expect(costo_total).toBeCloseTo(cif + total_tributos, 1)
+    // y supera FOB + tributos (antes el envío quedaba afuera)
+    expect(costo_total).toBeGreaterThan(1000 + total_tributos)
+  })
+
+  it('China (zona G) 10 kg → flete ≈ USD 1.321.40 (tabla real)', async () => {
+    const result = await calcularImportacion(makeSupabase(), {
+      ...BASE_PARAMS,
+      pais_origen_iso3: 'CHN',
+      valor_fob: 1500,
+      peso_kg: 10,
+      regimen: 'courier_comercial',
+    })
+    expect(result.valores_base.flete).toBeCloseTo(1321.4, 1)
+  })
+
+  it('sin peso → estima con peso default y deja nota', async () => {
+    const result = await calcularImportacion(makeSupabase(), {
+      ...BASE_PARAMS,
+      pais_origen_iso3: 'BRA',
+      valor_fob: 800,
+      regimen: 'courier_personal',
+    })
+    expect(result.valores_base.flete).toBeGreaterThan(0)
+    expect(result.valores_base.flete_estimado).toBe(true)
+    expect(result.notas.some(n => n.toLowerCase().includes('courier'))).toBe(true)
+  })
+
+  it('origen no mapeado → cae a zona default sin romper', async () => {
+    const result = await calcularImportacion(makeSupabase(), {
+      ...BASE_PARAMS,
+      pais_origen_iso3: 'ZZZ',
+      valor_fob: 500,
+      peso_kg: 2,
+      regimen: 'courier_personal',
+    })
+    expect(result.valores_base.flete).toBeGreaterThan(0)
+  })
+})
+
 describe('Régimen General', () => {
   it('regimen:general returns regimen_unico:true with percepciones for RI', async () => {
     const result = await calcularImportacion(makeSupabase(), {
