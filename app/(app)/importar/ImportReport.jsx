@@ -53,7 +53,7 @@ const LABELS_TRIBUTO = {
  *
  * Se oculta sin romper si falta `desglose` (ej. resultado de régimen courier).
  */
-function EntendeTusCostos({ desglose, valoresBase, logistica }) {
+function EntendeTusCostos({ desglose, valoresBase, logistica, esCourier }) {
   if (!desglose || !valoresBase) return null
 
   const fob = Number(valoresBase.fob) || 0
@@ -112,7 +112,9 @@ function EntendeTusCostos({ desglose, valoresBase, logistica }) {
       <p className="font-body text-[11px] text-ink-subtle leading-relaxed mt-4">
         {logistica
           ? 'Incluye gastos portuarios, despachante, flete interno y gastos bancarios estimados — ver el desglose de logística más abajo.'
-          : 'No incluye gastos portuarios ni de despachante — los sumamos en una mejora siguiente.'}
+          : esCourier
+            ? 'El courier es puerta a puerta: la tarifa del operador ya cubre el transporte. No hay despachante ni gastos portuarios.'
+            : 'No incluye gastos portuarios ni de despachante — los sumamos en una mejora siguiente.'}
       </p>
     </div>
   )
@@ -228,7 +230,7 @@ function TributosCard({ desglose, total }) {
  * Si prefers-reduced-motion está activo, muestra el valor final directo.
  * Usa font-display (Inter 500) para el número hero y font-mono para el detalle.
  */
-function CostHero({ costoTotal, fob, fleteSeguro, tributos }) {
+function CostHero({ costoTotal, fob, fleteSeguro, tributos, esCourier }) {
   const [displayed, setDisplayed] = useState(null)
   const rafRef = useRef(null)
   const prefersReduced = useRef(
@@ -282,7 +284,7 @@ function CostHero({ costoTotal, fob, fleteSeguro, tributos }) {
       <div className="flex flex-wrap gap-x-6 gap-y-2 font-body text-xs text-on-surface-variant">
         <span>Mercadería <span className="font-mono text-on-surface">{usd(fob)}</span></span>
         {fleteSeguro !== null && (
-          <span>Flete + seguro <span className="font-mono text-on-surface">{usd(fleteSeguro)}</span></span>
+          <span>{esCourier ? 'Envío (courier)' : 'Flete + seguro'} <span className="font-mono text-on-surface">{usd(fleteSeguro)}</span></span>
         )}
         <span>Impuestos <span className="font-mono text-on-surface">{usd(tributos)}</span></span>
       </div>
@@ -340,6 +342,7 @@ export default function ImportReport({ report, paises = [], onReset }) {
   // (comparador / origin comparison depend on calc.regimenes.general — never change that path).
   const resultado = calc?.regimen_unico ? calc.resultado : (calc?.regimenes?.general ?? null)
   const regimenActivo = calc?.regimen ?? null
+  const esCourier = ['courier_comercial', 'courier_personal', 'puerta_a_puerta'].includes(regimenActivo)
 
   const base = calc?.valores_base ?? {}
   const logistica = calc?.logistica ?? null
@@ -402,11 +405,12 @@ export default function ImportReport({ report, paises = [], onReset }) {
             fob={fob}
             fleteSeguro={fleteSeguro}
             tributos={tributos}
+            esCourier={esCourier}
           />
         </div>
 
         {/* 1b. Entendé tus costos — separa costo real de crédito fiscal recuperable */}
-        <EntendeTusCostos desglose={desglose} valoresBase={base} logistica={logistica} />
+        <EntendeTusCostos desglose={desglose} valoresBase={base} logistica={logistica} esCourier={esCourier} />
 
         {/* 1c. + Logística — flete/seguro internacional + ítems estimados post-CIF */}
         <LogisticaCard logistica={logistica} fleteSeguro={fleteSeguro} fleteEstimado={fleteEstimado} />
