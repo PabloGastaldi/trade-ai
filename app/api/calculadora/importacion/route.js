@@ -63,10 +63,12 @@ export async function POST(request) {
       return NextResponse.json({ ok: false, error: resultado.error }, { status: 400 })
     }
 
-    // Logística post-CIF: estimación de plaza, swappable a futuro por cotización en vivo.
-    // Se omite con seguridad si falta valores_base (ej. error inesperado del motor).
+    // Logística post-CIF (gastos portuarios, despachante, flete interno, bancarios):
+    // SOLO aplica al régimen general (despacho formal). El courier es puerta a puerta —
+    // la tarifa del operador ya cubre el transporte y no hay despachante ni gastos portuarios.
+    const esCourierRegimen = regimen === 'courier_comercial' || regimen === 'courier_personal' || regimen === 'puerta_a_puerta'
     let logistica = null
-    if (resultado.valores_base) {
+    if (resultado.valores_base && !esCourierRegimen) {
       logistica = estimarLogistica({
         fob: valor_fob,
         cif: resultado.valores_base.cif,
