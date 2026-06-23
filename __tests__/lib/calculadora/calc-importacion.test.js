@@ -155,6 +155,7 @@ describe('Courier — flete consolidador puerta a puerta', () => {
       regimen: 'courier_comercial',
     })
     expect(result.valores_base.flete).toBeCloseTo(500, 1)   // 25/kg × 20
+    expect(result.valores_base.flete_usd_kg).toBe(25)       // rate expuesto para la nota del informe
     const { cif } = result.valores_base
     const { costo_total, total_tributos } = result.resultado
     // El total ahora es CIF + tributos (el envío entra en el total)

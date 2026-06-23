@@ -407,6 +407,11 @@ export default function ImportReport({ report, paises = [], onReset }) {
             tributos={tributos}
             esCourier={esCourier}
           />
+          {esCourier && base.flete_usd_kg && (
+            <p className="font-body text-[11px] text-ink-subtle leading-relaxed mt-4">
+              Envío estimado a USD {base.flete_usd_kg}/kg (tarifa de consolidador puerta a puerta). El valor real lo define el operador (DHL, FedEx, etc.).
+            </p>
+          )}
         </div>
 
         {/* 1b. Entendé tus costos — separa costo real de crédito fiscal recuperable */}
